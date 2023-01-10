@@ -85,6 +85,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     DRIVE,
     DRIVE_ANGLE,
     DEFENSE,
+    BALANCE
   }
 
   /** The current mode */
@@ -94,6 +95,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
   private final SwerveModule[] swerveModules;
 
   private final PIDController rotController;
+  private final PIDController balController;
 
   private double targetAngle = 0; // default target angle to zero
 
@@ -173,12 +175,17 @@ public class DrivebaseSubsystem extends SubsystemBase {
     rotController = new PIDController(0.03, 0.001, 0.003);
     rotController.setSetpoint(0);
     rotController.setTolerance(ANGULAR_ERROR); // degrees error
+    balController = new PIDController(0.1, 0, 0.8);
     // tune pid with:
     // tab.add(rotController);
 
     swerveOdometry = new SwerveDriveOdometry(kinematics, navx.getRotation2d());
 
     zeroGyroscope();
+
+    tab.addNumber("Pitch angle", navx::getPitch);
+
+    tab.addNumber("Roll angle", navx::getRoll);
 
     // tab.addNumber("target angle", () -> targetAngle);
     // tab.addNumber("current angle", () -> getGyroscopeRotation().getDegrees());
@@ -337,6 +344,13 @@ public class DrivebaseSubsystem extends SubsystemBase {
     // No need to call odometry periodic
   }
 
+  private void balancePeriodic() {
+    double pitchAngle = navx.getPitch();
+    Rotation2d pitchRotation = Rotation2d.fromDegrees(pitchAngle);
+    double rollAngle = navx.getRoll();
+    Rotation2d yawRotation = Rotation2d.fromDegrees(rollAngle);
+  }
+
   /**
    * Based on the current Mode of the drivebase, perform the mode-specific logic such as writing
    * outputs (may vary per mode).
@@ -354,6 +368,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
         break;
       case DEFENSE:
         defensePeriodic();
+        break;
+      case BALANCE:
+        balancePeriodic();
         break;
     }
   }
