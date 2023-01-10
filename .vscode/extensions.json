@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "richardwillis.vscode-spotless-gradle",
+    "wpilibsuite.vscode-wpilib",
+    "streetsidesoftware.code-spell-checker",
+    "vscjava.vscode-gradle",
+    "redhat.java",
+    "sonarsource.sonarlint-vscode"
+  ]
+}

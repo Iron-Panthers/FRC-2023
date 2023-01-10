@@ -1,0 +1,43 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "gradle",
+      "id": "gradebuild",
+      "script": "build",
+      "description": "Assembles and tests this project.",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "project": "FRC-2022",
+      "buildFile": "build.gradle",
+      "rootProject": "FRC-2022",
+      "projectFolder": "${workspaceRoot}",
+      "workspaceFolder": "${workspaceRoot}",
+      "args": "",
+      "javaDebug": false,
+      "problemMatcher": ["$gradle"],
+      "label": "gradle: build"
+    },
+    {
+      "type": "gradle",
+      "id": "/home/isaacr/Repos/FRC-2022deployFRC-2022",
+      "script": "deploy",
+      "description": "Deploy all artifacts on all targets",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "project": "FRC-2022",
+      "buildFile": "/home/isaacr/Repos/FRC-2022/build.gradle",
+      "rootProject": "FRC-2022",
+      "projectFolder": "/home/isaacr/Repos/FRC-2022",
+      "workspaceFolder": "/home/isaacr/Repos/FRC-2022",
+      "args": "",
+      "javaDebug": false,
+      "problemMatcher": ["$gradle"],
+      "label": "gradle: deploy"
+    }
+  ]
+}

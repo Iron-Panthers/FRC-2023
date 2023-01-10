@@ -1,0 +1,55 @@
+{
+  "java.format.enabled": false,
+  "files.trimTrailingWhitespace": false,
+
+  "spotlessGradle.format.enable": true,
+  "spotlessGradle.diagnostics.enable": true,
+  "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.spotlessGradle": true
+  },
+
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.server.launchMode": "Standard",
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "bin/": true,
+    "**/.classpath": true,
+    "**/.project": true,
+    "**/.settings": true,
+    "**/.factorypath": true,
+    "**/*~": true
+  },
+  "java.test.config": [
+    {
+      "name": "WPIlibUnitTests",
+      "workingDirectory": "${workspaceFolder}/build/jni/release",
+      "vmargs": ["-Djava.library.path=${workspaceFolder}/build/jni/release"],
+      "env": {
+        "LD_LIBRARY_PATH": "${workspaceFolder}/build/jni/release",
+        "DYLD_LIBRARY_PATH": "${workspaceFolder}/build/jni/release"
+      }
+    }
+  ],
+  "java.test.defaultConfig": "WPIlibUnitTests",
+  "cSpell.words": [
+    "AHRS",
+    "Deadband",
+    "deadbanded",
+    "drivebase",
+    "Hardstop",
+    "Holonomic",
+    "Mockito",
+    "navx",
+    "Odometry",
+    "setpoint",
+    "Setpoints",
+    "teleop",
+    "teleoperated",
+    "TRACKWIDTH"
+  ]
+}
