@@ -136,7 +136,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     final SwerveModule frontRightModule =
         createModule(
             "Front Right Module #1",
-            0,
+            1,
             Modules.FrontRight.DRIVE_MOTOR,
             Modules.FrontRight.STEER_MOTOR,
             Modules.FrontRight.STEER_ENCODER,
@@ -145,7 +145,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     final SwerveModule frontLeftModule =
         createModule(
             "Front Left Module #2",
-            1,
+            0,
             Modules.FrontLeft.DRIVE_MOTOR,
             Modules.FrontLeft.STEER_MOTOR,
             Modules.FrontLeft.STEER_ENCODER,
@@ -349,6 +349,12 @@ public class DrivebaseSubsystem extends SubsystemBase {
     Rotation2d pitchRotation = Rotation2d.fromDegrees(pitchAngle);
     double rollAngle = navx.getRoll();
     Rotation2d yawRotation = Rotation2d.fromDegrees(rollAngle);
+    SwerveModuleState[] states = kinematics.toSwerveModuleStates(chassisSpeeds);
+    for (int i = 0; i < swerveModules.length; i++) {
+      swerveModules[i].set(
+          states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
+          states[i].angle.getRadians() * pitchAngle);
+    }
   }
 
   /**
