@@ -283,6 +283,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
     mode = Modes.DEFENSE;
   }
 
+  public void setBalanceMode() {
+    mode = Modes.BALANCE;
+  }
+
   /**
    * Updates the robot pose estimation for newly written module states. Should be called everytime
    * outputs are written to the modules.
@@ -348,12 +352,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
     double pitchAngle = navx.getPitch();
     Rotation2d pitchRotation = Rotation2d.fromDegrees(pitchAngle);
     double rollAngle = navx.getRoll();
-    Rotation2d yawRotation = Rotation2d.fromDegrees(rollAngle);
+    Rotation2d rollRotation = Rotation2d.fromDegrees(rollAngle);
     SwerveModuleState[] states = kinematics.toSwerveModuleStates(chassisSpeeds);
     for (int i = 0; i < swerveModules.length; i++) {
-      swerveModules[i].set(
-          states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
-          states[i].angle.getRadians() * pitchAngle);
+      // swerveModules[i].set(
+      //     states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
+      //     states[i].angle.getRadians() * 45);
+      System.out.println(
+          states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE);
+      System.out.println(states[i].angle.getRadians() * 45);
     }
   }
 
