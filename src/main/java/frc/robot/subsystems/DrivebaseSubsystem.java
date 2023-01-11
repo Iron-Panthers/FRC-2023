@@ -355,13 +355,14 @@ public class DrivebaseSubsystem extends SubsystemBase {
     Rotation2d rollRotation = Rotation2d.fromDegrees(rollAngle);
     SwerveModuleState[] states = kinematics.toSwerveModuleStates(chassisSpeeds);
     for (int i = 0; i < swerveModules.length; i++) {
-      // swerveModules[i].set(
-      //     states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
-      //     states[i].angle.getRadians() * 45);
-      System.out.println(
-          states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE);
-      System.out.println(states[i].angle.getRadians() * 45);
+      DrivebaseSubsystem.balance(
+          new ChassisSpeeds(0, balController.calculate(-pitchAngle), states[i].angle.getRadians()));
     }
+  }
+
+  public void balance(ChassisSpeeds chassisSpeeds) {
+    this.mode = Modes.BALANCE;
+    this.chassisSpeeds = chassisSpeeds;
   }
 
   /**
