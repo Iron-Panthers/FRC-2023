@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import frc.robot.autonomous.commands.AutoTestSequence;
+import frc.robot.commands.BalanceModeCommand;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
@@ -101,7 +102,7 @@ public class RobotContainer {
     new Button(will::getStartButton)
         .whenPressed(new InstantCommand(drivebaseSubsystem::zeroGyroscope, drivebaseSubsystem));
     new Button(will::getLeftBumper).whenHeld(new DefenseModeCommand(drivebaseSubsystem));
-
+    new Button(will::getRightBumper).whenHeld(new BalanceModeCommand(drivebaseSubsystem));
     new Button(will::getLeftStickButton)
         .whenPressed(new HaltDriveCommandsCommand(drivebaseSubsystem));
 
