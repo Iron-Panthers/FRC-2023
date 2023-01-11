@@ -7,9 +7,13 @@ package frc.robot;
 import static frc.util.MacUtil.IS_COMP_BOT;
 
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 
 @SuppressWarnings("java:S1118")
 /**
@@ -119,5 +123,43 @@ public final class Constants {
               new Translation3d(-Drive.Dims.WHEELBASE_METERS / 2.0, 0, LIMELIGHT_CLUSTER_HEIGHT),
               new Rotation3d(0, 0, Math.PI));
     }
+  }
+
+  public static final class PoseEstimator {
+    /**
+     * Standard deviations of model states. Increase these numbers to trust your model's state
+     * estimates less. This matrix is in the form [x, y, theta]ᵀ, with units in meters and radians.
+     */
+    public static final Matrix<N3, N1> STATE_STANDARD_DEVIATIONS =
+        Matrix.mat(Nat.N3(), Nat.N1())
+            .fill(
+                0.02, // x
+                0.02, // y
+                0.02 // theta
+                );
+
+    /**
+     * Standard deviations of the encoder and gyro measurements. Increase these numbers to trust
+     * sensor readings from encoders and gyros less. This matrix is in the form [theta], with units
+     * in radians.
+     */
+    public static final Matrix<N1, N1> LOCAL_MEASUREMENT_STANDARD_DEVIATIONS =
+        Matrix.mat(Nat.N1(), Nat.N1())
+            .fill(
+                .02 // theta
+                );
+
+    /**
+     * Standard deviations of the vision measurements. Increase these numbers to trust global
+     * measurements from vision less. This matrix is in the form [x, y, theta]ᵀ, with units in
+     * meters and radians.
+     */
+    public static final Matrix<N3, N1> VISION_MEASUREMENT_STANDARD_DEVIATIONS =
+        Matrix.mat(Nat.N3(), Nat.N1())
+            .fill(
+                0.005, // x
+                0.005, // y
+                0.005 // theta
+                );
   }
 }

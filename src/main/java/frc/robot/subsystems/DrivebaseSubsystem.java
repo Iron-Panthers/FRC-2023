@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.PoseEstimator;
 import frc.util.AdvancedSwerveTrajectoryFollower;
 import frc.util.Util;
 import java.util.Optional;
@@ -180,7 +181,12 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     swervePoseEstimator =
         new SwerveDrivePoseEstimator(
-            getGyroscopeRotation(), new Pose2d(), kinematics, null, null, null);
+            getGyroscopeRotation(),
+            new Pose2d(),
+            kinematics,
+            PoseEstimator.STATE_STANDARD_DEVIATIONS,
+            PoseEstimator.LOCAL_MEASUREMENT_STANDARD_DEVIATIONS,
+            PoseEstimator.VISION_MEASUREMENT_STANDARD_DEVIATIONS);
 
     zeroGyroscope();
 
@@ -296,6 +302,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
     var cameraPoseSome = cameraPose.get();
 
     swervePoseEstimator.addVisionMeasurement(cameraPoseSome.getFirst(), cameraPoseSome.getSecond());
+
+    System.out.println(
+        "Vision measurement "
+            + cameraPoseSome.getFirst().toString()
+            + " from "
+            + cameraPoseSome.getSecond()
+            + " at time "
+            + Timer.getFPGATimestamp()
+            + " added to pose estimator");
   }
 
   private void drivePeriodic() {
