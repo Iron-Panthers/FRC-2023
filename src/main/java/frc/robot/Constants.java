@@ -7,6 +7,9 @@ package frc.robot;
 import static frc.util.MacUtil.IS_COMP_BOT;
 
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 
 @SuppressWarnings("java:S1118")
 /**
@@ -93,6 +96,28 @@ public final class Constants {
                 ? -Math.toRadians(61.26) // comp bot offset
                 : -Math.toRadians(61.3476); // practice bot offset
       }
+    }
+  }
+
+  public static final class Vision {
+    public static final double LIMELIGHT_CLUSTER_HEIGHT = .5;
+
+    public static final class FrontCam {
+      public static final String NAME = "FrontCam";
+      /** Cam mounted facing forward, centered, at the back of the robot */
+      public static final Transform3d ROBOT_TO_CAM =
+          new Transform3d(
+              new Translation3d(Drive.Dims.WHEELBASE_METERS / 2.0, 0, LIMELIGHT_CLUSTER_HEIGHT),
+              new Rotation3d(0, 0, 0));
+    }
+
+    public static final class BackCam {
+      public static final String NAME = "BackCam";
+      /** Cam mounted facing backward, centered, at the front of the robot */
+      public static final Transform3d ROBOT_TO_CAM =
+          new Transform3d(
+              new Translation3d(-Drive.Dims.WHEELBASE_METERS / 2.0, 0, LIMELIGHT_CLUSTER_HEIGHT),
+              new Rotation3d(0, 0, Math.PI));
     }
   }
 }
