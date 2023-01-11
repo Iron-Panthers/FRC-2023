@@ -31,9 +31,9 @@ public class VisionSubsystem {
     }
   }
 
-  final VisionSource frontCam =
+  private final VisionSource frontCam =
       new VisionSource(new PhotonCamera(Vision.FrontCam.NAME), Vision.FrontCam.ROBOT_TO_CAM);
-  final VisionSource backCam =
+  private final VisionSource backCam =
       new VisionSource(new PhotonCamera(Vision.BackCam.NAME), Vision.BackCam.ROBOT_TO_CAM);
 
   RobotPoseEstimator poseEstimator;

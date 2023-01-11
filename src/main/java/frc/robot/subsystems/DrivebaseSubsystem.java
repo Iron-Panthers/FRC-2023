@@ -13,12 +13,12 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.SPI;
@@ -70,7 +70,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
           new Translation2d(-Dims.TRACKWIDTH_METERS / 2.0, -Dims.WHEELBASE_METERS / 2.0));
 
   /** The SwerveDriveOdometry class allows us to estimate the robot's "pose" over time. */
-  private final SwerveDriveOdometry swerveOdometry;
+  private final SwerveDrivePoseEstimator swervePoseEstimator;
+
+  private final VisionSubsystem visionSubsystem = new VisionSubsystem();
 
   /**
    * Keeps track of the current estimated pose (x,y,theta) of the robot, as estimated by odometry.
@@ -176,7 +178,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
     // tune pid with:
     // tab.add(rotController);
 
-    swerveOdometry = new SwerveDriveOdometry(kinematics, navx.getRotation2d());
+    swervePoseEstimator =
+        new SwerveDrivePoseEstimator(
+            getGyroscopeRotation(), new Pose2d(), kinematics, null, null, null);
 
     zeroGyroscope();
 
@@ -214,7 +218,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     navx.setAngleAdjustment(0);
 
     navx.setAngleAdjustment(getGyroscopeRotation().minus(pose.getRotation()).getDegrees());
-    swerveOdometry.resetPosition(pose, getGyroscopeRotation());
+    swervePoseEstimator.resetPosition(pose, getGyroscopeRotation());
   }
 
   public Rotation2d getGyroscopeRotation() {
@@ -283,8 +287,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
    * @param moduleStatesWritten The outputs that you have just written to the modules.
    */
   private void odometryPeriodic(SwerveModuleState[] moduleStatesWritten) {
-    this.robotPose = swerveOdometry.update(getGyroscopeRotation(), moduleStatesWritten);
-    // SmartDashboard.putString("robot_pose", robotPose.toString());
+    this.robotPose = swervePoseEstimator.update(getGyroscopeRotation(), moduleStatesWritten);
+
+    Optional<Pair<Pose2d, Double>> cameraPose = visionSubsystem.getEstimatedGlobalPose(robotPose);
+
+    if (!cameraPose.isPresent()) return;
+
+    var cameraPoseSome = cameraPose.get();
+
+    swervePoseEstimator.addVisionMeasurement(cameraPoseSome.getFirst(), cameraPoseSome.getSecond());
   }
 
   private void drivePeriodic() {
