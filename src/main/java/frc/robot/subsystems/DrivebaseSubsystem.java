@@ -134,7 +134,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     final SwerveModule frontRightModule =
         createModule(
             "Front Right Module #1",
-            1,
+            0,
             Modules.FrontRight.DRIVE_MOTOR,
             Modules.FrontRight.STEER_MOTOR,
             Modules.FrontRight.STEER_ENCODER,
@@ -143,7 +143,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     final SwerveModule frontLeftModule =
         createModule(
             "Front Left Module #2",
-            0,
+            1,
             Modules.FrontLeft.DRIVE_MOTOR,
             Modules.FrontLeft.STEER_MOTOR,
             Modules.FrontLeft.STEER_ENCODER,
