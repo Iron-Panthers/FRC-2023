@@ -38,11 +38,11 @@ import java.util.Optional;
 public class DrivebaseSubsystem extends SubsystemBase {
   private final AdvancedSwerveTrajectoryFollower follower =
       new AdvancedSwerveTrajectoryFollower(
-          new PIDController(0.4, 0.0 + .1, 0.025),
-          new PIDController(0.4, 0.0 + .1, 0.025),
+          new PIDController(0.4, 0.0, 0.025),
+          new PIDController(0.4, 0.0, 0.025),
           new ProfiledPIDController(
               // FIXME: RETUNE WITH CARPET NOT LINOLEUM
-              .147 * 2,
+              .147,
               0,
               0,
               new TrapezoidProfile.Constraints(
@@ -321,14 +321,14 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     swervePoseEstimator.addVisionMeasurement(cameraPoseSome.getFirst(), cameraPoseSome.getSecond());
 
-    System.out.println(
-        "Vision measurement "
-            + cameraPoseSome.getFirst().toString()
-            + " from "
-            + cameraPoseSome.getSecond()
-            + " at time "
-            + Timer.getFPGATimestamp()
-            + " added to pose estimator");
+    // System.out.println(
+    //     "Vision measurement "
+    //         + cameraPoseSome.getFirst().toString()
+    //         + " from "
+    //         + cameraPoseSome.getSecond()
+    //         + " at time "
+    //         + Timer.getFPGATimestamp()
+    //         + " added to pose estimator");
   }
 
   private void drivePeriodic() {
