@@ -27,6 +27,8 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.PoseEstimator;
 import frc.util.AdvancedSwerveTrajectoryFollower;
@@ -93,6 +95,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
   /** The current mode */
   private Modes mode = Modes.DRIVE;
+
+  private Field2d field = new Field2d();
 
   /** Contains each swerve module. Order: FR, FL, BL, BR. Or in Quadrants: I, II, III, IV */
   private final SwerveModule[] swerveModules;
@@ -190,6 +194,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
             PoseEstimator.VISION_MEASUREMENT_STANDARD_DEVIATIONS);
 
     zeroGyroscope();
+
+    SmartDashboard.putData(this.field);
 
     // tab.addNumber("target angle", () -> targetAngle);
     // tab.addNumber("current angle", () -> getGyroscopeRotation().getDegrees());
@@ -407,6 +413,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
     /* get the current set-points for the drivetrain */
     Modes currentMode = getMode();
     Pose2d pose = getPose();
+
+    field.setRobotPose(swervePoseEstimator.getEstimatedPosition());
 
     /*
      * See if there is a new drive signal from the trajectory follower object.

@@ -8,6 +8,9 @@ import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPoint;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.DrivebaseSubsystem;
 
@@ -16,11 +19,11 @@ import frc.robot.subsystems.DrivebaseSubsystem;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class DriveToPlaceCommand extends InstantCommand {
   private final DrivebaseSubsystem drivebaseSubsystem;
-  private final PathPoint pathPoint;
+  private final Translation2d translation2d;
 
-  public DriveToPlaceCommand(DrivebaseSubsystem drivebaseSubsystem, PathPoint pathPoint) {
+  public DriveToPlaceCommand(DrivebaseSubsystem drivebaseSubsystem, Translation2d translation2d) {
     this.drivebaseSubsystem = drivebaseSubsystem;
-    this.pathPoint = pathPoint;
+    this.translation2d = translation2d;
   }
 
   // Called when the command is initially scheduled.
@@ -29,10 +32,16 @@ public class DriveToPlaceCommand extends InstantCommand {
     PathPlannerTrajectory trajectory =
         PathPlanner.generatePath(
             new PathConstraints(3, 3),
+            // start point
             new PathPoint(
                 drivebaseSubsystem.getPose().getTranslation(),
+                Rotation2d.fromDegrees(0),
                 drivebaseSubsystem.getGyroscopeRotation()),
-            pathPoint);
-    this.andThen(new FollowTrajectoryCommand(trajectory, drivebaseSubsystem));
+            new PathPoint(
+                translation2d,
+                Rotation2d.fromDegrees(0),
+                drivebaseSubsystem.getGyroscopeRotation()));
+    CommandScheduler.getInstance()
+        .schedule((new FollowTrajectoryCommand(trajectory, drivebaseSubsystem)));
   }
 }

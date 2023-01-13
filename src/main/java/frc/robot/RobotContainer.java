@@ -6,8 +6,6 @@ package frc.robot;
 
 import static frc.robot.Constants.Drive;
 
-import com.pathplanner.lib.PathPoint;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -148,9 +146,7 @@ public class RobotContainer {
 
     // inline command to generate path on the fly that drives to 5,5 at heading zero
     new Button(will::getBButton)
-        .whenPressed(
-            new DriveToPlaceCommand(
-                drivebaseSubsystem, new PathPoint(new Translation2d(1.5, 1.5), new Rotation2d(0))));
+        .whenPressed(new DriveToPlaceCommand(drivebaseSubsystem, new Translation2d(1.5, 1.5)));
   }
 
   /**

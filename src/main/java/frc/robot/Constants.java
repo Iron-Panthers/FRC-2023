@@ -107,7 +107,7 @@ public final class Constants {
     public static final double LIMELIGHT_CLUSTER_HEIGHT = 0.3048;
 
     public static final class FrontCam {
-      public static final String NAME = "FrontCam";
+      public static final String NAME = "frontCam";
       /** Cam mounted facing forward, centered, at the back of the robot */
       public static final Transform3d ROBOT_TO_CAM =
           new Transform3d(
@@ -115,7 +115,7 @@ public final class Constants {
     }
 
     public static final class BackCam {
-      public static final String NAME = "BackCam";
+      public static final String NAME = "backCam";
       /** Cam mounted facing backward, centered, at the front of the robot */
       public static final Transform3d ROBOT_TO_CAM =
           new Transform3d(
@@ -145,9 +145,9 @@ public final class Constants {
     public static final Matrix<N3, N1> VISION_MEASUREMENT_STANDARD_DEVIATIONS =
         Matrix.mat(Nat.N3(), Nat.N1())
             .fill(
-                0.005, // x
-                0.005, // y
-                0.005 // theta
+                1, // x
+                1, // y
+                10 // theta
                 );
   }
 }

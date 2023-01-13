@@ -46,7 +46,7 @@ public class VisionSubsystem {
     // Set up a test arena of two apriltags at the center of each driver station set
     final AprilTag tag18 =
         new AprilTag(
-            02,
+            0,
             new Pose3d(
                 new Pose2d(
                     TEST_SPACE_LENGTH, TEST_SPACE_WIDTH / 2.0, Rotation2d.fromDegrees(180))));
