@@ -104,15 +104,14 @@ public final class Constants {
   }
 
   public static final class Vision {
-    public static final double LIMELIGHT_CLUSTER_HEIGHT = .5;
+    public static final double LIMELIGHT_CLUSTER_HEIGHT = 0.3048;
 
     public static final class FrontCam {
       public static final String NAME = "FrontCam";
       /** Cam mounted facing forward, centered, at the back of the robot */
       public static final Transform3d ROBOT_TO_CAM =
           new Transform3d(
-              new Translation3d(Drive.Dims.WHEELBASE_METERS / 2.0, 0, LIMELIGHT_CLUSTER_HEIGHT),
-              new Rotation3d(0, 0, 0));
+              new Translation3d(-0.2248, 0, LIMELIGHT_CLUSTER_HEIGHT), new Rotation3d(0, 0, 0));
     }
 
     public static final class BackCam {
@@ -120,7 +119,7 @@ public final class Constants {
       /** Cam mounted facing backward, centered, at the front of the robot */
       public static final Transform3d ROBOT_TO_CAM =
           new Transform3d(
-              new Translation3d(-Drive.Dims.WHEELBASE_METERS / 2.0, 0, LIMELIGHT_CLUSTER_HEIGHT),
+              new Translation3d(-0.3048, 0, LIMELIGHT_CLUSTER_HEIGHT),
               new Rotation3d(0, 0, Math.PI));
     }
   }
