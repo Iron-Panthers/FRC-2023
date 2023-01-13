@@ -44,17 +44,17 @@ public class VisionSubsystem {
   /** Creates a new VisionSubsystem. */
   public VisionSubsystem() {
     // Set up a test arena of two apriltags at the center of each driver station set
-    final AprilTag tag18 =
+    final AprilTag tag00 =
         new AprilTag(
-            0,
+            0, new Pose3d(new Pose2d(0.0, TEST_SPACE_WIDTH / 2.0, Rotation2d.fromDegrees(0.0))));
+    final AprilTag tag01 =
+        new AprilTag(
+            01,
             new Pose3d(
                 new Pose2d(
                     TEST_SPACE_LENGTH, TEST_SPACE_WIDTH / 2.0, Rotation2d.fromDegrees(180))));
-    final AprilTag tag01 =
-        new AprilTag(
-            01, new Pose3d(new Pose2d(0.0, TEST_SPACE_WIDTH / 2.0, Rotation2d.fromDegrees(0.0))));
     ArrayList<AprilTag> atList = new ArrayList<AprilTag>();
-    atList.add(tag18);
+    atList.add(tag00);
     atList.add(tag01);
 
     // TODO - once 2023 happens, replace this with just loading the 2023 field arrangement

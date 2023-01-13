@@ -189,7 +189,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
             kinematics,
             getGyroscopeRotation(),
             getSwerveModulePositions(),
-            new Pose2d(),
+            // FIXME: FIXME FIXME GOOD GOD FIX ME, USE A REAL VALUE HERE
+            new Pose2d(5, 5, Rotation2d.fromDegrees(0)),
             PoseEstimator.STATE_STANDARD_DEVIATIONS,
             PoseEstimator.VISION_MEASUREMENT_STANDARD_DEVIATIONS);
 
