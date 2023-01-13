@@ -365,8 +365,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
       double ySpeedClamped = MathUtil.clamp(ySpeed, -1, 1);
 
       // No x movement or rotation
-      chassisSpeeds =
-          ChassisSpeeds.fromFieldRelativeSpeeds(0, ySpeedClamped, 0, getGyroscopeRotation());
+      chassisSpeeds = new ChassisSpeeds(0, ySpeedClamped, 0);
 
       drivePeriodic();
     }
