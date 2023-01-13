@@ -6,6 +6,9 @@ package frc.robot;
 
 import static frc.robot.Constants.Drive;
 
+import com.pathplanner.lib.PathPoint;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
@@ -19,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.button.Button;
 import frc.robot.autonomous.commands.AutoTestSequence;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
+import frc.robot.commands.DriveToPlaceCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
@@ -141,6 +145,12 @@ public class RobotContainer {
                 will::getRightY,
                 will::getRightX,
                 will::getRightBumper));
+
+    // inline command to generate path on the fly that drives to 5,5 at heading zero
+    new Button(will::getBButton)
+        .whenPressed(
+            new DriveToPlaceCommand(
+                drivebaseSubsystem, new PathPoint(new Translation2d(), new Rotation2d(0))));
   }
 
   /**
