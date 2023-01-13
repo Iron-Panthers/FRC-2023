@@ -41,7 +41,8 @@ public class DriveToPlaceCommand extends CommandBase {
                 // holonomic rotation should start at our current rotation
                 drivebaseSubsystem.getGyroscopeRotation()),
             new PathPoint(
-                finalPose.getTranslation(), Rotation2d.fromDegrees(0), finalPose.getRotation()));
+                // drive into the final position from the back
+                finalPose.getTranslation(), finalPose.getRotation(), finalPose.getRotation()));
 
     drivebaseSubsystem.getFollower().follow(trajectory);
   }
