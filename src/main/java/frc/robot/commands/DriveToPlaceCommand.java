@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants.PoseEstimator;
 import frc.robot.subsystems.DrivebaseSubsystem;
 
 public class DriveToPlaceCommand extends CommandBase {
@@ -45,7 +46,7 @@ public class DriveToPlaceCommand extends CommandBase {
   public void initialize() {
     trajectory =
         PathPlanner.generatePath(
-            new PathConstraints(3, 3),
+            new PathConstraints(3, .5),
             new PathPoint(
                 drivebaseSubsystem.getPose().getTranslation(),
                 computeStartingHeading(
@@ -56,8 +57,8 @@ public class DriveToPlaceCommand extends CommandBase {
                 // drive into the final position from the back
                 finalPose.getTranslation(), finalPose.getRotation(), finalPose.getRotation()));
 
-    drivebaseSubsystem.getFollower().follow(trajectory);
     drivebaseSubsystem.getFollower().setRunUntilAccurate(true);
+    drivebaseSubsystem.getFollower().follow(trajectory);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -81,6 +82,7 @@ public class DriveToPlaceCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return drivebaseSubsystem.getPose().getTranslation().getDistance(finalPose.getTranslation())
+        <= PoseEstimator.DRIVE_TO_POSE_ERROR_MARGIN;
   }
 }

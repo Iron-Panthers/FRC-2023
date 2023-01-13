@@ -65,7 +65,12 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
     if (runUntilAccurate
         && currentPose
                 .getTranslation()
-                .getDistance(trajectory.sample(time).poseMeters.getTranslation())
+                .getDistance(
+                    trajectory
+                        // sample the final position using the time greater than total time behavior
+                        .sample(trajectory.getTotalTimeSeconds() + 1)
+                        .poseMeters
+                        .getTranslation())
             <= PoseEstimator.DRIVE_TO_POSE_ERROR_MARGIN) {
       // If the robot is within threshold of the target pose, stop
       return finishTrajectory();
