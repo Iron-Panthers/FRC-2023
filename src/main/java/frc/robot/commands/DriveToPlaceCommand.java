@@ -62,7 +62,15 @@ public class DriveToPlaceCommand extends CommandBase {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    // print the distance to the final pose
+    System.out.println(
+        "Distance to final pose: "
+            + drivebaseSubsystem
+                .getPose()
+                .getTranslation()
+                .getDistance(finalPose.getTranslation()));
+  }
 
   // Called once the command ends or is interrupted.
   @Override
