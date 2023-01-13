@@ -175,7 +175,11 @@ public class DrivebaseSubsystem extends SubsystemBase {
     rotController = new PIDController(0.03, 0.001, 0.003);
     rotController.setSetpoint(0);
     rotController.setTolerance(ANGULAR_ERROR); // degrees error
+
     balController = new PIDController(0.1, 0, 0.8);
+    balController.setSetpoint(0);
+    balController.setTolerance(2);
+
     // tune pid with:
     // tab.add(rotController);
 
@@ -283,10 +287,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
     mode = Modes.DEFENSE;
   }
 
-  public void setBalanceMode() {
-    mode = Modes.BALANCE;
-  }
-
   /**
    * Updates the robot pose estimation for newly written module states. Should be called everytime
    * outputs are written to the modules.
@@ -349,20 +349,32 @@ public class DrivebaseSubsystem extends SubsystemBase {
   }
 
   private void balancePeriodic() {
-    double pitchAngle = navx.getPitch();
-    Rotation2d pitchRotation = Rotation2d.fromDegrees(pitchAngle);
-    double rollAngle = navx.getRoll();
-    Rotation2d rollRotation = Rotation2d.fromDegrees(rollAngle);
-    SwerveModuleState[] states = kinematics.toSwerveModuleStates(chassisSpeeds);
-    for (int i = 0; i < swerveModules.length; i++) {
-      this.balance(
-          new ChassisSpeeds(0, balController.calculate(-pitchAngle), states[i].angle.getRadians()));
+
+    // Locks wheels at setpoint
+    if (balController.atSetpoint()) {
+
+      defensePeriodic();
+
+      balController.reset();
+
+    } else {
+      double pitchAngle = navx.getPitch();
+
+      double ySpeed = balController.calculate(pitchAngle);
+
+      double ySpeedClamped = MathUtil.clamp(ySpeed, -1, 1);
+
+      // No x movement or rotation
+      chassisSpeeds =
+          ChassisSpeeds.fromFieldRelativeSpeeds(0, ySpeedClamped, 0, getGyroscopeRotation());
+
+      drivePeriodic();
     }
   }
 
-  public void balance(ChassisSpeeds chassisSpeeds) {
-    this.mode = Modes.BALANCE;
-    this.chassisSpeeds = chassisSpeeds;
+  public void balance() {
+    if (mode != Modes.DRIVE_ANGLE) balController.reset();
+    mode = Modes.BALANCE;
   }
 
   /**

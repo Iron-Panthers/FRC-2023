@@ -106,6 +106,8 @@ public class RobotContainer {
     new Button(will::getLeftStickButton)
         .whenPressed(new HaltDriveCommandsCommand(drivebaseSubsystem));
 
+    new Button(will::getAButton).whenPressed(new BalanceModeCommand(drivebaseSubsystem));
+
     DoubleSupplier rotation =
         exponential(
             () ->
