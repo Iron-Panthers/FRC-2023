@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.SPI;
@@ -181,11 +182,11 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     swervePoseEstimator =
         new SwerveDrivePoseEstimator(
-            getGyroscopeRotation(),
-            new Pose2d(),
             kinematics,
+            getGyroscopeRotation(),
+            getSwerveModulePositions(),
+            new Pose2d(),
             PoseEstimator.STATE_STANDARD_DEVIATIONS,
-            PoseEstimator.LOCAL_MEASUREMENT_STANDARD_DEVIATIONS,
             PoseEstimator.VISION_MEASUREMENT_STANDARD_DEVIATIONS);
 
     zeroGyroscope();
@@ -213,6 +214,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
     navx.zeroYaw();
   }
 
+  private SwerveModulePosition[] getSwerveModulePositions() {
+    return new SwerveModulePosition[] {
+      swerveModules[0].getPosition(),
+      swerveModules[1].getPosition(),
+      swerveModules[2].getPosition(),
+      swerveModules[3].getPosition()
+    };
+  }
+
   /**
    * Resets the odometry estimate to a specific pose. Angle is substituted with the angle read from
    * the gyroscope.
@@ -224,7 +234,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     navx.setAngleAdjustment(0);
 
     navx.setAngleAdjustment(getGyroscopeRotation().minus(pose.getRotation()).getDegrees());
-    swervePoseEstimator.resetPosition(pose, getGyroscopeRotation());
+    swervePoseEstimator.resetPosition(getGyroscopeRotation(), getSwerveModulePositions(), pose);
   }
 
   public Rotation2d getGyroscopeRotation() {
@@ -292,8 +302,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
    *
    * @param moduleStatesWritten The outputs that you have just written to the modules.
    */
-  private void odometryPeriodic(SwerveModuleState[] moduleStatesWritten) {
-    this.robotPose = swervePoseEstimator.update(getGyroscopeRotation(), moduleStatesWritten);
+  private void odometryPeriodic() {
+    this.robotPose = swervePoseEstimator.update(getGyroscopeRotation(), getSwerveModulePositions());
 
     Optional<Pair<Pose2d, Double>> cameraPose = visionSubsystem.getEstimatedGlobalPose(robotPose);
 
@@ -325,7 +335,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     }
 
     // Update odometry
-    odometryPeriodic(states);
+    odometryPeriodic();
   }
 
   // called in drive to angle mode

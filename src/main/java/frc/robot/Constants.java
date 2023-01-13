@@ -138,17 +138,6 @@ public final class Constants {
                 );
 
     /**
-     * Standard deviations of the encoder and gyro measurements. Increase these numbers to trust
-     * sensor readings from encoders and gyros less. This matrix is in the form [theta], with units
-     * in radians.
-     */
-    public static final Matrix<N1, N1> LOCAL_MEASUREMENT_STANDARD_DEVIATIONS =
-        Matrix.mat(Nat.N1(), Nat.N1())
-            .fill(
-                .02 // theta
-                );
-
-    /**
      * Standard deviations of the vision measurements. Increase these numbers to trust global
      * measurements from vision less. This matrix is in the form [x, y, theta]ᵀ, with units in
      * meters and radians.
