@@ -38,10 +38,11 @@ import java.util.Optional;
 public class DrivebaseSubsystem extends SubsystemBase {
   private final AdvancedSwerveTrajectoryFollower follower =
       new AdvancedSwerveTrajectoryFollower(
-          new PIDController(0.4, 0.0, 0.025),
-          new PIDController(0.4, 0.0, 0.025),
+          new PIDController(0.4, 0.0 + .1, 0.025),
+          new PIDController(0.4, 0.0 + .1, 0.025),
           new ProfiledPIDController(
-              .147,
+              // FIXME: RETUNE WITH CARPET NOT LINOLEUM
+              .147 * 2,
               0,
               0,
               new TrapezoidProfile.Constraints(
@@ -190,7 +191,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
             getGyroscopeRotation(),
             getSwerveModulePositions(),
             // FIXME: FIXME FIXME GOOD GOD FIX ME, USE A REAL VALUE HERE
-            new Pose2d(5, 5, Rotation2d.fromDegrees(0)),
+            new Pose2d(1.5, 1.5, Rotation2d.fromDegrees(0)),
             PoseEstimator.STATE_STANDARD_DEVIATIONS,
             PoseEstimator.VISION_MEASUREMENT_STANDARD_DEVIATIONS);
 
