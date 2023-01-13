@@ -8,40 +8,57 @@ import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPoint;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DrivebaseSubsystem;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class DriveToPlaceCommand extends InstantCommand {
-  private final DrivebaseSubsystem drivebaseSubsystem;
-  private final Translation2d translation2d;
+public class DriveToPlaceCommand extends CommandBase {
 
-  public DriveToPlaceCommand(DrivebaseSubsystem drivebaseSubsystem, Translation2d translation2d) {
+  private final DrivebaseSubsystem drivebaseSubsystem;
+  private final Pose2d finalPose;
+
+  PathPlannerTrajectory trajectory;
+
+  /** Creates a new DriveToPlaceCommand. */
+  public DriveToPlaceCommand(DrivebaseSubsystem drivebaseSubsystem, Pose2d finalPose) {
+    // Use addRequirements() here to declare subsystem dependencies.
     this.drivebaseSubsystem = drivebaseSubsystem;
-    this.translation2d = translation2d;
+    this.finalPose = finalPose;
+
+    addRequirements(drivebaseSubsystem);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    PathPlannerTrajectory trajectory =
+    trajectory =
         PathPlanner.generatePath(
             new PathConstraints(3, 3),
-            // start point
             new PathPoint(
                 drivebaseSubsystem.getPose().getTranslation(),
-                Rotation2d.fromDegrees(0),
+                Rotation2d.fromDegrees(0 /* use trig to draw line to goal */),
+                // holonomic rotation should start at our current rotation
                 drivebaseSubsystem.getGyroscopeRotation()),
             new PathPoint(
-                translation2d,
-                Rotation2d.fromDegrees(0),
-                drivebaseSubsystem.getGyroscopeRotation()));
-    CommandScheduler.getInstance()
-        .schedule((new FollowTrajectoryCommand(trajectory, drivebaseSubsystem)));
+                finalPose.getTranslation(), Rotation2d.fromDegrees(0), finalPose.getRotation()));
+
+    drivebaseSubsystem.getFollower().follow(trajectory);
+  }
+
+  // Called every time the scheduler runs while the command is scheduled.
+  @Override
+  public void execute() {}
+
+  // Called once the command ends or is interrupted.
+  @Override
+  public void end(boolean interrupted) {
+    drivebaseSubsystem.getFollower().cancel();
+  }
+
+  // Returns true when the command should end.
+  @Override
+  public boolean isFinished() {
+    return false;
   }
 }
