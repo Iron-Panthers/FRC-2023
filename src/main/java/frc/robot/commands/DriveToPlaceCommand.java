@@ -10,6 +10,7 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPoint;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DrivebaseSubsystem;
 
@@ -29,6 +30,16 @@ public class DriveToPlaceCommand extends CommandBase {
     addRequirements(drivebaseSubsystem);
   }
 
+  private Rotation2d computeStartingHeading(Translation2d start, Translation2d end) {
+    double x1 = start.getX();
+    double y1 = start.getY();
+    double x2 = end.getX();
+    double y2 = end.getY();
+
+    double angle = Math.atan2(y2 - y1, x2 - x1);
+    return Rotation2d.fromRadians(angle);
+  }
+
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
@@ -37,7 +48,8 @@ public class DriveToPlaceCommand extends CommandBase {
             new PathConstraints(3, 3),
             new PathPoint(
                 drivebaseSubsystem.getPose().getTranslation(),
-                Rotation2d.fromDegrees(0 /* use trig to draw line to goal */),
+                computeStartingHeading(
+                    drivebaseSubsystem.getPose().getTranslation(), finalPose.getTranslation()),
                 // holonomic rotation should start at our current rotation
                 drivebaseSubsystem.getGyroscopeRotation()),
             new PathPoint(
