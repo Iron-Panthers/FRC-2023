@@ -57,6 +57,7 @@ public class DriveToPlaceCommand extends CommandBase {
                 finalPose.getTranslation(), finalPose.getRotation(), finalPose.getRotation()));
 
     drivebaseSubsystem.getFollower().follow(trajectory);
+    drivebaseSubsystem.getFollower().setRunUntilAccurate(true);
   }
 
   // Called every time the scheduler runs while the command is scheduled.

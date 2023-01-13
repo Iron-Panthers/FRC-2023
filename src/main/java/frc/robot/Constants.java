@@ -149,5 +149,8 @@ public final class Constants {
                 1, // y
                 10 // theta
                 );
+
+    /** about one inch */
+    public static final double DRIVE_TO_POSE_ERROR_MARGIN = .02;
   }
 }
