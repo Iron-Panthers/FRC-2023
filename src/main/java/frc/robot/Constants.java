@@ -116,7 +116,7 @@ public final class Constants {
 
     public static final class BackCam {
       public static final String NAME = "backCam";
-      /** Cam mounted facing backward, centered, at the front of the robot */
+      /** Cam mounted facing backward, centered, at the back of the robot */
       public static final Transform3d ROBOT_TO_CAM =
           new Transform3d(
               new Translation3d(-0.3048, 0, LIMELIGHT_CLUSTER_HEIGHT),
