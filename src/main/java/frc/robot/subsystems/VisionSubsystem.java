@@ -38,15 +38,15 @@ public class VisionSubsystem {
 
   RobotPoseEstimator poseEstimator;
 
-  static final double TEST_SPACE_WIDTH = 10;
-  static final double TEST_SPACE_LENGTH = 10;
+  static final double TEST_SPACE_WIDTH = 3;
+  static final double TEST_SPACE_LENGTH = 3;
 
   /** Creates a new VisionSubsystem. */
   public VisionSubsystem() {
     // Set up a test arena of two apriltags at the center of each driver station set
     final AprilTag tag18 =
         new AprilTag(
-            18,
+            02,
             new Pose3d(
                 new Pose2d(
                     TEST_SPACE_LENGTH, TEST_SPACE_WIDTH / 2.0, Rotation2d.fromDegrees(180))));

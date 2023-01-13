@@ -150,7 +150,7 @@ public class RobotContainer {
     new Button(will::getBButton)
         .whenPressed(
             new DriveToPlaceCommand(
-                drivebaseSubsystem, new PathPoint(new Translation2d(), new Rotation2d(0))));
+                drivebaseSubsystem, new PathPoint(new Translation2d(1.5, 1.5), new Rotation2d(0))));
   }
 
   /**
