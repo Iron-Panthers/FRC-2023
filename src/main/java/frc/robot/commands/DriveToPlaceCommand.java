@@ -12,6 +12,7 @@ import com.pathplanner.lib.PathPoint;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.PoseEstimator;
 import frc.robot.subsystems.DrivebaseSubsystem;
@@ -29,6 +30,7 @@ public class DriveToPlaceCommand extends CommandBase {
   int stabilityCounter = 0;
 
   PathPlannerTrajectory trajectory;
+  double generationTime;
 
   /** Creates a new DriveToPlaceCommand. */
   public DriveToPlaceCommand(DrivebaseSubsystem drivebaseSubsystem, Pose2d finalPose) {
@@ -41,7 +43,7 @@ public class DriveToPlaceCommand extends CommandBase {
     addRequirements(drivebaseSubsystem);
   }
 
-  private Rotation2d computeStartingHeading(Translation2d start, Translation2d end) {
+  private Rotation2d straightLineAngle(Translation2d start, Translation2d end) {
     double x1 = start.getX();
     double y1 = start.getY();
     double x2 = end.getX();
@@ -51,26 +53,29 @@ public class DriveToPlaceCommand extends CommandBase {
     return Rotation2d.fromRadians(angle);
   }
 
+  private PathPlannerTrajectory createTrajectory() {
+    return PathPlanner.generatePath(
+        new PathConstraints(3, .5),
+        new PathPoint(
+            drivebaseSubsystem.getPose().getTranslation(),
+            straightLineAngle(
+                drivebaseSubsystem.getPose().getTranslation(), finalPose.getTranslation()),
+            // holonomic rotation should start at our current rotation
+            drivebaseSubsystem.getGyroscopeRotation()),
+        new PathPoint(
+            // drive into the final position from the back
+            finalPose.getTranslation(),
+            straightLineAngle(
+                finalPose.getTranslation(), drivebaseSubsystem.getPose().getTranslation()),
+            finalPose.getRotation()));
+  }
+
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
     stabilityCounter = 0;
-    trajectory =
-        PathPlanner.generatePath(
-            new PathConstraints(3, .5),
-            new PathPoint(
-                drivebaseSubsystem.getPose().getTranslation(),
-                computeStartingHeading(
-                    drivebaseSubsystem.getPose().getTranslation(), finalPose.getTranslation()),
-                // holonomic rotation should start at our current rotation
-                drivebaseSubsystem.getGyroscopeRotation()),
-            new PathPoint(
-                // drive into the final position from the back
-                finalPose.getTranslation(),
-                computeStartingHeading(
-                        drivebaseSubsystem.getPose().getTranslation(), finalPose.getTranslation())
-                    .plus(Rotation2d.fromDegrees(180)),
-                finalPose.getRotation()));
+    generationTime = Timer.getFPGATimestamp();
+    trajectory = createTrajectory();
 
     follower.setRunUntilAccurate(true);
     follower.follow(trajectory);
@@ -99,6 +104,7 @@ public class DriveToPlaceCommand extends CommandBase {
                 .orElseGet(() -> -10000d),
             stabilityCounter));
 
+    // increment stability counter
     stabilityCounter +=
         AdvancedSwerveTrajectoryFollower.poseWithinErrorMarginOfTrajectoryFinalGoal(
             drivebaseSubsystem.getPose(), trajectory, follower.getLastState());
