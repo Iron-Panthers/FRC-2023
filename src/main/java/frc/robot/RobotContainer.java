@@ -26,7 +26,6 @@ import frc.robot.commands.HaltDriveCommandsCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.VibrateControllerCommand;
-import frc.robot.subsystems.DataLogger;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.util.ControllerUtil;
 import frc.util.Layer;
@@ -44,8 +43,6 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
   private final DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem();
-
-  private final DataLogger dataLogger = new DataLogger();
 
   /** controller 1 */
   private final XboxController jason = new XboxController(1);
