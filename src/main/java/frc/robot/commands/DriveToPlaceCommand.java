@@ -55,7 +55,11 @@ public class DriveToPlaceCommand extends CommandBase {
                 drivebaseSubsystem.getGyroscopeRotation()),
             new PathPoint(
                 // drive into the final position from the back
-                finalPose.getTranslation(), finalPose.getRotation(), finalPose.getRotation()));
+                finalPose.getTranslation(),
+                computeStartingHeading(
+                        drivebaseSubsystem.getPose().getTranslation(), finalPose.getTranslation())
+                    .plus(Rotation2d.fromDegrees(180)),
+                finalPose.getRotation()));
 
     drivebaseSubsystem.getFollower().setRunUntilAccurate(true);
     drivebaseSubsystem.getFollower().follow(trajectory);
