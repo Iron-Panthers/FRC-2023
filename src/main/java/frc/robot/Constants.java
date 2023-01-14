@@ -132,9 +132,9 @@ public final class Constants {
     public static final Matrix<N3, N1> STATE_STANDARD_DEVIATIONS =
         Matrix.mat(Nat.N3(), Nat.N1())
             .fill(
-                0.02, // x
-                0.02, // y
-                0.02 // theta
+                0.1, // x
+                0.1, // y
+                0.1 // theta
                 );
 
     /**
@@ -145,9 +145,9 @@ public final class Constants {
     public static final Matrix<N3, N1> VISION_MEASUREMENT_STANDARD_DEVIATIONS =
         Matrix.mat(Nat.N3(), Nat.N1())
             .fill(
-                1, // x
-                1, // y
-                10 // theta
+                .9, // x
+                .9, // y
+                .9 // theta
                 );
 
     /** about one inch */
