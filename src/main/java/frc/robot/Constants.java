@@ -151,9 +151,9 @@ public final class Constants {
                 );
 
     /** about one inch */
-    public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .06;
+    public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .05;
 
-    public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 2.5;
+    public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 2;
 
     public static final int STABILITY_COUNT_THRESHOLD = 30;
 
