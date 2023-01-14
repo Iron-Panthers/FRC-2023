@@ -32,6 +32,8 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
   /* Variable to track if the robot should run until it is accurate instead of just finishing the trajectory */
   private boolean runUntilAccurate = false;
 
+  private int stabilityCounter = 0;
+
   public AdvancedSwerveTrajectoryFollower(
       PIDController xController, PIDController yController, ProfiledPIDController angleController) {
     this.xController = xController;
@@ -47,15 +49,17 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
    */
   public void setRunUntilAccurate(boolean runUntilAccurate) {
     this.runUntilAccurate = runUntilAccurate;
+    stabilityCounter = 0;
   }
 
   private ChassisSpeeds finishTrajectory() {
     finished = true;
     runUntilAccurate = false;
+    stabilityCounter = 0;
     return new ChassisSpeeds();
   }
 
-  public static boolean poseWithinErrorMarginOfTrajectoryFinalGoal(
+  public static int poseWithinErrorMarginOfTrajectoryFinalGoal(
       Pose2d currentPose, Trajectory trajectory, Trajectory.State lastState) {
     var finalPose =
         trajectory
@@ -63,16 +67,18 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
             .sample(trajectory.getTotalTimeSeconds() + 1)
             .poseMeters;
     return (
-        // xy error
-        currentPose.getTranslation().getDistance(finalPose.getTranslation())
-            <= PoseEstimator.DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS)
-        && (
-        // theta error
-        Util.relativeAngularDifference(currentPose.getRotation(), finalPose.getRotation())
-            <= PoseEstimator.DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES)
-        && (
-        // velocity xy
-        lastState.velocityMetersPerSecond <= VelocityError.XY_METERS);
+            // xy error
+            currentPose.getTranslation().getDistance(finalPose.getTranslation())
+                <= PoseEstimator.DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS)
+            && (
+            // theta error
+            Util.relativeAngularDifference(currentPose.getRotation(), finalPose.getRotation())
+                <= PoseEstimator.DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES)
+            && (
+            // velocity xy
+            lastState.velocityMetersPerSecond <= VelocityError.XY_METERS)
+        ? 1
+        : 0;
   }
 
   @Override
@@ -83,10 +89,14 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
       return finishTrajectory();
     }
 
-    if (runUntilAccurate
-        && poseWithinErrorMarginOfTrajectoryFinalGoal(currentPose, trajectory, lastState)) {
-      // If the robot is within threshold of the target pose, stop
-      return finishTrajectory();
+    // nasty nested if statement...
+    if (runUntilAccurate) {
+      stabilityCounter +=
+          poseWithinErrorMarginOfTrajectoryFinalGoal(currentPose, trajectory, lastState);
+      if (stabilityCounter >= PoseEstimator.STABILITY_COUNT_THRESHOLD) {
+        // If the robot is within threshold of the target pose and stable, stop
+        return finishTrajectory();
+      }
     }
 
     // there is still time left!
