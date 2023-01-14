@@ -46,7 +46,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
               0,
               0.005,
               new TrapezoidProfile.Constraints(
-                  MAX_VELOCITY_METERS_PER_SECOND, 0.5 * MAX_VELOCITY_METERS_PER_SECOND)));
+                  MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
+                  0.5 * MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND)));
 
   // NOTE: I'm still not sure what's the way to profile this ^
   // Not mission critical as it "technically" drives fine as of now; but I suspect this is a site
