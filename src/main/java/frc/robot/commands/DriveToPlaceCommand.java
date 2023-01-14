@@ -79,12 +79,17 @@ public class DriveToPlaceCommand extends CommandBase {
   @Override
   public void execute() {
     // print the distance to the final pose
+    var fP =
+        trajectory
+            // sample the final position using the time greater than total time behavior
+            .sample(trajectory.getTotalTimeSeconds() + 1)
+            .poseMeters;
     System.out.println(
         String.format(
             "xy err: %8f theta err: %8f Vel: %8f Stability: %3d",
-            drivebaseSubsystem.getPose().getTranslation().getDistance(finalPose.getTranslation()),
+            drivebaseSubsystem.getPose().getTranslation().getDistance(fP.getTranslation()),
             Util.relativeAngularDifference(
-                drivebaseSubsystem.getPose().getRotation(), finalPose.getRotation()),
+                drivebaseSubsystem.getPose().getRotation(), fP.getRotation()),
             Optional.ofNullable(follower.getLastState())
                 .map((s) -> s.velocityMetersPerSecond)
                 .orElseGet(() -> -10000d),
