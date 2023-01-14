@@ -54,6 +54,19 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
     return new ChassisSpeeds();
   }
 
+  public static boolean poseWithinErrorMarginOfTrajectoryFinalGoal(
+      Pose2d currentPose, Trajectory trajectory) {
+    return currentPose
+            .getTranslation()
+            .getDistance(
+                trajectory
+                    // sample the final position using the time greater than total time behavior
+                    .sample(trajectory.getTotalTimeSeconds() + 1)
+                    .poseMeters
+                    .getTranslation())
+        <= PoseEstimator.DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS;
+  }
+
   @Override
   protected ChassisSpeeds calculateDriveSignal(
       Pose2d currentPose, Trajectory trajectory, double time, double dt) {
@@ -62,16 +75,7 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
       return finishTrajectory();
     }
 
-    if (runUntilAccurate
-        && currentPose
-                .getTranslation()
-                .getDistance(
-                    trajectory
-                        // sample the final position using the time greater than total time behavior
-                        .sample(trajectory.getTotalTimeSeconds() + 1)
-                        .poseMeters
-                        .getTranslation())
-            <= PoseEstimator.DRIVE_TO_POSE_ERROR_MARGIN) {
+    if (runUntilAccurate && poseWithinErrorMarginOfTrajectoryFinalGoal(currentPose, trajectory)) {
       // If the robot is within threshold of the target pose, stop
       return finishTrajectory();
     }
