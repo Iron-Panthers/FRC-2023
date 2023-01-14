@@ -72,7 +72,9 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
                 <= PoseEstimator.DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS)
             && (
             // theta error
-            Util.relativeAngularDifference(currentPose.getRotation(), finalPose.getRotation())
+            Math.abs(
+                    Util.relativeAngularDifference(
+                        currentPose.getRotation(), finalPose.getRotation()))
                 <= PoseEstimator.DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES)
             && (
             // velocity xy
