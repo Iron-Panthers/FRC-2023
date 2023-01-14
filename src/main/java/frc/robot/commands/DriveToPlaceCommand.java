@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.PoseEstimator;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.util.AdvancedSwerveTrajectoryFollower;
+import frc.util.Util;
+import java.util.Optional;
 
 public class DriveToPlaceCommand extends CommandBase {
 
@@ -78,10 +80,15 @@ public class DriveToPlaceCommand extends CommandBase {
   public void execute() {
     // print the distance to the final pose
     System.out.println(
-        "Distance to final pose: "
-            + drivebaseSubsystem.getPose().getTranslation().getDistance(finalPose.getTranslation())
-            + "\tStability: "
-            + stabilityCounter);
+        String.format(
+            "xy err: %8f theta err: %8f Vel: %8f Stability: %3d",
+            drivebaseSubsystem.getPose().getTranslation().getDistance(finalPose.getTranslation()),
+            Util.relativeAngularDifference(
+                drivebaseSubsystem.getPose().getRotation(), finalPose.getRotation()),
+            Optional.ofNullable(follower.getLastState())
+                .map((s) -> s.velocityMetersPerSecond)
+                .orElseGet(() -> -10000d),
+            stabilityCounter));
 
     stabilityCounter +=
         AdvancedSwerveTrajectoryFollower.poseWithinErrorMarginOfTrajectoryFinalGoal(
