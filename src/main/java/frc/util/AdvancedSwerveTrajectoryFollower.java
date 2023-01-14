@@ -37,6 +37,11 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
   public AdvancedSwerveTrajectoryFollower(
       PIDController xController, PIDController yController, ProfiledPIDController angleController) {
     this.xController = xController;
+    // var tab = Shuffleboard.getTab("tuneFollower");
+    // tab.add(xController);
+    // tab.add(yController);
+    // tab.addDouble("xError", xController::getPositionError);
+    // tab.addDouble("yError", yController::getPositionError);
     this.yController = yController;
     this.angleController = angleController;
   }
