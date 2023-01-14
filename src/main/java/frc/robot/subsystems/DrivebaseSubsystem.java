@@ -418,6 +418,13 @@ public class DrivebaseSubsystem extends SubsystemBase {
     Pose2d pose = getPose();
 
     field.setRobotPose(swervePoseEstimator.getEstimatedPosition());
+    SmartDashboard.putString(
+        "pose",
+        String.format(
+            "(%2f %2f %2f)",
+            swervePoseEstimator.getEstimatedPosition().getX(),
+            swervePoseEstimator.getEstimatedPosition().getY(),
+            swervePoseEstimator.getEstimatedPosition().getRotation().getDegrees()));
 
     /*
      * See if there is a new drive signal from the trajectory follower object.
