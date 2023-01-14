@@ -151,11 +151,11 @@ public final class Constants {
                 );
 
     /** about one inch */
-    public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .02;
+    public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .05;
 
-    public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 1;
+    public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 2.5;
 
-    public static final int STABILITY_COUNT_THRESHOLD = 100;
+    public static final int STABILITY_COUNT_THRESHOLD = 30;
 
     public static final class VelocityError {
       public static final double XY_METERS = .001;

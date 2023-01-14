@@ -61,20 +61,20 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
 
   public static int poseWithinErrorMarginOfTrajectoryFinalGoal(
       Pose2d currentPose, Trajectory trajectory, Trajectory.State lastState) {
-    var finalPose =
-        trajectory
-            // sample the final position using the time greater than total time behavior
-            .sample(trajectory.getTotalTimeSeconds() + 1)
-            .poseMeters;
+    var finalState =
+        ((PathPlannerState)
+            trajectory
+                // sample the final position using the time greater than total time behavior
+                .sample(trajectory.getTotalTimeSeconds() + 1));
     return (
             // xy error
-            currentPose.getTranslation().getDistance(finalPose.getTranslation())
+            currentPose.getTranslation().getDistance(finalState.poseMeters.getTranslation())
                 <= PoseEstimator.DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS)
             && (
             // theta error
             Math.abs(
                     Util.relativeAngularDifference(
-                        currentPose.getRotation(), finalPose.getRotation()))
+                        currentPose.getRotation(), finalState.holonomicRotation))
                 <= PoseEstimator.DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES)
             && (
             // velocity xy

@@ -7,6 +7,7 @@ package frc.robot.commands;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import com.pathplanner.lib.PathPoint;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -80,16 +81,19 @@ public class DriveToPlaceCommand extends CommandBase {
   public void execute() {
     // print the distance to the final pose
     var fP =
-        trajectory
-            // sample the final position using the time greater than total time behavior
-            .sample(trajectory.getTotalTimeSeconds() + 1)
-            .poseMeters;
+        ((PathPlannerState)
+            trajectory
+                // sample the final position using the time greater than total time behavior
+                .sample(trajectory.getTotalTimeSeconds() + 1));
     System.out.println(
         String.format(
             "xy err: %8f theta err: %8f Vel: %8f Stability: %3d",
-            drivebaseSubsystem.getPose().getTranslation().getDistance(fP.getTranslation()),
+            drivebaseSubsystem
+                .getPose()
+                .getTranslation()
+                .getDistance(fP.poseMeters.getTranslation()),
             Util.relativeAngularDifference(
-                drivebaseSubsystem.getPose().getRotation(), fP.getRotation()),
+                drivebaseSubsystem.getPose().getRotation(), fP.holonomicRotation),
             Optional.ofNullable(follower.getLastState())
                 .map((s) -> s.velocityMetersPerSecond)
                 .orElseGet(() -> -10000d),
