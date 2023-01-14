@@ -145,9 +145,9 @@ public final class Constants {
     public static final Matrix<N3, N1> VISION_MEASUREMENT_STANDARD_DEVIATIONS =
         Matrix.mat(Nat.N3(), Nat.N1())
             .fill(
-                2, // x
-                2, // y
-                2 * Math.PI // theta
+                .9, // x
+                .9, // y
+                100 // theta
                 );
 
     /** about one inch */
