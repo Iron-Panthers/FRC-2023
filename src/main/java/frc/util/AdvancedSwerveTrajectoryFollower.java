@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import frc.robot.Constants.PoseEstimator;
+import frc.robot.Constants.PoseEstimator.VelocityError;
 import frc.robot.autonomous.TrajectoryFollower;
 
 /**
@@ -55,7 +56,7 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
   }
 
   public static boolean poseWithinErrorMarginOfTrajectoryFinalGoal(
-      Pose2d currentPose, Trajectory trajectory) {
+      Pose2d currentPose, Trajectory trajectory, Trajectory.State lastState) {
     var finalPose =
         trajectory
             // sample the final position using the time greater than total time behavior
@@ -68,7 +69,10 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
         && (
         // theta error
         Util.relativeAngularDifference(currentPose.getRotation(), finalPose.getRotation())
-            <= PoseEstimator.DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES);
+            <= PoseEstimator.DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES)
+        && (
+        // velocity xy
+        lastState.velocityMetersPerSecond <= VelocityError.XY_METERS);
   }
 
   @Override
@@ -79,7 +83,8 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
       return finishTrajectory();
     }
 
-    if (runUntilAccurate && poseWithinErrorMarginOfTrajectoryFinalGoal(currentPose, trajectory)) {
+    if (runUntilAccurate
+        && poseWithinErrorMarginOfTrajectoryFinalGoal(currentPose, trajectory, lastState)) {
       // If the robot is within threshold of the target pose, stop
       return finishTrajectory();
     }

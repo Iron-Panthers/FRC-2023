@@ -38,8 +38,8 @@ import java.util.Optional;
 public class DrivebaseSubsystem extends SubsystemBase {
   private final AdvancedSwerveTrajectoryFollower follower =
       new AdvancedSwerveTrajectoryFollower(
-          new PIDController(0.4, 0.0, 0.025),
-          new PIDController(0.4, 0.0, 0.025),
+          new PIDController(0.4 * 1.5, 0.0, 0.025),
+          new PIDController(0.4 * 1.5, 0.0, 0.025),
           new ProfiledPIDController(
               // FIXME: RETUNE WITH CARPET NOT LINOLEUM
               .147,

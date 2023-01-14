@@ -20,6 +20,8 @@ public class DriveToPlaceCommand extends CommandBase {
   private final DrivebaseSubsystem drivebaseSubsystem;
   private final Pose2d finalPose;
 
+  private final AdvancedSwerveTrajectoryFollower follower;
+
   PathPlannerTrajectory trajectory;
 
   /** Creates a new DriveToPlaceCommand. */
@@ -27,6 +29,8 @@ public class DriveToPlaceCommand extends CommandBase {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drivebaseSubsystem = drivebaseSubsystem;
     this.finalPose = finalPose;
+
+    follower = drivebaseSubsystem.getFollower();
 
     addRequirements(drivebaseSubsystem);
   }
@@ -61,8 +65,8 @@ public class DriveToPlaceCommand extends CommandBase {
                     .plus(Rotation2d.fromDegrees(180)),
                 finalPose.getRotation()));
 
-    drivebaseSubsystem.getFollower().setRunUntilAccurate(true);
-    drivebaseSubsystem.getFollower().follow(trajectory);
+    follower.setRunUntilAccurate(true);
+    follower.follow(trajectory);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -80,13 +84,13 @@ public class DriveToPlaceCommand extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    drivebaseSubsystem.getFollower().cancel();
+    follower.cancel();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     return AdvancedSwerveTrajectoryFollower.poseWithinErrorMarginOfTrajectoryFinalGoal(
-        drivebaseSubsystem.getPose(), trajectory);
+        drivebaseSubsystem.getPose(), trajectory, follower.getLastState());
   }
 }
