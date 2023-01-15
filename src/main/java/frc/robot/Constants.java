@@ -145,13 +145,13 @@ public final class Constants {
     public static final Matrix<N3, N1> VISION_MEASUREMENT_STANDARD_DEVIATIONS =
         Matrix.mat(Nat.N3(), Nat.N1())
             .fill(
-                .9, // x
-                .9, // y
-                .9 // theta
+                2, // x
+                2, // y
+                2 * Math.PI // theta
                 );
 
     /** about one inch */
-    public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .05;
+    public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .05 * .2;
 
     public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 2;
 
