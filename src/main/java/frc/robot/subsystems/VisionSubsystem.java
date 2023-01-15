@@ -82,6 +82,6 @@ public class VisionSubsystem {
 
     return Optional.of(
         new Pair<Pose2d, Double>(
-            resultSome.getFirst().toPose2d(), currentTime - resultSome.getSecond()));
+            resultSome.getFirst().toPose2d(), currentTime - (resultSome.getSecond() / 1000)));
   }
 }

@@ -147,7 +147,7 @@ public final class Constants {
             .fill(
                 .9, // x
                 .9, // y
-                100 // theta
+                .9 // theta
                 );
 
     /** about one inch */
