@@ -119,7 +119,7 @@ public final class Constants {
       /** Cam mounted facing backward, centered, at the back of the robot */
       public static final Transform3d ROBOT_TO_CAM =
           new Transform3d(
-              new Translation3d(-0.3048, 0, LIMELIGHT_CLUSTER_HEIGHT),
+              new Translation3d(-0.301, 0, LIMELIGHT_CLUSTER_HEIGHT),
               new Rotation3d(0, 0, Math.PI));
     }
   }
