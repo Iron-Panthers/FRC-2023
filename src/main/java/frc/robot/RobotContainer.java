@@ -161,7 +161,6 @@ public class RobotContainer {
         new AutoTestSequence(
             2, // m/s
             1, // m/s2
-            drivebaseSubsystem.getKinematics(),
             drivebaseSubsystem));
 
     Shuffleboard.getTab("DriverView")
