@@ -27,16 +27,20 @@ public class DriveToPlaceCommand extends CommandBase {
 
   private final AdvancedSwerveTrajectoryFollower follower;
 
+  private final double visionCalibrateOffset;
+
   int stabilityCounter = 0;
 
   PathPlannerTrajectory trajectory;
   double generationTime;
 
   /** Creates a new DriveToPlaceCommand. */
-  public DriveToPlaceCommand(DrivebaseSubsystem drivebaseSubsystem, Pose2d finalPose) {
+  public DriveToPlaceCommand(
+      DrivebaseSubsystem drivebaseSubsystem, Pose2d finalPose, double visionCalibrateOffset) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drivebaseSubsystem = drivebaseSubsystem;
     this.finalPose = finalPose;
+    this.visionCalibrateOffset = visionCalibrateOffset;
 
     follower = drivebaseSubsystem.getFollower();
 
@@ -54,20 +58,49 @@ public class DriveToPlaceCommand extends CommandBase {
   }
 
   private PathPlannerTrajectory createTrajectory() {
+    var currentPose = drivebaseSubsystem.getPose();
+    var initialPoint =
+        new PathPoint(
+            currentPose.getTranslation(),
+            straightLineAngle(currentPose.getTranslation(), finalPose.getTranslation()),
+            // holonomic rotation should start at our current rotation
+            currentPose.getRotation());
+
+    var intermediatePoint =
+        new PathPoint(
+            // drive until we are .2 meter away from the final position
+            finalPose
+                .getTranslation()
+                .minus(
+                    new Translation2d(-visionCalibrateOffset, 0)
+                        .rotateBy(
+                            straightLineAngle(
+                                finalPose.getTranslation(), currentPose.getTranslation()))),
+            // drive in a straight line to the final position
+            straightLineAngle(currentPose.getTranslation(), finalPose.getTranslation()),
+            // holonomic rotation should be the same as the final rotation to ensure tag visibility
+            finalPose.getRotation(),
+            // velocity should be 0 at the intermediate point to read apriltags
+            0);
+
+    var finalPoint =
+        new PathPoint(
+            // drive into the final position
+            finalPose.getTranslation(),
+            straightLineAngle(finalPose.getTranslation(), currentPose.getTranslation()),
+            finalPose.getRotation());
+
+    if (currentPose.getTranslation().getDistance(finalPose.getTranslation())
+        < visionCalibrateOffset) {
+      return PathPlanner.generatePath(new PathConstraints(3, .5), initialPoint, finalPoint);
+    }
+
     return PathPlanner.generatePath(
         new PathConstraints(3, .5),
-        new PathPoint(
-            drivebaseSubsystem.getPose().getTranslation(),
-            straightLineAngle(
-                drivebaseSubsystem.getPose().getTranslation(), finalPose.getTranslation()),
-            // holonomic rotation should start at our current rotation
-            drivebaseSubsystem.getGyroscopeRotation()),
-        new PathPoint(
-            // drive into the final position from the back
-            finalPose.getTranslation(),
-            straightLineAngle(
-                finalPose.getTranslation(), drivebaseSubsystem.getPose().getTranslation()),
-            finalPose.getRotation()));
+        initialPoint,
+        // stop near the goal to read apriltags with zero velocity
+        intermediatePoint,
+        finalPoint);
   }
 
   // Called when the command is initially scheduled.
