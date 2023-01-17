@@ -46,6 +46,8 @@
     "Mockito",
     "navx",
     "Odometry",
+    "repath",
+    "REPATHS",
     "setpoint",
     "Setpoints",
     "teleop",

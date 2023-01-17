@@ -33,14 +33,20 @@ public class DriveToPlaceCommand extends CommandBase {
 
   PathPlannerTrajectory trajectory;
   double generationTime;
+  private final double repathDelaySeconds;
+  double repathCount;
 
   /** Creates a new DriveToPlaceCommand. */
   public DriveToPlaceCommand(
-      DrivebaseSubsystem drivebaseSubsystem, Pose2d finalPose, double visionCalibrateOffset) {
+      DrivebaseSubsystem drivebaseSubsystem,
+      Pose2d finalPose,
+      double visionCalibrateOffset,
+      double repathDelaySeconds) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drivebaseSubsystem = drivebaseSubsystem;
     this.finalPose = finalPose;
     this.visionCalibrateOffset = visionCalibrateOffset;
+    this.repathDelaySeconds = repathDelaySeconds;
 
     follower = drivebaseSubsystem.getFollower();
 
@@ -103,6 +109,11 @@ public class DriveToPlaceCommand extends CommandBase {
         finalPoint);
   }
 
+  private boolean shouldRepath() {
+    return Timer.getFPGATimestamp() - generationTime
+        > (trajectory.getTotalTimeSeconds() + repathDelaySeconds);
+  }
+
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
@@ -141,6 +152,21 @@ public class DriveToPlaceCommand extends CommandBase {
     stabilityCounter +=
         AdvancedSwerveTrajectoryFollower.poseWithinErrorMarginOfTrajectoryFinalGoal(
             drivebaseSubsystem.getPose(), trajectory, follower.getLastState());
+
+    if (shouldRepath()) {
+      if (stabilityCounter < PoseEstimator.STABILITY_COUNT_THRESHOLD
+          && repathCount < PoseEstimator.MAX_REPATHS) {
+        System.out.println("Repathing");
+        generationTime = Timer.getFPGATimestamp();
+        trajectory = createTrajectory();
+        repathCount++;
+        follower.setRunUntilAccurate(true);
+        follower.follow(trajectory);
+      } else {
+        System.out.println("Exceeded repath count");
+        this.cancel();
+      }
+    }
   }
 
   // Called once the command ends or is interrupted.

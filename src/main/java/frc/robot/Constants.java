@@ -157,6 +157,8 @@ public final class Constants {
 
     public static final int STABILITY_COUNT_THRESHOLD = 15;
 
+    public static final int MAX_REPATHS = 2;
+
     public static final class VelocityError {
       public static final double XY_METERS = .001;
     }
