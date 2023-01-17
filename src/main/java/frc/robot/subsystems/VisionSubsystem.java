@@ -12,6 +12,9 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import frc.robot.Constants.PoseEstimator;
 import frc.robot.Constants.Vision;
 import java.util.ArrayList;
@@ -29,8 +32,19 @@ public class VisionSubsystem {
     public VisionSource(PhotonCamera camera, Transform3d robotToCam) {
       this.camera = camera;
       this.robotToCam = robotToCam;
+      cameraStatusList.addBoolean(this.camera.getName(), this.camera::isConnected);
+    }
+
+    Pair<PhotonCamera, Transform3d> getAsPair() {
+      return new Pair<PhotonCamera, Transform3d>(camera, robotToCam);
     }
   }
+
+  private final ShuffleboardLayout cameraStatusList =
+      Shuffleboard.getTab("DriverView")
+          .getLayout("photonCameras", BuiltInLayouts.kList)
+          .withPosition(11, 0)
+          .withSize(2, 3);
 
   private final VisionSource frontCam =
       new VisionSource(new PhotonCamera(Vision.FrontCam.NAME), Vision.FrontCam.ROBOT_TO_CAM);
@@ -41,6 +55,8 @@ public class VisionSubsystem {
 
   static final double TEST_SPACE_WIDTH = 2.5;
   static final double TEST_SPACE_LENGTH = 5;
+
+  private double lastDetection = 0;
 
   /** Creates a new VisionSubsystem. */
   public VisionSubsystem() {
@@ -58,10 +74,14 @@ public class VisionSubsystem {
 
     // Create a list of cameras to use for pose estimation
     List<Pair<PhotonCamera, Transform3d>> cameras = new ArrayList<>();
-    cameras.add(new Pair<>(frontCam.camera, frontCam.robotToCam));
-    cameras.add(new Pair<>(backCam.camera, backCam.robotToCam));
+    cameras.add(frontCam.getAsPair());
+    cameras.add(backCam.getAsPair());
 
     poseEstimator = new RobotPoseEstimator(atfl, PoseStrategy.CLOSEST_TO_REFERENCE_POSE, cameras);
+
+    cameraStatusList.addString(
+        "time since apriltag detection",
+        () -> String.format("%3.0f seconds", Timer.getFPGATimestamp() - lastDetection));
   }
 
   /**
@@ -80,6 +100,8 @@ public class VisionSubsystem {
     if (!result.isPresent() || result.get().getFirst() == null) return Optional.empty();
 
     var resultSome = result.get();
+
+    lastDetection = Timer.getFPGATimestamp();
 
     return Optional.of(
         new Pair<Pose2d, Double>(

@@ -154,7 +154,9 @@ public class RobotContainer {
    */
   private void setupAutonomousCommands() {
     Shuffleboard.getTab("DriverView")
-        .addString("NOTES", () -> "Onside is right side. We got this Danny!");
+        .addString("NOTES", () -> "...win?")
+        .withSize(3, 1)
+        .withPosition(0, 0);
 
     autoSelector.setDefaultOption(
         "[NEW] AutoTest",
@@ -166,7 +168,7 @@ public class RobotContainer {
     Shuffleboard.getTab("DriverView")
         .add("auto selector", autoSelector)
         .withSize(4, 1)
-        .withPosition(6, 0);
+        .withPosition(7, 0);
   }
 
   /**
