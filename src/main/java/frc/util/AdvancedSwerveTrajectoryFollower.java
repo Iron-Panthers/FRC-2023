@@ -11,7 +11,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import frc.robot.Constants.PoseEstimator;
-import frc.robot.Constants.PoseEstimator.VelocityError;
 import frc.robot.autonomous.TrajectoryFollower;
 
 /**
@@ -29,9 +28,6 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
   /* Variable to track if calculateDriveSignal has run once yet */
   private boolean firstRun = false;
 
-  /* Variable to track if the robot should run until it is accurate instead of just finishing the trajectory */
-  private boolean runUntilAccurate = false;
-
   private int stabilityCounter = 0;
 
   public AdvancedSwerveTrajectoryFollower(
@@ -46,25 +42,13 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
     this.angleController = angleController;
   }
 
-  /**
-   * Set whether the robot should run until it is accurate instead of just finishing the trajectory.
-   * This is for driving to poses.
-   *
-   * @param runUntilAccurate True if the robot should run until it is accurate
-   */
-  public void setRunUntilAccurate(boolean runUntilAccurate) {
-    this.runUntilAccurate = runUntilAccurate;
-    stabilityCounter = 0;
-  }
-
   private ChassisSpeeds finishTrajectory() {
     finished = true;
-    runUntilAccurate = false;
     stabilityCounter = 0;
     return new ChassisSpeeds();
   }
 
-  public static int poseWithinErrorMarginOfTrajectoryFinalGoal(
+  public static boolean poseWithinErrorMarginOfTrajectoryFinalGoal(
       Pose2d currentPose, Trajectory trajectory, Trajectory.State lastState) {
     var finalState =
         ((PathPlannerState)
@@ -72,42 +56,26 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
                 // sample the final position using the time greater than total time behavior
                 .sample(trajectory.getTotalTimeSeconds() + 1));
     return (
-            // xy error
-            currentPose.getTranslation().getDistance(finalState.poseMeters.getTranslation())
-                <= PoseEstimator.DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS)
-            && (
-            // theta error
-            Math.abs(
-                    Util.relativeAngularDifference(
-                        currentPose.getRotation(), finalState.holonomicRotation))
-                <= PoseEstimator.DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES)
-            && (
-            // velocity xy
-            lastState.velocityMetersPerSecond <= VelocityError.XY_METERS)
-        ? 1
-        : 0;
+        // xy error
+        currentPose.getTranslation().getDistance(finalState.poseMeters.getTranslation())
+            <= PoseEstimator.DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS)
+        && (
+        // theta error
+        Math.abs(
+                Util.relativeAngularDifference(
+                    currentPose.getRotation(), finalState.holonomicRotation))
+            <= PoseEstimator.DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES);
   }
 
   @Override
   protected ChassisSpeeds calculateDriveSignal(
       Pose2d currentPose, Trajectory trajectory, double time, double dt) {
-    if (time > trajectory.getTotalTimeSeconds() && !runUntilAccurate) {
+    if (time > trajectory.getTotalTimeSeconds()) {
       // If the robot is past the end of the trajectory, stop
       return finishTrajectory();
     }
 
-    // nasty nested if statement...
-    if (runUntilAccurate) {
-      stabilityCounter +=
-          poseWithinErrorMarginOfTrajectoryFinalGoal(currentPose, trajectory, lastState);
-      if (stabilityCounter >= PoseEstimator.STABILITY_COUNT_THRESHOLD) {
-        // If the robot is within threshold of the target pose and stable, stop
-        return finishTrajectory();
-      }
-    }
-
     // there is still time left!
-    // this wont throw with times greater than total time, instead returning the final pose.
     lastState = trajectory.sample(time);
     if (firstRun) {
       angleController.reset(currentPose.getRotation().getRadians());

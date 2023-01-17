@@ -29,6 +29,8 @@ public class DriveToPlaceCommand extends CommandBase {
 
   private final double visionCalibrateOffset;
 
+  private static final PathConstraints pathConstraints = new PathConstraints(5, 1.5);
+
   int stabilityCounter = 0;
 
   PathPlannerTrajectory trajectory;
@@ -85,28 +87,25 @@ public class DriveToPlaceCommand extends CommandBase {
             // drive in a straight line to the final position
             straightLineAngle(currentPose.getTranslation(), finalPose.getTranslation()),
             // holonomic rotation should be the same as the final rotation to ensure tag visibility
-            finalPose.getRotation(),
-            // velocity should be 0 at the intermediate point to read apriltags
-            0);
-
-    var finalPoint =
-        new PathPoint(
-            // drive into the final position
-            finalPose.getTranslation(),
-            straightLineAngle(finalPose.getTranslation(), currentPose.getTranslation()),
             finalPose.getRotation());
 
-    if (currentPose.getTranslation().getDistance(finalPose.getTranslation())
-        < visionCalibrateOffset) {
-      return PathPlanner.generatePath(new PathConstraints(3, .5), initialPoint, finalPoint);
-    }
+    // var finalPoint =
+    //     new PathPoint(
+    //         // drive into the final position
+    //         finalPose.getTranslation(),
+    //         straightLineAngle(finalPose.getTranslation(), currentPose.getTranslation()),
+    //         finalPose.getRotation());
+
+    // if (currentPose.getTranslation().getDistance(finalPose.getTranslation())
+    //     < visionCalibrateOffset) {
+    //   return PathPlanner.generatePath(pathConstraints, initialPoint, finalPoint);
+    // }
 
     return PathPlanner.generatePath(
-        new PathConstraints(7, 2),
+        pathConstraints,
         initialPoint,
         // stop near the goal to read apriltags with zero velocity
-        intermediatePoint,
-        finalPoint);
+        intermediatePoint);
   }
 
   private boolean shouldRepath() {
@@ -122,7 +121,6 @@ public class DriveToPlaceCommand extends CommandBase {
     generationTime = Timer.getFPGATimestamp();
     trajectory = createTrajectory();
 
-    follower.setRunUntilAccurate(true);
     follower.follow(trajectory);
   }
 
@@ -149,24 +147,29 @@ public class DriveToPlaceCommand extends CommandBase {
                 .orElseGet(() -> -10000d),
             stabilityCounter));
 
-    // increment stability counter
-    stabilityCounter +=
-        AdvancedSwerveTrajectoryFollower.poseWithinErrorMarginOfTrajectoryFinalGoal(
-            drivebaseSubsystem.getPose(), trajectory, follower.getLastState());
-
     if (shouldRepath()) {
-      if (stabilityCounter < PoseEstimator.STABILITY_COUNT_THRESHOLD
-          && repathCount < PoseEstimator.MAX_REPATHS) {
-        System.out.println("Repathing");
-        generationTime = Timer.getFPGATimestamp();
-        trajectory = createTrajectory();
-        repathCount++;
-        follower.setRunUntilAccurate(true);
-        follower.follow(trajectory);
-      } else {
-        System.out.println("Exceeded repath count");
+      if (repathCount > 0) {
         this.cancel();
       }
+      generationTime = Timer.getFPGATimestamp();
+
+      var currentPose = drivebaseSubsystem.getPose();
+      var initialPoint =
+          new PathPoint(
+              currentPose.getTranslation(),
+              straightLineAngle(currentPose.getTranslation(), finalPose.getTranslation()),
+              // holonomic rotation should start at our current rotation
+              currentPose.getRotation());
+      var finalPoint =
+          new PathPoint(
+              // drive into the final position
+              finalPose.getTranslation(),
+              straightLineAngle(finalPose.getTranslation(), currentPose.getTranslation()),
+              finalPose.getRotation());
+
+      trajectory = PathPlanner.generatePath(new PathConstraints(1, .5), initialPoint, finalPoint);
+      repathCount++;
+      follower.follow(trajectory);
     }
   }
 
