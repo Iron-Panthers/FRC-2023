@@ -14,11 +14,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.PoseEstimator;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.util.AdvancedSwerveTrajectoryFollower;
 import frc.util.Util;
-import java.util.Optional;
 
 public class DriveToPlaceCommand extends CommandBase {
 
@@ -27,28 +25,24 @@ public class DriveToPlaceCommand extends CommandBase {
 
   private final AdvancedSwerveTrajectoryFollower follower;
 
-  private final double visionCalibrateOffset;
-
-  private static final PathConstraints pathConstraints = new PathConstraints(5, 1.5);
-
-  int stabilityCounter = 0;
+  private final double observationDistance;
+  private final double observationTime;
 
   PathPlannerTrajectory trajectory;
   double generationTime;
-  private final double repathDelaySeconds;
-  double repathCount;
+  double adjustCount;
 
   /** Creates a new DriveToPlaceCommand. */
   public DriveToPlaceCommand(
       DrivebaseSubsystem drivebaseSubsystem,
       Pose2d finalPose,
-      double visionCalibrateOffset,
-      double repathDelaySeconds) {
+      double observationDistance,
+      double observationTime) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drivebaseSubsystem = drivebaseSubsystem;
     this.finalPose = finalPose;
-    this.visionCalibrateOffset = visionCalibrateOffset;
-    this.repathDelaySeconds = repathDelaySeconds;
+    this.observationDistance = observationDistance;
+    this.observationTime = observationTime;
 
     follower = drivebaseSubsystem.getFollower();
 
@@ -65,7 +59,7 @@ public class DriveToPlaceCommand extends CommandBase {
     return Rotation2d.fromRadians(angle);
   }
 
-  private PathPlannerTrajectory createTrajectory() {
+  private PathPlannerTrajectory createObservationTrajectory() {
     var currentPose = drivebaseSubsystem.getPose();
     var initialPoint =
         new PathPoint(
@@ -74,13 +68,13 @@ public class DriveToPlaceCommand extends CommandBase {
             // holonomic rotation should start at our current rotation
             currentPose.getRotation());
 
-    var intermediatePoint =
+    var observationPoint =
         new PathPoint(
             // drive until we are .2 meter away from the final position
             finalPose
                 .getTranslation()
                 .minus(
-                    new Translation2d(-visionCalibrateOffset, 0)
+                    new Translation2d(-observationDistance, 0)
                         .rotateBy(
                             straightLineAngle(
                                 finalPose.getTranslation(), currentPose.getTranslation()))),
@@ -89,38 +83,59 @@ public class DriveToPlaceCommand extends CommandBase {
             // holonomic rotation should be the same as the final rotation to ensure tag visibility
             finalPose.getRotation());
 
-    // var finalPoint =
-    //     new PathPoint(
-    //         // drive into the final position
-    //         finalPose.getTranslation(),
-    //         straightLineAngle(finalPose.getTranslation(), currentPose.getTranslation()),
-    //         finalPose.getRotation());
-
-    // if (currentPose.getTranslation().getDistance(finalPose.getTranslation())
-    //     < visionCalibrateOffset) {
-    //   return PathPlanner.generatePath(pathConstraints, initialPoint, finalPoint);
-    // }
-
     return PathPlanner.generatePath(
-        pathConstraints,
+        new PathConstraints(5, 1.5),
         initialPoint,
-        // stop near the goal to read apriltags with zero velocity
-        intermediatePoint);
+        // stop near the goal to read apriltags
+        observationPoint);
   }
 
-  private boolean shouldRepath() {
+  private PathPlannerTrajectory createAdjustTrajectory() {
+    var currentPose = drivebaseSubsystem.getPose();
+    var initialPoint =
+        new PathPoint(
+            currentPose.getTranslation(),
+            straightLineAngle(currentPose.getTranslation(), finalPose.getTranslation()),
+            // holonomic rotation should start at our current rotation
+            currentPose.getRotation());
+
+    var finalPoint =
+        new PathPoint(
+            // drive into the final position
+            finalPose.getTranslation(),
+            straightLineAngle(finalPose.getTranslation(), currentPose.getTranslation()),
+            finalPose.getRotation());
+
+    return PathPlanner.generatePath(new PathConstraints(1, .5), initialPoint, finalPoint);
+  }
+
+  private double distanceBetween(Pose2d p1, Pose2d p2) {
+    return p1.getTranslation().getDistance(p2.getTranslation());
+  }
+
+  private boolean finishedPath() {
     return Timer.getFPGATimestamp() - generationTime
-        > (trajectory.getTotalTimeSeconds() + repathDelaySeconds);
+        > (trajectory.getTotalTimeSeconds() + observationTime);
+  }
+
+  private boolean poseSatisfied() {
+    return AdvancedSwerveTrajectoryFollower.poseWithinErrorMarginOfTrajectoryFinalGoal(
+        finalPose, trajectory, follower.getLastState());
+  }
+
+  private PathPlannerTrajectory createNextTrajectory() {
+    generationTime = Timer.getFPGATimestamp();
+    return distanceBetween(drivebaseSubsystem.getPose(), finalPose) < observationDistance
+        ? createAdjustTrajectory()
+        : createObservationTrajectory();
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    stabilityCounter = 0;
-    repathCount = 0;
+    adjustCount = 0;
     generationTime = Timer.getFPGATimestamp();
-    trajectory = createTrajectory();
-
+    trajectory = createNextTrajectory();
     follower.follow(trajectory);
   }
 
@@ -135,40 +150,16 @@ public class DriveToPlaceCommand extends CommandBase {
                 .sample(trajectory.getTotalTimeSeconds() + 1));
     System.out.println(
         String.format(
-            "xy err: %8f theta err: %8f Vel: %8f Stability: %3d",
+            "xy err: %8f theta err: %8f",
             drivebaseSubsystem
                 .getPose()
                 .getTranslation()
                 .getDistance(fP.poseMeters.getTranslation()),
             Util.relativeAngularDifference(
-                drivebaseSubsystem.getPose().getRotation(), fP.holonomicRotation),
-            Optional.ofNullable(follower.getLastState())
-                .map((s) -> s.velocityMetersPerSecond)
-                .orElseGet(() -> -10000d),
-            stabilityCounter));
+                drivebaseSubsystem.getPose().getRotation(), fP.holonomicRotation)));
 
-    if (shouldRepath()) {
-      if (repathCount > 0) {
-        this.cancel();
-      }
-      generationTime = Timer.getFPGATimestamp();
-
-      var currentPose = drivebaseSubsystem.getPose();
-      var initialPoint =
-          new PathPoint(
-              currentPose.getTranslation(),
-              straightLineAngle(currentPose.getTranslation(), finalPose.getTranslation()),
-              // holonomic rotation should start at our current rotation
-              currentPose.getRotation());
-      var finalPoint =
-          new PathPoint(
-              // drive into the final position
-              finalPose.getTranslation(),
-              straightLineAngle(finalPose.getTranslation(), currentPose.getTranslation()),
-              finalPose.getRotation());
-
-      trajectory = PathPlanner.generatePath(new PathConstraints(1, .5), initialPoint, finalPoint);
-      repathCount++;
+    if (finishedPath() && !poseSatisfied()) {
+      trajectory = createNextTrajectory();
       follower.follow(trajectory);
     }
   }
@@ -182,6 +173,6 @@ public class DriveToPlaceCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return stabilityCounter >= PoseEstimator.STABILITY_COUNT_THRESHOLD;
+    return finishedPath() && poseSatisfied();
   }
 }
