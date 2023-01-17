@@ -147,6 +147,11 @@ public class RobotContainer {
         .whenPressed(
             new DriveToPlaceCommand(
                 drivebaseSubsystem, new Pose2d(3.5, 2.2, Rotation2d.fromDegrees(0)), .2, .5));
+
+    new Button(will::getYButton)
+        .whenPressed(
+            new DriveToPlaceCommand(
+                drivebaseSubsystem, new Pose2d(3.2, .5, Rotation2d.fromDegrees(170)), .2, .5));
   }
 
   /**
