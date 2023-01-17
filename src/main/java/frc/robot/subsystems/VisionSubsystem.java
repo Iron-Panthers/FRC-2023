@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Constants.PoseEstimator;
 import frc.robot.Constants.Vision;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,6 +83,9 @@ public class VisionSubsystem {
 
     return Optional.of(
         new Pair<Pose2d, Double>(
-            resultSome.getFirst().toPose2d(), currentTime - (resultSome.getSecond() / 1000)));
+            resultSome.getFirst().toPose2d(),
+            currentTime
+                - ((resultSome.getSecond() + PoseEstimator.CAMERA_CAPTURE_LATENCY_FUDGE_MS)
+                    / 1000)));
   }
 }

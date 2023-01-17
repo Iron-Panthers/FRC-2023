@@ -150,6 +150,8 @@ public final class Constants {
                 2 * Math.PI // theta
                 );
 
+    public static final double CAMERA_CAPTURE_LATENCY_FUDGE_MS = 11;
+
     /** about one inch */
     public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .05;
 
