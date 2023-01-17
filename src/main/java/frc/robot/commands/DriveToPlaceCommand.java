@@ -118,6 +118,7 @@ public class DriveToPlaceCommand extends CommandBase {
   @Override
   public void initialize() {
     stabilityCounter = 0;
+    repathCount = 0;
     generationTime = Timer.getFPGATimestamp();
     trajectory = createTrajectory();
 
