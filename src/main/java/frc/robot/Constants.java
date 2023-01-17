@@ -157,10 +157,6 @@ public final class Constants {
 
     public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 2;
 
-    public static final int STABILITY_COUNT_THRESHOLD = 35;
-
-    public static final int MAX_REPATHS = 3;
-
     public static final class VelocityError {
       public static final double XY_METERS = .001;
     }

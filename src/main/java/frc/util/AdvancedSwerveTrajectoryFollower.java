@@ -49,7 +49,7 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
   }
 
   public static boolean poseWithinErrorMarginOfTrajectoryFinalGoal(
-      Pose2d currentPose, Trajectory trajectory, Trajectory.State lastState) {
+      Pose2d currentPose, Trajectory trajectory) {
     var finalState =
         ((PathPlannerState)
             trajectory

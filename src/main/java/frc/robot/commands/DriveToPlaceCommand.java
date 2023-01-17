@@ -120,7 +120,7 @@ public class DriveToPlaceCommand extends CommandBase {
 
   private boolean poseSatisfied() {
     return AdvancedSwerveTrajectoryFollower.poseWithinErrorMarginOfTrajectoryFinalGoal(
-        finalPose, trajectory, follower.getLastState());
+        finalPose, trajectory);
   }
 
   private PathPlannerTrajectory createNextTrajectory() {
@@ -150,7 +150,7 @@ public class DriveToPlaceCommand extends CommandBase {
                 .sample(trajectory.getTotalTimeSeconds() + 1));
     System.out.println(
         String.format(
-            "xy err: %8f theta err: %8f",
+            "    xy err: %8f theta err: %8f",
             drivebaseSubsystem
                 .getPose()
                 .getTranslation()
@@ -158,7 +158,11 @@ public class DriveToPlaceCommand extends CommandBase {
             Util.relativeAngularDifference(
                 drivebaseSubsystem.getPose().getRotation(), fP.holonomicRotation)));
 
-    if (finishedPath() && !poseSatisfied()) {
+    if (finishedPath()) {
+      if (poseSatisfied()) {
+        this.cancel();
+      }
+      System.out.println("creating new trajectory");
       trajectory = createNextTrajectory();
       follower.follow(trajectory);
     }
