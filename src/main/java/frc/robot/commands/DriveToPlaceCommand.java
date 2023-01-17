@@ -96,7 +96,7 @@ public class DriveToPlaceCommand extends CommandBase {
     }
 
     return PathPlanner.generatePath(
-        new PathConstraints(3, .5),
+        new PathConstraints(7, 2),
         initialPoint,
         // stop near the goal to read apriltags with zero velocity
         intermediatePoint,
