@@ -255,20 +255,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
     return Rotation2d.fromDegrees(angle);
   }
 
-  private double lastAngle = 0;
-  private double lastTime = 0;
-  private double rotVelocity = 0;
-
-  private void updateRotVelocity() {
-    double time = Timer.getFPGATimestamp();
-    double angle = getGyroscopeRotation().getDegrees();
-    rotVelocity = (angle - lastAngle) / (time - lastTime);
-    lastTime = time;
-    lastAngle = angle;
-  }
-
   public double getRotVelocity() {
-    return rotVelocity;
+    return navx.getRate();
   }
 
   /**
@@ -389,7 +377,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
    * @param mode The mode to use (should use the current mode value)
    */
   public void updateModules(Modes mode) {
-    updateRotVelocity();
     switch (mode) {
       case DRIVE:
         drivePeriodic();
