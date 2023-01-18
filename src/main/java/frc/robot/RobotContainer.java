@@ -20,11 +20,13 @@ import frc.robot.autonomous.commands.AutoTestSequence;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
+import frc.robot.commands.IntakeManualCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.VibrateControllerCommand;
 import frc.robot.subsystems.DataLogger;
 import frc.robot.subsystems.DrivebaseSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.util.ControllerUtil;
 import frc.util.Layer;
 import frc.util.MacUtil;
@@ -41,6 +43,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
   private final DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem();
+  final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 
   private final DataLogger dataLogger = new DataLogger();
 
@@ -141,6 +144,21 @@ public class RobotContainer {
                 will::getRightY,
                 will::getRightX,
                 will::getRightBumper));
+
+    new Button(will::getAButton)
+        .whileHeld(
+            new IntakeManualCommand(
+                intakeSubsystem, Constants.Intake.intakePower, -Constants.Intake.outtakePower));
+
+    // new Button(remy::getYButton)
+    //     .whileHeld(new OuttakeCommand(intakeSubsystem, Constants.Intake.outtakePower,
+    // -Constants.Intake.ejectPower));
+
+    // new Button(() -> remy.getLeftTriggerAxis() > 0.5 )
+    //     .whileHeld(new EjectLeftManualCommand(intakeSubsystem, Constants.Intake.ejectPower));
+
+    // new Button(() -> remy.getRightTriggerAxis() > 0.5 )
+    //     .whileHeld(new EjectRightManualCommand(intakeSubsystem, Constants.Intake.ejectPower));
   }
 
   /**
