@@ -29,7 +29,6 @@ public class PlaceCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // SmartDashboard.putNumber("rate", rate);
     intakeSubsystem.setPlaceLower(ejectPower);
     intakeSubsystem.setPlaceUpper(ejectPower);
     intakeSubsystem.setIntake(-power);

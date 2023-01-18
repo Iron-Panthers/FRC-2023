@@ -105,7 +105,7 @@ public final class Constants {
     }
 
     public static final double intakePower = 0.25;
-    public static final double placePowerUpper = -0.75;
-    public static final double placePowerLower = -0.75;
+    public static final double outtakePower = -0.75;
+    public static final double ejectPower = 0.75;
   }
 }

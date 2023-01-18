@@ -155,12 +155,6 @@ public class RobotContainer {
         .whileHeld(
             new PlaceCommand(
                 intakeSubsystem, Constants.Intake.outtakePower, -Constants.Intake.ejectPower));
-
-    // new Button(() -> remy.getLeftTriggerAxis() > 0.5 )
-    //     .whileHeld(new EjectLeftManualCommand(intakeSubsystem, Constants.Intake.ejectPower));
-
-    // new Button(() -> remy.getRightTriggerAxis() > 0.5 )
-    //     .whileHeld(new EjectRightManualCommand(intakeSubsystem, Constants.Intake.ejectPower));
   }
 
   /**
