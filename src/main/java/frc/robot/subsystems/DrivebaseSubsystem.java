@@ -294,10 +294,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
   }
 
   /**
-   * Updates the robot pose estimation for newly written module states. Should be called everytime
-   * outputs are written to the modules.
-   *
-   * @param moduleStatesWritten The outputs that you have just written to the modules.
+   * Updates the robot pose estimation for newly written module states. Should be called on every
+   * periodic
    */
   private void odometryPeriodic() {
     this.robotPose = swervePoseEstimator.update(getGyroscopeRotation(), getSwerveModulePositions());
@@ -330,9 +328,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
           states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
           states[i].angle.getRadians());
     }
-
-    // Update odometry
-    odometryPeriodic();
   }
 
   // called in drive to angle mode
@@ -354,8 +349,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     // use the existing drive periodic logic to assign to motors ect
     drivePeriodic();
-
-    // Odometry updates are called in drivePeriodic, so we don't have to worry about them here
   }
 
   @SuppressWarnings("java:S1121")
@@ -428,5 +421,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     /* Write outputs, corresponding to our current Mode of operation */
     updateModules(currentMode);
+
+    /* Update odometry */
+    odometryPeriodic();
   }
 }
