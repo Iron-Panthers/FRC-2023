@@ -360,19 +360,19 @@ public class DrivebaseSubsystem extends SubsystemBase {
     } else {
       double pitchAngle = navx.getPitch();
 
-      double ySpeed = balController.calculate(pitchAngle);
+      double xSpeed = balController.calculate(pitchAngle);
 
-      double ySpeedClamped = MathUtil.clamp(ySpeed, -1, 1);
+      double xSpeedClamped = MathUtil.clamp(xSpeed, -1, 1);
 
       // No x movement or rotation
-      chassisSpeeds = new ChassisSpeeds(0, ySpeedClamped, 0);
+      chassisSpeeds = new ChassisSpeeds(xSpeedClamped, 0, 0);
 
       drivePeriodic();
     }
   }
 
   public void balance() {
-    if (mode != Modes.DRIVE_ANGLE) balController.reset();
+    if (mode != Modes.BALANCE) balController.reset();
     mode = Modes.BALANCE;
   }
 
