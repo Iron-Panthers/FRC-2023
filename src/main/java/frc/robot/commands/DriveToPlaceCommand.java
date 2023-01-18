@@ -17,6 +17,10 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.util.AdvancedSwerveTrajectoryFollower;
 import frc.util.Util;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class DriveToPlaceCommand extends CommandBase {
 
@@ -28,7 +32,9 @@ public class DriveToPlaceCommand extends CommandBase {
   private final double observationDistance;
   private final double observationTime;
 
-  PathPlannerTrajectory trajectory;
+  Optional<PathPlannerTrajectory> trajectory = Optional.empty();
+  Future<PathPlannerTrajectory> futureTrajectory;
+
   double generationTime;
   double adjustCount;
 
@@ -59,7 +65,13 @@ public class DriveToPlaceCommand extends CommandBase {
     return Rotation2d.fromRadians(angle);
   }
 
-  private PathPlannerTrajectory createObservationTrajectory() {
+  private Future<PathPlannerTrajectory> asyncPathGen(
+      PathConstraints constraints, PathPoint initialPoint, PathPoint finalPoint) {
+    return Executors.newCachedThreadPool()
+        .submit(() -> PathPlanner.generatePath(constraints, initialPoint, finalPoint));
+  }
+
+  private Future<PathPlannerTrajectory> createObservationTrajectory() {
     var currentPose = drivebaseSubsystem.getPose();
     var initialPoint =
         new PathPoint(
@@ -83,14 +95,14 @@ public class DriveToPlaceCommand extends CommandBase {
             // holonomic rotation should be the same as the final rotation to ensure tag visibility
             finalPose.getRotation());
 
-    return PathPlanner.generatePath(
+    return asyncPathGen(
         new PathConstraints(5, 1.5),
         initialPoint,
         // stop near the goal to read apriltags
         observationPoint);
   }
 
-  private PathPlannerTrajectory createAdjustTrajectory() {
+  private Future<PathPlannerTrajectory> createAdjustTrajectory() {
     var currentPose = drivebaseSubsystem.getPose();
     var initialPoint =
         new PathPoint(
@@ -106,7 +118,7 @@ public class DriveToPlaceCommand extends CommandBase {
             straightLineAngle(finalPose.getTranslation(), currentPose.getTranslation()),
             finalPose.getRotation());
 
-    return PathPlanner.generatePath(new PathConstraints(1, .5), initialPoint, finalPoint);
+    return asyncPathGen(new PathConstraints(1, .5), initialPoint, finalPoint);
   }
 
   private double distanceBetween(Pose2d p1, Pose2d p2) {
@@ -114,20 +126,23 @@ public class DriveToPlaceCommand extends CommandBase {
   }
 
   private boolean finishedPath() {
-    return Timer.getFPGATimestamp() - generationTime
-        > (trajectory.getTotalTimeSeconds() + observationTime);
+    return trajectory.isPresent()
+        && (Timer.getFPGATimestamp() - generationTime
+            > (trajectory.get().getTotalTimeSeconds() + observationTime));
   }
 
   private boolean poseSatisfied() {
-    return AdvancedSwerveTrajectoryFollower.poseWithinErrorMarginOfTrajectoryFinalGoal(
-        finalPose, trajectory);
+    return trajectory.isPresent()
+        && AdvancedSwerveTrajectoryFollower.poseWithinErrorMarginOfTrajectoryFinalGoal(
+            finalPose, trajectory.get());
   }
 
-  private PathPlannerTrajectory createNextTrajectory() {
+  private void startGeneratingNextTrajectory() {
     generationTime = Timer.getFPGATimestamp();
-    return distanceBetween(drivebaseSubsystem.getPose(), finalPose) < observationDistance
-        ? createAdjustTrajectory()
-        : createObservationTrajectory();
+    futureTrajectory =
+        distanceBetween(drivebaseSubsystem.getPose(), finalPose) < observationDistance
+            ? createAdjustTrajectory()
+            : createObservationTrajectory();
   }
 
   // Called when the command is initially scheduled.
@@ -135,36 +150,49 @@ public class DriveToPlaceCommand extends CommandBase {
   public void initialize() {
     adjustCount = 0;
     generationTime = Timer.getFPGATimestamp();
-    trajectory = createNextTrajectory();
-    follower.follow(trajectory);
+    startGeneratingNextTrajectory();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // print the distance to the final pose
-    var fP =
-        ((PathPlannerState)
-            trajectory
-                // sample the final position using the time greater than total time behavior
-                .sample(trajectory.getTotalTimeSeconds() + 1));
-    System.out.println(
-        String.format(
-            "    xy err: %8f theta err: %8f",
-            drivebaseSubsystem
-                .getPose()
-                .getTranslation()
-                .getDistance(fP.poseMeters.getTranslation()),
-            Util.relativeAngularDifference(
-                drivebaseSubsystem.getPose().getRotation(), fP.holonomicRotation)));
+    // start the next trajectory if the generation is done
+    if (!trajectory.isPresent() && futureTrajectory.isDone()) {
+      try {
+        trajectory = Optional.of(futureTrajectory.get());
+        follower.follow(trajectory.get());
+      } catch (ExecutionException | InterruptedException e) {
+        e.printStackTrace();
+        this.cancel();
+      }
+    }
+
+    if (trajectory.isPresent()) {
+      // print the distance to the final pose
+      var fP =
+          ((PathPlannerState)
+              trajectory
+                  .get()
+                  // sample the final position using the time greater than total time behavior
+                  .sample(trajectory.get().getTotalTimeSeconds() + 1));
+      System.out.println(
+          String.format(
+              "    xy err: %8f theta err: %8f",
+              drivebaseSubsystem
+                  .getPose()
+                  .getTranslation()
+                  .getDistance(fP.poseMeters.getTranslation()),
+              Util.relativeAngularDifference(
+                  drivebaseSubsystem.getPose().getRotation(), fP.holonomicRotation)));
+    }
 
     if (finishedPath()) {
       if (poseSatisfied()) {
         this.cancel();
       }
       System.out.println("creating new trajectory");
-      trajectory = createNextTrajectory();
-      follower.follow(trajectory);
+      startGeneratingNextTrajectory();
+      trajectory = Optional.empty();
     }
   }
 
@@ -172,6 +200,8 @@ public class DriveToPlaceCommand extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     follower.cancel();
+    futureTrajectory.cancel(true);
+    trajectory = Optional.empty();
   }
 
   // Returns true when the command should end.
