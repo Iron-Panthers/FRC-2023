@@ -28,20 +28,19 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void setIntake(double power) {
-    double clampedPower = MathUtil.clamp(power, -0.1, 0.1);
 
-    intakeLower.set(TalonFXControlMode.PercentOutput, clampedPower);
-    intakeUpper.set(TalonFXControlMode.PercentOutput, clampedPower);
+    intakeLower.set(TalonFXControlMode.PercentOutput, power);
+    intakeUpper.set(TalonFXControlMode.PercentOutput, power);
   }
 
   public void setPlaceLower(double power) {
-    double clampedPower = MathUtil.clamp(power, -0.1, 0.1);
-    placeLower.set(TalonFXControlMode.PercentOutput, clampedPower);
+
+    placeLower.set(TalonFXControlMode.PercentOutput, power);
   }
 
   public void setPlaceUpper(double power) {
-    double clampedPower = MathUtil.clamp(power, -0.1, 0.1);
-    placeUpper.set(TalonFXControlMode.PercentOutput, clampedPower);
+
+    placeUpper.set(TalonFXControlMode.PercentOutput, power);
   }
 }
 
