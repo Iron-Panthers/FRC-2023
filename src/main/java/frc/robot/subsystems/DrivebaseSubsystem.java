@@ -189,7 +189,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     swervePoseEstimator =
         new SwerveDrivePoseEstimator(
             kinematics,
-            getGyroscopeRotation(),
+            getConsistentGyroscopeRotation(),
             getSwerveModulePositions(),
             // FIXME: FIXME FIXME GOOD GOD FIX ME, USE A REAL VALUE HERE
             new Pose2d(3.5, 2.2, Rotation2d.fromDegrees(0)),
@@ -217,12 +217,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
     return kinematics;
   }
 
-  /** Sets the gyro angle to zero, resetting the forward direction */
-  public void zeroGyroscope() {
-    navx.setAngleAdjustment(0);
-    navx.zeroYaw();
-  }
-
   private SwerveModulePosition[] getSwerveModulePositions() {
     return new SwerveModulePosition[] {
       swerveModules[0].getPosition(),
@@ -232,27 +226,57 @@ public class DrivebaseSubsystem extends SubsystemBase {
     };
   }
 
+  private Rotation2d driverGyroOffset = Rotation2d.fromDegrees(0);
+
+  /** Sets the gyro angle to zero, resetting the forward direction */
+  public void zeroGyroscope() {
+    driverGyroOffset = getConsistentGyroscopeRotation();
+  }
+
   /**
-   * Resets the odometry estimate to a specific pose. Angle is substituted with the angle read from
-   * the gyroscope.
+   * Resets the odometry estimate to a specific pose.
    *
    * @param pose The pose to reset to.
    */
   public void resetOdometryToPose(Pose2d pose) {
 
-    navx.setAngleAdjustment(0);
+    // "Zero" the driver gyro heading
+    driverGyroOffset = getConsistentGyroscopeRotation().minus(pose.getRotation());
 
-    navx.setAngleAdjustment(getGyroscopeRotation().minus(pose.getRotation()).getDegrees());
-    swervePoseEstimator.resetPosition(getGyroscopeRotation(), getSwerveModulePositions(), pose);
+    swervePoseEstimator.resetPosition(
+        getConsistentGyroscopeRotation(), getSwerveModulePositions(), pose);
   }
 
-  public Rotation2d getGyroscopeRotation() {
+  /**
+   * Gets the current angle of the robot, relative to boot position. This value will not be reset,
+   * and is used for odometry.
+   *
+   * <p>Use this value for odometry.
+   *
+   * @return The current angle of the robot, relative to boot position.
+   */
+  public Rotation2d getConsistentGyroscopeRotation() {
+    return Rotation2d.fromDegrees(Util.normalizeDegrees(-navx.getAngle()));
+  }
 
-    double angle = Util.normalizeDegrees(-navx.getAngle());
+  /**
+   * Gets the current angle of the robot, relative to the last time zeroGyroscope() was called. This
+   * is not the same as the angle of the robot on the field, which is what getPose().getRotation()
+   * returns. This is the angle of the robot as the driver sees it.
+   *
+   * <p>Use this value for driving the robot.
+   *
+   * @return The current angle of the robot, relative to the last time zeroGyroscope() was called.
+   */
+  public Rotation2d getDriverGyroscopeRotation() {
 
     // We have to invert the angle of the NavX so that rotating the robot counter-clockwise makes
     // the angle increase.
-    return Rotation2d.fromDegrees(angle);
+    double angle = Util.normalizeDegrees(-navx.getAngle());
+
+    // We need to subtract the offset here so that the robot drives forward based on auto
+    // positioning or manual reset
+    return Rotation2d.fromDegrees(angle).minus(driverGyroOffset);
   }
 
   public double getRotVelocity() {
@@ -298,7 +322,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
    * periodic
    */
   private void odometryPeriodic() {
-    this.robotPose = swervePoseEstimator.update(getGyroscopeRotation(), getSwerveModulePositions());
+    this.robotPose =
+        swervePoseEstimator.update(getConsistentGyroscopeRotation(), getSwerveModulePositions());
 
     Optional<Pair<Pose2d, Double>> cameraPose = visionSubsystem.getEstimatedGlobalPose(robotPose);
 
@@ -332,7 +357,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
   // called in drive to angle mode
   private void driveAnglePeriodic() {
-    double angularDifference = -Util.relativeAngularDifference(getGyroscopeRotation(), targetAngle);
+    double angularDifference =
+        -Util.relativeAngularDifference(getDriverGyroscopeRotation(), targetAngle);
 
     double rotationValue = rotController.calculate(angularDifference);
 
@@ -345,7 +371,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
     // initialize chassis speeds but add our desired angle
     chassisSpeeds =
         ChassisSpeeds.fromFieldRelativeSpeeds(
-            xyInput.getFirst(), xyInput.getSecond(), omegaRadiansPerSecond, getGyroscopeRotation());
+            xyInput.getFirst(),
+            xyInput.getSecond(),
+            omegaRadiansPerSecond,
+            getDriverGyroscopeRotation());
 
     // use the existing drive periodic logic to assign to motors ect
     drivePeriodic();
