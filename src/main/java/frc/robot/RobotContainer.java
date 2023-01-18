@@ -21,6 +21,7 @@ import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
 import frc.robot.commands.IntakeManualCommand;
+import frc.robot.commands.PlaceCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.VibrateControllerCommand;
@@ -148,11 +149,12 @@ public class RobotContainer {
     new Button(will::getAButton)
         .whileHeld(
             new IntakeManualCommand(
-                intakeSubsystem, Constants.Intake.intakePower, -Constants.Intake.outtakePower));
+                intakeSubsystem, Constants.Intake.intakePower, -Constants.Intake.ejectPower));
 
-    // new Button(remy::getYButton)
-    //     .whileHeld(new OuttakeCommand(intakeSubsystem, Constants.Intake.outtakePower,
-    // -Constants.Intake.ejectPower));
+    new Button(will::getYButton)
+        .whileHeld(
+            new PlaceCommand(
+                intakeSubsystem, Constants.Intake.outtakePower, -Constants.Intake.ejectPower));
 
     // new Button(() -> remy.getLeftTriggerAxis() > 0.5 )
     //     .whileHeld(new EjectLeftManualCommand(intakeSubsystem, Constants.Intake.ejectPower));

@@ -7,13 +7,13 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.IntakeSubsystem;
 
-public class IntakeManualCommand extends CommandBase {
+public class PlaceCommand extends CommandBase {
   private IntakeSubsystem intakeSubsystem;
   private final Double power;
   private final Double ejectPower;
 
   /** Creates a new ElevatorCommand. */
-  public IntakeManualCommand(IntakeSubsystem subsystem, Double power, Double ejectPower) {
+  public PlaceCommand(IntakeSubsystem subsystem, Double power, Double ejectPower) {
     this.power = power;
     this.ejectPower = ejectPower;
     this.intakeSubsystem = subsystem;
@@ -29,6 +29,7 @@ public class IntakeManualCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    // SmartDashboard.putNumber("rate", rate);
     intakeSubsystem.setPlaceLower(ejectPower);
     intakeSubsystem.setPlaceUpper(ejectPower);
     intakeSubsystem.setIntake(-power);
