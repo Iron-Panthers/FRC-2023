@@ -95,4 +95,11 @@ public final class Constants {
       }
     }
   }
+
+  public static final class Arm {
+    public static final class Ports {
+      public static final int ARM_MOTOR_PORT = 1; // FIXME: Real value needed
+      public static final int ENCODER_PORT = 0; // FIXME: Real value needed
+    }
+  }
 }
