@@ -130,14 +130,14 @@ public class DriveToPlaceCommand extends CommandBase {
 
   private boolean finishedPath() {
     return trajectory.isPresent()
-        && (Timer.getFPGATimestamp() - generationTime
+        && ((Timer.getFPGATimestamp() - generationTime)
             > (trajectory.get().getTotalTimeSeconds() + observationTime));
   }
 
   private boolean poseSatisfied() {
     return trajectory.isPresent()
         && AdvancedSwerveTrajectoryFollower.poseWithinErrorMarginOfTrajectoryFinalGoal(
-            finalPose, trajectory.get());
+            drivebaseSubsystem.getPose(), trajectory.get());
   }
 
   private void startGeneratingNextTrajectory() {
