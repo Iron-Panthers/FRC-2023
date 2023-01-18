@@ -36,7 +36,7 @@ public class DriveToPlaceCommand extends CommandBase {
   Future<PathPlannerTrajectory> futureTrajectory;
 
   double generationTime;
-  double adjustCount;
+  boolean hasObserved;
 
   /** Creates a new DriveToPlaceCommand. */
   public DriveToPlaceCommand(
@@ -72,6 +72,8 @@ public class DriveToPlaceCommand extends CommandBase {
   }
 
   private Future<PathPlannerTrajectory> createObservationTrajectory() {
+    System.out.println("gen observation trajectory");
+    hasObserved = true;
     var currentPose = drivebaseSubsystem.getPose();
     var initialPoint =
         new PathPoint(
@@ -103,6 +105,7 @@ public class DriveToPlaceCommand extends CommandBase {
   }
 
   private Future<PathPlannerTrajectory> createAdjustTrajectory() {
+    System.out.println("gen adjust trajectory");
     var currentPose = drivebaseSubsystem.getPose();
     var initialPoint =
         new PathPoint(
@@ -138,9 +141,9 @@ public class DriveToPlaceCommand extends CommandBase {
   }
 
   private void startGeneratingNextTrajectory() {
-    generationTime = Timer.getFPGATimestamp();
     futureTrajectory =
-        distanceBetween(drivebaseSubsystem.getPose(), finalPose) < observationDistance
+        (distanceBetween(drivebaseSubsystem.getPose(), finalPose) < observationDistance
+                || hasObserved)
             ? createAdjustTrajectory()
             : createObservationTrajectory();
   }
@@ -148,8 +151,7 @@ public class DriveToPlaceCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    adjustCount = 0;
-    generationTime = Timer.getFPGATimestamp();
+    hasObserved = false;
     startGeneratingNextTrajectory();
   }
 
@@ -159,7 +161,9 @@ public class DriveToPlaceCommand extends CommandBase {
     // start the next trajectory if the generation is done
     if (!trajectory.isPresent() && futureTrajectory.isDone()) {
       try {
+        System.out.println("received finished trajectory, driving");
         trajectory = Optional.of(futureTrajectory.get());
+        generationTime = Timer.getFPGATimestamp();
         follower.follow(trajectory.get());
       } catch (ExecutionException | InterruptedException e) {
         e.printStackTrace();
@@ -177,13 +181,14 @@ public class DriveToPlaceCommand extends CommandBase {
                   .sample(trajectory.get().getTotalTimeSeconds() + 1));
       System.out.println(
           String.format(
-              "    xy err: %8f theta err: %8f",
+              "xy err: %8f theta err: %8f trajectoryTime: %8f",
               drivebaseSubsystem
                   .getPose()
                   .getTranslation()
                   .getDistance(fP.poseMeters.getTranslation()),
               Util.relativeAngularDifference(
-                  drivebaseSubsystem.getPose().getRotation(), fP.holonomicRotation)));
+                  drivebaseSubsystem.getPose().getRotation(), fP.holonomicRotation),
+              trajectory.get().getTotalTimeSeconds()));
     }
 
     if (finishedPath()) {
@@ -200,6 +205,7 @@ public class DriveToPlaceCommand extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     follower.cancel();
+    System.out.println("canceling future thread");
     futureTrajectory.cancel(true);
     trajectory = Optional.empty();
   }
