@@ -95,4 +95,17 @@ public final class Constants {
       }
     }
   }
+
+  public static final class Intake {
+    public static final class Ports {
+      public static final int intakeLower = 15; // placeholder value
+      public static final int intakeUpper = 9; // placeholder value
+      public static final int placeUpper = 8; // placeholder value
+      public static final int placeLower = 16; // placeholder value
+    }
+
+    public static final double intakePower = 0.25;
+    public static final double placePowerUpper = -0.75;
+    public static final double placePowerLower = -0.75;
+  }
 }
