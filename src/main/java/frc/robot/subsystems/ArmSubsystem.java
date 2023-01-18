@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import static frc.robot.Constants.Arm;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
@@ -28,6 +29,8 @@ public class ArmSubsystem extends SubsystemBase {
   private final PIDController pidController;
   private final CANCoder armEncoder;
 
+  private double desiredAngle;
+
   public ArmSubsystem() {
 
     this.armMotor = new TalonFX(Arm.Ports.ARM_MOTOR_PORT);
@@ -43,23 +46,42 @@ public class ArmSubsystem extends SubsystemBase {
     armEncoder.configSensorInitializationStrategy(
         SensorInitializationStrategy.BootToAbsolutePosition);
     armEncoder.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
+
+    desiredAngle = Arm.Setpoints.STARTING_ANGLE;
+
+    var config =
+        new StatorCurrentLimitConfiguration(
+            true /*enable*/,
+            50 /* current limit */,
+            5 /* threshold */,
+            .1 /*time in seconds to trip*/);
+
+    armMotor.configStatorCurrentLimit(config);
+
+    armEncoder.configMagnetOffset(Arm.ANGULAR_OFFSET);
+
+    armEncoder.setPositionToAbsolute(10); // ms
   }
 
   public double getAngle() {
     return armEncoder.getAbsolutePosition();
   }
 
+  public void setDesiredAngle(double desiredAngle) {
+    this.desiredAngle = desiredAngle;
+  }
+
   @Override
   public void periodic() {
     double currentAngle = getAngle();
 
-    double output = pidController.calculate(currentAngle);
+    double output = pidController.calculate(currentAngle, desiredAngle);
 
     // Add the gravity offset as a function of cosine
     final double gravityOffset =
         Math.cos(Math.toRadians(currentAngle)) * Arm.GRAVITY_CONTROL_PERCENT;
 
     armMotor.set(
-        TalonFXControlMode.PercentOutput, MathUtil.clamp(output + gravityOffset, -0.5, 0.5));
+        TalonFXControlMode.PercentOutput, MathUtil.clamp(output + gravityOffset, -0.1, 0.1));
   }
 }

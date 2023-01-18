@@ -17,12 +17,14 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import frc.robot.autonomous.commands.AutoTestSequence;
+import frc.robot.commands.AngleArmCommand;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.VibrateControllerCommand;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DataLogger;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.util.ControllerUtil;
@@ -41,6 +43,8 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
   private final DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem();
+
+  private final ArmSubsystem armSubsystem = new ArmSubsystem();
 
   private final DataLogger dataLogger = new DataLogger();
 
@@ -67,6 +71,8 @@ public class RobotContainer {
             () -> (-modifyAxis(will.getLeftY()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
             () -> (-modifyAxis(will.getLeftX()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
             will::getRightBumper));
+
+    armSubsystem.setDefaultCommand(new AngleArmCommand(armSubsystem, jason::getRightY));
 
     SmartDashboard.putBoolean("is comp bot", MacUtil.IS_COMP_BOT);
 

@@ -101,5 +101,15 @@ public final class Constants {
       public static final int ARM_MOTOR_PORT = 1; // FIXME: Real value needed
       public static final int ENCODER_PORT = 0; // FIXME: Real value needed
     }
+
+    public static final double GRAVITY_CONTROL_PERCENT = .06; // FIXME: Real value needed
+
+    public static final int ANGULAR_OFFSET = 0; // FIXME: Real value needed
+
+    public static final class Setpoints {
+      public static final int STARTING_ANGLE = 0;
+      public static final int FORWARD_ANGLE = 90;
+      public static final int BACKWARD_ANGLE = -90;
+    }
   }
 }
