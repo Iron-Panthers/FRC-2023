@@ -114,6 +114,23 @@ public final class Constants {
     public static final double ejectPower = 0.75;
   }
 
+  public static final class Arm {
+    public static final class Ports {
+      public static final int ARM_MOTOR_PORT = 14;
+      public static final int ENCODER_PORT = 28;
+    }
+
+    public static final double GRAVITY_CONTROL_PERCENT = .06; // FIXME: Real value needed
+
+    public static final int ANGULAR_OFFSET = 0; // FIXME: Real value needed
+
+    public static final class Setpoints {
+      public static final int STARTING_ANGLE = 0;
+      public static final int FORWARD_ANGLE = 90;
+      public static final int BACKWARD_ANGLE = -90;
+    }
+  }
+
   public static final class Vision {
     public static final double LIMELIGHT_CLUSTER_HEIGHT = 0.3048;
 
@@ -160,7 +177,6 @@ public final class Constants {
                 2, // y
                 2 * Math.PI // theta
                 );
-
     public static final double CAMERA_CAPTURE_LATENCY_FUDGE_MS = 11;
 
     /** about one inch */
@@ -168,4 +184,5 @@ public final class Constants {
 
     public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 2;
   }
+
 }
