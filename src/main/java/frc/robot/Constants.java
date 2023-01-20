@@ -105,8 +105,8 @@ public final class Constants {
 
   public static final class Arm {
     public static final class Ports {
-      public static final int ARM_MOTOR_PORT = 1; // FIXME: Real value needed
-      public static final int ENCODER_PORT = 0; // FIXME: Real value needed
+      public static final int ARM_MOTOR_PORT = 14;
+      public static final int ENCODER_PORT = 28;
     }
 
     public static final double GRAVITY_CONTROL_PERCENT = .06; // FIXME: Real value needed
