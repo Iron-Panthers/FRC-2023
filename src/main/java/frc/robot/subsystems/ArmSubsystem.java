@@ -15,7 +15,10 @@ import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.Arm;
 
 /** Add your docs here. */
 public class ArmSubsystem extends SubsystemBase {
@@ -28,6 +31,8 @@ public class ArmSubsystem extends SubsystemBase {
 
   private final PIDController pidController;
   private final CANCoder armEncoder;
+
+  private final ShuffleboardTab tab = Shuffleboard.getTab("Arm");
 
   private double desiredAngle;
 
@@ -61,6 +66,13 @@ public class ArmSubsystem extends SubsystemBase {
     armEncoder.configMagnetOffset(Arm.ANGULAR_OFFSET);
 
     armEncoder.setPositionToAbsolute(10); // ms
+
+    tab.addDouble("current angle", this::getAngle);
+
+    tab.addDouble("Desired Angle", () -> desiredAngle);
+
+    
+
   }
 
   public double getAngle() {
