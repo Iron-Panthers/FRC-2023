@@ -156,9 +156,5 @@ public final class Constants {
     public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .05;
 
     public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 2;
-
-    public static final class VelocityError {
-      public static final double XY_METERS = .001;
-    }
   }
 }

@@ -67,7 +67,7 @@ public class RobotContainer {
             drivebaseSubsystem,
             () -> (-modifyAxis(will.getLeftY()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
             () -> (-modifyAxis(will.getLeftX()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
-            will.leftBumper()));
+            will.rightBumper()));
 
     SmartDashboard.putBoolean("is comp bot", MacUtil.IS_COMP_BOT);
 
