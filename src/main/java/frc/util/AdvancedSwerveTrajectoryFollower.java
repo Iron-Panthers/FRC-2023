@@ -28,8 +28,6 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
   /* Variable to track if calculateDriveSignal has run once yet */
   private boolean firstRun = false;
 
-  private int stabilityCounter = 0;
-
   public AdvancedSwerveTrajectoryFollower(
       PIDController xController, PIDController yController, ProfiledPIDController angleController) {
     this.xController = xController;
@@ -44,7 +42,6 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
 
   private ChassisSpeeds finishTrajectory() {
     finished = true;
-    stabilityCounter = 0;
     return new ChassisSpeeds();
   }
 
