@@ -6,11 +6,11 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 public class VibrateControllerCommand extends CommandBase {
-  private XboxController controller;
+  private CommandXboxController controller;
   private double duration;
   private double startTime;
   private double strength;
@@ -22,7 +22,8 @@ public class VibrateControllerCommand extends CommandBase {
    * @param duration the time (seconds) to vibrate for
    * @param strength the strength [0, 1] double of the vibration
    */
-  public VibrateControllerCommand(XboxController controller, double duration, double strength) {
+  public VibrateControllerCommand(
+      CommandXboxController controller, double duration, double strength) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.controller = controller;
     this.duration = duration;
@@ -34,15 +35,15 @@ public class VibrateControllerCommand extends CommandBase {
   @Override
   public void initialize() {
     startTime = Timer.getFPGATimestamp();
-    controller.setRumble(RumbleType.kRightRumble, strength);
-    controller.setRumble(RumbleType.kLeftRumble, strength);
+    controller.getHID().setRumble(RumbleType.kRightRumble, strength);
+    controller.getHID().setRumble(RumbleType.kLeftRumble, strength);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    controller.setRumble(RumbleType.kRightRumble, 0);
-    controller.setRumble(RumbleType.kLeftRumble, 0);
+    controller.getHID().setRumble(RumbleType.kRightRumble, 0);
+    controller.getHID().setRumble(RumbleType.kLeftRumble, 0);
   }
 
   // Returns true when the command should end.

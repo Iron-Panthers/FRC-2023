@@ -47,6 +47,10 @@ public class Util {
     return relativeAngularDifference(currentAngle.getDegrees(), newAngle);
   }
 
+  public static double relativeAngularDifference(Rotation2d currentAngle, Rotation2d newAngle) {
+    return relativeAngularDifference(currentAngle.getDegrees(), newAngle.getDegrees());
+  }
+
   /**
    * turn x and y of a vector to a [0, 360] angle
    *

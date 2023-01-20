@@ -61,7 +61,7 @@ public class RotateVelocityDriveCommand extends CommandBase {
         isRobotRelativeSupplier.getAsBoolean()
             ? new ChassisSpeeds(x, y, rot)
             : ChassisSpeeds.fromFieldRelativeSpeeds(
-                x, y, rot, drivebaseSubsystem.getGyroscopeRotation()));
+                x, y, rot, drivebaseSubsystem.getDriverGyroscopeRotation()));
   }
 
   // Called once the command ends or is interrupted.
