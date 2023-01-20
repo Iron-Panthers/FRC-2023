@@ -1,13 +1,13 @@
 package frc.util;
 
 import edu.wpi.first.util.function.BooleanConsumer;
-import edu.wpi.first.wpilibj2.command.button.Button;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import java.util.function.BooleanSupplier;
 
 /**
- * An object to use a {@link Button} or {@link Trigger} as a layerSwitch to form two layers of
- * virtual buttons, with the switch on or off
+ * An object to use a {@link Trigger} or {@link Trigger} as a layerSwitch to form two layers of
+ * virtual Triggers, with the switch on or off
  */
 public class Layer {
   /**
@@ -35,7 +35,7 @@ public class Layer {
   }
 
   /**
-   * gets the button that controls the layering
+   * gets the Trigger that controls the layering
    *
    * @return
    */
@@ -44,62 +44,66 @@ public class Layer {
   }
 
   public void whenChanged(BooleanConsumer method) {
-    Button layerButton = new Button(this.layerSwitch);
-    layerButton.whenPressed(
-        () -> {
-          method.accept(true);
-        });
-    layerButton.whenReleased(
-        () -> {
-          method.accept(false);
-        });
+    Trigger layerTrigger = new Trigger(this.layerSwitch);
+    layerTrigger.onTrue(
+        new InstantCommand(
+            () -> {
+              method.accept(true);
+            }));
+    layerTrigger.onFalse(
+        new InstantCommand(
+            () -> {
+              method.accept(false);
+            }));
   }
 
   /**
    * Combines a {@link Trigger} with the layer root provided that the layer switch is activated.
    *
-   * @param button the {@link Trigger} that is used in tandem with the layer for the virtual button
-   * @return virtual {@link Button} that is pressed when the layer switch and the provided button is
-   *     pressed
+   * @param trigger the {@link Trigger} that is used in tandem with the layer for the virtual
+   *     Trigger
+   * @return virtual {@link Trigger} that is pressed when the layer switch and the provided Trigger
+   *     is pressed
    */
-  public Button on(Trigger button) {
-    return new Button(layerSwitch.and(button));
+  public Trigger on(Trigger trigger) {
+    return new Trigger(layerSwitch.and(trigger));
   }
 
   /**
    * Combines a {@link BooleanSupplier} with the layer root provided that the layer switch is
    * activated.
    *
-   * @param button the {@link BooleanSupplier} that is used in tandem with the layer for the virtual
-   *     button
-   * @return virtual {@link Button} that is pressed when the layer switch and the provided button is
-   *     pressed
+   * @param Trigger the {@link BooleanSupplier} that is used in tandem with the layer for the
+   *     virtual Trigger
+   * @return virtual {@link Trigger} that is pressed when the layer switch and the provided Trigger
+   *     is pressed
    */
-  public Button on(BooleanSupplier boolSupplier) {
-    return on(new Button(boolSupplier));
+  public Trigger on(BooleanSupplier boolSupplier) {
+    return on(new Trigger(boolSupplier));
   }
 
   /**
    * Combines a {@link Trigger} with the layer root provided that the layer switch is not activated.
    *
-   * @param button the {@link Trigger} that is used in tandem with the layer for the virtual button
-   * @return virtual {@link Button} that is pressed when the layer switch is not pressed, but the
-   *     provided button is pressed
+   * @param trigger the {@link Trigger} that is used in tandem with the layer for the virtual
+   *     Trigger
+   * @return virtual {@link Trigger} that is pressed when the layer switch is not pressed, but the
+   *     provided Trigger is pressed
    */
-  public Button off(Trigger button) {
-    return new Button(layerSwitch.negate().and(button));
+  public Trigger off(Trigger trigger) {
+    return new Trigger(layerSwitch.negate().and(trigger));
   }
 
   /**
    * Combines a {@link BooleanSupplier} with the layer root provided that the layer switch is not
    * activated.
    *
-   * @param button the {@link BooleanSupplier} that is used in tandem with the layer for the virtual
-   *     button
-   * @return virtual {@link Button} that is pressed when the layer switch is not pressed, but the
-   *     provided button is pressed
+   * @param Trigger the {@link BooleanSupplier} that is used in tandem with the layer for the
+   *     virtual Trigger
+   * @return virtual {@link Trigger} that is pressed when the layer switch is not pressed, but the
+   *     provided Trigger is pressed
    */
-  public Button off(BooleanSupplier boolSupplier) {
-    return off(new Button(boolSupplier));
+  public Trigger off(BooleanSupplier boolSupplier) {
+    return off(new Trigger(boolSupplier));
   }
 }
