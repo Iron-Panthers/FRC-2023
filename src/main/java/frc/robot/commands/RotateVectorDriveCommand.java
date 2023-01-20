@@ -58,7 +58,7 @@ public class RotateVectorDriveCommand extends CommandBase {
 
   @Override
   public void initialize() {
-    angle = drivebaseSubsystem.getGyroscopeRotation().getDegrees();
+    angle = drivebaseSubsystem.getDriverGyroscopeRotation().getDegrees();
     initialAngle = angle;
   }
 
@@ -93,7 +93,7 @@ public class RotateVectorDriveCommand extends CommandBase {
   public boolean isFinished() {
     // are we at the angle we want
     return Util.epsilonZero(
-            Util.relativeAngularDifference(drivebaseSubsystem.getGyroscopeRotation(), angle),
+            Util.relativeAngularDifference(drivebaseSubsystem.getDriverGyroscopeRotation(), angle),
             Drive.ANGULAR_ERROR)
         // is our rotational velocity low
         && Util.epsilonEquals(drivebaseSubsystem.getRotVelocity(), 0, 10)

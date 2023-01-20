@@ -51,7 +51,7 @@ public class DefaultDriveCommand extends CommandBase {
         isRobotRelative
             ? new ChassisSpeeds(x, y, 0)
             : ChassisSpeeds.fromFieldRelativeSpeeds(
-                x, y, 0, drivebaseSubsystem.getGyroscopeRotation()));
+                x, y, 0, drivebaseSubsystem.getDriverGyroscopeRotation()));
   }
 
   // Called once the command ends or is interrupted.

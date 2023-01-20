@@ -13,12 +13,13 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.SPI;
@@ -26,7 +27,10 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.PoseEstimator;
 import frc.util.AdvancedSwerveTrajectoryFollower;
 import frc.util.Util;
 import java.util.Optional;
@@ -34,14 +38,16 @@ import java.util.Optional;
 public class DrivebaseSubsystem extends SubsystemBase {
   private final AdvancedSwerveTrajectoryFollower follower =
       new AdvancedSwerveTrajectoryFollower(
-          new PIDController(0.4, 0.0, 0.025),
-          new PIDController(0.4, 0.0, 0.025),
+          new PIDController(1.3853, 0, 0),
+          new PIDController(1.3853, 0, 0),
           new ProfiledPIDController(
+              // FIXME: RETUNE WITH CARPET NOT LINOLEUM
               .147,
               0,
-              0,
+              0.005,
               new TrapezoidProfile.Constraints(
-                  MAX_VELOCITY_METERS_PER_SECOND, 0.5 * MAX_VELOCITY_METERS_PER_SECOND)));
+                  MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
+                  0.5 * MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND)));
 
   // NOTE: I'm still not sure what's the way to profile this ^
   // Not mission critical as it "technically" drives fine as of now; but I suspect this is a site
@@ -70,7 +76,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
           new Translation2d(-Dims.TRACKWIDTH_METERS / 2.0, -Dims.WHEELBASE_METERS / 2.0));
 
   /** The SwerveDriveOdometry class allows us to estimate the robot's "pose" over time. */
-  private final SwerveDriveOdometry swerveOdometry;
+  private final SwerveDrivePoseEstimator swervePoseEstimator;
+
+  private final VisionSubsystem visionSubsystem = new VisionSubsystem();
 
   /**
    * Keeps track of the current estimated pose (x,y,theta) of the robot, as estimated by odometry.
@@ -89,6 +97,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
   /** The current mode */
   private Modes mode = Modes.DRIVE;
+
+  private Field2d field = new Field2d();
 
   /** Contains each swerve module. Order: FR, FL, BL, BR. Or in Quadrants: I, II, III, IV */
   private final SwerveModule[] swerveModules;
@@ -176,9 +186,19 @@ public class DrivebaseSubsystem extends SubsystemBase {
     // tune pid with:
     // tab.add(rotController);
 
-    swerveOdometry = new SwerveDriveOdometry(kinematics, navx.getRotation2d());
+    swervePoseEstimator =
+        new SwerveDrivePoseEstimator(
+            kinematics,
+            getConsistentGyroscopeRotation(),
+            getSwerveModulePositions(),
+            // FIXME: FIXME FIXME GOOD GOD FIX ME, USE A REAL VALUE HERE
+            new Pose2d(3.5, 2.2, Rotation2d.fromDegrees(0)),
+            PoseEstimator.STATE_STANDARD_DEVIATIONS,
+            PoseEstimator.VISION_MEASUREMENT_STANDARD_DEVIATIONS);
 
     zeroGyroscope();
+
+    SmartDashboard.putData(this.field);
 
     // tab.addNumber("target angle", () -> targetAngle);
     // tab.addNumber("current angle", () -> getGyroscopeRotation().getDegrees());
@@ -197,49 +217,70 @@ public class DrivebaseSubsystem extends SubsystemBase {
     return kinematics;
   }
 
+  private SwerveModulePosition[] getSwerveModulePositions() {
+    return new SwerveModulePosition[] {
+      swerveModules[0].getPosition(),
+      swerveModules[1].getPosition(),
+      swerveModules[2].getPosition(),
+      swerveModules[3].getPosition()
+    };
+  }
+
+  private Rotation2d driverGyroOffset = Rotation2d.fromDegrees(0);
+
   /** Sets the gyro angle to zero, resetting the forward direction */
   public void zeroGyroscope() {
-    navx.setAngleAdjustment(0);
-    navx.zeroYaw();
+    driverGyroOffset = getConsistentGyroscopeRotation();
   }
 
   /**
-   * Resets the odometry estimate to a specific pose. Angle is substituted with the angle read from
-   * the gyroscope.
+   * Resets the odometry estimate to a specific pose.
    *
    * @param pose The pose to reset to.
    */
   public void resetOdometryToPose(Pose2d pose) {
 
-    navx.setAngleAdjustment(0);
+    // "Zero" the driver gyro heading
+    driverGyroOffset = getConsistentGyroscopeRotation().minus(pose.getRotation());
 
-    navx.setAngleAdjustment(getGyroscopeRotation().minus(pose.getRotation()).getDegrees());
-    swerveOdometry.resetPosition(pose, getGyroscopeRotation());
+    swervePoseEstimator.resetPosition(
+        getConsistentGyroscopeRotation(), getSwerveModulePositions(), pose);
   }
 
-  public Rotation2d getGyroscopeRotation() {
+  /**
+   * Gets the current angle of the robot, relative to boot position. This value will not be reset,
+   * and is used for odometry.
+   *
+   * <p>Use this value for odometry.
+   *
+   * @return The current angle of the robot, relative to boot position.
+   */
+  public Rotation2d getConsistentGyroscopeRotation() {
+    return Rotation2d.fromDegrees(Util.normalizeDegrees(-navx.getAngle()));
+  }
 
-    double angle = Util.normalizeDegrees(-navx.getAngle());
+  /**
+   * Gets the current angle of the robot, relative to the last time zeroGyroscope() was called. This
+   * is not the same as the angle of the robot on the field, which is what getPose().getRotation()
+   * returns. This is the angle of the robot as the driver sees it.
+   *
+   * <p>Use this value for driving the robot.
+   *
+   * @return The current angle of the robot, relative to the last time zeroGyroscope() was called.
+   */
+  public Rotation2d getDriverGyroscopeRotation() {
 
     // We have to invert the angle of the NavX so that rotating the robot counter-clockwise makes
     // the angle increase.
-    return Rotation2d.fromDegrees(angle);
-  }
+    double angle = Util.normalizeDegrees(-navx.getAngle());
 
-  private double lastAngle = 0;
-  private double lastTime = 0;
-  private double rotVelocity = 0;
-
-  private void updateRotVelocity() {
-    double time = Timer.getFPGATimestamp();
-    double angle = getGyroscopeRotation().getDegrees();
-    rotVelocity = (angle - lastAngle) / (time - lastTime);
-    lastTime = time;
-    lastAngle = angle;
+    // We need to subtract the offset here so that the robot drives forward based on auto
+    // positioning or manual reset
+    return Rotation2d.fromDegrees(angle).minus(driverGyroOffset);
   }
 
   public double getRotVelocity() {
-    return rotVelocity;
+    return navx.getRate();
   }
 
   /**
@@ -277,14 +318,29 @@ public class DrivebaseSubsystem extends SubsystemBase {
   }
 
   /**
-   * Updates the robot pose estimation for newly written module states. Should be called everytime
-   * outputs are written to the modules.
-   *
-   * @param moduleStatesWritten The outputs that you have just written to the modules.
+   * Updates the robot pose estimation for newly written module states. Should be called on every
+   * periodic
    */
-  private void odometryPeriodic(SwerveModuleState[] moduleStatesWritten) {
-    this.robotPose = swerveOdometry.update(getGyroscopeRotation(), moduleStatesWritten);
-    // SmartDashboard.putString("robot_pose", robotPose.toString());
+  private void odometryPeriodic() {
+    this.robotPose =
+        swervePoseEstimator.update(getConsistentGyroscopeRotation(), getSwerveModulePositions());
+
+    Optional<Pair<Pose2d, Double>> cameraPose = visionSubsystem.getEstimatedGlobalPose(robotPose);
+
+    if (!cameraPose.isPresent()) return;
+
+    var cameraPoseSome = cameraPose.get();
+
+    swervePoseEstimator.addVisionMeasurement(cameraPoseSome.getFirst(), cameraPoseSome.getSecond());
+
+    // System.out.println(
+    //     "Vision measurement "
+    //         + cameraPoseSome.getFirst().toString()
+    //         + " from "
+    //         + cameraPoseSome.getSecond()
+    //         + " at time "
+    //         + Timer.getFPGATimestamp()
+    //         + " added to pose estimator");
   }
 
   private void drivePeriodic() {
@@ -297,14 +353,12 @@ public class DrivebaseSubsystem extends SubsystemBase {
           states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
           states[i].angle.getRadians());
     }
-
-    // Update odometry
-    odometryPeriodic(states);
   }
 
   // called in drive to angle mode
   private void driveAnglePeriodic() {
-    double angularDifference = -Util.relativeAngularDifference(getGyroscopeRotation(), targetAngle);
+    double angularDifference =
+        -Util.relativeAngularDifference(getDriverGyroscopeRotation(), targetAngle);
 
     double rotationValue = rotController.calculate(angularDifference);
 
@@ -317,12 +371,13 @@ public class DrivebaseSubsystem extends SubsystemBase {
     // initialize chassis speeds but add our desired angle
     chassisSpeeds =
         ChassisSpeeds.fromFieldRelativeSpeeds(
-            xyInput.getFirst(), xyInput.getSecond(), omegaRadiansPerSecond, getGyroscopeRotation());
+            xyInput.getFirst(),
+            xyInput.getSecond(),
+            omegaRadiansPerSecond,
+            getDriverGyroscopeRotation());
 
     // use the existing drive periodic logic to assign to motors ect
     drivePeriodic();
-
-    // Odometry updates are called in drivePeriodic, so we don't have to worry about them here
   }
 
   @SuppressWarnings("java:S1121")
@@ -344,7 +399,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
    * @param mode The mode to use (should use the current mode value)
    */
   public void updateModules(Modes mode) {
-    updateRotVelocity();
     switch (mode) {
       case DRIVE:
         drivePeriodic();
@@ -372,6 +426,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
     Modes currentMode = getMode();
     Pose2d pose = getPose();
 
+    field.setRobotPose(swervePoseEstimator.getEstimatedPosition());
+    SmartDashboard.putString(
+        "pose",
+        String.format(
+            "(%2f %2f %2f)",
+            swervePoseEstimator.getEstimatedPosition().getX(),
+            swervePoseEstimator.getEstimatedPosition().getY(),
+            swervePoseEstimator.getEstimatedPosition().getRotation().getDegrees()));
+
     /*
      * See if there is a new drive signal from the trajectory follower object.
      * An Optional means that this value might be "present" or not exist (be null),
@@ -387,5 +450,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     /* Write outputs, corresponding to our current Mode of operation */
     updateModules(currentMode);
+
+    /* Update odometry */
+    odometryPeriodic();
   }
 }
