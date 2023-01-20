@@ -143,18 +143,19 @@ public class RobotContainer {
                 () -> (-modifyAxis(will.getLeftX()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
                 will::getRightY,
                 will::getRightX,
-                will::getRightBumper));
+                will.rightBumper()));
 
-    new Button(will::getAButton)
-        .whileHeld(
+    jason
+        .a()
+        .whileTrue(
             new IntakeManualCommand(
                 intakeSubsystem, Constants.Intake.intakePower, -Constants.Intake.ejectPower));
 
-    new Button(will::getYButton)
-        .whileHeld(
+    jason
+        .x()
+        .whileTrue(
             new PlaceCommand(
                 intakeSubsystem, Constants.Intake.outtakePower, -Constants.Intake.ejectPower));
-                will.rightBumper()));
 
     // inline command to generate path on the fly that drives to 5,5 at heading zero
     will.b()
