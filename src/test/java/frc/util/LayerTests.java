@@ -3,27 +3,27 @@ package frc.util;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import edu.wpi.first.wpilibj2.command.button.Button;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.UtilTest;
 import org.junit.jupiter.api.BeforeEach;
 
 public class LayerTests {
   private boolean switchVal = false;
-  private Button layerSwitch = new Button(() -> switchVal);
+  private Trigger layerSwitch = new Trigger(() -> switchVal);
 
   private boolean buttonAVal = false;
-  private Button buttonA = new Button(() -> buttonAVal);
+  private Trigger buttonA = new Trigger(() -> buttonAVal);
 
   private boolean buttonBVal = false;
-  private Button buttonB = new Button(() -> buttonBVal);
+  private Trigger buttonB = new Trigger(() -> buttonBVal);
 
   private Layer layer = new Layer(layerSwitch);
 
-  private Button buttonALayerOff = layer.off(buttonA);
-  private Button buttonALayerOn = layer.on(buttonA);
+  private Trigger buttonALayerOff = layer.off(buttonA);
+  private Trigger buttonALayerOn = layer.on(buttonA);
 
-  private Button buttonBLayerOff = layer.off(buttonB);
-  private Button buttonBLayerOn = layer.on(buttonB);
+  private Trigger buttonBLayerOff = layer.off(buttonB);
+  private Trigger buttonBLayerOn = layer.on(buttonB);
 
   @BeforeEach
   public void setup() {

@@ -1,8 +1,6 @@
-import edu.wpi.first.gradlerio.deploy.roborio.RoboRIO
-
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2022.4.1"
+    id "edu.wpi.first.GradleRIO" version "2023.2.1"
     id "com.diffplug.spotless" version "6.2.0"
 }
 
@@ -49,7 +47,7 @@ wpi.java.debugJni = false
 def includeDesktopSupport = false
 
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
-// Also defines JUnit 4.
+// Also defines JUnit 5.
 dependencies {
     implementation wpi.java.deps.wpilib()
     implementation wpi.java.vendor.java()
@@ -71,9 +69,9 @@ dependencies {
     nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
     simulationRelease wpi.sim.enableRelease()
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-    testImplementation "org.junit.jupiter:junit-jupiter-params:5.8.1"
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
 
     testImplementation "org.mockito:mockito-core:3.+"
     testImplementation 'org.mockito:mockito-junit-jupiter:4.3.1'
@@ -97,6 +95,8 @@ test {
     useJUnitPlatform()
 
     systemProperty 'java.util.logging.config.file', "${project.projectDir}/src/test/resources/logging-test.properties"
+
+    systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
 
     testLogging {
         showStandardStreams = true;
@@ -162,4 +162,9 @@ spotless {
         indentWithSpaces(2)
         endWithNewline()
     }
+}
+
+// Configure string concat to always inline compile
+tasks.withType(JavaCompile) {
+    options.compilerArgs.add '-XDstringConcat=inline'
 }

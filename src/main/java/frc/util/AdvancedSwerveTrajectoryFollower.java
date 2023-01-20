@@ -10,6 +10,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
+import frc.robot.Constants.PoseEstimator;
 import frc.robot.autonomous.TrajectoryFollower;
 
 /**
@@ -30,16 +31,45 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
   public AdvancedSwerveTrajectoryFollower(
       PIDController xController, PIDController yController, ProfiledPIDController angleController) {
     this.xController = xController;
+    // var tab = Shuffleboard.getTab("tuneFollower");
+    // tab.add(xController);
+    // tab.add(yController);
+    // tab.addDouble("xError", xController::getPositionError);
+    // tab.addDouble("yError", yController::getPositionError);
     this.yController = yController;
     this.angleController = angleController;
+  }
+
+  private ChassisSpeeds finishTrajectory() {
+    finished = true;
+    return new ChassisSpeeds();
+  }
+
+  public static boolean poseWithinErrorMarginOfTrajectoryFinalGoal(
+      Pose2d currentPose, Trajectory trajectory) {
+    var finalState =
+        ((PathPlannerState)
+            trajectory
+                // sample the final position using the time greater than total time behavior
+                .sample(trajectory.getTotalTimeSeconds() + 1));
+    return (
+        // xy error
+        currentPose.getTranslation().getDistance(finalState.poseMeters.getTranslation())
+            <= PoseEstimator.DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS)
+        && (
+        // theta error
+        Math.abs(
+                Util.relativeAngularDifference(
+                    currentPose.getRotation(), finalState.holonomicRotation))
+            <= PoseEstimator.DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES);
   }
 
   @Override
   protected ChassisSpeeds calculateDriveSignal(
       Pose2d currentPose, Trajectory trajectory, double time, double dt) {
     if (time > trajectory.getTotalTimeSeconds()) {
-      finished = true;
-      return new ChassisSpeeds();
+      // If the robot is past the end of the trajectory, stop
+      return finishTrajectory();
     }
 
     // there is still time left!

@@ -38,6 +38,7 @@
   "java.test.defaultConfig": "WPIlibUnitTests",
   "cSpell.words": [
     "AHRS",
+    "apriltag",
     "Deadband",
     "deadbanded",
     "drivebase",
@@ -46,6 +47,8 @@
     "Mockito",
     "navx",
     "Odometry",
+    "repath",
+    "REPATHS",
     "setpoint",
     "Setpoints",
     "teleop",
