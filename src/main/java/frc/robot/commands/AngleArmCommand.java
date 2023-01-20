@@ -26,7 +26,13 @@ public class AngleArmCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    armSubsystem.setDesiredAngle(angleSupplier.getAsDouble());
+
+    double controllerInput = angleSupplier.getAsDouble();
+
+    double angleOutput = -((controllerInput * 90) + 90);
+
+
+    armSubsystem.setDesiredAngle(angleOutput);
   }
 
   // Called once the command ends or is interrupted.
