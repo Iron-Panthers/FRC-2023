@@ -103,6 +103,17 @@ public final class Constants {
     }
   }
 
+  public static final class Intake {
+    public static final class Ports {
+      public static final int intakeLower = 15; // placeholder value
+      public static final int intakeUpper = 16; // placeholder value
+    }
+
+    public static final double intakePower = 0.15;
+    public static final double outtakePower = -0.65;
+    public static final double ejectPower = 0.75;
+  }
+
   public static final class Vision {
     public static final double LIMELIGHT_CLUSTER_HEIGHT = 0.3048;
 
