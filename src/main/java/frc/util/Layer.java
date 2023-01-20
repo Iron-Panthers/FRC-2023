@@ -22,7 +22,7 @@ public class Layer {
    * @param layerSwitch BooleanSupplier representing the layer root.
    */
   public Layer(BooleanSupplier layerSwitch) {
-    this.layerSwitch = new Button(layerSwitch);
+    this.layerSwitch = new Trigger(layerSwitch);
   }
 
   /**

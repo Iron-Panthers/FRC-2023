@@ -17,7 +17,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.Button;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.autonomous.commands.AutoTestSequence;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
@@ -45,11 +46,11 @@ public class RobotContainer {
   private final DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem();
 
   /** controller 1 */
-  private final XboxController jason = new XboxController(1);
+  private final CommandXboxController jason = new CommandXboxController(1);
   /** controller 1 climb layer */
-  private final Layer jasonLayer = new Layer(jason::getRightBumper);
+  private final Layer jasonLayer = new Layer(jason.rightBumper());
   /** controller 0 */
-  private final XboxController will = new XboxController(0);
+  private final CommandXboxController will = new CommandXboxController(0);
 
   /** the sendable chooser to select which auto to run. */
   private final SendableChooser<Command> autoSelector = new SendableChooser<>();
@@ -66,7 +67,7 @@ public class RobotContainer {
             drivebaseSubsystem,
             () -> (-modifyAxis(will.getLeftY()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
             () -> (-modifyAxis(will.getLeftX()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
-            will::getRightBumper));
+            will.leftBumper()));
 
     SmartDashboard.putBoolean("is comp bot", MacUtil.IS_COMP_BOT);
 
@@ -94,16 +95,14 @@ public class RobotContainer {
     jasonLayer.whenChanged(
         (enabled) -> {
           final double power = enabled ? .1 : 0;
-          jason.setRumble(RumbleType.kLeftRumble, power);
-          jason.setRumble(RumbleType.kRightRumble, power);
+          jason.getHID().setRumble(RumbleType.kLeftRumble, power);
+          jason.getHID().setRumble(RumbleType.kRightRumble, power);
         });
 
-    new Button(will::getStartButton)
-        .whenPressed(new InstantCommand(drivebaseSubsystem::zeroGyroscope, drivebaseSubsystem));
-    new Button(will::getLeftBumper).whenHeld(new DefenseModeCommand(drivebaseSubsystem));
+    will.start().onTrue(new InstantCommand(drivebaseSubsystem::zeroGyroscope, drivebaseSubsystem));
+    will.leftBumper().whileTrue(new DefenseModeCommand(drivebaseSubsystem));
 
-    new Button(will::getLeftStickButton)
-        .whenPressed(new HaltDriveCommandsCommand(drivebaseSubsystem));
+    will.leftStick().onTrue(new HaltDriveCommandsCommand(drivebaseSubsystem));
 
     DoubleSupplier rotation =
         exponential(
@@ -117,39 +116,39 @@ public class RobotContainer {
                 * Drive.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
                 *
                 /** percent of fraction power */
-                (will.getAButton() ? .3 : .8);
+                (will.getHID().getAButton() ? .3 : .8);
 
-    new Button(() -> Math.abs(rotation.getAsDouble()) > 0)
-        .whenHeld(
+    new Trigger(() -> Math.abs(rotation.getAsDouble()) > 0)
+        .whileTrue(
             new RotateVelocityDriveCommand(
                 drivebaseSubsystem,
                 /* drive joystick "y" is passed to x because controller is inverted */
                 () -> (-modifyAxis(will.getLeftY()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
                 () -> (-modifyAxis(will.getLeftX()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
                 rotationVelocity,
-                will::getRightBumper));
+                will.rightBumper()));
 
-    new Button(
+    new Trigger(
             () ->
                 Util.vectorMagnitude(will.getRightY(), will.getRightX())
                     > Drive.ROTATE_VECTOR_MAGNITUDE)
-        .whenPressed(
+        .onTrue(
             new RotateVectorDriveCommand(
                 drivebaseSubsystem,
                 () -> (-modifyAxis(will.getLeftY()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
                 () -> (-modifyAxis(will.getLeftX()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
                 will::getRightY,
                 will::getRightX,
-                will::getRightBumper));
+                will.rightBumper()));
 
     // inline command to generate path on the fly that drives to 5,5 at heading zero
-    new Button(will::getBButton)
-        .whenPressed(
+    will.b()
+        .onTrue(
             new DriveToPlaceCommand(
                 drivebaseSubsystem, new Pose2d(3.5, 2.2, Rotation2d.fromDegrees(0)), .2, .5));
 
-    new Button(will::getYButton)
-        .whenPressed(
+    will.y()
+        .onTrue(
             new DriveToPlaceCommand(
                 drivebaseSubsystem, new Pose2d(3.2, .5, Rotation2d.fromDegrees(170)), .2, .5));
   }
