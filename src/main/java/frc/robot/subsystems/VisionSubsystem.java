@@ -46,10 +46,10 @@ public class VisionSubsystem {
           .withPosition(11, 0)
           .withSize(2, 3);
 
-  private final VisionSource frontCam =
-      new VisionSource(new PhotonCamera(Vision.FrontCam.NAME), Vision.FrontCam.ROBOT_TO_CAM);
-  private final VisionSource backCam =
-      new VisionSource(new PhotonCamera(Vision.BackCam.NAME), Vision.BackCam.ROBOT_TO_CAM);
+  // private final VisionSource frontCam =
+  //     new VisionSource(new PhotonCamera(Vision.FrontCam.NAME), Vision.FrontCam.ROBOT_TO_CAM);
+  // private final VisionSource backCam =
+  //     new VisionSource(new PhotonCamera(Vision.BackCam.NAME), Vision.BackCam.ROBOT_TO_CAM);
 
   RobotPoseEstimator poseEstimator;
 
@@ -74,8 +74,8 @@ public class VisionSubsystem {
 
     // Create a list of cameras to use for pose estimation
     List<Pair<PhotonCamera, Transform3d>> cameras = new ArrayList<>();
-    cameras.add(frontCam.getAsPair());
-    cameras.add(backCam.getAsPair());
+    // cameras.add(frontCam.getAsPair());
+    // cameras.add(backCam.getAsPair());
 
     poseEstimator = new RobotPoseEstimator(atfl, PoseStrategy.CLOSEST_TO_REFERENCE_POSE, cameras);
 
@@ -94,7 +94,7 @@ public class VisionSubsystem {
     poseEstimator.setReferencePose(prevEstimatedRobotPose);
 
     double currentTime = Timer.getFPGATimestamp();
-    Optional<Pair<Pose3d, Double>> result = poseEstimator.update();
+    Optional<Pair<Pose3d, Double>> result = Optional.empty();
 
     // optional will be present but first can still be null!
     if (!result.isPresent() || result.get().getFirst() == null) return Optional.empty();
