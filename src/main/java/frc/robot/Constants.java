@@ -105,13 +105,28 @@ public final class Constants {
 
   public static final class Intake {
     public static final class Ports {
-      public static final int intakeLower = 15; // placeholder value
-      public static final int intakeUpper = 16; // placeholder value
+      public static final int LOWER = 15; // placeholder value
+      public static final int UPPER = 16; // placeholder value
     }
 
-    public static final double intakePower = 0.15;
-    public static final double outtakePower = -0.2;
-    public static final double ejectPower = 0.75;
+    public static final class IntakeModes {
+      public static class IntakeMode {
+        public final double upperSpeed;
+        public final double lowerSpeed;
+        public IntakeMode(double upperSpeed, double lowerSpeed) {
+          this.lowerSpeed = lowerSpeed;
+          this.upperSpeed = upperSpeed;
+        }
+  
+        public IntakeMode(double speed) {
+          this(speed, speed);
+        }
+      }
+      public static final IntakeMode INTAKE = new IntakeMode(.15);
+      public static final IntakeMode OUTTAKE = new IntakeMode(-.65);
+      public static final IntakeMode HOLD = new IntakeMode(.05);
+      public static final IntakeMode OFF = new IntakeMode(0);
+    }
   }
 
   public static final class Arm {

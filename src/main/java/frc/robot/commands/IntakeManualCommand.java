@@ -2,50 +2,72 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.IntakeSubsystem;
 
-public class IntakeManualCommand extends CommandBase {
-  private IntakeSubsystem intakeSubsystem;
-  private final Double power;
-  private final Double ejectPower;
+import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
-  /** Creates a new ElevatorCommand. */
-  public IntakeManualCommand(IntakeSubsystem subsystem, Double power, Double ejectPower) {
-    this.power = power;
-    this.ejectPower = ejectPower;
-    this.intakeSubsystem = subsystem;
-    addRequirements(intakeSubsystem);
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.Constants.Intake.IntakeModes;
+import frc.robot.Constants.Intake.IntakeModes.IntakeMode;
 
-    // Use addRequirements() here to declare subsystem dependencies.
+public class IntakeSubsystem extends SubsystemBase {
+
+  private TalonFX lower;
+  private TalonFX upper;
+
+  public IntakeSubsystem() {
+
+    lower = new TalonFX(Constants.Intake.Ports.LOWER);
+    upper = new TalonFX(Constants.Intake.Ports.UPPER);
+
+    lower.setInverted(true);
   }
 
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {}
+  public enum Modes {
+    INTAKE(IntakeModes.INTAKE), OUTTAKE(IntakeModes.OUTTAKE), HOLD(IntakeModes.HOLD), OFF(IntakeModes.OFF) ;
 
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
-    intakeSubsystem.setPlaceLower(ejectPower);
-    intakeSubsystem.setPlaceUpper(ejectPower);
-    // intakeSubsystem.setIntake(-power);
-    intakeSubsystem.setIntake(power);
+    public final IntakeMode intakeMode;
+    Modes(IntakeMode intakeMode) {
+      this.intakeMode = intakeMode;
+    }
   }
 
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {
-    intakeSubsystem.setIntake(0);
-    intakeSubsystem.setPlaceLower(0);
-    intakeSubsystem.setPlaceUpper(0);
+  private Modes mode = Modes.OFF;
+
+
+  private Modes advanceMode() {
+    switch(mode) {
+      case INTAKE:
+        return Modes.HOLD;
+      case OUTTAKE:
+        return Modes.OFF;
+      // states that do not progress automatically
+      case OFF:
+      case HOLD:
+        break;
+    }
+    return mode;
+
   }
 
-  // Returns true when the command should end.
+  private void applyMode(IntakeMode mode) {
+    upper.set(TalonFXControlMode.PercentOutput, mode.upperSpeed);
+    lower.set(TalonFXControlMode.PercentOutput, mode.lowerSpeed);
+  }
+
   @Override
-  public boolean isFinished() {
-    return false;
+  public void periodic() {
+
+
+    mode = advanceMode();
+
+    applyMode(mode.intakeMode);
   }
 }
+
+// During outtake first spin upper intake and eject towards each other so it sucks the balls back.
+// Then spin 1st eject and shoot, then shoot 2nd eject and shoot
