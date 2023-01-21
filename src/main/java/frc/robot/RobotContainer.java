@@ -165,6 +165,10 @@ public class RobotContainer {
                 .andThen(new WaitCommand(1))
                 .andThen(new AngleArmCommand(armSubsystem, Arm.Setpoints.STARTING_ANGLE)));
 
+    jason.x().onTrue(new SetIntakeModeCommand(intakeSubsystem, IntakeSubsystem.Modes.OFF));
+    new Trigger(() -> jason.getLeftY() > .2)
+        .whileTrue(new ManualArmCommand(armSubsystem, jason::getLeftY));
+
     // inline command to generate path on the fly that drives to 5,5 at heading zero
     will.b()
         .onTrue(
