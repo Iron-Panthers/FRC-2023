@@ -131,8 +131,8 @@ public final class Constants {
         }
       }
 
-      public static final IntakeMode INTAKE = new IntakeMode(.15);
-      public static final IntakeMode OUTTAKE = new IntakeMode(-.65, -.65, .5);
+      public static final IntakeMode INTAKE = new IntakeMode(1);
+      public static final IntakeMode OUTTAKE = new IntakeMode(-.2, -.2, .7);
       public static final IntakeMode HOLD = new IntakeMode(.075);
       public static final IntakeMode OFF = new IntakeMode(0);
     }
@@ -152,10 +152,10 @@ public final class Constants {
 
     public static final class Setpoints {
       public static final int STARTING_ANGLE = 0;
-      public static final int INTAKE = 22;
+      public static final int INTAKE = 23;
       public static final int OUTTAKE_LOW = 0; // FIXME: Real value needed
       public static final int OUTTAKE_MID = 0; // FIXME: Real value needed
-      public static final int OUTTAKE_HIGH = 80;
+      public static final int OUTTAKE_HIGH = 85;
     }
   }
 
