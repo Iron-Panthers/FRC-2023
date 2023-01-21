@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import frc.robot.Constants.PoseEstimator;
-import frc.robot.Constants.Vision;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

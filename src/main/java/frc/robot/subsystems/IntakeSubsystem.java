@@ -6,7 +6,6 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Intake.IntakeModes;
@@ -29,9 +28,13 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public enum Modes {
-    INTAKE(IntakeModes.INTAKE), OUTTAKE(IntakeModes.OUTTAKE), HOLD(IntakeModes.HOLD), OFF(IntakeModes.OFF) ;
+    INTAKE(IntakeModes.INTAKE),
+    OUTTAKE(IntakeModes.OUTTAKE),
+    HOLD(IntakeModes.HOLD),
+    OFF(IntakeModes.OFF);
 
     public final IntakeMode intakeMode;
+
     Modes(IntakeMode intakeMode) {
       this.intakeMode = intakeMode;
     }
@@ -46,18 +49,17 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   private Modes advanceMode() {
-    switch(mode) {
+    switch (mode) {
       case INTAKE:
         return Modes.HOLD;
       case OUTTAKE:
         return Modes.OFF;
-      // states that do not progress automatically
+        // states that do not progress automatically
       case OFF:
       case HOLD:
         break;
     }
     return mode;
-
   }
 
   private void applyMode(IntakeMode mode) {
@@ -68,8 +70,9 @@ public class IntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
 
-
-    if (!modeLocked) {mode = advanceMode();}
+    if (!modeLocked) {
+      mode = advanceMode();
+    }
 
     applyMode(mode.intakeMode);
   }

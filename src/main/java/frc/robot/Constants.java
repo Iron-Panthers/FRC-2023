@@ -113,15 +113,17 @@ public final class Constants {
       public static class IntakeMode {
         public final double upperSpeed;
         public final double lowerSpeed;
+
         public IntakeMode(double upperSpeed, double lowerSpeed) {
           this.lowerSpeed = lowerSpeed;
           this.upperSpeed = upperSpeed;
         }
-  
+
         public IntakeMode(double speed) {
           this(speed, speed);
         }
       }
+
       public static final IntakeMode INTAKE = new IntakeMode(.15);
       public static final IntakeMode OUTTAKE = new IntakeMode(-.65);
       public static final IntakeMode HOLD = new IntakeMode(.05);
@@ -146,7 +148,7 @@ public final class Constants {
       public static final int INTAKE = 22;
       public static final int OUTTAKE_LOW = 0; // FIXME: Real value needed
       public static final int OUTTAKE_MID = 0; // FIXME: Real value needed
-      public static final int OUTTAKE_HIGH = 80; 
+      public static final int OUTTAKE_HIGH = 80;
     }
   }
 
@@ -196,6 +198,7 @@ public final class Constants {
                 2, // y
                 2 * Math.PI // theta
                 );
+
     public static final double CAMERA_CAPTURE_LATENCY_FUDGE_MS = 11;
 
     /** about one inch */
@@ -203,5 +206,4 @@ public final class Constants {
 
     public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 2;
   }
-
 }

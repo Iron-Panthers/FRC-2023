@@ -31,7 +31,6 @@ public class ManualArmCommand extends CommandBase {
 
     double angleOutput = armSubsystem.getDesiredAngle() + controllerInput * .5;
 
-
     armSubsystem.setDesiredAngle(angleOutput);
   }
 

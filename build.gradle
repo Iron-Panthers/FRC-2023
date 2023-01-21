@@ -1,7 +1,7 @@
 plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2023.2.1"
-    id "com.diffplug.spotless" version "6.2.0"
+    id "com.diffplug.spotless" version "6.13.0"
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
@@ -116,13 +116,13 @@ spotless {
             exclude '**/build/**', '**/build-*/**'
         }
         toggleOffOn()
-        // googleJavaFormat()
-        // removeUnusedImports()
-        // trimTrailingWhitespace()
-        // endWithNewline()
+        googleJavaFormat()
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
     }
     groovyGradle {
-        
+
         target fileTree('.') {
             include '**/*.gradle'
             exclude '**/build/**', '**/build-*/**'
@@ -152,7 +152,6 @@ spotless {
         fileTree(".github") {
             include "**/*.yml"
         }
-        prettier("2.5.1")
     }
     format 'misc', {
         target fileTree('.') {

@@ -74,9 +74,6 @@ public class ArmSubsystem extends SubsystemBase {
     tab.addDouble("Desired Angle", () -> desiredAngle);
 
     tab.addDouble("Error", () -> desiredAngle - this.getAngle());
-
-    
-
   }
 
   public double getAngle() {
@@ -99,7 +96,7 @@ public class ArmSubsystem extends SubsystemBase {
     return Math.sin(Math.toRadians(getAngle())) * Arm.GRAVITY_CONTROL_PERCENT;
   }
 
-  public boolean atSetpoint () {
+  public boolean atSetpoint() {
     return pidController.atSetpoint();
   }
 
@@ -109,8 +106,8 @@ public class ArmSubsystem extends SubsystemBase {
 
     double output = pidController.calculate(currentAngle, desiredAngle);
 
-
     armMotor.set(
-        TalonFXControlMode.PercentOutput, MathUtil.clamp(output + calulateGravityOffset(), -0.3, 0.3));
+        TalonFXControlMode.PercentOutput,
+        MathUtil.clamp(output + calulateGravityOffset(), -0.3, 0.3));
   }
 }

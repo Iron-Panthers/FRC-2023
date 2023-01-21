@@ -18,7 +18,9 @@ public class TrajectoryFollowerTests {
   // methods
   // NOTE: this is probably better implemented via Mockito.
   private class ConcreteImpl extends TrajectoryFollower<Integer> {
-    /** @return -1 */
+    /**
+     * @return -1
+     */
     @Override
     protected Integer calculateDriveSignal(
         Pose2d currentPose, Trajectory trajectory, double time, double dt) {
@@ -29,7 +31,9 @@ public class TrajectoryFollowerTests {
     // or timestamp or whatnot)
     private boolean _finished = false;
 
-    /** @return value of _finished */
+    /**
+     * @return value of _finished
+     */
     @Override
     protected boolean isFinished() {
       return _finished;

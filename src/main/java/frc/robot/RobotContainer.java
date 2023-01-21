@@ -21,13 +21,13 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
 import frc.robot.autonomous.commands.AutoTestSequence;
-import frc.robot.commands.ManualArmCommand;
 import frc.robot.commands.AngleArmCommand;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
 import frc.robot.commands.ForceIntakeModeCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
+import frc.robot.commands.ManualArmCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.VibrateControllerCommand;
@@ -77,7 +77,8 @@ public class RobotContainer {
             () -> (-modifyAxis(will.getLeftX()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
             will.rightBumper()));
 
-    armSubsystem.setDefaultCommand(new ManualArmCommand(armSubsystem, () -> ControllerUtil.deadband(jason.getLeftY(), 0.1)));
+    armSubsystem.setDefaultCommand(
+        new ManualArmCommand(armSubsystem, () -> ControllerUtil.deadband(jason.getLeftY(), 0.1)));
 
     SmartDashboard.putBoolean("is comp bot", MacUtil.IS_COMP_BOT);
 
@@ -151,14 +152,9 @@ public class RobotContainer {
                 will::getRightX,
                 will.rightBumper()));
 
-    jason
-        .a()
-        .whileTrue(new ForceIntakeModeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE));
+    jason.a().whileTrue(new ForceIntakeModeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE));
 
-    jason
-        .a()
-        .whileTrue(new ForceIntakeModeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE));
-
+    jason.a().whileTrue(new ForceIntakeModeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE));
 
     jason.b().onTrue(new AngleArmCommand(armSubsystem, Arm.Setpoints.INTAKE));
 
