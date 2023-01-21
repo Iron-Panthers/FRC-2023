@@ -128,10 +128,10 @@ public final class Constants {
 
     public static final class Setpoints {
       public static final int STARTING_ANGLE = 0;
-      public static final int INTAKE = 0; // FIXME: Real value needed
+      public static final int INTAKE = 22;
       public static final int OUTTAKE_LOW = 0; // FIXME: Real value needed
       public static final int OUTTAKE_MID = 0; // FIXME: Real value needed
-      public static final int OUTTAKE_HIGH = 0; // FIXME: Real value needed
+      public static final int OUTTAKE_HIGH = 80; 
     }
   }
 

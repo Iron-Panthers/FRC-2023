@@ -19,7 +19,9 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.Arm;
 import frc.robot.autonomous.commands.AutoTestSequence;
+import frc.robot.commands.ManualArmCommand;
 import frc.robot.commands.AngleArmCommand;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
@@ -76,7 +78,7 @@ public class RobotContainer {
             () -> (-modifyAxis(will.getLeftX()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
             will.rightBumper()));
 
-    armSubsystem.setDefaultCommand(new AngleArmCommand(armSubsystem, () -> ControllerUtil.deadband(jason.getLeftY(), 0.1)));
+    armSubsystem.setDefaultCommand(new ManualArmCommand(armSubsystem, () -> ControllerUtil.deadband(jason.getLeftY(), 0.1)));
 
     SmartDashboard.putBoolean("is comp bot", MacUtil.IS_COMP_BOT);
 
@@ -161,6 +163,11 @@ public class RobotContainer {
         .whileTrue(
             new PlaceCommand(
                 intakeSubsystem, Constants.Intake.outtakePower, -Constants.Intake.ejectPower));
+
+
+    jason.b().onTrue(new AngleArmCommand(armSubsystem, Arm.Setpoints.INTAKE));
+
+    jason.y().onTrue(new AngleArmCommand(armSubsystem, Arm.Setpoints.OUTTAKE_HIGH));
 
     // inline command to generate path on the fly that drives to 5,5 at heading zero
     will.b()
