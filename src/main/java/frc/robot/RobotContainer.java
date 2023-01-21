@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
@@ -158,16 +157,17 @@ public class RobotContainer {
     jason.a().whileTrue(new ForceIntakeModeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE));
 
     jason.b().onTrue(new AngleArmCommand(armSubsystem, Arm.Setpoints.OUTTAKE_HIGH));
-    jason
-        .b()
-        .onFalse(
-            new SetIntakeModeCommand(intakeSubsystem, IntakeSubsystem.Modes.OUTTAKE)
-                .andThen(new WaitCommand(1))
-                .andThen(new AngleArmCommand(armSubsystem, Arm.Setpoints.STARTING_ANGLE)));
+    jason.b().onFalse(new SetIntakeModeCommand(intakeSubsystem, IntakeSubsystem.Modes.OUTTAKE));
+    jason.y().onTrue(new AngleArmCommand(armSubsystem, Arm.Setpoints.STARTING_ANGLE));
 
     jason.x().onTrue(new SetIntakeModeCommand(intakeSubsystem, IntakeSubsystem.Modes.OFF));
     new Trigger(() -> jason.getLeftY() > .2)
         .whileTrue(new ManualArmCommand(armSubsystem, jason::getLeftY));
+
+    jason.leftBumper().onTrue(new AngleArmCommand(armSubsystem, Arm.Setpoints.INTAKE_SUBSTATION));
+    jason
+        .leftBumper()
+        .whileTrue(new ForceIntakeModeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE));
 
     // inline command to generate path on the fly that drives to 5,5 at heading zero
     will.b()
