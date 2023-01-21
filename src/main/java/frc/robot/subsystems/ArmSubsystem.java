@@ -42,7 +42,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     armMotor.setNeutralMode(NeutralMode.Brake);
 
-    pidController = new PIDController(0.1, 0, 0);
+    pidController = new PIDController(0.04, 0, 0);
 
     armEncoder = new CANCoder(Arm.Ports.ENCODER_PORT);
 
@@ -71,6 +71,8 @@ public class ArmSubsystem extends SubsystemBase {
 
     tab.addDouble("Desired Angle", () -> desiredAngle);
 
+    tab.addDouble("Error", () -> desiredAngle - this.getAngle());
+
     
 
   }
@@ -79,8 +81,20 @@ public class ArmSubsystem extends SubsystemBase {
     return armEncoder.getAbsolutePosition();
   }
 
+  public double getVelocity() {
+    return armEncoder.getVelocity();
+  }
+
+  public double getDesiredAngle() {
+    return desiredAngle;
+  }
+
   public void setDesiredAngle(double desiredAngle) {
     this.desiredAngle = desiredAngle;
+  }
+
+  public double calulateGravityOffset() {
+    return Math.sin(Math.toRadians(getAngle())) * Arm.GRAVITY_CONTROL_PERCENT;
   }
 
   @Override
@@ -89,11 +103,8 @@ public class ArmSubsystem extends SubsystemBase {
 
     double output = pidController.calculate(currentAngle, desiredAngle);
 
-    // Add the gravity offset as a function of cosine
-    final double gravityOffset =
-        Math.cos(Math.toRadians(currentAngle)) * Arm.GRAVITY_CONTROL_PERCENT;
 
     armMotor.set(
-        TalonFXControlMode.PercentOutput, MathUtil.clamp(output + gravityOffset, -0.1, 0.1));
+        TalonFXControlMode.PercentOutput, MathUtil.clamp(output + calulateGravityOffset(), -0.3, 0.3));
   }
 }
