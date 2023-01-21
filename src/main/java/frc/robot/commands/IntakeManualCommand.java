@@ -31,7 +31,7 @@ public class IntakeManualCommand extends CommandBase {
   public void execute() {
     intakeSubsystem.setPlaceLower(ejectPower);
     intakeSubsystem.setPlaceUpper(ejectPower);
-    intakeSubsystem.setIntake(-power);
+    // intakeSubsystem.setIntake(-power);
     intakeSubsystem.setIntake(power);
   }
 
