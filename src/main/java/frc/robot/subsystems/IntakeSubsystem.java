@@ -9,40 +9,68 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.Intake.IntakeModes;
+import frc.robot.Constants.Intake.IntakeModes.IntakeMode;
 
 public class IntakeSubsystem extends SubsystemBase {
 
-  private TalonFX intakeLower;
-  private TalonFX intakeUpper;
-  private TalonFX placeLower;
-  private TalonFX placeUpper;
+  private TalonFX lower;
+  private TalonFX upper;
+
+  private Modes mode = Modes.OFF;
+  private boolean modeLocked = false;
 
   public IntakeSubsystem() {
 
-    intakeLower = new TalonFX(Constants.Intake.Ports.intakeLower);
-    intakeUpper = new TalonFX(Constants.Intake.Ports.intakeUpper);
-    placeLower = new TalonFX(Constants.Intake.Ports.intakeLower);
-    placeUpper = new TalonFX(Constants.Intake.Ports.intakeUpper);
+    lower = new TalonFX(Constants.Intake.Ports.LOWER);
+    upper = new TalonFX(Constants.Intake.Ports.UPPER);
 
-    placeLower.setInverted(true);
+    lower.setInverted(true);
   }
 
-  public void setIntake(double power) {
+  public enum Modes {
+    INTAKE(IntakeModes.INTAKE), OUTTAKE(IntakeModes.OUTTAKE), HOLD(IntakeModes.HOLD), OFF(IntakeModes.OFF) ;
 
-    intakeLower.set(TalonFXControlMode.PercentOutput, power);
-    intakeUpper.set(TalonFXControlMode.PercentOutput, power);
+    public final IntakeMode intakeMode;
+    Modes(IntakeMode intakeMode) {
+      this.intakeMode = intakeMode;
+    }
   }
 
-  public void setPlaceLower(double power) {
-
-    placeLower.set(TalonFXControlMode.PercentOutput, power);
+  public void setModeLocked(boolean modeLocked) {
+    this.modeLocked = modeLocked;
   }
 
-  public void setPlaceUpper(double power) {
+  public void setMode(Modes mode) {
+    this.mode = mode;
+  }
 
-    placeUpper.set(TalonFXControlMode.PercentOutput, power);
+  private Modes advanceMode() {
+    switch(mode) {
+      case INTAKE:
+        return Modes.HOLD;
+      case OUTTAKE:
+        return Modes.OFF;
+      // states that do not progress automatically
+      case OFF:
+      case HOLD:
+        break;
+    }
+    return mode;
+
+  }
+
+  private void applyMode(IntakeMode mode) {
+    upper.set(TalonFXControlMode.PercentOutput, mode.upperSpeed);
+    lower.set(TalonFXControlMode.PercentOutput, mode.lowerSpeed);
+  }
+
+  @Override
+  public void periodic() {
+
+
+    if (!modeLocked) {mode = advanceMode();}
+
+    applyMode(mode.intakeMode);
   }
 }
-
-// During outtake first spin upper intake and eject towards each other so it sucks the balls back.
-// Then spin 1st eject and shoot, then shoot 2nd eject and shoot

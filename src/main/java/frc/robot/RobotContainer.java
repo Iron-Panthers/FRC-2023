@@ -26,9 +26,8 @@ import frc.robot.commands.AngleArmCommand;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
+import frc.robot.commands.ForceIntakeModeCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
-import frc.robot.commands.IntakeManualCommand;
-import frc.robot.commands.PlaceCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.VibrateControllerCommand;
@@ -154,15 +153,11 @@ public class RobotContainer {
 
     jason
         .a()
-        .whileTrue(
-            new IntakeManualCommand(
-                intakeSubsystem, Constants.Intake.intakePower, -Constants.Intake.ejectPower));
+        .whileTrue(new ForceIntakeModeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE));
 
     jason
-        .x()
-        .whileTrue(
-            new PlaceCommand(
-                intakeSubsystem, Constants.Intake.outtakePower, -Constants.Intake.ejectPower));
+        .a()
+        .whileTrue(new ForceIntakeModeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE));
 
 
     jason.b().onTrue(new AngleArmCommand(armSubsystem, Arm.Setpoints.INTAKE));
