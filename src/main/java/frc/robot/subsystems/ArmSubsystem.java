@@ -44,7 +44,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     pidController = new PIDController(0.04, 0.01, 0);
     pidController.setIntegratorRange(-.02, .02);
-    pidController.setTolerance(1);
+    pidController.setTolerance(1.5);
 
     armEncoder = new CANCoder(Arm.Ports.ENCODER_PORT);
 
