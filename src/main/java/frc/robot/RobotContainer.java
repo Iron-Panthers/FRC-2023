@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
@@ -30,6 +31,7 @@ import frc.robot.commands.HaltDriveCommandsCommand;
 import frc.robot.commands.ManualArmCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
+import frc.robot.commands.SetIntakeModeCommand;
 import frc.robot.commands.VibrateControllerCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
@@ -152,13 +154,16 @@ public class RobotContainer {
                 will::getRightX,
                 will.rightBumper()));
 
+    jason.a().onTrue(new AngleArmCommand(armSubsystem, Arm.Setpoints.INTAKE));
     jason.a().whileTrue(new ForceIntakeModeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE));
 
-    jason.x().whileTrue(new ForceIntakeModeCommand(intakeSubsystem, IntakeSubsystem.Modes.OUTTAKE));
-
-    jason.b().onTrue(new AngleArmCommand(armSubsystem, Arm.Setpoints.INTAKE));
-
-    jason.y().onTrue(new AngleArmCommand(armSubsystem, Arm.Setpoints.OUTTAKE_HIGH));
+    jason.b().onTrue(new AngleArmCommand(armSubsystem, Arm.Setpoints.OUTTAKE_HIGH));
+    jason
+        .b()
+        .onFalse(
+            new SetIntakeModeCommand(intakeSubsystem, IntakeSubsystem.Modes.OUTTAKE)
+                .andThen(new WaitCommand(1))
+                .andThen(new AngleArmCommand(armSubsystem, Arm.Setpoints.STARTING_ANGLE)));
 
     // inline command to generate path on the fly that drives to 5,5 at heading zero
     will.b()

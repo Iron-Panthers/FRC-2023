@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Intake.IntakeModes;
@@ -18,6 +19,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private Modes mode = Modes.OFF;
   private boolean modeLocked = false;
+  private double lastTransitionTime = Timer.getFPGATimestamp();
 
   private void applySettings(TalonFX motor) {
     motor.configVoltageCompSaturation(11);
@@ -52,10 +54,19 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void setMode(Modes mode) {
+    if (mode != this.mode) {
+      this.lastTransitionTime = Timer.getFPGATimestamp();
+    }
     this.mode = mode;
   }
 
+  private boolean modeFinished() {
+    return Timer.getFPGATimestamp()
+        >= (lastTransitionTime + this.mode.intakeMode.delayEndBySeconds);
+  }
+
   private Modes advanceMode() {
+    if (!modeFinished()) return mode;
     switch (mode) {
       case INTAKE:
         return Modes.HOLD;
@@ -78,7 +89,7 @@ public class IntakeSubsystem extends SubsystemBase {
   public void periodic() {
 
     if (!modeLocked) {
-      mode = advanceMode();
+      setMode(advanceMode());
     }
 
     applyMode(mode.intakeMode);

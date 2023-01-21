@@ -114,18 +114,25 @@ public final class Constants {
         public final double upperSpeed;
         public final double lowerSpeed;
 
-        public IntakeMode(double upperSpeed, double lowerSpeed) {
+        public final double delayEndBySeconds;
+
+        public IntakeMode(double upperSpeed, double lowerSpeed, double delayEndBySeconds) {
           this.lowerSpeed = lowerSpeed;
           this.upperSpeed = upperSpeed;
+          this.delayEndBySeconds = delayEndBySeconds;
+        }
+
+        public IntakeMode(double upperSpeed, double lowerSpeed) {
+          this(upperSpeed, lowerSpeed, 0);
         }
 
         public IntakeMode(double speed) {
-          this(speed, speed);
+          this(speed, speed, 0);
         }
       }
 
       public static final IntakeMode INTAKE = new IntakeMode(.15);
-      public static final IntakeMode OUTTAKE = new IntakeMode(-.65);
+      public static final IntakeMode OUTTAKE = new IntakeMode(-.65, -.65, .5);
       public static final IntakeMode HOLD = new IntakeMode(.075);
       public static final IntakeMode OFF = new IntakeMode(0);
     }
