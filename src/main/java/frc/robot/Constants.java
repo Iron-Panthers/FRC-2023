@@ -112,7 +112,7 @@ public final class Constants {
 
     public static final class IntakeModes {
       public static final IntakeModeDetails INTAKE =
-          new IntakeModeDetails().setSpeed(1).setStatorLimitAmps(40);
+          new IntakeModeDetails().setSpeed(1).setStatorLimitAmps(50);
       public static final IntakeModeDetails OUTTAKE =
           new IntakeModeDetails().setSpeed(-.3).setDelayEndBySeconds(1);
       public static final IntakeModeDetails HOLD = new IntakeModeDetails().setSpeed(.075);

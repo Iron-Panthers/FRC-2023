@@ -76,6 +76,13 @@ public class IntakeSubsystem extends SubsystemBase {
 
     Shuffleboard.getTab("intake").addDouble("lower stator", lower::getStatorCurrent);
     Shuffleboard.getTab("intake").addDouble("upper stator", upper::getStatorCurrent);
+    Shuffleboard.getTab("intake")
+        .addDouble(
+            "limit",
+            () ->
+                mode.intakeModeDetails.statorLimitAmps.isEmpty()
+                    ? 0
+                    : mode.intakeModeDetails.statorLimitAmps.get());
 
     applySettings(lower);
     applySettings(upper);
@@ -108,8 +115,17 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   private boolean modeFinished() {
-    return Timer.getFPGATimestamp()
-        >= (lastTransitionTime + this.mode.intakeModeDetails.delayEndBySeconds);
+
+    if (this.mode.intakeModeDetails.statorLimitAmps.isPresent()) {
+      double statorLimitAmps = this.mode.intakeModeDetails.statorLimitAmps.get();
+
+      if (this.upper.getStatorCurrent() >= statorLimitAmps
+          || this.lower.getStatorCurrent() >= statorLimitAmps) return true;
+    }
+
+    return !modeLocked
+        && (Timer.getFPGATimestamp()
+            >= (lastTransitionTime + this.mode.intakeModeDetails.delayEndBySeconds));
   }
 
   private Modes advanceMode() {
@@ -135,9 +151,7 @@ public class IntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
 
-    if (!modeLocked) {
-      setMode(advanceMode());
-    }
+    setMode(advanceMode());
 
     applyMode(mode.intakeModeDetails);
   }
