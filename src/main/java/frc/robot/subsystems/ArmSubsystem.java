@@ -92,7 +92,7 @@ public class ArmSubsystem extends SubsystemBase {
     this.desiredAngle = MathUtil.clamp(desiredAngle, -Arm.MAX_ANGLE, Arm.MAX_ANGLE);
   }
 
-  public double calulateGravityOffset() {
+  public double calculateGravityOffset() {
     return Math.sin(Math.toRadians(getAngle())) * Arm.GRAVITY_CONTROL_PERCENT;
   }
 
@@ -108,6 +108,6 @@ public class ArmSubsystem extends SubsystemBase {
 
     armMotor.set(
         TalonFXControlMode.PercentOutput,
-        MathUtil.clamp(output + calulateGravityOffset(), -0.3, 0.3));
+        MathUtil.clamp(output + calculateGravityOffset(), -0.3, 0.3));
   }
 }
