@@ -75,6 +75,7 @@ public class IntakeSubsystem extends SubsystemBase {
     upper = new TalonFX(Constants.Intake.Ports.UPPER);
 
     Shuffleboard.getTab("intake").addDouble("lower stator", lower::getStatorCurrent);
+    Shuffleboard.getTab("intake").addDouble("upper stator", upper::getStatorCurrent);
 
     applySettings(lower);
     applySettings(upper);
