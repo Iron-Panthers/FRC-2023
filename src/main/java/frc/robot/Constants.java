@@ -14,7 +14,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import java.util.Optional;
+import frc.robot.subsystems.IntakeSubsystem.IntakeModeDetails;
 
 @SuppressWarnings("java:S1118")
 /**
@@ -111,31 +111,12 @@ public final class Constants {
     }
 
     public static final class IntakeModes {
-      public static class IntakeMode {
-        public final double upperSpeed;
-        public final double lowerSpeed;
-
-        public final double delayEndBySeconds;
-        public final Optional<Double> statorLimitAmps;
-
-        public IntakeMode(
-            double upperSpeed,
-            double lowerSpeed,
-            double delayEndBySeconds,
-            Optional<Double> statorLimitAmps) {
-          this.lowerSpeed = lowerSpeed;
-          this.upperSpeed = upperSpeed;
-          this.delayEndBySeconds = delayEndBySeconds;
-          this.statorLimitAmps = statorLimitAmps;
-        }
-
-        public IntakeMode setUpperSpeed(double upperSpeed) {}
-      }
-
-      public static final IntakeMode INTAKE = new IntakeMode(1);
-      public static final IntakeMode OUTTAKE = new IntakeMode(-.2, -.2, .7, Optional.empty());
-      public static final IntakeMode HOLD = new IntakeMode(.075);
-      public static final IntakeMode OFF = new IntakeMode(0);
+      public static final IntakeModeDetails INTAKE =
+          new IntakeModeDetails().setSpeed(1).setStatorLimitAmps(40);
+      public static final IntakeModeDetails OUTTAKE =
+          new IntakeModeDetails().setSpeed(-.2).setDelayEndBySeconds(.7);
+      public static final IntakeModeDetails HOLD = new IntakeModeDetails().setSpeed(.075);
+      public static final IntakeModeDetails OFF = new IntakeModeDetails().setSpeed(0);
     }
   }
 

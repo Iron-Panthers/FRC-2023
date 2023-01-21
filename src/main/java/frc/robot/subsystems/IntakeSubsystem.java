@@ -11,9 +11,52 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Intake.IntakeModes;
-import frc.robot.Constants.Intake.IntakeModes.IntakeMode;
+import java.util.Optional;
 
 public class IntakeSubsystem extends SubsystemBase {
+  public static class IntakeModeDetails {
+    public final double upperSpeed;
+    public final double lowerSpeed;
+
+    public final double delayEndBySeconds;
+    public final Optional<Double> statorLimitAmps;
+
+    public IntakeModeDetails(
+        double upperSpeed,
+        double lowerSpeed,
+        double delayEndBySeconds,
+        Optional<Double> statorLimitAmps) {
+      this.lowerSpeed = lowerSpeed;
+      this.upperSpeed = upperSpeed;
+      this.delayEndBySeconds = delayEndBySeconds;
+      this.statorLimitAmps = statorLimitAmps;
+    }
+
+    public IntakeModeDetails() {
+      this(0, 0, 0, Optional.empty());
+    }
+
+    public IntakeModeDetails setUpperSpeed(double upperSpeed) {
+      return new IntakeModeDetails(upperSpeed, lowerSpeed, delayEndBySeconds, statorLimitAmps);
+    }
+
+    public IntakeModeDetails setLowerSpeed(double lowerSpeed) {
+      return new IntakeModeDetails(upperSpeed, lowerSpeed, delayEndBySeconds, statorLimitAmps);
+    }
+
+    public IntakeModeDetails setSpeed(double speed) {
+      return new IntakeModeDetails(speed, speed, delayEndBySeconds, statorLimitAmps);
+    }
+
+    public IntakeModeDetails setDelayEndBySeconds(double delayEndBySeconds) {
+      return new IntakeModeDetails(upperSpeed, lowerSpeed, delayEndBySeconds, statorLimitAmps);
+    }
+
+    public IntakeModeDetails setStatorLimitAmps(double statorLimitAmps) {
+      return new IntakeModeDetails(
+          upperSpeed, lowerSpeed, delayEndBySeconds, Optional.of(statorLimitAmps));
+    }
+  }
 
   private TalonFX lower;
   private TalonFX upper;
@@ -45,10 +88,10 @@ public class IntakeSubsystem extends SubsystemBase {
     HOLD(IntakeModes.HOLD),
     OFF(IntakeModes.OFF);
 
-    public final IntakeMode intakeMode;
+    public final IntakeModeDetails intakeModeDetails;
 
-    Modes(IntakeMode intakeMode) {
-      this.intakeMode = intakeMode;
+    Modes(IntakeModeDetails intakeModeDetails) {
+      this.intakeModeDetails = intakeModeDetails;
     }
   }
 
@@ -65,7 +108,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private boolean modeFinished() {
     return Timer.getFPGATimestamp()
-        >= (lastTransitionTime + this.mode.intakeMode.delayEndBySeconds);
+        >= (lastTransitionTime + this.mode.intakeModeDetails.delayEndBySeconds);
   }
 
   private Modes advanceMode() {
@@ -83,7 +126,7 @@ public class IntakeSubsystem extends SubsystemBase {
     return mode;
   }
 
-  private void applyMode(IntakeMode mode) {
+  private void applyMode(IntakeModeDetails mode) {
     upper.set(TalonFXControlMode.PercentOutput, mode.upperSpeed);
     lower.set(TalonFXControlMode.PercentOutput, mode.lowerSpeed);
   }
@@ -95,6 +138,6 @@ public class IntakeSubsystem extends SubsystemBase {
       setMode(advanceMode());
     }
 
-    applyMode(mode.intakeMode);
+    applyMode(mode.intakeModeDetails);
   }
 }
