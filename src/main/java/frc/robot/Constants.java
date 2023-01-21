@@ -134,11 +134,11 @@ public final class Constants {
 
     public static final class Setpoints {
       public static final double STARTING_ANGLE = 0;
-      public static final double INTAKE = 24.96;
-      public static final double INTAKE_SUBSTATION = 77.9;
+      public static final double INTAKE = -24.96;
+      public static final double INTAKE_SUBSTATION = -80.59;
       public static final double OUTTAKE_LOW = 0; // FIXME: Real value needed
       public static final double OUTTAKE_MID = 0; // FIXME: Real value needed
-      public static final double OUTTAKE_HIGH = 86;
+      public static final double OUTTAKE_HIGH = -86.5;
     }
   }
 
