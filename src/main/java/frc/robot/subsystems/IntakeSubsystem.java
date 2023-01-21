@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Intake.IntakeModes;
@@ -29,6 +30,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
     lower = new TalonFX(Constants.Intake.Ports.LOWER);
     upper = new TalonFX(Constants.Intake.Ports.UPPER);
+
+    Shuffleboard.getTab("intake").addDouble("lower stator", lower::getStatorCurrent);
 
     applySettings(lower);
     applySettings(upper);
