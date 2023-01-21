@@ -154,7 +154,7 @@ public class RobotContainer {
 
     jason.a().whileTrue(new ForceIntakeModeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE));
 
-    jason.a().whileTrue(new ForceIntakeModeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE));
+    jason.x().whileTrue(new ForceIntakeModeCommand(intakeSubsystem, IntakeSubsystem.Modes.OUTTAKE));
 
     jason.b().onTrue(new AngleArmCommand(armSubsystem, Arm.Setpoints.INTAKE));
 

@@ -126,7 +126,7 @@ public final class Constants {
 
       public static final IntakeMode INTAKE = new IntakeMode(.15);
       public static final IntakeMode OUTTAKE = new IntakeMode(-.65);
-      public static final IntakeMode HOLD = new IntakeMode(.05);
+      public static final IntakeMode HOLD = new IntakeMode(.075);
       public static final IntakeMode OFF = new IntakeMode(0);
     }
   }

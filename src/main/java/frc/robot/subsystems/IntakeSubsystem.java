@@ -19,10 +19,17 @@ public class IntakeSubsystem extends SubsystemBase {
   private Modes mode = Modes.OFF;
   private boolean modeLocked = false;
 
+  private void applySettings(TalonFX motor) {
+    motor.configVoltageCompSaturation(11);
+  }
+
   public IntakeSubsystem() {
 
     lower = new TalonFX(Constants.Intake.Ports.LOWER);
     upper = new TalonFX(Constants.Intake.Ports.UPPER);
+
+    applySettings(lower);
+    applySettings(upper);
 
     lower.setInverted(true);
   }
