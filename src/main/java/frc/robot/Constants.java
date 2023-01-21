@@ -114,7 +114,7 @@ public final class Constants {
       public static final IntakeModeDetails INTAKE =
           new IntakeModeDetails().setSpeed(1).setStatorLimitAmps(40);
       public static final IntakeModeDetails OUTTAKE =
-          new IntakeModeDetails().setSpeed(-.2).setDelayEndBySeconds(.7);
+          new IntakeModeDetails().setSpeed(-.3).setDelayEndBySeconds(1);
       public static final IntakeModeDetails HOLD = new IntakeModeDetails().setSpeed(.075);
       public static final IntakeModeDetails OFF = new IntakeModeDetails().setSpeed(0);
     }
@@ -135,10 +135,10 @@ public final class Constants {
     public static final class Setpoints {
       public static final double STARTING_ANGLE = 0;
       public static final double INTAKE = 24.96;
-      public static final double INTAKE_SUBSTATION = 75.4;
+      public static final double INTAKE_SUBSTATION = 77.9;
       public static final double OUTTAKE_LOW = 0; // FIXME: Real value needed
       public static final double OUTTAKE_MID = 0; // FIXME: Real value needed
-      public static final double OUTTAKE_HIGH = 85;
+      public static final double OUTTAKE_HIGH = 86;
     }
   }
 
