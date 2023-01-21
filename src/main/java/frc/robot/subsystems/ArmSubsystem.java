@@ -42,7 +42,8 @@ public class ArmSubsystem extends SubsystemBase {
 
     armMotor.setNeutralMode(NeutralMode.Brake);
 
-    pidController = new PIDController(0.04, 0, 0);
+    pidController = new PIDController(0.04, 0.01, 0);
+    pidController.setIntegratorRange(-.02, .02);
 
     armEncoder = new CANCoder(Arm.Ports.ENCODER_PORT);
 
@@ -90,7 +91,7 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   public void setDesiredAngle(double desiredAngle) {
-    this.desiredAngle = desiredAngle;
+    this.desiredAngle = MathUtil.clamp(desiredAngle, -Arm.MAX_ANGLE, Arm.MAX_ANGLE);
   }
 
   public double calulateGravityOffset() {
