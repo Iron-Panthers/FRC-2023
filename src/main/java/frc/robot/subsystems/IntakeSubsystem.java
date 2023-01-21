@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Intake.IntakeModes;
+import frc.robot.subsystems.IntakeSubsystem.IntakeModeDetails.StatorLimit;
 import java.util.Optional;
 
 public class IntakeSubsystem extends SubsystemBase {
@@ -18,18 +19,28 @@ public class IntakeSubsystem extends SubsystemBase {
     public final double upperSpeed;
     public final double lowerSpeed;
 
+    public static class StatorLimit {
+      public final double currentAmps;
+      public final double armingDurationSeconds;
+
+      public StatorLimit(double currentAmps, double armDurationSeconds) {
+        this.currentAmps = currentAmps;
+        this.armingDurationSeconds = armDurationSeconds;
+      }
+    }
+
     public final double delayEndBySeconds;
-    public final Optional<Double> statorLimitAmps;
+    public final Optional<StatorLimit> statorLimit;
 
     public IntakeModeDetails(
         double upperSpeed,
         double lowerSpeed,
         double delayEndBySeconds,
-        Optional<Double> statorLimitAmps) {
+        Optional<StatorLimit> statorLimitAmps) {
       this.lowerSpeed = lowerSpeed;
       this.upperSpeed = upperSpeed;
       this.delayEndBySeconds = delayEndBySeconds;
-      this.statorLimitAmps = statorLimitAmps;
+      this.statorLimit = statorLimitAmps;
     }
 
     public IntakeModeDetails() {
@@ -37,24 +48,28 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public IntakeModeDetails setUpperSpeed(double upperSpeed) {
-      return new IntakeModeDetails(upperSpeed, lowerSpeed, delayEndBySeconds, statorLimitAmps);
+      return new IntakeModeDetails(upperSpeed, lowerSpeed, delayEndBySeconds, statorLimit);
     }
 
     public IntakeModeDetails setLowerSpeed(double lowerSpeed) {
-      return new IntakeModeDetails(upperSpeed, lowerSpeed, delayEndBySeconds, statorLimitAmps);
+      return new IntakeModeDetails(upperSpeed, lowerSpeed, delayEndBySeconds, statorLimit);
     }
 
     public IntakeModeDetails setSpeed(double speed) {
-      return new IntakeModeDetails(speed, speed, delayEndBySeconds, statorLimitAmps);
+      return new IntakeModeDetails(speed, speed, delayEndBySeconds, statorLimit);
     }
 
     public IntakeModeDetails setDelayEndBySeconds(double delayEndBySeconds) {
-      return new IntakeModeDetails(upperSpeed, lowerSpeed, delayEndBySeconds, statorLimitAmps);
+      return new IntakeModeDetails(upperSpeed, lowerSpeed, delayEndBySeconds, statorLimit);
     }
 
-    public IntakeModeDetails setStatorLimitAmps(double statorLimitAmps) {
+    public IntakeModeDetails setStatorLimitAmps(
+        double statorLimitAmps, double armingDurationSeconds) {
       return new IntakeModeDetails(
-          upperSpeed, lowerSpeed, delayEndBySeconds, Optional.of(statorLimitAmps));
+          upperSpeed,
+          lowerSpeed,
+          delayEndBySeconds,
+          Optional.of(new StatorLimit(statorLimitAmps, armingDurationSeconds)));
     }
   }
 
@@ -80,9 +95,9 @@ public class IntakeSubsystem extends SubsystemBase {
         .addDouble(
             "limit",
             () ->
-                mode.intakeModeDetails.statorLimitAmps.isEmpty()
+                mode.intakeModeDetails.statorLimit.isEmpty()
                     ? 0
-                    : mode.intakeModeDetails.statorLimitAmps.get());
+                    : mode.intakeModeDetails.statorLimit.get().currentAmps);
 
     applySettings(lower);
     applySettings(upper);
@@ -116,11 +131,14 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private boolean modeFinished() {
 
-    if (this.mode.intakeModeDetails.statorLimitAmps.isPresent()) {
-      double statorLimitAmps = this.mode.intakeModeDetails.statorLimitAmps.get();
+    if (this.mode.intakeModeDetails.statorLimit.isPresent()) {
+      StatorLimit statorLimit = this.mode.intakeModeDetails.statorLimit.get();
+      double statorLimitAmps = statorLimit.currentAmps;
+      double armingDurationSeconds = statorLimit.armingDurationSeconds;
 
-      if (this.upper.getStatorCurrent() >= statorLimitAmps
-          || this.lower.getStatorCurrent() >= statorLimitAmps) return true;
+      if ((Timer.getFPGATimestamp() >= (lastTransitionTime + armingDurationSeconds))
+          && (this.upper.getStatorCurrent() >= statorLimitAmps
+              || this.lower.getStatorCurrent() >= statorLimitAmps)) return true;
     }
 
     return !modeLocked
