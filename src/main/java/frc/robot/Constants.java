@@ -43,7 +43,7 @@ public final class Constants {
     public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND =
         MAX_VELOCITY_METERS_PER_SECOND
             / Math.hypot(Dims.TRACKWIDTH_METERS / 2.0, Dims.WHEELBASE_METERS / 2.0)
-            * .5;
+            * .05; // FIXME RESTORE TO .5
 
     /** the maximum amount of angular error pid loops will tolerate for rotation */
     public static final double ANGULAR_ERROR = 1.0;

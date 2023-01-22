@@ -161,7 +161,7 @@ public class RobotContainer {
     jason.y().onTrue(new AngleArmCommand(armSubsystem, Arm.Setpoints.STARTING_ANGLE));
 
     jason.x().onTrue(new SetIntakeModeCommand(intakeSubsystem, IntakeSubsystem.Modes.OFF));
-    new Trigger(() -> jason.getLeftY() > .2)
+    new Trigger(() -> Math.abs(jason.getLeftY()) > .2)
         .whileTrue(new ManualArmCommand(armSubsystem, jason::getLeftY));
 
     jason.leftBumper().onTrue(new AngleArmCommand(armSubsystem, Arm.Setpoints.INTAKE_SUBSTATION));
