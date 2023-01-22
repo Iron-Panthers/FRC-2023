@@ -43,7 +43,7 @@ public final class Constants {
     public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND =
         MAX_VELOCITY_METERS_PER_SECOND
             / Math.hypot(Dims.TRACKWIDTH_METERS / 2.0, Dims.WHEELBASE_METERS / 2.0)
-            * .05; // FIXME RESTORE TO .5
+            * .1; // FIXME RESTORE TO .5
 
     /** the maximum amount of angular error pid loops will tolerate for rotation */
     public static final double ANGULAR_ERROR = 1.0;
@@ -135,10 +135,10 @@ public final class Constants {
     public static final class Setpoints {
       public static final double STARTING_ANGLE = 0;
       public static final double INTAKE = -24.96;
-      public static final double INTAKE_SUBSTATION = -80.59;
+      public static final double INTAKE_SUBSTATION = -80;
       public static final double OUTTAKE_LOW = 0; // FIXME: Real value needed
       public static final double OUTTAKE_MID = 0; // FIXME: Real value needed
-      public static final double OUTTAKE_HIGH = -86;
+      public static final double OUTTAKE_HIGH = -88;
     }
   }
 
