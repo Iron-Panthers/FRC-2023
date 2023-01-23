@@ -37,7 +37,7 @@ public class AsyncWorker {
 
     /**
      * Register a callback to be called when the result is ready, from the worker thread. Even if
-     * the result is already, the callback will still be submitted to the worker thread for
+     * the result is already finished, the callback will still be submitted to the worker thread for
      * consistency.
      *
      * <p>Be very careful with this method, as it can deadlock the worker thread. Only call it if
@@ -61,7 +61,8 @@ public class AsyncWorker {
 
     /**
      * Register a callback to be run when the result is ready, from the main thread. Even if the
-     * result is already, the callback will still be submitted to the main thread for consistency.
+     * result is already finished, the callback will still be submitted to the main thread for
+     * consistency.
      *
      * <p>Be very careful with this method, as it can deadlock the worker thread. Only call it if
      * you are sure it is the correct solution to your problem. You can probably just use {@link
