@@ -42,7 +42,7 @@ public class AsyncWorker {
      *
      * <p>Be very careful with this method, as it can deadlock the worker thread. Only call it if
      * you are sure it is the correct solution to your problem. You can probably just use {@link
-     * #get()} instead.
+     * #get()} in your periodic instead.
      *
      * @param callback The callback to be called when the result is ready.
      */
@@ -65,7 +65,7 @@ public class AsyncWorker {
      *
      * <p>Be very careful with this method, as it can deadlock the worker thread. Only call it if
      * you are sure it is the correct solution to your problem. You can probably just use {@link
-     * #get()} instead.
+     * #get()} in your periodic instead.
      *
      * @param callback The callback to be run when the result is ready.
      */
