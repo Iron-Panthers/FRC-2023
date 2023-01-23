@@ -42,4 +42,26 @@ public class AsyncWorkerTest {
 
     assertEquals(Optional.of(1), result.get(), "result should be 1 after worker finishes");
   }
+
+  @UtilTest
+  public void asyncWorkerFailsToResolve() {
+    AsyncWorker worker = new AsyncWorker();
+
+    CountDownLatch delay = new CountDownLatch(1);
+
+    AsyncWorker.Result<Integer> result =
+        worker.submit(
+            () -> {
+              delay.await();
+              throw new RuntimeException("Test exception");
+            });
+
+    assertEquals(Optional.empty(), result.get(), "Result should not be ready yet");
+
+    delay.countDown();
+
+    await(result);
+
+    assertEquals(Optional.empty(), result.get(), "result should be empty after worker fails");
+  }
 }
