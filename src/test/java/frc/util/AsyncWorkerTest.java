@@ -2,15 +2,17 @@ package frc.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import frc.ConfigSystemErrorLogging;
 import frc.UtilTest;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class AsyncWorkerTest {
 
   /**
    * This function is dangerous and blocking. Don't do this outside of unit tests. If the task does
-   * not complete, this will deadlock the main thread.
+   * not complete, this will lock up the test thread for 200 ms.
    *
    * @param <T> The type of the result
    * @param result The result to wait for
@@ -22,7 +24,7 @@ public class AsyncWorkerTest {
           latch.countDown();
         });
     try {
-      latch.await();
+      latch.await(200, TimeUnit.MILLISECONDS);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }
@@ -51,10 +53,13 @@ public class AsyncWorkerTest {
   }
 
   @UtilTest
-  public void asyncWorkerFailsToResolve() {
+  public void asyncWorkerFailsToResolve() throws RuntimeException {
     AsyncWorker worker = new AsyncWorker();
 
     CountDownLatch delay = new CountDownLatch(1);
+
+    // prevent e.printStackTrace() from spamming the console during the test
+    ConfigSystemErrorLogging.hide();
 
     AsyncWorker.Result<Integer> result =
         worker.submit(
@@ -70,6 +75,8 @@ public class AsyncWorkerTest {
     await(result);
 
     assertEquals(Optional.empty(), result.get(), "result should be empty after worker fails");
+
+    ConfigSystemErrorLogging.show();
   }
 
   @UtilTest
