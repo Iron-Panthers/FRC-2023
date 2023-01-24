@@ -1,5 +1,6 @@
 package frc.util;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -10,6 +11,25 @@ import java.util.function.Consumer;
 
 public class AsyncWorker {
   private final ExecutorService executor = Executors.newSingleThreadExecutor();
+  private final ArrayList<Subscription<?>> subscriptions = new ArrayList<>();
+
+  private class Subscription<T> {
+    public final Result<T> result;
+    public final Consumer<Optional<T>> callback;
+
+    Subscription(Result<T> result, Consumer<Optional<T>> callback) {
+      this.result = result;
+      this.callback = callback;
+    }
+
+    boolean evaluate() {
+      var optionalValue = result.get();
+      if (optionalValue.isPresent()) {
+        callback.accept(result.get());
+      }
+      return optionalValue.isPresent();
+    }
+  }
 
   AsyncWorker() {}
 
@@ -43,39 +63,28 @@ public class AsyncWorker {
     }
 
     /**
-     * Register a callback to be called when the result is ready, from the worker thread. Even if
-     * the result is already finished, the callback will still be submitted to the worker thread for
-     * consistency.
+     * Register a callback to be called when the result is ready, from the context the heartbeat
+     * function is called. Because the heartbeat must be called to evaluate subscriptions, they will
+     * not resolve when your command becomes unscheduled.
      *
-     * <p>Be very careful with this method, as it can deadlock the worker thread. Only call it if
-     * you are sure it is the correct solution to your problem. You can probably just use {@link
-     * #get()} in your periodic instead.
+     * <p>This may not be the right solution to your problem. If you just want to get the value when
+     * it is done, you can probably just use {@link #get()} in your periodic instead. You will
+     * probably regret modifying state or controlling subsystems from a subscription.
      *
      * @param callback The callback to be called when the result is ready.
      */
     public void subscribe(Consumer<Optional<T>> callback) {
-      executor.submit(
-          () -> {
-            try {
-              // Wait for the result to be ready
-              future.get();
-            } catch (InterruptedException e) {
-              Thread.currentThread().interrupt();
-            } catch (ExecutionException e) {
-              e.printStackTrace();
-            }
-            callback.accept(this.get());
-          });
+      subscriptions.add(new Subscription<>(this, callback));
     }
 
     /**
-     * Register a callback to be run when the result is ready, from the worker thread. Even if the
-     * result is already finished, the callback will still be submitted to the main thread for
-     * consistency.
+     * Register a callback to be run when the result is ready, from the context the heartbeat
+     * function is run. Because the heartbeat must be called to evaluate subscriptions, they will
+     * not resolve when your command becomes unscheduled.
      *
-     * <p>Be very careful with this method, as it can deadlock the worker thread. Only call it if
-     * you are sure it is the correct solution to your problem. You can probably just use {@link
-     * #get()} in your periodic instead.
+     * <p>This may not be the right solution to your problem. If you just want to do something when
+     * the value changes, you can probably just use {@link #get()} in your periodic instead. You
+     * will probably regret modifying state or controlling subsystems from a subscription.
      *
      * @param callback The callback to be run when the result is ready.
      */
@@ -95,5 +104,29 @@ public class AsyncWorker {
    */
   public <T> Result<T> submit(Callable<T> callable) {
     return new Result<>(executor.submit(callable));
+  }
+
+  /**
+   * Evaluate all subscriptions. This should be called periodically from the context of that your
+   * {@link AsyncWorker} exists in. This will call all callbacks for subscriptions that have been
+   * resolved. You should not pass this function elsewhere, because your subscriptions should not
+   * resolve when your command is not scheduled.
+   *
+   * <p>For example, spawning a thread to call the heartbeat function is a very bad idea, because
+   * your command state can be mutated when it is not running, or your subsystems can be written to
+   * when you do not hold the mutex. Do not do that.
+   */
+  public void heartbeat() {
+    subscriptions.removeIf(Subscription::evaluate);
+  }
+
+  /**
+   * Get the number of subscriptions that have not been resolved. This is useful for testing. You
+   * probably shouldn't do anything else with this value...
+   *
+   * @return The number of subscriptions that have not been resolved.
+   */
+  public int getPendingSubscriptions() {
+    return subscriptions.size();
   }
 }

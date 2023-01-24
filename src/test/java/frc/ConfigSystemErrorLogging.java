@@ -8,11 +8,19 @@ public class ConfigSystemErrorLogging {
             public void write(int i) {}
           });
 
+  private static boolean hidden = false;
+
   public static void hide() {
     System.setErr(fakeErrorStream);
+    hidden = true;
   }
 
   public static void show() {
     System.setErr(realErrorStream);
+    hidden = false;
+  }
+
+  public static boolean isHidden() {
+    return hidden;
   }
 }
