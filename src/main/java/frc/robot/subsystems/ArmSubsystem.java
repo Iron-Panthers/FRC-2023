@@ -52,7 +52,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     armEncoder.configSensorInitializationStrategy(
         SensorInitializationStrategy.BootToAbsolutePosition);
-    armEncoder.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
+    armEncoder.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180); // Use Angle util, 
 
     desiredAngle = Arm.Setpoints.STARTING_ANGLE;
 
@@ -67,6 +67,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     armEncoder.configMagnetOffset(Arm.ANGULAR_OFFSET);
 
+    // FIXME Make timeout longer
     armEncoder.setPositionToAbsolute(10); // ms
 
     tab.addDouble("current angle", this::getAngle);
