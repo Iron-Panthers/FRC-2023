@@ -72,7 +72,7 @@ public class AsyncWorkerTest {
 
     delay.countDown();
 
-    await(worker, result);
+    await(result);
 
     assertEquals(Optional.of(1), result.get(), "result should be 1 after worker finishes");
   }
@@ -94,7 +94,7 @@ public class AsyncWorkerTest {
 
     delay.countDown();
 
-    await(worker, result);
+    await(result);
 
     assertEquals(Optional.empty(), result.get(), "result should be empty after worker fails");
   }
@@ -132,9 +132,9 @@ public class AsyncWorkerTest {
 
     delay.countDown();
 
-    await(worker, result1);
-    await(worker, result2);
-    await(worker, result3);
+    await(result1);
+    await(result2);
+    await(result3);
 
     assertEquals(Optional.of(1), result1.get(), "result should be 1 after worker finishes");
     assertEquals(Optional.empty(), result2.get(), "result should be empty after worker fails");
