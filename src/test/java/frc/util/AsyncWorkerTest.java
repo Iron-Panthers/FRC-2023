@@ -140,4 +140,28 @@ public class AsyncWorkerTest {
     assertEquals(Optional.empty(), result2.get(), "result should be empty after worker fails");
     assertEquals(Optional.of(3), result3.get(), "result should be 3 after worker finishes");
   }
+
+  @UtilTest
+  public void taskCanResolveOnFirstGet() {
+    AsyncWorker worker = new AsyncWorker();
+    CountDownLatch delay = new CountDownLatch(1);
+
+    AsyncWorker.Result<Integer> result =
+        worker.submit(
+            () -> {
+              return 1;
+            });
+
+    // as of 2022, this tricks the linter into thinking we are doing something reasonable, but
+    // really this is a fancier Thread.sleep(), which is important for ensuring the get logic can
+    // allow receiving the result without calling get beforehand, like await does.
+    try {
+      delay.await(50, TimeUnit.MILLISECONDS);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+
+    assertEquals(Optional.of(1), result.get(), "result should be 1 after worker finishes");
+    assertEquals(result.getError(), Optional.empty(), "result should not have an error");
+  }
 }
