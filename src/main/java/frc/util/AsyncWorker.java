@@ -69,7 +69,7 @@ public class AsyncWorker {
     }
 
     /**
-     * Register a callback to be run when the result is ready, from the main thread. Even if the
+     * Register a callback to be run when the result is ready, from the worker thread. Even if the
      * result is already finished, the callback will still be submitted to the main thread for
      * consistency.
      *
