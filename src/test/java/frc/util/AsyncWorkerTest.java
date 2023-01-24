@@ -25,7 +25,7 @@ public class AsyncWorkerTest {
 
   /**
    * This function is dangerous and blocking. Don't do this outside of unit tests. If the task does
-   * not complete, this will lock up the test thread for 10 ms.
+   * not complete, this will lock up the test thread for 100 ms.
    *
    * @param <T> The type of the result
    * @param result The result to wait for
@@ -37,11 +37,11 @@ public class AsyncWorkerTest {
               while (true) {
                 boolean wasHidden = ConfigSystemErrorLogging.isHidden();
                 ConfigSystemErrorLogging.hide();
-                boolean finished = !result.get().isPresent();
+                result.get();
                 if (!wasHidden) {
                   ConfigSystemErrorLogging.show();
                 }
-                if (finished) {
+                if (result.hasResolved()) {
                   latch.countDown();
                   break;
                 }
@@ -49,7 +49,7 @@ public class AsyncWorkerTest {
             })
         .start();
     try {
-      latch.await(10, TimeUnit.MILLISECONDS);
+      latch.await(100, TimeUnit.MILLISECONDS);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }

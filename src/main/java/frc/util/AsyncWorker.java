@@ -35,6 +35,7 @@ public class AsyncWorker {
 
   public class Result<T> {
     private final Future<T> future;
+    private Optional<Error> error = Optional.empty();
     private Optional<T> optionalValue = Optional.empty();
 
     Result(Future<T> future) {
@@ -56,6 +57,7 @@ public class AsyncWorker {
         } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
         } catch (ExecutionException e) {
+          error = Optional.of(new Error(e.getCause()));
           e.printStackTrace();
         }
       }
@@ -63,9 +65,32 @@ public class AsyncWorker {
     }
 
     /**
+     * Get the error of the computation. If the computation is not complete, or if the computation
+     * did not throw an error, this will return an empty optional. Optional values are cached for
+     * subsequent calls. This method will not block.
+     *
+     * @return the error of the result if it is ready, or empty if it is not ready. If the task
+     *     completes successfully, empty will always be returned.
+     */
+    public Optional<Error> getError() {
+      return error;
+    }
+
+    /**
+     * Determine if the computation is complete. This method will not block. Equivalent to checking
+     * if either the error or result is present. If you never call {@link #get()}, this will never
+     * be true.
+     *
+     * @return true if the computation is complete, false otherwise.
+     */
+    public boolean hasResolved() {
+      return get().isPresent() || getError().isPresent();
+    }
+
+    /**
      * Register a callback to be called when the result is ready, from the context the heartbeat
      * function is called. Because the heartbeat must be called to evaluate subscriptions, they will
-     * not resolve when your command becomes unscheduled.
+     * not resolve when your command becomes unscheduled.is notis not done done
      *
      * <p>This may not be the right solution to your problem. If you just want to get the value when
      * it is done, you can probably just use {@link #get()} in your periodic instead. You will
