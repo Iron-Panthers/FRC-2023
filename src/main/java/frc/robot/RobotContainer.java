@@ -104,9 +104,8 @@ public class RobotContainer {
     will.leftBumper().whileTrue(new DefenseModeCommand(drivebaseSubsystem));
 
     will.leftStick().onTrue(new HaltDriveCommandsCommand(drivebaseSubsystem));
-    new Button(will::getRightBumper).whenHeld(new BalanceModeCommand(drivebaseSubsystem));
 
-    new Button(will::getAButton).whenPressed(new BalanceModeCommand(drivebaseSubsystem));
+    will.x().onTrue(new BalanceModeCommand(drivebaseSubsystem));
 
     DoubleSupplier rotation =
         exponential(
