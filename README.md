@@ -4,7 +4,7 @@ Iron Panthers repository for 2023 season code.
 
 ## Setting up
 
-### Before working: make sure you have the 2022 tools:
+### Before working: make sure you have the 2023 tools:
 
 - WPILib: download the latest release from [allwpilib](https://github.com/wpilibsuite/allwpilib/releases/latest). Run installer executable. Should include VS Code + extensions
   - using provided vscode is easier, but not ideal for everyone - it is optional
