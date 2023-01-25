@@ -162,5 +162,10 @@ public final class Constants {
       public static final int OUTTAKE_MOTOR = 0; // Placeholder value
       public static final int OUTTAKE_ENCODER = 0; // PLaceholder value
     }
+
+    public static final int INTAKE_IDLE = 0;
+    public static final int HOLD = 0;
+    public static final double GRAB = 0;
+    public static final double RELEASE = 0;
   }
 }

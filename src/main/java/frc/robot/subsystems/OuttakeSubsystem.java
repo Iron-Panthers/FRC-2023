@@ -5,7 +5,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import frc.robot.Constants.Outtake.Ports;
+import frc.robot.Constants.Outtake;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -14,9 +14,9 @@ public class OuttakeSubsystem extends SubsystemBase {
   /** The modes of the drivebase subsystem */
   public enum Modes{
     IDLE,
-    INTAKE,
+    GRAB,
     HOLD,
-    OUTTAKE
+    RELEASE
 }
 
 private Modes mode = Modes.IDLE;
@@ -24,7 +24,7 @@ private final TalonFX outtake;
 
 
   public OuttakeSubsystem() {
-    this.outtake = new TalonFX(Outtake.ports.OUTTAKE_MOTOR);
+    this.outtake = new TalonFX(Outtake.Ports.OUTTAKE_MOTOR);
   }
 
   private boolean modeLocked = false;
@@ -47,16 +47,16 @@ private double timeOfModeTransition = Timer.getFPGATimestamp();
     mode = Modes.IDLE;
   }
 
-  public void setIntakeMode() {
-    mode = Modes.INTAKE;
+  public void setGrabMode() {
+    mode = Modes.GRAB;
   }
 
   public void setHoldMode() {
     mode = Modes.HOLD;
   }
 
-  public void setOuttakeMode() {
-    mode = Modes.OUTTAKE;
+  public void setReleaseMode() {
+    mode = Modes.RELEASE;
   }
 
 
@@ -86,10 +86,10 @@ private double timeOfModeTransition = Timer.getFPGATimestamp();
         case IDLE:
         case HOLD:
           break;
-        case INTAKE:
+        case GRAB:
           setMode(Modes.HOLD);
           break;
-        case OUTTAKE:
+        case RELEASE:
           setMode(Modes.IDLE);
           break;
     }
@@ -114,7 +114,7 @@ private double timeOfModeTransition = Timer.getFPGATimestamp();
 
   }
 
-  public void intakePeriodic(){
+  public void grabPeriodic(){
 
   }
 
@@ -122,7 +122,7 @@ private double timeOfModeTransition = Timer.getFPGATimestamp();
 
   }
 
-  public void outtakePeriodic(){
+  public void releasePeriodic(){
 
   }
 
@@ -132,14 +132,14 @@ private double timeOfModeTransition = Timer.getFPGATimestamp();
       case IDLE:
         idlePeriodic();
         break;
-      case INTAKE:
-        intakePeriodic();
+      case GRAB:
+        grabPeriodic();
         break;
       case HOLD:
         holdPeriodic();
         break;
-      case OUTTAKE:
-        outtakePeriodic();
+      case RELEASE:
+        grabPeriodic();
         break;
     }
   }
