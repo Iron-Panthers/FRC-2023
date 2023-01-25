@@ -107,6 +107,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
   private final PIDController rotController;
   private final PIDController balController;
 
+  private double balOutput;
+
   private double targetAngle = 0; // default target angle to zero
 
   private Pair<Double, Double> xyInput = new Pair<>(0d, 0d); // the x and y for using target angles
@@ -186,9 +188,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
     rotController.setSetpoint(0);
     rotController.setTolerance(ANGULAR_ERROR); // degrees error
 
-    balController = new PIDController(0.1, 0, 0.8);
+    balController = new PIDController(0.055, 0, 0.001);
     balController.setSetpoint(0);
-    balController.setTolerance(2);
+    balController.setTolerance(1);
 
     // tune pid with:
     // tab.add(rotController);
@@ -208,6 +210,12 @@ public class DrivebaseSubsystem extends SubsystemBase {
     tab.addNumber("Pitch angle", navx::getPitch);
 
     tab.addNumber("Roll angle", navx::getRoll);
+
+    tab.addBoolean("at setpoint", () -> Math.abs(navx.getPitch()) < 1);
+
+    tab.addNumber("bal output", ()-> balOutput);
+
+    tab.add(balController);
 
     SmartDashboard.putData(this.field);
 
@@ -415,9 +423,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
     } else {
       double pitchAngle = navx.getPitch();
 
-      double xSpeed = balController.calculate(pitchAngle);
+      balOutput = balController.calculate(pitchAngle);
 
-      double xSpeedClamped = MathUtil.clamp(xSpeed, -1, 1);
+      double xSpeedClamped = MathUtil.clamp(balOutput, -0.75, 0.75);
 
       // No x movement or rotation
       chassisSpeeds = new ChassisSpeeds(xSpeedClamped, 0, 0);
