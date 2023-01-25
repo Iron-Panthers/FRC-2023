@@ -4,7 +4,9 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+
 import frc.robot.Constants.Outtake;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -70,15 +72,6 @@ private double timeOfModeTransition = Timer.getFPGATimestamp();
     }
   }
 
-
-  /**
-   * Updates the robot pose estimation for newly written module states. Should be called on every
-   * periodic
-   */
-  private void odometryPeriodic() {
-    
-  }
-
   public void nextModePeriodic(){
     if(modeLocked) return;
     
@@ -111,19 +104,19 @@ private double timeOfModeTransition = Timer.getFPGATimestamp();
   }
 
   public void idlePeriodic(){
-
+    outtake.set(TalonFXControlMode.PercentOutput, Outtake.INTAKE_IDLE);
   }
 
   public void grabPeriodic(){
-
+    outtake.set(TalonFXControlMode.PercentOutput, Outtake.GRAB);
   }
 
   public void holdPeriodic(){
-
+    outtake.set(TalonFXControlMode.PercentOutput, Outtake.HOLD);
   }
 
   public void releasePeriodic(){
-
+    outtake.set(TalonFXControlMode.PercentOutput, Outtake.RELEASE);
   }
 
   @Override
