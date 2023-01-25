@@ -111,6 +111,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
   private double targetAngle = 0; // default target angle to zero
 
+  private double levelTimer = 0;
+
+  private boolean isLevelTimerSet = false;
+
   private Pair<Double, Double> xyInput = new Pair<>(0d, 0d); // the x and y for using target angles
   /**
    * The Shuffleboard tab which all things related to the drivebase can be put for easy access and
@@ -412,13 +416,22 @@ public class DrivebaseSubsystem extends SubsystemBase {
   }
 
   private void balancePeriodic() {
-
+   
     // Locks wheels at setpoint
-    if (balController.atSetpoint()) {
+    if (Math.abs(navx.getPitch()) < 1) {
 
-      defensePeriodic();
+      
+      if(!isLevelTimerSet){
+        levelTimer = Timer.getFPGATimestamp();
+        isLevelTimerSet = true;
+      }
 
-      balController.reset();
+      if(Timer.getFPGATimestamp() - levelTimer > 1) {
+          
+        defensePeriodic();
+
+        balController.reset();
+      } 
 
     } else {
       double pitchAngle = navx.getPitch();
@@ -431,7 +444,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
       chassisSpeeds = new ChassisSpeeds(xSpeedClamped, 0, 0);
 
       drivePeriodic();
+
     }
+
+    isLevelTimerSet = false;
   }
 
   public void balance() {
