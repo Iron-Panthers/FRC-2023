@@ -18,7 +18,6 @@ public class OuttakeSubsystem extends SubsystemBase {
 private Modes mode = Modes.IDLE;
 
 
-  /** Creates a new DrivebaseSubsystem. */
   public OuttakeSubsystem() {
     
   }
@@ -27,7 +26,7 @@ private Modes mode = Modes.IDLE;
 
 private double timeOfModeTransition = Timer.getFPGATimestamp();
   /**
-   * gets the current mode of the drivebase subsystem state machine
+   * gets the current mode of the outtake subsystem state machine
    *
    * @return the current mode
    */
@@ -39,10 +38,6 @@ private double timeOfModeTransition = Timer.getFPGATimestamp();
     return modeLocked;
   }
 
-  /**
-   * Angles the swerve modules in a cross shape, to make the robot hard to push. This function sets
-   * the state machine to defense mode, so it only needs to be called once
-   */
   public void setIdleMode() {
     mode = Modes.IDLE;
   }
@@ -112,7 +107,7 @@ private double timeOfModeTransition = Timer.getFPGATimestamp();
  
 
   /**
-   * Based on the current Mode of the drivebase, perform the mode-specific logic such as writing
+   * Based on the current Mode of the outtake, perform the mode-specific logic such as writing
    * outputs (may vary per mode).
    *
    * @param mode The mode to use (should use the current mode value)
