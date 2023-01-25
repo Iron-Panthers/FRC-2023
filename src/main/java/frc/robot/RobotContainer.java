@@ -26,8 +26,10 @@ import frc.robot.commands.DriveToPlaceCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
+import frc.robot.commands.StartSpindexerHopperCommand;
 import frc.robot.commands.VibrateControllerCommand;
 import frc.robot.subsystems.DrivebaseSubsystem;
+import frc.robot.subsystems.SpindexerHopperSubsystem;
 import frc.util.ControllerUtil;
 import frc.util.Layer;
 import frc.util.MacUtil;
@@ -44,6 +46,8 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
   private final DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem();
+
+  private final SpindexerHopperSubsystem spindexerHopperSubsystem = new SpindexerHopperSubsystem();
 
   /** controller 1 */
   private final CommandXboxController jason = new CommandXboxController(1);
@@ -98,6 +102,8 @@ public class RobotContainer {
           jason.getHID().setRumble(RumbleType.kLeftRumble, power);
           jason.getHID().setRumble(RumbleType.kRightRumble, power);
         });
+
+    jason.a().onTrue(new StartSpindexerHopperCommand(spindexerHopperSubsystem));
 
     will.start().onTrue(new InstantCommand(drivebaseSubsystem::zeroGyroscope, drivebaseSubsystem));
     will.leftBumper().whileTrue(new DefenseModeCommand(drivebaseSubsystem));
