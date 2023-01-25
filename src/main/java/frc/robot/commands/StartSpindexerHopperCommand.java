@@ -14,10 +14,10 @@ public class StartSpindexerHopperCommand extends CommandBase {
   Modes mode;
 
   /** Creates a new DefenseModeCommand. */
-  public StartSpindexerHopperCommand(SpindexerHopperSubsystem spindexerHopperSubsystem) {
+  public StartSpindexerHopperCommand(SpindexerHopperSubsystem spindexerHopperSubsystem, Modes mode) {
     this.spindexerHopperSubsystem = spindexerHopperSubsystem;
 
-    this.mode = Modes.IDLE;
+    this.mode = mode;
 
     addRequirements(spindexerHopperSubsystem);
 
@@ -36,7 +36,7 @@ public class StartSpindexerHopperCommand extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    
+    spindexerHopperSubsystem.setMode(Modes.OFF);
   }
 
   // Returns true when the command should end.

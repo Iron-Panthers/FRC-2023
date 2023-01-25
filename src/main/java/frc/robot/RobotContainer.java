@@ -30,6 +30,7 @@ import frc.robot.commands.StartSpindexerHopperCommand;
 import frc.robot.commands.VibrateControllerCommand;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.SpindexerHopperSubsystem;
+import frc.robot.subsystems.SpindexerHopperSubsystem.Modes;
 import frc.util.ControllerUtil;
 import frc.util.Layer;
 import frc.util.MacUtil;
@@ -103,7 +104,7 @@ public class RobotContainer {
           jason.getHID().setRumble(RumbleType.kRightRumble, power);
         });
 
-    jason.a().onTrue(new StartSpindexerHopperCommand(spindexerHopperSubsystem));
+    jason.a().onTrue(new StartSpindexerHopperCommand(spindexerHopperSubsystem, Modes.IDLE));
 
     will.start().onTrue(new InstantCommand(drivebaseSubsystem::zeroGyroscope, drivebaseSubsystem));
     will.leftBumper().whileTrue(new DefenseModeCommand(drivebaseSubsystem));
