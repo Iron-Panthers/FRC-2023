@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import frc.robot.Constants.Outtake.Ports;
+
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -15,11 +18,13 @@ public class OuttakeSubsystem extends SubsystemBase {
     HOLD,
     OUTTAKE
 }
+
 private Modes mode = Modes.IDLE;
+private final TalonFX outtake;
 
 
   public OuttakeSubsystem() {
-    
+    this.outtake = new TalonFX(Outtake.ports.OUTTAKE_MOTOR);
   }
 
   private boolean modeLocked = false;
@@ -104,30 +109,6 @@ private double timeOfModeTransition = Timer.getFPGATimestamp();
   public void unlockMode(){
     modeLocked = false;
   }
- 
-
-  /**
-   * Based on the current Mode of the outtake, perform the mode-specific logic such as writing
-   * outputs (may vary per mode).
-   *
-   * @param mode The mode to use (should use the current mode value)
-   */
-  public void updateModules(Modes mode) {
-    switch (mode) {
-      case IDLE:
-        idlePeriodic();
-        break;
-      case INTAKE:
-        intakePeriodic();
-        break;
-      case HOLD:
-        holdPeriodic();
-        break;
-      case OUTTAKE:
-        outtakePeriodic();
-        break;
-    }
-  }
 
   public void idlePeriodic(){
 
@@ -147,6 +128,19 @@ private double timeOfModeTransition = Timer.getFPGATimestamp();
 
   @Override
   public void periodic() {
-
+    switch (mode) {
+      case IDLE:
+        idlePeriodic();
+        break;
+      case INTAKE:
+        intakePeriodic();
+        break;
+      case HOLD:
+        holdPeriodic();
+        break;
+      case OUTTAKE:
+        outtakePeriodic();
+        break;
+    }
   }
 }
