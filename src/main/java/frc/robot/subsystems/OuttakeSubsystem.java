@@ -84,11 +84,14 @@ private double timeOfModeTransition = Timer.getFPGATimestamp();
     
     switch(mode){
         case IDLE:
+        case HOLD:
           break;
         case INTAKE:
+          setMode(Modes.HOLD);
+          break;
+        case OUTTAKE:
           setMode(Modes.IDLE);
           break;
-        
     }
   }
 
