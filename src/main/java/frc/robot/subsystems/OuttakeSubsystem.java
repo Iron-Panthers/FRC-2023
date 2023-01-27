@@ -23,8 +23,6 @@ public class OuttakeSubsystem extends SubsystemBase {
   private Modes mode;
   private final TalonFX outtake;
 
-  private boolean modeLocked = false;
-
   private PIDController pidController;
 
   private CANCoder encoder;
@@ -54,10 +52,6 @@ public class OuttakeSubsystem extends SubsystemBase {
    */
   public Modes getMode() {
     return mode;
-  }
-
-  public boolean getModeLocked(){
-    return modeLocked;
   }
 
   public void setMode(Modes mode) {
