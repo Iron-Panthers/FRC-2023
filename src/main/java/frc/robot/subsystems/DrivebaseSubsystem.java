@@ -111,10 +111,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
   private double targetAngle = 0; // default target angle to zero
 
-  private double levelTimer = 0;
-
-  private boolean isLevelTimerSet = false;
-
   private Pair<Double, Double> xyInput = new Pair<>(0d, 0d); // the x and y for using target angles
   /**
    * The Shuffleboard tab which all things related to the drivebase can be put for easy access and
@@ -192,9 +188,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
     rotController.setSetpoint(0);
     rotController.setTolerance(ANGULAR_ERROR); // degrees error
 
-    balController = new PIDController(0.04, 0, 0.006);
+    balController = new PIDController(0.045, 0, 0.016);
     balController.setSetpoint(0);
-    balController.setTolerance(1, 2);
+    balController.setTolerance(2, 5);
 
     // tune pid with:
     // tab.add(rotController);
@@ -215,7 +211,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     tab.addNumber("Roll angle", navx::getRoll);
 
-    tab.addBoolean("at setpoint", () -> balController.atSetpoint());
+    tab.addBoolean("at setpoint", this::balAtSetpoint);
 
     tab.addNumber("bal output", ()-> balOutput);
 
@@ -418,21 +414,16 @@ public class DrivebaseSubsystem extends SubsystemBase {
   private void balancePeriodic() {
    
     // Locks wheels at setpoint
-    if (Math.abs(navx.getPitch()) < 1) {
+    if (balAtSetpoint()) {
 
         defensePeriodic();
 
-        balController.reset();
+        //balController.reset();
 
     } else {
-      double pitchAngle = navx.getPitch();
-
-      balOutput = balController.calculate(pitchAngle);
-
-      double xSpeedClamped = MathUtil.clamp(balOutput, -0.55, 0.55);
-
+      
       // No x movement or rotation
-      chassisSpeeds = new ChassisSpeeds(xSpeedClamped, 0, 0);
+      chassisSpeeds = new ChassisSpeeds(balOutput, 0, 0);
 
       drivePeriodic();
 
@@ -446,6 +437,17 @@ public class DrivebaseSubsystem extends SubsystemBase {
     mode = Modes.BALANCE;
   }
 
+  private void updateBalance() {
+    
+    double pitchAngle = navx.getPitch();
+
+    double rawBalOutput = balController.calculate(pitchAngle);
+
+    balOutput = MathUtil.clamp(rawBalOutput, -0.55, 0.55);
+
+
+  }
+
   public boolean balAtSetpoint() {
     return balController.atSetpoint();
   }
@@ -457,6 +459,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
    * @param mode The mode to use (should use the current mode value)
    */
   public void updateModules(Modes mode) {
+
     switch (mode) {
       case DRIVE:
         drivePeriodic();
@@ -509,10 +512,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
       this.chassisSpeeds = trajectorySpeeds.get();
     }
 
+    /*Update the balance PID */
+    updateBalance();
+
     /* Write outputs, corresponding to our current Mode of operation */
     updateModules(currentMode);
 
     /* Update odometry */
     odometryPeriodic();
+
+
   }
 }
