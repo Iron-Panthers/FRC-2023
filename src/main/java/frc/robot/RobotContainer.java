@@ -105,7 +105,7 @@ public class RobotContainer {
 
     will.leftStick().onTrue(new HaltDriveCommandsCommand(drivebaseSubsystem));
 
-    will.x().onTrue(new BalanceModeCommand(drivebaseSubsystem));
+    will.x().whileTrue(new BalanceModeCommand(drivebaseSubsystem));
 
     DoubleSupplier rotation =
         exponential(

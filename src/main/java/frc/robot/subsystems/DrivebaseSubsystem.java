@@ -192,9 +192,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
     rotController.setSetpoint(0);
     rotController.setTolerance(ANGULAR_ERROR); // degrees error
 
-    balController = new PIDController(0.055, 0, 0.001);
+    balController = new PIDController(0.04, 0, 0.006);
     balController.setSetpoint(0);
-    balController.setTolerance(1);
+    balController.setTolerance(1, 2);
 
     // tune pid with:
     // tab.add(rotController);
@@ -215,7 +215,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     tab.addNumber("Roll angle", navx::getRoll);
 
-    tab.addBoolean("at setpoint", () -> Math.abs(navx.getPitch()) < 1);
+    tab.addBoolean("at setpoint", () -> balController.atSetpoint());
 
     tab.addNumber("bal output", ()-> balOutput);
 
@@ -420,25 +420,16 @@ public class DrivebaseSubsystem extends SubsystemBase {
     // Locks wheels at setpoint
     if (Math.abs(navx.getPitch()) < 1) {
 
-      
-      if(!isLevelTimerSet){
-        levelTimer = Timer.getFPGATimestamp();
-        isLevelTimerSet = true;
-      }
-
-      if(Timer.getFPGATimestamp() - levelTimer > 1) {
-          
         defensePeriodic();
 
         balController.reset();
-      } 
 
     } else {
       double pitchAngle = navx.getPitch();
 
       balOutput = balController.calculate(pitchAngle);
 
-      double xSpeedClamped = MathUtil.clamp(balOutput, -0.75, 0.75);
+      double xSpeedClamped = MathUtil.clamp(balOutput, -0.55, 0.55);
 
       // No x movement or rotation
       chassisSpeeds = new ChassisSpeeds(xSpeedClamped, 0, 0);
@@ -447,12 +438,16 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     }
 
-    isLevelTimerSet = false;
+    
   }
 
   public void balance() {
     if (mode != Modes.BALANCE) balController.reset();
     mode = Modes.BALANCE;
+  }
+
+  public boolean balAtSetpoint() {
+    return balController.atSetpoint();
   }
 
   /**
