@@ -412,7 +412,13 @@ public class DrivebaseSubsystem extends SubsystemBase {
   }
 
   private void balancePeriodic() {
-   
+
+    double pitchAngle = navx.getPitch();
+
+    double rawBalOutput = balController.calculate(pitchAngle);
+
+    balOutput = MathUtil.clamp(rawBalOutput, -0.55, 0.55);
+
     // Locks wheels at setpoint
     if (balAtSetpoint()) {
 
@@ -437,16 +443,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
     mode = Modes.BALANCE;
   }
 
-  private void updateBalance() {
-    
-    double pitchAngle = navx.getPitch();
-
-    double rawBalOutput = balController.calculate(pitchAngle);
-
-    balOutput = MathUtil.clamp(rawBalOutput, -0.55, 0.55);
-
-
-  }
 
   public boolean balAtSetpoint() {
     return balController.atSetpoint();
@@ -511,9 +507,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
     if (trajectorySpeeds.isPresent()) {
       this.chassisSpeeds = trajectorySpeeds.get();
     }
-
-    /*Update the balance PID */
-    updateBalance();
 
     /* Write outputs, corresponding to our current Mode of operation */
     updateModules(currentMode);
