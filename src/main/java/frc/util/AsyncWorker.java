@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 public class AsyncWorker {
   private final ExecutorService executor = Executors.newSingleThreadExecutor();
   private final ArrayList<Subscription<?>> subscriptions = new ArrayList<>();
+  private final ArrayList<Result<?>> createdResults = new ArrayList<>();
 
   private class Subscription<T> {
     public final Result<T> result;
@@ -40,6 +41,7 @@ public class AsyncWorker {
 
     Result(Future<T> future) {
       this.future = future;
+      createdResults.add(this);
     }
 
     /**
@@ -157,5 +159,9 @@ public class AsyncWorker {
 
   public void purge() {
     subscriptions.clear();
+    for (Result<?> result : createdResults) {
+      result.future.cancel(true);
+    }
+    createdResults.clear();
   }
 }

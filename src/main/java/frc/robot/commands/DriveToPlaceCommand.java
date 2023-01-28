@@ -185,9 +185,10 @@ public class DriveToPlaceCommand extends CommandBase {
     if (finishedPath()) {
       if (poseSatisfied()) {
         this.cancel();
+      } else {
+        System.out.println("creating new trajectory");
+        startGeneratingNextTrajectory();
       }
-      System.out.println("creating new trajectory");
-      startGeneratingNextTrajectory();
     }
   }
 
