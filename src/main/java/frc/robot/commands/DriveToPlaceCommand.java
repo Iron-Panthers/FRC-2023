@@ -109,6 +109,7 @@ public class DriveToPlaceCommand extends CommandBase {
   private Result<PathPlannerTrajectory> createAdjustTrajectory() {
     System.out.println("gen adjust trajectory");
     var currentPose = drivebaseSubsystem.getPose();
+    // not from in motion
     var initialPoint =
         new PathPoint(
             currentPose.getTranslation(),
