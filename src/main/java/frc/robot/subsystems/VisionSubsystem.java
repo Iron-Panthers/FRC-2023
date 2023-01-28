@@ -130,19 +130,30 @@ public class VisionSubsystem {
 
     for (var source : visionSources) {
       if (!source.camera.isConnected()) continue;
-      var sourceAngle = source.robotToCam.getRotation().toRotation2d().minus(robotAngle);
+      var sourceAngle = source.robotToCam.getRotation().toRotation2d();
       if (closest.isEmpty()
-          || (Util.relativeAngularDifference(robotAngle, sourceAngle)
-              < Util.relativeAngularDifference(
-                  robotAngle,
-                  closest.get().robotToCam.getRotation().toRotation2d().minus(robotAngle)))) {
+          || (Math.abs(Util.relativeAngularDifference(sourceAngle, robotAngle))
+              < Math.abs(
+                  Util.relativeAngularDifference(
+                      closest.get().robotToCam.getRotation().toRotation2d(), robotAngle)))) {
+        // System.out.println(
+        //     String.format(
+        //         "Found new closest source: %s with degree distance %s",
+        //         source.camera.getName(), Util.relativeAngularDifference(sourceAngle,
+        // robotAngle)));
         closest = Optional.of(source);
       }
     }
 
     if (closest.isEmpty()) return Optional.empty();
 
+    // System.out.println("Using camera " + closest.get().camera.getName());
+
     return Optional.of(
-        closest.get().robotToCam.getRotation().toRotation2d().plus(new Rotation2d(Math.PI)));
+        Rotation2d.fromDegrees(
+                Util.relativeAngularDifference(
+                        closest.get().robotToCam.getRotation().toRotation2d(), robotAngle)
+                    * -1)
+            .unaryMinus());
   }
 }

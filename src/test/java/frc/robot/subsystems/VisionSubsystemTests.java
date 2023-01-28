@@ -27,6 +27,10 @@ public class VisionSubsystemTests {
 
   private VisionSubsystem.VisionSource mockBackVisionSource;
 
+  private PhotonCamera mockRightCamera;
+
+  private VisionSubsystem.VisionSource mockRightVisionSource;
+
   VisionSubsystem visionSubsystem;
 
   @BeforeEach
@@ -46,9 +50,11 @@ public class VisionSubsystemTests {
 
     // initialize mock cameras
     mockFrontCamera = mock(PhotonCamera.class);
+    when(mockFrontCamera.getName()).thenReturn("frontCamera");
     mockFrontVisionSource =
         visionSubsystem.new VisionSource(mockFrontCamera, Vision.FrontCam.ROBOT_TO_CAM);
     mockBackCamera = mock(PhotonCamera.class);
+    when(mockBackCamera.getName()).thenReturn("backCamera");
     mockBackVisionSource =
         visionSubsystem.new VisionSource(mockBackCamera, Vision.BackCam.ROBOT_TO_CAM);
 
@@ -63,20 +69,12 @@ public class VisionSubsystemTests {
     }
   }
 
-  @RobotTest
-  public void camerasAreConnected() {
-    when(mockFrontCamera.isConnected()).thenReturn(true);
-    when(mockBackCamera.isConnected()).thenReturn(true);
-
-    assertEquals(true, mockFrontCamera.isConnected());
-    assertEquals(true, mockBackCamera.isConnected());
-  }
-
   public static Stream<Arguments> getSourceAngleClosestToRobotAngleProvider() {
     return Stream.of(
         Arguments.of(Rotation2d.fromDegrees(0), Rotation2d.fromDegrees(0)),
-        Arguments.of(Rotation2d.fromDegrees(10), Rotation2d.fromDegrees(0)),
-        Arguments.of(Rotation2d.fromDegrees(350), Rotation2d.fromDegrees(180)));
+        Arguments.of(Rotation2d.fromDegrees(10), Rotation2d.fromDegrees(-10)),
+        Arguments.of(Rotation2d.fromDegrees(23), Rotation2d.fromDegrees(-23)),
+        Arguments.of(Rotation2d.fromDegrees(168), Rotation2d.fromDegrees(12)));
   }
 
   @RobotParamTest
@@ -88,7 +86,8 @@ public class VisionSubsystemTests {
 
     assertEquals(
         Optional.of(expectedClosestAngle),
-        visionSubsystem.getSourceAngleClosestToRobotAngle(robotAngle));
+        visionSubsystem.getSourceAngleClosestToRobotAngle(robotAngle),
+        String.format("Robot angle: %s", robotAngle));
   }
 
   @RobotTest
@@ -98,4 +97,13 @@ public class VisionSubsystemTests {
     assertEquals(
         Optional.empty(), visionSubsystem.getSourceAngleClosestToRobotAngle(new Rotation2d()));
   }
+
+  // @RobotTest
+  // public void getSourceAngleClosestToRobotAngleWhenBadSourceConnected() {
+  //   when(mockFrontCamera.isConnected()).thenReturn(false);
+  //   when(mockBackCamera.isConnected()).thenReturn(true);
+  //   assertEquals(
+  //       Optional.of(Rotation2d.fromDegrees(180)),
+  //       visionSubsystem.getSourceAngleClosestToRobotAngle(Rotation2d.fromDegrees(0)));
+  // }
 }
