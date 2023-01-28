@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants.PoseEstimator;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.util.AdvancedSwerveTrajectoryFollower;
 import frc.util.AsyncWorker;
@@ -117,10 +118,6 @@ public class DriveToPlaceCommand extends CommandBase {
     return asyncPathGen(new PathConstraints(1, .5), initialPoint, finalPoint);
   }
 
-  private double distanceBetween(Pose2d p1, Pose2d p2) {
-    return p1.getTranslation().getDistance(p2.getTranslation());
-  }
-
   private boolean finishedPath() {
     var optTraject = trajectoryResult.get();
     return optTraject.isPresent()
@@ -128,11 +125,20 @@ public class DriveToPlaceCommand extends CommandBase {
             > (optTraject.get().getTotalTimeSeconds() + observationTime));
   }
 
+  private boolean poseWithinErrorMarginOfFinal(Pose2d currentPose) {
+    return (
+        // xy error
+        currentPose.getTranslation().getDistance(finalPose.getTranslation())
+            <= PoseEstimator.DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS)
+        && (
+        // theta error
+        Math.abs(Util.relativeAngularDifference(currentPose.getRotation(), finalPose.getRotation()))
+            <= PoseEstimator.DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES);
+  }
+
   private boolean poseSatisfied() {
     var optTraject = trajectoryResult.get();
-    return optTraject.isPresent()
-        && AdvancedSwerveTrajectoryFollower.poseWithinErrorMarginOfTrajectoryFinalGoal(
-            drivebaseSubsystem.getPose(), optTraject.get());
+    return optTraject.isPresent() && poseWithinErrorMarginOfFinal(drivebaseSubsystem.getPose());
   }
 
   private void startGeneratingNextTrajectory() {
