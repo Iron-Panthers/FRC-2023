@@ -87,10 +87,10 @@ public class DriveToPlaceCommand extends CommandBase {
             // holonomic rotation should start at our current rotation
             currentPose.getRotation());
 
-    var cameraObservationRobotAngle =
-        visionSubsystem
-            .getRobotAngleToPointClosestCameraAtTargetAngle(observationPose.getRotation())
-            .orElse(observationPose.getRotation());
+    var cameraObservationRobotAngle = observationPose.getRotation();
+    // visionSubsystem
+    //     .getRobotAngleToPointClosestCameraAtTargetAngle(observationPose.getRotation())
+    //     .orElse(observationPose.getRotation());
 
     var observationPoint =
         new PathPoint(
@@ -103,7 +103,7 @@ public class DriveToPlaceCommand extends CommandBase {
             cameraObservationRobotAngle);
 
     return asyncPathGen(
-        new PathConstraints(5, 1.5),
+        new PathConstraints(10, 4),
         initialPoint,
         // stop near the goal to read apriltags
         observationPoint);
@@ -127,7 +127,7 @@ public class DriveToPlaceCommand extends CommandBase {
             straightLineAngle(finalPose.getTranslation(), currentPose.getTranslation()),
             finalPose.getRotation());
 
-    return asyncPathGen(new PathConstraints(1, .5), initialPoint, finalPoint);
+    return asyncPathGen(new PathConstraints(5, 3), initialPoint, finalPoint);
   }
 
   private boolean finishedPath() {

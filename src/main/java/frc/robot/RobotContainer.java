@@ -152,7 +152,7 @@ public class RobotContainer {
                 visionSubsystem,
                 new Pose2d(2.23, 1.06, Rotation2d.fromDegrees(180)),
                 new Pose2d(1.8, .5, Rotation2d.fromDegrees(180)),
-                .5));
+                .1));
 
     will.y()
         .onTrue(
