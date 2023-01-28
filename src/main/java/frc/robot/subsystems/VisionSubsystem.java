@@ -156,9 +156,8 @@ public class VisionSubsystem {
 
     return Optional.of(
         Rotation2d.fromDegrees(
-                Util.relativeAngularDifference(
-                        closest.get().robotToCam.getRotation().toRotation2d(), robotAngle)
-                    * -1)
-            .unaryMinus());
+            Util.relativeAngularDifference(
+                    closest.get().robotToCam.getRotation().toRotation2d(), robotAngle)
+                * -1));
   }
 }

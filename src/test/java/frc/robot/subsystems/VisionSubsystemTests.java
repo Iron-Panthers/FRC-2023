@@ -85,16 +85,16 @@ public class VisionSubsystemTests {
   public static Stream<Arguments> getRobotAngleToPointClosestCameraAtTargetAngleProvider() {
     return Stream.of(
         Arguments.of(Rotation2d.fromDegrees(0), Rotation2d.fromDegrees(0)),
-        Arguments.of(Rotation2d.fromDegrees(10), Rotation2d.fromDegrees(-10)),
-        Arguments.of(Rotation2d.fromDegrees(23), Rotation2d.fromDegrees(-23)),
-        Arguments.of(Rotation2d.fromDegrees(168), Rotation2d.fromDegrees(12)),
+        Arguments.of(Rotation2d.fromDegrees(10), Rotation2d.fromDegrees(10)),
+        Arguments.of(Rotation2d.fromDegrees(23), Rotation2d.fromDegrees(23)),
+        Arguments.of(Rotation2d.fromDegrees(168), Rotation2d.fromDegrees(-12)),
         Arguments.of(Rotation2d.fromDegrees(180), Rotation2d.fromDegrees(0)),
         Arguments.of(Rotation2d.fromDegrees(90), Rotation2d.fromDegrees(0)),
-        Arguments.of(Rotation2d.fromDegrees(85), Rotation2d.fromDegrees(5)),
+        Arguments.of(Rotation2d.fromDegrees(85), Rotation2d.fromDegrees(-5)),
 
         // tests for when the robot needs to choose between front and left camera
-        Arguments.of(Rotation2d.fromDegrees(44), Rotation2d.fromDegrees(-44)),
-        Arguments.of(Rotation2d.fromDegrees(46), Rotation2d.fromDegrees(44))
+        Arguments.of(Rotation2d.fromDegrees(44), Rotation2d.fromDegrees(44)),
+        Arguments.of(Rotation2d.fromDegrees(46), Rotation2d.fromDegrees(-44))
 
         // comment to hold the end parenthesis
         );
@@ -129,7 +129,7 @@ public class VisionSubsystemTests {
     when(mockBackCamera.isConnected()).thenReturn(false);
     when(mockLeftCamera.isConnected()).thenReturn(true);
     assertEquals(
-        Optional.of(Rotation2d.fromDegrees(-90)),
+        Optional.of(Rotation2d.fromDegrees(90)),
         visionSubsystem.getRobotAngleToPointClosestCameraAtTargetAngle(
             Rotation2d.fromDegrees(180)));
   }
