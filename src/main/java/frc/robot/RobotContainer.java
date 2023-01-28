@@ -178,7 +178,7 @@ public class RobotContainer {
             drivebaseSubsystem));
 
     autoSelector.addOption(
-        "[NEW] IanAuto", new IanDemoAutoSequence(6, 3, drivebaseSubsystem, visionSubsystem));
+        "[NEW] IanAuto", new IanDemoAutoSequence(5, 3, drivebaseSubsystem, visionSubsystem));
 
     Shuffleboard.getTab("DriverView")
         .add("auto selector", autoSelector)
