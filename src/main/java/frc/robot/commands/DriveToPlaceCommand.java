@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.PoseEstimator;
 import frc.robot.subsystems.DrivebaseSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.util.AdvancedSwerveTrajectoryFollower;
 import frc.util.AsyncWorker;
 import frc.util.AsyncWorker.Result;
@@ -24,6 +25,8 @@ import frc.util.Util;
 public class DriveToPlaceCommand extends CommandBase {
 
   private final DrivebaseSubsystem drivebaseSubsystem;
+  private final VisionSubsystem visionSubsystem;
+
   private final Pose2d observationPose;
   private final Pose2d finalPose;
 
@@ -41,11 +44,13 @@ public class DriveToPlaceCommand extends CommandBase {
   /** Creates a new DriveToPlaceCommand. */
   public DriveToPlaceCommand(
       DrivebaseSubsystem drivebaseSubsystem,
+      VisionSubsystem visionSubsystem,
       Pose2d observationPose,
       Pose2d finalPose,
       double observationTime) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drivebaseSubsystem = drivebaseSubsystem;
+    this.visionSubsystem = visionSubsystem;
     this.observationPose = observationPose;
     this.finalPose = finalPose;
     this.observationTime = observationTime;

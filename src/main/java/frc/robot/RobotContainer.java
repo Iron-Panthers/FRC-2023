@@ -28,6 +28,7 @@ import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.VibrateControllerCommand;
 import frc.robot.subsystems.DrivebaseSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.util.ControllerUtil;
 import frc.util.Layer;
 import frc.util.MacUtil;
@@ -43,7 +44,9 @@ import java.util.function.DoubleSupplier;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
-  private final DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem();
+  private final VisionSubsystem visionSubsystem = new VisionSubsystem();
+
+  private final DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem(visionSubsystem);
 
   /** controller 1 */
   private final CommandXboxController jason = new CommandXboxController(1);
@@ -146,6 +149,7 @@ public class RobotContainer {
         .onTrue(
             new DriveToPlaceCommand(
                 drivebaseSubsystem,
+                visionSubsystem,
                 new Pose2d(2.23, 1.06, Rotation2d.fromDegrees(180)),
                 new Pose2d(1.8, .5, Rotation2d.fromDegrees(180)),
                 .5));
@@ -154,6 +158,7 @@ public class RobotContainer {
         .onTrue(
             new DriveToPlaceCommand(
                 drivebaseSubsystem,
+                visionSubsystem,
                 new Pose2d(2.23, 4.42, Rotation2d.fromDegrees(180)),
                 new Pose2d(1.8, 4.97, Rotation2d.fromDegrees(180)),
                 .5));
