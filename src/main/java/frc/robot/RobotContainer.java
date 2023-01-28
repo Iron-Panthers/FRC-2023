@@ -145,7 +145,7 @@ public class RobotContainer {
     will.b()
         .onTrue(
             new DriveToPlaceCommand(
-                drivebaseSubsystem, new Pose2d(3.5, 2.2, Rotation2d.fromDegrees(0)), .2, .5));
+                drivebaseSubsystem, new Pose2d(1.8, .5, Rotation2d.fromDegrees(180)), .2, .5));
 
     will.y()
         .onTrue(
