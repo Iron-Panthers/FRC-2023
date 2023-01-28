@@ -79,10 +79,13 @@ public class DriveToPlaceCommand extends CommandBase {
   private Result<PathPlannerTrajectory> createObservationTrajectory() {
     System.out.println("gen observation trajectory");
     hasObserved = true;
-
     var currentPose = drivebaseSubsystem.getPose();
     var initialPoint =
-        PathPoint.fromCurrentHolonomicState(currentPose, drivebaseSubsystem.getChassisSpeeds());
+        new PathPoint(
+            currentPose.getTranslation(),
+            straightLineAngle(currentPose.getTranslation(), finalPose.getTranslation()),
+            // holonomic rotation should start at our current rotation
+            currentPose.getRotation());
 
     var cameraObservationRobotAngle =
         visionSubsystem

@@ -219,13 +219,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
     return kinematics;
   }
 
-  /**
-   * Return the current chassis speed goals of the robot. Probably bad for separation of concerns.
-   */
-  public ChassisSpeeds getChassisSpeeds() {
-    return chassisSpeeds;
-  }
-
   private SwerveModulePosition[] getSwerveModulePositions() {
     return new SwerveModulePosition[] {
       swerveModules[0].getPosition(),
