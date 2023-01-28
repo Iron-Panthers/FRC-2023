@@ -86,7 +86,7 @@ public class DriveToPlaceCommand extends CommandBase {
 
     var cameraObservationOffset =
         visionSubsystem
-            .getSourceAngleClosestToRobotAngle(observationPose.getRotation())
+            .getRobotAngleToPointClosestCameraAtTargetAngle(observationPose.getRotation())
             .orElse(new Rotation2d());
 
     var observationPoint =

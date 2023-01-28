@@ -125,7 +125,8 @@ public class VisionSubsystem {
                     / 1000)));
   }
 
-  public Optional<Rotation2d> getSourceAngleClosestToRobotAngle(Rotation2d robotAngle) {
+  public Optional<Rotation2d> getRobotAngleToPointClosestCameraAtTargetAngle(
+      Rotation2d robotAngle) {
     Optional<VisionSource> closest = Optional.empty();
 
     for (var source : visionSources) {
