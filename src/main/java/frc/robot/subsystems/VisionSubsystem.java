@@ -9,6 +9,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -16,6 +17,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import frc.robot.Constants.PoseEstimator;
 import frc.robot.Constants.Vision;
+import frc.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,18 +27,23 @@ import org.photonvision.RobotPoseEstimator;
 import org.photonvision.RobotPoseEstimator.PoseStrategy;
 
 public class VisionSubsystem {
+  /** If shuffleboard should be used--important for unit testing. */
+  private boolean useShuffleboard = true;
+
   class VisionSource {
-    PhotonCamera camera;
-    Transform3d robotToCam;
+    public final PhotonCamera camera;
+    public final Transform3d robotToCam;
 
     public VisionSource(PhotonCamera camera, Transform3d robotToCam) {
       this.camera = camera;
       this.robotToCam = robotToCam;
-      cameraStatusList.addBoolean(this.camera.getName(), this.camera::isConnected);
+      if (useShuffleboard)
+        cameraStatusList.addBoolean(this.camera.getName(), this.camera::isConnected);
+      visionSources.add(this);
     }
 
     Pair<PhotonCamera, Transform3d> getAsPair() {
-      return new Pair<PhotonCamera, Transform3d>(camera, robotToCam);
+      return new Pair<>(camera, robotToCam);
     }
   }
 
@@ -46,10 +53,7 @@ public class VisionSubsystem {
           .withPosition(11, 0)
           .withSize(2, 3);
 
-  private final VisionSource frontCam =
-      new VisionSource(new PhotonCamera(Vision.FrontCam.NAME), Vision.FrontCam.ROBOT_TO_CAM);
-  private final VisionSource backCam =
-      new VisionSource(new PhotonCamera(Vision.BackCam.NAME), Vision.BackCam.ROBOT_TO_CAM);
+  private final List<VisionSource> visionSources = new ArrayList<>();
 
   private AprilTagFieldLayout fieldLayout;
 
@@ -59,6 +63,11 @@ public class VisionSubsystem {
 
   /** Creates a new VisionSubsystem. */
   public VisionSubsystem() {
+
+    visionSources.add(
+        new VisionSource(new PhotonCamera(Vision.FrontCam.NAME), Vision.FrontCam.ROBOT_TO_CAM));
+    visionSources.add(
+        new VisionSource(new PhotonCamera(Vision.BackCam.NAME), Vision.BackCam.ROBOT_TO_CAM));
 
     // loading the 2023 field arrangement
     try {
@@ -71,16 +80,18 @@ public class VisionSubsystem {
     }
 
     // Create a list of cameras to use for pose estimation
-    List<Pair<PhotonCamera, Transform3d>> cameras = new ArrayList<>();
-    cameras.add(frontCam.getAsPair());
-    cameras.add(backCam.getAsPair());
+    var cameraList = new ArrayList<Pair<PhotonCamera, Transform3d>>();
+    for (var source : visionSources) {
+      cameraList.add(source.getAsPair());
+    }
 
     poseEstimator =
-        new RobotPoseEstimator(fieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE, cameras);
+        new RobotPoseEstimator(fieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE, cameraList);
 
-    cameraStatusList.addString(
-        "time since apriltag detection",
-        () -> String.format("%3.0f seconds", Timer.getFPGATimestamp() - lastDetection));
+    if (useShuffleboard)
+      cameraStatusList.addString(
+          "time since apriltag detection",
+          () -> String.format("%3.0f seconds", Timer.getFPGATimestamp() - lastDetection));
   }
 
   /**
@@ -112,5 +123,21 @@ public class VisionSubsystem {
             currentTime
                 - ((resultSome.getSecond() + PoseEstimator.CAMERA_CAPTURE_LATENCY_FUDGE_MS)
                     / 1000)));
+  }
+
+  public Rotation2d getSourceAngleClosestToRobotAngle(Rotation2d robotAngle) {
+    var closest = visionSources.get(0);
+    var closestAngle = closest.robotToCam.getRotation().toRotation2d().minus(robotAngle);
+
+    for (var source : visionSources) {
+      var sourceAngle = source.robotToCam.getRotation().toRotation2d().minus(robotAngle);
+      if (Util.relativeAngularDifference(robotAngle, sourceAngle)
+          < Util.relativeAngularDifference(robotAngle, closestAngle)) {
+        closest = source;
+        closestAngle = sourceAngle;
+      }
+    }
+
+    return closest.robotToCam.getRotation().toRotation2d().plus(new Rotation2d(Math.PI));
   }
 }
