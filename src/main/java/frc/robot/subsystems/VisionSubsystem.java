@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import frc.robot.Constants.PoseEstimator;
 import frc.robot.Constants.Vision;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +51,7 @@ public class VisionSubsystem {
   private final VisionSource backCam =
       new VisionSource(new PhotonCamera(Vision.BackCam.NAME), Vision.BackCam.ROBOT_TO_CAM);
 
-  private final AprilTagFieldLayout fieldLayout;
+  private AprilTagFieldLayout fieldLayout;
 
   RobotPoseEstimator poseEstimator;
 
@@ -65,9 +66,10 @@ public class VisionSubsystem {
     // loading the 2023 field arrangement
     try {
       fieldLayout = new AprilTagFieldLayout(AprilTagFields.k2023ChargedUp.m_resourceFile);
-    } catch (Exception e) {
+    } catch (IOException e) {
       System.err.println("Failed to load field layout.");
-      throw e;
+      e.printStackTrace();
+      return;
     }
 
     // Create a list of cameras to use for pose estimation
@@ -90,6 +92,10 @@ public class VisionSubsystem {
    *     ground
    */
   public Optional<Pair<Pose2d, Double>> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
+    if (fieldLayout == null) {
+      return Optional.empty();
+    }
+
     poseEstimator.setReferencePose(prevEstimatedRobotPose);
 
     double currentTime = Timer.getFPGATimestamp();
