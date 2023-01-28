@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.autonomous.commands.AutoTestSequence;
+import frc.robot.autonomous.commands.IanDemoAutoSequence;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
@@ -175,6 +176,9 @@ public class RobotContainer {
             2, // m/s
             1, // m/s2
             drivebaseSubsystem));
+
+    autoSelector.addOption(
+        "[NEW] IanAuto", new IanDemoAutoSequence(6, 3, drivebaseSubsystem, visionSubsystem));
 
     Shuffleboard.getTab("DriverView")
         .add("auto selector", autoSelector)
