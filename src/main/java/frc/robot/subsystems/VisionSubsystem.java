@@ -4,12 +4,11 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -51,6 +50,8 @@ public class VisionSubsystem {
   private final VisionSource backCam =
       new VisionSource(new PhotonCamera(Vision.BackCam.NAME), Vision.BackCam.ROBOT_TO_CAM);
 
+  private final AprilTagFieldLayout fieldLayout;
+
   RobotPoseEstimator poseEstimator;
 
   static final double TEST_SPACE_WIDTH = 2.5;
@@ -60,24 +61,22 @@ public class VisionSubsystem {
 
   /** Creates a new VisionSubsystem. */
   public VisionSubsystem() {
-    // Set up a test arena of two apriltags at the center of each driver station set
-    final AprilTag tag00 =
-        new AprilTag(0, new Pose3d(new Pose2d(5, 2.387, Rotation2d.fromDegrees(180))));
-    final AprilTag tag01 =
-        new AprilTag(01, new Pose3d(new Pose2d(5, 0, Rotation2d.fromDegrees(180))));
-    ArrayList<AprilTag> atList = new ArrayList<AprilTag>();
-    atList.add(tag00);
-    atList.add(tag01);
 
-    // TODO - once 2023 happens, replace this with just loading the 2023 field arrangement
-    AprilTagFieldLayout atfl = new AprilTagFieldLayout(atList, TEST_SPACE_LENGTH, TEST_SPACE_WIDTH);
+    // loading the 2023 field arrangement
+    try {
+      fieldLayout = new AprilTagFieldLayout(AprilTagFields.k2023ChargedUp.m_resourceFile);
+    } catch (Exception e) {
+      System.err.println("Failed to load field layout.");
+      throw e;
+    }
 
     // Create a list of cameras to use for pose estimation
     List<Pair<PhotonCamera, Transform3d>> cameras = new ArrayList<>();
     cameras.add(frontCam.getAsPair());
     cameras.add(backCam.getAsPair());
 
-    poseEstimator = new RobotPoseEstimator(atfl, PoseStrategy.CLOSEST_TO_REFERENCE_POSE, cameras);
+    poseEstimator =
+        new RobotPoseEstimator(fieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE, cameras);
 
     cameraStatusList.addString(
         "time since apriltag detection",
