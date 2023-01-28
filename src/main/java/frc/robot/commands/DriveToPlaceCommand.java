@@ -16,11 +16,9 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.util.AdvancedSwerveTrajectoryFollower;
+import frc.util.AsyncWorker;
+import frc.util.AsyncWorker.Result;
 import frc.util.Util;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public class DriveToPlaceCommand extends CommandBase {
 
@@ -32,8 +30,9 @@ public class DriveToPlaceCommand extends CommandBase {
   private final double observationDistance;
   private final double observationTime;
 
-  Optional<PathPlannerTrajectory> trajectory = Optional.empty();
-  Future<PathPlannerTrajectory> futureTrajectory;
+  AsyncWorker trajectGenerator = new AsyncWorker();
+
+  Result<PathPlannerTrajectory> trajectoryResult;
 
   double generationTime;
   boolean hasObserved;
@@ -65,13 +64,13 @@ public class DriveToPlaceCommand extends CommandBase {
     return Rotation2d.fromRadians(angle);
   }
 
-  private Future<PathPlannerTrajectory> asyncPathGen(
+  private Result<PathPlannerTrajectory> asyncPathGen(
       PathConstraints constraints, PathPoint initialPoint, PathPoint finalPoint) {
-    return Executors.newCachedThreadPool()
-        .submit(() -> PathPlanner.generatePath(constraints, initialPoint, finalPoint));
+    return trajectGenerator.submit(
+        () -> PathPlanner.generatePath(constraints, initialPoint, finalPoint));
   }
 
-  private Future<PathPlannerTrajectory> createObservationTrajectory() {
+  private Result<PathPlannerTrajectory> createObservationTrajectory() {
     System.out.println("gen observation trajectory");
     hasObserved = true;
     var currentPose = drivebaseSubsystem.getPose();
@@ -104,7 +103,7 @@ public class DriveToPlaceCommand extends CommandBase {
         observationPoint);
   }
 
-  private Future<PathPlannerTrajectory> createAdjustTrajectory() {
+  private Result<PathPlannerTrajectory> createAdjustTrajectory() {
     System.out.println("gen adjust trajectory");
     var currentPose = drivebaseSubsystem.getPose();
     var initialPoint =
@@ -129,23 +128,33 @@ public class DriveToPlaceCommand extends CommandBase {
   }
 
   private boolean finishedPath() {
-    return trajectory.isPresent()
+    var optTraject = trajectoryResult.get();
+    return optTraject.isPresent()
         && ((Timer.getFPGATimestamp() - generationTime)
-            > (trajectory.get().getTotalTimeSeconds() + observationTime));
+            > (optTraject.get().getTotalTimeSeconds() + observationTime));
   }
 
   private boolean poseSatisfied() {
-    return trajectory.isPresent()
+    var optTraject = trajectoryResult.get();
+    return optTraject.isPresent()
         && AdvancedSwerveTrajectoryFollower.poseWithinErrorMarginOfTrajectoryFinalGoal(
-            drivebaseSubsystem.getPose(), trajectory.get());
+            drivebaseSubsystem.getPose(), optTraject.get());
   }
 
   private void startGeneratingNextTrajectory() {
-    futureTrajectory =
+    trajectoryResult =
         (distanceBetween(drivebaseSubsystem.getPose(), finalPose) < observationDistance
                 || hasObserved)
             ? createAdjustTrajectory()
             : createObservationTrajectory();
+
+    // drive the trajectory when it is ready
+    trajectoryResult.subscribe(
+        trajectory -> {
+          System.out.println("received finished trajectory, driving");
+          generationTime = Timer.getFPGATimestamp();
+          follower.follow(trajectory.get());
+        });
   }
 
   // Called when the command is initially scheduled.
@@ -158,27 +167,19 @@ public class DriveToPlaceCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // start the next trajectory if the generation is done
-    if (!trajectory.isPresent() && futureTrajectory.isDone()) {
-      try {
-        System.out.println("received finished trajectory, driving");
-        trajectory = Optional.of(futureTrajectory.get());
-        generationTime = Timer.getFPGATimestamp();
-        follower.follow(trajectory.get());
-      } catch (ExecutionException | InterruptedException e) {
-        e.printStackTrace();
-        this.cancel();
-      }
-    }
 
-    if (trajectory.isPresent()) {
+    // trigger trajectory following when the trajectory is ready
+    trajectGenerator.heartbeat();
+
+    var optTrajectory = trajectoryResult.get();
+    if (optTrajectory.isPresent()) {
+      var trajectory = optTrajectory.get();
       // print the distance to the final pose
       var fP =
           ((PathPlannerState)
               trajectory
-                  .get()
                   // sample the final position using the time greater than total time behavior
-                  .sample(trajectory.get().getTotalTimeSeconds() + 1));
+                  .sample(trajectory.getTotalTimeSeconds() + 1));
       System.out.println(
           String.format(
               "xy err: %8f theta err: %8f trajectoryTime: %8f",
@@ -188,7 +189,7 @@ public class DriveToPlaceCommand extends CommandBase {
                   .getDistance(fP.poseMeters.getTranslation()),
               Util.relativeAngularDifference(
                   drivebaseSubsystem.getPose().getRotation(), fP.holonomicRotation),
-              trajectory.get().getTotalTimeSeconds()));
+              trajectory.getTotalTimeSeconds()));
     }
 
     if (finishedPath()) {
@@ -197,7 +198,6 @@ public class DriveToPlaceCommand extends CommandBase {
       }
       System.out.println("creating new trajectory");
       startGeneratingNextTrajectory();
-      trajectory = Optional.empty();
     }
   }
 
@@ -206,8 +206,8 @@ public class DriveToPlaceCommand extends CommandBase {
   public void end(boolean interrupted) {
     follower.cancel();
     System.out.println("canceling future thread");
-    futureTrajectory.cancel(true);
-    trajectory = Optional.empty();
+    trajectoryResult = null;
+    trajectGenerator.purge();
   }
 
   // Returns true when the command should end.

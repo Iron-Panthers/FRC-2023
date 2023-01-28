@@ -31,7 +31,7 @@ public class AsyncWorker {
     }
   }
 
-  AsyncWorker() {}
+  public AsyncWorker() {}
 
   public class Result<T> {
     private final Future<T> future;
@@ -153,5 +153,10 @@ public class AsyncWorker {
    */
   public int getPendingSubscriptions() {
     return subscriptions.size();
+  }
+
+  public void purge() {
+    subscriptions.clear();
+    executor.shutdownNow();
   }
 }
