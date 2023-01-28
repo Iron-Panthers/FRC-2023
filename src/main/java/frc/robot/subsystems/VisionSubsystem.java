@@ -28,7 +28,7 @@ import org.photonvision.RobotPoseEstimator.PoseStrategy;
 
 public class VisionSubsystem {
   /** If shuffleboard should be used--important for unit testing. */
-  private boolean useShuffleboard = true;
+  private static boolean useShuffleboard = true;
 
   class VisionSource {
     public final PhotonCamera camera;
