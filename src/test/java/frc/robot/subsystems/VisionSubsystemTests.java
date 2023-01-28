@@ -122,12 +122,13 @@ public class VisionSubsystemTests {
         Optional.empty(), visionSubsystem.getSourceAngleClosestToRobotAngle(new Rotation2d()));
   }
 
-  // @RobotTest
-  // public void getSourceAngleClosestToRobotAngleWhenBadSourceConnected() {
-  //   when(mockFrontCamera.isConnected()).thenReturn(false);
-  //   when(mockBackCamera.isConnected()).thenReturn(true);
-  //   assertEquals(
-  //       Optional.of(Rotation2d.fromDegrees(180)),
-  //       visionSubsystem.getSourceAngleClosestToRobotAngle(Rotation2d.fromDegrees(0)));
-  // }
+  @RobotTest
+  public void getSourceAngleClosestToRobotAngleWhenBadSourceConnected() {
+    when(mockFrontCamera.isConnected()).thenReturn(true);
+    when(mockBackCamera.isConnected()).thenReturn(false);
+    when(mockLeftCamera.isConnected()).thenReturn(true);
+    assertEquals(
+        Optional.of(Rotation2d.fromDegrees(-90)),
+        visionSubsystem.getSourceAngleClosestToRobotAngle(Rotation2d.fromDegrees(180)));
+  }
 }
