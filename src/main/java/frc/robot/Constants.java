@@ -159,11 +159,11 @@ public final class Constants {
   }
   public static final class Outtake{
     public static final class Ports{
-      public static final int OUTTAKE_MOTOR = 0; // Placeholder value
+      public static final int OUTTAKE_MOTOR = 25; // Placeholder value
       public static final int OUTTAKE_ENCODER = 0; // PLaceholder value
     }
 
-    public static final int OPEN_ANGLE = 0;
+    public static final int OPEN_ANGLE = 1000;
     public static final int CLAMP_ANGLE = 0;
   }
 }

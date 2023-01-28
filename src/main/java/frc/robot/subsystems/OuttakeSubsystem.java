@@ -11,13 +11,18 @@ import com.ctre.phoenix.sensors.CANCoder;
 import frc.robot.Constants.Outtake;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 
 public class OuttakeSubsystem extends SubsystemBase {
   /** The modes of the drivebase subsystem */
   public enum Modes{
     OPEN,
-    CLAMP
+    CLOSE,
+    HOLD
 }
 
   private Modes mode;
@@ -25,7 +30,11 @@ public class OuttakeSubsystem extends SubsystemBase {
 
   private PIDController pidController;
 
-  private CANCoder encoder;
+  //private CANCoder encoder;
+
+  private LinearFilter filter;
+
+  private final ShuffleboardTab tab = Shuffleboard.getTab("Claw");
 
   public OuttakeSubsystem() {
 
@@ -33,16 +42,20 @@ public class OuttakeSubsystem extends SubsystemBase {
 
     this.outtake = new TalonFX(Outtake.Ports.OUTTAKE_MOTOR);
 
-    this.encoder = new CANCoder(Outtake.Ports.OUTTAKE_ENCODER);
+    //this.encoder = new CANCoder(Outtake.Ports.OUTTAKE_ENCODER);
 
     this.pidController = new PIDController(0.01, 0, 0);
     pidController.setTolerance(3);
 
+    filter = LinearFilter.highPass(0.1, 0.02);
+
+    tab.addNumber("Stator current", ()-> outtake.getStatorCurrent());
     
   }
 
   public double getAngle () {
-    return encoder.getAbsolutePosition();
+    return outtake.getSelectedSensorPosition();
+    //return encoder.getAbsolutePosition();
   }
 
   /**
@@ -54,8 +67,8 @@ public class OuttakeSubsystem extends SubsystemBase {
     return mode;
   }
 
-  public void setMode(Modes mode) {
-    this.mode = mode;
+  public void setMode(Modes mode2) {
+    this.mode = mode2;
     
   }
 
@@ -73,11 +86,36 @@ public class OuttakeSubsystem extends SubsystemBase {
 
   }
 
-  public void clampPeriodic(){
+  public void closePeriodic(){
 
-    setMotorToAngle(Outtake.CLAMP_ANGLE);
+
+    outtake.set(TalonFXControlMode.PercentOutput, 0.2);
 
   }
+
+  public void holdPeriodic(){
+
+    outtake.set(TalonFXControlMode.PercentOutput, 0.3);
+
+  }
+
+
+  public void advanceMode() {
+    switch (mode) {
+      case OPEN:
+        break;
+      case CLOSE:
+        if(filter.calculate(this.outtake.getStatorCurrent()) > 0.2) {
+          mode = Modes.HOLD;
+        }
+        break;
+      case HOLD:
+        break;
+     
+    }
+
+  }
+
 
 
   public void applyMode() {
@@ -85,8 +123,11 @@ public class OuttakeSubsystem extends SubsystemBase {
       case OPEN:
         openPeriodic();
         break;
-      case CLAMP:
-        clampPeriodic();
+      case CLOSE:
+        closePeriodic();
+        break;
+      case HOLD:
+        holdPeriodic();
         break;
      
     }

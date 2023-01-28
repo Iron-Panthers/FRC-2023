@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -24,10 +25,13 @@ import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
+import frc.robot.commands.OuttakeCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.VibrateControllerCommand;
 import frc.robot.subsystems.DrivebaseSubsystem;
+import frc.robot.subsystems.OuttakeSubsystem;
+import frc.robot.subsystems.OuttakeSubsystem.Modes;
 import frc.util.ControllerUtil;
 import frc.util.Layer;
 import frc.util.MacUtil;
@@ -44,6 +48,8 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
   private final DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem();
+
+  private final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
 
   /** controller 1 */
   private final CommandXboxController jason = new CommandXboxController(1);
@@ -151,7 +157,16 @@ public class RobotContainer {
         .onTrue(
             new DriveToPlaceCommand(
                 drivebaseSubsystem, new Pose2d(3.2, .5, Rotation2d.fromDegrees(170)), .2, .5));
-  }
+ 
+ 
+ 
+ 
+    will.x().toggleOnTrue( new OuttakeCommand(outtakeSubsystem, Modes.CLOSE));
+
+    will.x().toggleOnFalse( new OuttakeCommand(outtakeSubsystem, Modes.OPEN));
+              
+ 
+    }
 
   /**
    * Adds all autonomous routines to the autoSelector, and places the autoSelector on Shuffleboard.
