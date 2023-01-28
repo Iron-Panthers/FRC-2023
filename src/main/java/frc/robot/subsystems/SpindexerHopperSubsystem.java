@@ -25,7 +25,7 @@ public class SpindexerHopperSubsystem extends SubsystemBase {
   }
 
   /** The current mode */
-  private Modes mode = Modes.IDLE;
+  private Modes mode = Modes.OFF;
 
   private final TalonFX spinMotor;
 
@@ -67,6 +67,22 @@ public class SpindexerHopperSubsystem extends SubsystemBase {
    * sets the current mode of the SpindexerHopper subsystem state machine
    */
   public void setMode(Modes mode) {
+
+    if(this.mode != mode) {
+      this.previousTimeOfTransition = Timer.getFPGATimestamp();
+
+      switch(mode) {
+        case IDLE: 
+          this.transitionTime = SpindexerHopper.IDLE_TO_ALIGN_TRANSITION_TIME;
+          break;
+        case ALIGN:
+          this.transitionTime = SpindexerHopper.ALIGN_TO_OFF_TRANSITION_TIME;
+          break;
+        case OFF:
+          this.transitionTime = 0;
+          break;
+      }     
+    }
     this.mode = mode;
   }
   
@@ -96,15 +112,15 @@ public class SpindexerHopperSubsystem extends SubsystemBase {
     switch (mode) {
       case IDLE:
         idlePeriodic();
-        transitionTime = SpindexerHopper.IDLE_TO_ALIGN_TRANSITION_TIME;
+        
         break;
       case ALIGN:
         alignPeriodic();
-        transitionTime = SpindexerHopper.ALIGN_TO_OFF_TRANSITION_TIME;
+        
         break;
       case OFF: 
         offPeriodic();
-        transitionTime = 0;
+        
     }
   }
 
@@ -115,16 +131,13 @@ public class SpindexerHopperSubsystem extends SubsystemBase {
         case IDLE:
           return Modes.ALIGN;
         case ALIGN:
-        case OFF:
-          return Modes.OFF;   
-        
+          return Modes.OFF;
+        case OFF:   
+          return Modes.OFF;
       }
 
-      this.previousTimeOfTransition = currentTime;
      }
-
-    return mode;
-
+     return mode;
   }
 
 

@@ -160,13 +160,12 @@ public final class Constants {
 
   public static final class SpindexerHopper {
     
-    public static final int SPIN_MOTOR_PORT = 0; // FIXME: add real value!!!
+    public static final int SPIN_MOTOR_PORT = 31; 
+    public static final double IDLE_SPEED = 0.15; 
+    public static final double ALIGN_SPEED = -0.15;
 
-    public static final double IDLE_SPEED = 0; // FIXME: add real value!!!
-    public static final double ALIGN_SPEED = 0; // FIXME: add real value!!!
-
-    public static final double IDLE_TO_ALIGN_TRANSITION_TIME  = 0; // FIXME: add real value!!!
-    public static final double ALIGN_TO_OFF_TRANSITION_TIME  = 0; // FIXME: add real value!!!
+    public static final double IDLE_TO_ALIGN_TRANSITION_TIME  = 2; // FIXME: add real value!!!
+    public static final double ALIGN_TO_OFF_TRANSITION_TIME  = 3; // FIXME: add real value!!!
 
   }
 }
