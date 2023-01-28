@@ -84,10 +84,10 @@ public class DriveToPlaceCommand extends CommandBase {
     var initialPoint =
         PathPoint.fromCurrentHolonomicState(currentPose, drivebaseSubsystem.getChassisSpeeds());
 
-    var cameraObservationOffset =
+    var cameraObservationRobotAngle =
         visionSubsystem
             .getRobotAngleToPointClosestCameraAtTargetAngle(observationPose.getRotation())
-            .orElse(new Rotation2d());
+            .orElse(observationPose.getRotation());
 
     var observationPoint =
         new PathPoint(
@@ -97,7 +97,7 @@ public class DriveToPlaceCommand extends CommandBase {
             straightLineAngle(currentPose.getTranslation(), observationPose.getTranslation()),
             // holonomic rotation should be the same as the final rotation to ensure tag visibility
 
-            observationPose.getRotation().plus(cameraObservationOffset));
+            cameraObservationRobotAngle);
 
     return asyncPathGen(
         new PathConstraints(5, 1.5),
