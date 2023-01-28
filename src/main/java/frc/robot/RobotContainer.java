@@ -150,18 +150,14 @@ public class RobotContainer {
             new DriveToPlaceCommand(
                 drivebaseSubsystem,
                 visionSubsystem,
-                new Pose2d(2.23, 1.06, Rotation2d.fromDegrees(180)),
-                new Pose2d(1.8, .5, Rotation2d.fromDegrees(180)),
-                .1));
+                new Pose2d(1.8, .5, Rotation2d.fromDegrees(180))));
 
     will.y()
         .onTrue(
             new DriveToPlaceCommand(
                 drivebaseSubsystem,
                 visionSubsystem,
-                new Pose2d(2.23, 4.42, Rotation2d.fromDegrees(180)),
-                new Pose2d(1.8, 4.97, Rotation2d.fromDegrees(180)),
-                .5));
+                new Pose2d(1.8, 4.97, Rotation2d.fromDegrees(180))));
   }
 
   /**

@@ -60,6 +60,18 @@ public class DriveToPlaceCommand extends CommandBase {
     addRequirements(drivebaseSubsystem);
   }
 
+  /**
+   * Creates a new DriveToPlaceCommand without an observation pose.
+   *
+   * @param drivebaseSubsystem The drivebase subsystem.
+   * @param visionSubsystem The vision subsystem.
+   * @param finalPose The final pose to put the robot in.
+   */
+  public DriveToPlaceCommand(
+      DrivebaseSubsystem drivebaseSubsystem, VisionSubsystem visionSubsystem, Pose2d finalPose) {
+    this(drivebaseSubsystem, visionSubsystem, finalPose, finalPose, 0.1);
+  }
+
   private Rotation2d straightLineAngle(Translation2d start, Translation2d end) {
     double x1 = start.getX();
     double y1 = start.getY();
