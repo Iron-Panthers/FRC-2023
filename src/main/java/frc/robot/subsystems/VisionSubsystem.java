@@ -125,19 +125,24 @@ public class VisionSubsystem {
                     / 1000)));
   }
 
-  public Rotation2d getSourceAngleClosestToRobotAngle(Rotation2d robotAngle) {
-    var closest = visionSources.get(0);
-    var closestAngle = closest.robotToCam.getRotation().toRotation2d().minus(robotAngle);
+  public Optional<Rotation2d> getSourceAngleClosestToRobotAngle(Rotation2d robotAngle) {
+    Optional<VisionSource> closest = Optional.empty();
 
     for (var source : visionSources) {
+      if (!source.camera.isConnected()) continue;
       var sourceAngle = source.robotToCam.getRotation().toRotation2d().minus(robotAngle);
-      if (Util.relativeAngularDifference(robotAngle, sourceAngle)
-          < Util.relativeAngularDifference(robotAngle, closestAngle)) {
-        closest = source;
-        closestAngle = sourceAngle;
+      if (closest.isEmpty()
+          || (Util.relativeAngularDifference(robotAngle, sourceAngle)
+              < Util.relativeAngularDifference(
+                  robotAngle,
+                  closest.get().robotToCam.getRotation().toRotation2d().minus(robotAngle)))) {
+        closest = Optional.of(source);
       }
     }
 
-    return closest.robotToCam.getRotation().toRotation2d().plus(new Rotation2d(Math.PI));
+    if (closest.isEmpty()) return Optional.empty();
+
+    return Optional.of(
+        closest.get().robotToCam.getRotation().toRotation2d().plus(new Rotation2d(Math.PI)));
   }
 }

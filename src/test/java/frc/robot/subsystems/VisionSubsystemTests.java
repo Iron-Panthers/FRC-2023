@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.RobotParamTest;
 import java.lang.reflect.Field;
+import java.util.Optional;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
@@ -49,10 +50,7 @@ public class VisionSubsystemTests {
   public void getSourceAngleClosestToRobotAngle(
       Rotation2d robotAngle, Rotation2d expectedClosestAngle) {
     assertEquals(
-        expectedClosestAngle,
-        visionSubsystem.getSourceAngleClosestToRobotAngle(robotAngle),
-        String.format(
-            "getSourceAngleClosestToRobotAngle(\"%s\") == \"%s\"",
-            robotAngle, expectedClosestAngle));
+        Optional.of(expectedClosestAngle),
+        visionSubsystem.getSourceAngleClosestToRobotAngle(robotAngle));
   }
 }
