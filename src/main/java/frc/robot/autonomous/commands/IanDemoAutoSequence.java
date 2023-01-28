@@ -14,6 +14,7 @@ public class IanDemoAutoSequence extends SequentialCommandGroup {
   private double maxVelocityMetersPerSecond;
   private double maxAccelerationMetersPerSecondSq;
   private DrivebaseSubsystem drivebaseSubsystem;
+  private VisionSubsystem visionSubsystem;
 
   private PathPlannerTrajectory loadPath(String letter) {
     return PathPlanner.loadPath(
@@ -22,6 +23,11 @@ public class IanDemoAutoSequence extends SequentialCommandGroup {
 
   private FollowTrajectoryCommand followPath(String letter) {
     return new FollowTrajectoryCommand(loadPath(letter), false, drivebaseSubsystem);
+  }
+
+  private DriveToPlaceCommand score() {
+    return new DriveToPlaceCommand(
+        drivebaseSubsystem, visionSubsystem, new Pose2d(1.8, .5, Rotation2d.fromDegrees(180)));
   }
 
   public IanDemoAutoSequence(
@@ -33,11 +39,9 @@ public class IanDemoAutoSequence extends SequentialCommandGroup {
     this.maxVelocityMetersPerSecond = maxVelocityMetersPerSecond;
     this.maxAccelerationMetersPerSecondSq = maxAccelerationMetersPerSecondSq;
     this.drivebaseSubsystem = drivebaseSubsystem;
+    this.visionSubsystem = visionSubsystem;
 
-    DriveToPlaceCommand score =
-        new DriveToPlaceCommand(
-            drivebaseSubsystem, visionSubsystem, new Pose2d(1.8, .5, Rotation2d.fromDegrees(180)));
-
-    addCommands(followPath("A"), score, followPath("B"), score, followPath("C"), score);
+    addCommands(
+        score(), followPath("A"), score(), followPath("B"), score(), followPath("C"), score());
   }
 }
