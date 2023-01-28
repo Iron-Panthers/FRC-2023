@@ -55,9 +55,6 @@ public class VisionSubsystem {
 
   RobotPoseEstimator poseEstimator;
 
-  static final double TEST_SPACE_WIDTH = 2.5;
-  static final double TEST_SPACE_LENGTH = 5;
-
   private double lastDetection = 0;
 
   /** Creates a new VisionSubsystem. */
