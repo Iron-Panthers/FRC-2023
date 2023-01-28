@@ -65,7 +65,8 @@ public class VisionSubsystem {
 
     // loading the 2023 field arrangement
     try {
-      fieldLayout = new AprilTagFieldLayout(AprilTagFields.k2023ChargedUp.m_resourceFile);
+      fieldLayout =
+          AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
     } catch (IOException e) {
       System.err.println("Failed to load field layout.");
       e.printStackTrace();
