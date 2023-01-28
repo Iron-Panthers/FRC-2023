@@ -21,6 +21,7 @@ public class OuttakeSubsystem extends SubsystemBase {
   /** The modes of the drivebase subsystem */
   public enum Modes{
     OPEN,
+    OPENING,
     CLOSE,
     HOLD
 }
@@ -34,6 +35,8 @@ public class OuttakeSubsystem extends SubsystemBase {
 
   private LinearFilter filter;
 
+  private double filterOutput;
+
   private final ShuffleboardTab tab = Shuffleboard.getTab("Claw");
 
   public OuttakeSubsystem() {
@@ -42,6 +45,11 @@ public class OuttakeSubsystem extends SubsystemBase {
 
     this.outtake = new TalonFX(Outtake.Ports.OUTTAKE_MOTOR);
 
+    this.outtake.setInverted(true);
+
+    this.outtake.enableVoltageCompensation(true);
+    this.outtake.configVoltageCompSaturation(11);
+
     //this.encoder = new CANCoder(Outtake.Ports.OUTTAKE_ENCODER);
 
     this.pidController = new PIDController(0.01, 0, 0);
@@ -49,7 +57,12 @@ public class OuttakeSubsystem extends SubsystemBase {
 
     filter = LinearFilter.highPass(0.1, 0.02);
 
+    filterOutput = 0;
+
     tab.addNumber("Stator current", ()-> outtake.getStatorCurrent());
+    tab.addNumber("FilterOUtput", () -> this.filterOutput);
+    tab.addNumber("Angle of motor", this::getAngle);
+    tab.addString("Current Mode", () -> mode.toString());
     
   }
 
@@ -82,33 +95,45 @@ public class OuttakeSubsystem extends SubsystemBase {
 
   public void openPeriodic(){
 
-    setMotorToAngle(Outtake.OPEN_ANGLE);
-
+    outtake.set(TalonFXControlMode.PercentOutput, 0.0);
   }
 
   public void closePeriodic(){
 
 
-    outtake.set(TalonFXControlMode.PercentOutput, 0.2);
+    outtake.set(TalonFXControlMode.PercentOutput, 0.075);
 
   }
 
   public void holdPeriodic(){
 
-    outtake.set(TalonFXControlMode.PercentOutput, 0.3);
+    outtake.set(TalonFXControlMode.PercentOutput, 0.25);
 
+  }
+
+  public void openingPeriodic () {
+    outtake.set(TalonFXControlMode.PercentOutput, -0.055);
   }
 
 
   public void advanceMode() {
     switch (mode) {
-      case OPEN:
+      case OPENING:
+
+      this.filterOutput = filter.calculate(this.outtake.getStatorCurrent());
+
+      if(filterOutput > 5) {
+        mode = Modes.OPEN;
+      }
         break;
       case CLOSE:
-        if(filter.calculate(this.outtake.getStatorCurrent()) > 0.2) {
+      this.filterOutput = filter.calculate(this.outtake.getStatorCurrent());
+
+        if(filterOutput > 5) {
           mode = Modes.HOLD;
         }
         break;
+      case OPEN:
       case HOLD:
         break;
      
@@ -129,6 +154,9 @@ public class OuttakeSubsystem extends SubsystemBase {
       case HOLD:
         holdPeriodic();
         break;
+      case OPENING: 
+        openingPeriodic();
+        break;
      
     }
   }
@@ -136,6 +164,8 @@ public class OuttakeSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+
+    advanceMode();
 
     applyMode();
     

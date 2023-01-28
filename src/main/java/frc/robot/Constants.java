@@ -163,7 +163,7 @@ public final class Constants {
       public static final int OUTTAKE_ENCODER = 0; // PLaceholder value
     }
 
-    public static final int OPEN_ANGLE = 1000;
+    public static final int OPEN_ANGLE = 500;
     public static final int CLAMP_ANGLE = 0;
   }
 }

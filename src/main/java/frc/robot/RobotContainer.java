@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -161,9 +162,10 @@ public class RobotContainer {
  
  
  
-    will.x().toggleOnTrue( new OuttakeCommand(outtakeSubsystem, Modes.CLOSE));
+    will.x().onTrue(new OuttakeCommand(outtakeSubsystem, Modes.CLOSE));
+    
+    will.a().onTrue(new OuttakeCommand(outtakeSubsystem, Modes.OPENING));
 
-    will.x().toggleOnFalse( new OuttakeCommand(outtakeSubsystem, Modes.OPEN));
               
  
     }
