@@ -5,6 +5,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import frc.RobotParamTest;
 import frc.RobotTest;
 import frc.robot.Constants.Vision;
@@ -27,9 +30,9 @@ public class VisionSubsystemTests {
 
   private VisionSubsystem.VisionSource mockBackVisionSource;
 
-  private PhotonCamera mockRightCamera;
+  private PhotonCamera mockLeftCamera;
 
-  private VisionSubsystem.VisionSource mockRightVisionSource;
+  private VisionSubsystem.VisionSource mockLeftVisionSource;
 
   VisionSubsystem visionSubsystem;
 
@@ -57,12 +60,22 @@ public class VisionSubsystemTests {
     when(mockBackCamera.getName()).thenReturn("backCamera");
     mockBackVisionSource =
         visionSubsystem.new VisionSource(mockBackCamera, Vision.BackCam.ROBOT_TO_CAM);
+    mockLeftCamera = mock(PhotonCamera.class);
+    when(mockLeftCamera.getName()).thenReturn("leftCamera");
+    mockLeftVisionSource =
+        visionSubsystem
+        .new VisionSource(
+            mockLeftCamera,
+            new Transform3d(
+                new Translation3d(0, 0.301, 0.3048), new Rotation3d(0, 0, Math.PI / 2)));
 
     // inject mock cameras into vision subsystem
     try {
       Field visionSourcesField = visionSubsystem.getClass().getDeclaredField("visionSources");
       visionSourcesField.setAccessible(true);
-      visionSourcesField.set(visionSubsystem, List.of(mockFrontVisionSource, mockBackVisionSource));
+      visionSourcesField.set(
+          visionSubsystem,
+          List.of(mockFrontVisionSource, mockBackVisionSource, mockLeftVisionSource));
 
     } catch (NoSuchFieldException | IllegalAccessException e) {
       e.printStackTrace();
@@ -74,7 +87,17 @@ public class VisionSubsystemTests {
         Arguments.of(Rotation2d.fromDegrees(0), Rotation2d.fromDegrees(0)),
         Arguments.of(Rotation2d.fromDegrees(10), Rotation2d.fromDegrees(-10)),
         Arguments.of(Rotation2d.fromDegrees(23), Rotation2d.fromDegrees(-23)),
-        Arguments.of(Rotation2d.fromDegrees(168), Rotation2d.fromDegrees(12)));
+        Arguments.of(Rotation2d.fromDegrees(168), Rotation2d.fromDegrees(12)),
+        Arguments.of(Rotation2d.fromDegrees(180), Rotation2d.fromDegrees(0)),
+        Arguments.of(Rotation2d.fromDegrees(90), Rotation2d.fromDegrees(0)),
+        Arguments.of(Rotation2d.fromDegrees(85), Rotation2d.fromDegrees(5)),
+
+        // tests for when the robot needs to choose between front and left camera
+        Arguments.of(Rotation2d.fromDegrees(44), Rotation2d.fromDegrees(-44)),
+        Arguments.of(Rotation2d.fromDegrees(46), Rotation2d.fromDegrees(44))
+
+        // comment to hold the end parenthesis
+        );
   }
 
   @RobotParamTest
@@ -83,6 +106,7 @@ public class VisionSubsystemTests {
       Rotation2d robotAngle, Rotation2d expectedClosestAngle) {
     when(mockFrontCamera.isConnected()).thenReturn(true);
     when(mockBackCamera.isConnected()).thenReturn(true);
+    when(mockLeftCamera.isConnected()).thenReturn(true);
 
     assertEquals(
         Optional.of(expectedClosestAngle),

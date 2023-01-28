@@ -131,6 +131,10 @@ public class VisionSubsystem {
     for (var source : visionSources) {
       if (!source.camera.isConnected()) continue;
       var sourceAngle = source.robotToCam.getRotation().toRotation2d();
+      // System.out.println(
+      //     source.camera.getName()
+      //         + " "
+      //         + Math.abs(Util.relativeAngularDifference(sourceAngle, robotAngle)));
       if (closest.isEmpty()
           || (Math.abs(Util.relativeAngularDifference(sourceAngle, robotAngle))
               < Math.abs(
