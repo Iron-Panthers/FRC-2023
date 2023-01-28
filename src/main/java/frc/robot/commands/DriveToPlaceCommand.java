@@ -23,11 +23,11 @@ import frc.util.Util;
 public class DriveToPlaceCommand extends CommandBase {
 
   private final DrivebaseSubsystem drivebaseSubsystem;
+  private final Pose2d observationPose;
   private final Pose2d finalPose;
 
   private final AdvancedSwerveTrajectoryFollower follower;
 
-  private final double observationDistance;
   private final double observationTime;
 
   AsyncWorker trajectGenerator = new AsyncWorker();
@@ -40,13 +40,13 @@ public class DriveToPlaceCommand extends CommandBase {
   /** Creates a new DriveToPlaceCommand. */
   public DriveToPlaceCommand(
       DrivebaseSubsystem drivebaseSubsystem,
+      Pose2d observationPose,
       Pose2d finalPose,
-      double observationDistance,
       double observationTime) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drivebaseSubsystem = drivebaseSubsystem;
+    this.observationPose = observationPose;
     this.finalPose = finalPose;
-    this.observationDistance = observationDistance;
     this.observationTime = observationTime;
 
     follower = drivebaseSubsystem.getFollower();
@@ -84,17 +84,11 @@ public class DriveToPlaceCommand extends CommandBase {
     var observationPoint =
         new PathPoint(
             // drive until we are .2 meter away from the final position
-            finalPose
-                .getTranslation()
-                .minus(
-                    new Translation2d(-observationDistance, 0)
-                        .rotateBy(
-                            straightLineAngle(
-                                finalPose.getTranslation(), currentPose.getTranslation()))),
+            observationPose.getTranslation(),
             // drive in a straight line to the final position
-            straightLineAngle(currentPose.getTranslation(), finalPose.getTranslation()),
+            straightLineAngle(currentPose.getTranslation(), observationPose.getTranslation()),
             // holonomic rotation should be the same as the final rotation to ensure tag visibility
-            finalPose.getRotation());
+            observationPose.getRotation());
 
     return asyncPathGen(
         new PathConstraints(5, 1.5),
@@ -142,11 +136,7 @@ public class DriveToPlaceCommand extends CommandBase {
   }
 
   private void startGeneratingNextTrajectory() {
-    trajectoryResult =
-        (distanceBetween(drivebaseSubsystem.getPose(), finalPose) < observationDistance
-                || hasObserved)
-            ? createAdjustTrajectory()
-            : createObservationTrajectory();
+    trajectoryResult = hasObserved ? createAdjustTrajectory() : createObservationTrajectory();
 
     // drive the trajectory when it is ready
     trajectoryResult.subscribe(

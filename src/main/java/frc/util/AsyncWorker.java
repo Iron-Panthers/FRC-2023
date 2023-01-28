@@ -157,6 +157,5 @@ public class AsyncWorker {
 
   public void purge() {
     subscriptions.clear();
-    executor.shutdownNow();
   }
 }
