@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * An asymmetric, weighted graph implementation, designed for high performance for path finding
@@ -14,6 +15,49 @@ import java.util.Set;
  */
 public class Graph<T> {
   private final Map<T, Map<T, Double>> internalBiHashMap = new HashMap<>();
+
+  private Consumer<T> implicitNodeKeyAddedCallback = k -> {};
+
+  /**
+   * Creates a new graph, with a function to be called when a node is added implicitly.
+   *
+   * @param implicitNodeKeyAddedCallback The function to be called when a node is added implicitly,
+   *     by being missing and the first param in an accessor or setter.
+   */
+  public Graph(Consumer<T> implicitNodeKeyAddedCallback) {
+    this.implicitNodeKeyAddedCallback = implicitNodeKeyAddedCallback;
+  }
+
+  /** Creates a new graph, that allows implicit node creation. */
+  public Graph() {}
+
+  /**
+   * Creates a new graph, that allows implicit node creation, but prints to System.out.err when it
+   * happens.
+   *
+   * @param <T> The type of the node keys.
+   * @return A new graph, that allows implicit node creation, but prints to System.out.err when it
+   *     happens.
+   */
+  public static <T> Graph<T> warnOnImplicitNodeKeyAdded() {
+    return new Graph<>(k -> System.err.println("Implicitly added node key: " + k));
+  }
+
+  /**
+   * Creates a new graph, that throws an exception when a node is added implicitly--although it will
+   * still add it. This is useful for debugging and validating that your graph is behaving as you
+   * expect, although is likely unsuited for production robot code.
+   *
+   * @param <T> The type of the node keys.
+   * @return A new graph, that throws an IllegalArgumentException exception when a node is added
+   *     implicitly.
+   */
+  public static <T> Graph<T> strict() {
+    return new Graph<>(
+        k -> {
+          throw new IllegalArgumentException("Implicitly added node key: " + k);
+        });
+  }
 
   /**
    * Returns the immutable version of a set, to prevent handing out the ability to modify the
@@ -28,7 +72,12 @@ public class Graph<T> {
   }
 
   private Map<T, Double> safeGet(T node) {
-    return internalBiHashMap.computeIfAbsent(node, k -> new HashMap<>());
+    return internalBiHashMap.computeIfAbsent(
+        node,
+        k -> {
+          implicitNodeKeyAddedCallback.accept(k);
+          return new HashMap<>();
+        });
   }
 
   /**

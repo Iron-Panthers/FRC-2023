@@ -154,4 +154,47 @@ public class GraphTests {
         graph.getEdgeWeight(Nodes.A, Nodes.D),
         "Edge A->D has incorrect weight or wasn't implicitly added");
   }
+
+  @UtilTest
+  public void graphThrowsOnImplicitWhenStrict() {
+    Graph<Nodes> graph = Graph.strict();
+    graph.addNode(Nodes.A);
+    graph.addNode(Nodes.B);
+    graph.addNode(Nodes.C);
+
+    graph.addEdge(Nodes.A, Nodes.B, 1.0);
+    graph.addEdge(Nodes.A, Nodes.C, 2.0);
+    graph.addEdge(Nodes.B, Nodes.C, 3.0);
+
+    assertDoesNotThrow(
+        () -> graph.hasEdge(Nodes.A, Nodes.D),
+        "Strict graph throws on missing node but not implicitly constructed D in hasEdge A->D");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> graph.hasEdge(Nodes.D, Nodes.A),
+        "Strict graph does not throw on missing node D in hasEdge D->A");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> graph.hasEdge(Nodes.D, Nodes.E),
+        "Strict graph does not throw on missing node D in hasEdge D->E");
+
+    assertDoesNotThrow(
+        () -> graph.getEdgeWeight(Nodes.A, Nodes.D),
+        "Strict graph throws on missing node but not implicitly constructed D in getEdgeWeight A->D");
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> graph.getEdgeWeight(Nodes.D, Nodes.A),
+        "Strict graph does not throw on missing node D in getEdgeWeight D->A");
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> graph.getEdgeWeight(Nodes.D, Nodes.E),
+        "Strict graph does not throw on missing node D in getEdgeWeight D->E");
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> graph.getNeighbors(Nodes.D),
+        "Strict graph does not throw on missing node D in getNeighbors D");
+  }
 }
