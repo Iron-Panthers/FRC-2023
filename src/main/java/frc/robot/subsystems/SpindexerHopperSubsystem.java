@@ -19,9 +19,17 @@ public class SpindexerHopperSubsystem extends SubsystemBase {
   
   /** The modes of the SpindexerHopper subsystem */
   public enum Modes {
-    IDLE,
-    ALIGN,
-    OFF
+    IDLE(SpindexerHopper.Timings.IDLE_DURATION),
+    ALIGN(SpindexerHopper.Timings.ALIGN_DURATION),
+    CLEAR(SpindexerHopper.Timings.CLEAR_DURATION),
+    FINAL(SpindexerHopper.Timings.FINAL_DURATION),
+    OFF(0);
+
+    public final double modeTransitionTime;
+    
+    Modes (double modeTransitionTime) {
+      this.modeTransitionTime = modeTransitionTime;
+    }
   }
 
   /** The current mode */
@@ -70,18 +78,7 @@ public class SpindexerHopperSubsystem extends SubsystemBase {
 
     if(this.mode != mode) {
       this.previousTimeOfTransition = Timer.getFPGATimestamp();
-
-      switch(mode) {
-        case IDLE: 
-          this.transitionTime = SpindexerHopper.IDLE_TO_ALIGN_TRANSITION_TIME;
-          break;
-        case ALIGN:
-          this.transitionTime = SpindexerHopper.ALIGN_TO_OFF_TRANSITION_TIME;
-          break;
-        case OFF:
-          this.transitionTime = 0;
-          break;
-      }     
+      this.transitionTime = mode.modeTransitionTime;
     }
     this.mode = mode;
   }
@@ -94,6 +91,14 @@ public class SpindexerHopperSubsystem extends SubsystemBase {
   }
 
   private void alignPeriodic() {
+    spinMotor.set(ControlMode.PercentOutput, SpindexerHopper.ALIGN_SPEED);
+  }
+
+  private void clearPeriodic() {
+    spinMotor.set(ControlMode.PercentOutput, SpindexerHopper.IDLE_SPEED);
+  }
+
+  private void finalPeriodic() {
     spinMotor.set(ControlMode.PercentOutput, SpindexerHopper.ALIGN_SPEED);
   }
 
@@ -112,11 +117,15 @@ public class SpindexerHopperSubsystem extends SubsystemBase {
     switch (mode) {
       case IDLE:
         idlePeriodic();
-        
         break;
       case ALIGN:
         alignPeriodic();
-        
+        break;
+      case CLEAR:
+        clearPeriodic();
+        break;
+      case FINAL:
+        finalPeriodic();
         break;
       case OFF: 
         offPeriodic();
@@ -131,6 +140,10 @@ public class SpindexerHopperSubsystem extends SubsystemBase {
         case IDLE:
           return Modes.ALIGN;
         case ALIGN:
+          return Modes.CLEAR;
+        case CLEAR:
+          return Modes.FINAL;
+        case FINAL:
           return Modes.OFF;
         case OFF:   
           return Modes.OFF;
