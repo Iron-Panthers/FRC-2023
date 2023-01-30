@@ -1,6 +1,7 @@
 package frc.util.pathing;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -51,15 +52,15 @@ public class RubenManueverGeneratorTests {
     RubenManueverGenerator rubenManueverGenerator = new RubenManueverGenerator();
 
     // use java reflection to access adjacencyGraph
-    Optional<Graph<Translation2d>> optAdjacencyGraph = Optional.empty();
+    Optional<Graph<GridCoord>> optAdjacencyGraph = Optional.empty();
     try {
       Field field = RubenManueverGenerator.class.getDeclaredField("adjacencyGraph");
       field.setAccessible(true);
 
+      var obj = field.get(rubenManueverGenerator);
+
       optAdjacencyGraph =
-          field.get(rubenManueverGenerator) instanceof Graph<?>
-              ? Optional.of((Graph<Translation2d>) field.get(rubenManueverGenerator))
-              : Optional.empty();
+          obj instanceof Graph<?> ? Optional.of((Graph<GridCoord>) obj) : Optional.empty();
     } catch (NoSuchFieldException | IllegalAccessException e) {
       e.printStackTrace();
     }
@@ -87,19 +88,26 @@ public class RubenManueverGeneratorTests {
             );
 
     for (var coord : coords) {
+      var firstGridCoord = new GridCoord(coord.getFirst());
+      var secondGridCoord = new GridCoord(coord.getSecond());
+      assertFalse(
+          FieldObstructionMap.isInsideObstruction(coord.getFirst()),
+          String.format("coord %s is inside an obstruction", coord.getFirst()));
+      assertFalse(
+          FieldObstructionMap.isInsideObstruction(coord.getSecond()),
+          String.format("coord %s is inside an obstruction", coord.getSecond()));
       assertTrue(
-          adjacencyGraph.hasNode(coord.getFirst()),
-          String.format("Node %s is missing", coord.getFirst()));
+          adjacencyGraph.hasNode(firstGridCoord),
+          String.format("Node %s is missing", firstGridCoord));
       assertTrue(
-          adjacencyGraph.hasNode(coord.getSecond()),
-          String.format("Node %s is missing", coord.getSecond()));
+          adjacencyGraph.hasNode(secondGridCoord),
+          String.format("Node %s is missing", secondGridCoord));
       assertTrue(
-          adjacencyGraph.getNeighbors(coord.getFirst()).contains(coord.getSecond()),
-          String.format("coord %s should be linked to %s", coord.getFirst(), coord.getSecond()));
+          adjacencyGraph.getNeighbors(firstGridCoord).contains(secondGridCoord),
+          String.format("coord %s should be linked to %s", firstGridCoord, secondGridCoord));
       assertTrue(
-          adjacencyGraph.getNeighbors(coord.getSecond()).contains(coord.getFirst()),
-          String.format(
-              "coord %s should be linked back to %s", coord.getSecond(), coord.getFirst()));
+          adjacencyGraph.getNeighbors(secondGridCoord).contains(firstGridCoord),
+          String.format("coord %s should be linked back to %s", secondGridCoord, firstGridCoord));
     }
   }
 
