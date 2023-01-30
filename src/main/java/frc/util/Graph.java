@@ -81,13 +81,15 @@ public class Graph<T> {
   }
 
   /**
-   * Adds a node to the graph.
+   * Adds a node to the graph if it does not already exist. If the node already exists, this method
+   * does nothing.
    *
    * @param node the node to add
    */
   public void addNode(T node) {
-    // FIXME: what if the node already exists?
-    internalBiHashMap.put(node, new HashMap<>());
+    if (!hasNode(node)) {
+      internalBiHashMap.put(node, new HashMap<>());
+    }
   }
 
   /**

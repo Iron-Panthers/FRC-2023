@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class RubenManueverGenerator {
-  private final Graph<Translation2d> adjacencyGraph = Graph.warnOnImplicitNodeKeyAdded();
+  private final Graph<Translation2d> adjacencyGraph = new Graph<>();
 
   private void addEdgeIfEndAccessible(Translation2d start, Translation2d end, double weight) {
     if (end.getX() >= 0
@@ -63,7 +63,7 @@ public class RubenManueverGenerator {
    * @param point The point to round to the nearest cell.
    * @return The rounded point.
    */
-  public Translation2d getClosestPoint(Translation2d point) {
+  public static Translation2d getClosestPoint(Translation2d point) {
     return new Translation2d(
         Math.round(point.getX() / Pathing.CELL_SIZE_METERS) * Pathing.CELL_SIZE_METERS,
         Math.round(point.getY() / Pathing.CELL_SIZE_METERS) * Pathing.CELL_SIZE_METERS);
