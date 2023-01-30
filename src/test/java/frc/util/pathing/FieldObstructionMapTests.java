@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.UtilTest;
+import frc.robot.Constants.Pathing;
 import frc.util.pathing.DisplayFieldArray.FieldSquare;
 import frc.util.pathing.FieldObstructionMap.RectangleObstruction;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,16 +42,15 @@ public class FieldObstructionMapTests {
   @UtilTest
   public void obstructionMapMatchesSnapshot(Expect expect) {
 
-    final double stepSize = 0.1;
-    final int xMax = (int) Math.ceil(FieldObstructionMap.FIELD_LENGTH / stepSize);
-    final int yMax = (int) Math.ceil(FieldObstructionMap.FIELD_HEIGHT / stepSize);
+    final int xMax = (int) Math.ceil(FieldObstructionMap.FIELD_LENGTH / Pathing.CELL_SIZE_METERS);
+    final int yMax = (int) Math.ceil(FieldObstructionMap.FIELD_HEIGHT / Pathing.CELL_SIZE_METERS);
 
     FieldSquare[][] obstructionMap = new FieldSquare[xMax][yMax];
 
     for (int x = 0; x < xMax; x++) {
       for (int y = 0; y < yMax; y++) {
-        final double xCoord = x * stepSize;
-        final double yCoord = y * stepSize;
+        final double xCoord = x * Pathing.CELL_SIZE_METERS;
+        final double yCoord = y * Pathing.CELL_SIZE_METERS;
         obstructionMap[x][y] =
             FieldObstructionMap.isInsideObstruction(new Translation2d(xCoord, yCoord))
                 ? FieldSquare.OBSTRUCTION
@@ -63,7 +63,8 @@ public class FieldObstructionMapTests {
         String.format(
             "Field length: %f, height: %f\n",
             FieldObstructionMap.FIELD_LENGTH, FieldObstructionMap.FIELD_HEIGHT));
-    sb.append(String.format("xMax: %d, yMax: %d, Step Size: %f\n", xMax, yMax, stepSize));
+    sb.append(
+        String.format("xMax: %d, yMax: %d, Step Size: %f\n", xMax, yMax, Pathing.CELL_SIZE_METERS));
 
     DisplayFieldArray.renderField(sb, obstructionMap);
 

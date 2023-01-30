@@ -86,6 +86,7 @@ public class Graph<T> {
    * @param node the node to add
    */
   public void addNode(T node) {
+    // FIXME: what if the node already exists?
     internalBiHashMap.put(node, new HashMap<>());
   }
 

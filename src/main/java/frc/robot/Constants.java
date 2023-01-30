@@ -159,4 +159,9 @@ public final class Constants {
 
     public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 2;
   }
+
+  public static final class Pathing {
+    /** The size in meters of a given cell for pathfinding */
+    public static final double CELL_SIZE_METERS = 0.1;
+  }
 }
