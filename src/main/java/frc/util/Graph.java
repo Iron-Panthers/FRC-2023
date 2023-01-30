@@ -3,7 +3,6 @@ package frc.util;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -34,6 +33,34 @@ public class Graph<T> {
     }
   }
 
+  private void assertNodeExists(T node) {
+    if (!internalBiHashMap.containsKey(node)) {
+      throw new IllegalArgumentException("Node does not exist " + node.toString());
+    }
+  }
+
+  private void assertNodeDoesNotExist(T node) {
+    if (internalBiHashMap.containsKey(node)) {
+      throw new IllegalArgumentException("Node already exists " + node.toString());
+    }
+  }
+
+  private void assertEdgeExists(T from, T to) {
+    assertNodeExists(to);
+    assertNodeExists(from);
+    if (!internalBiHashMap.get(from).containsKey(to)) {
+      throw new IllegalArgumentException(
+          "Edge does not exist " + from.toString() + " -> " + to.toString());
+    }
+  }
+
+  private void assertEdgeDoesNotExist(T from, T to) {
+    if (internalBiHashMap.get(from).containsKey(to)) {
+      throw new IllegalArgumentException(
+          "Edge already exists " + from.toString() + " -> " + to.toString());
+    }
+  }
+
   /**
    * Returns the immutable version of a set, to prevent handing out the ability to modify the
    * internal data structure.
@@ -47,16 +74,14 @@ public class Graph<T> {
   }
 
   /**
-   * Adds a node to the graph if it does not already exist. If the node already exists, this method
-   * does nothing.
+   * Adds a node to the graph if it does not already exist.
    *
    * @param node the node to add
    */
   public void addNode(T node) {
     checkLocked();
-    if (!hasNode(node)) {
-      internalBiHashMap.put(node, new HashMap<>());
-    }
+    assertNodeDoesNotExist(node);
+    internalBiHashMap.put(node, new HashMap<>());
   }
 
   /**
@@ -68,24 +93,8 @@ public class Graph<T> {
    */
   public void addEdge(T from, T to, double weight) {
     checkLocked();
-    if (!hasNode(from) || !hasNode(to)) return;
+    assertEdgeDoesNotExist(from, to);
     internalBiHashMap.get(from).put(to, weight);
-  }
-
-  /**
-   * Gets the weight of an edge without the overhead of creating an Optional. This method only
-   * belongs in hot code loops. You probably don't care about the overhead of an Optional, and
-   * should use {@link #getEdgeWeight(T, T)}. Be careful.
-   *
-   * @param from the node the edge is from
-   * @param to the node the edge is to
-   * @return the weight of the edge, or {@link Double.NEGATIVE_INFINITY} if the edge does not exist
-   */
-  public double getNegInfEdgeWeight(T from, T to) {
-    if (!hasNode(from) || !hasNode(to)) return Double.NEGATIVE_INFINITY;
-    var nullableRes = internalBiHashMap.get(from).get(to);
-    if (nullableRes == null) return Double.NEGATIVE_INFINITY;
-    return nullableRes;
   }
 
   /**
@@ -93,23 +102,11 @@ public class Graph<T> {
    *
    * @param from the node the edge is from
    * @param to the node the edge is to
-   * @return the weight of the edge if it exists, otherwise empty
+   * @return the weight of the edge
    */
-  public Optional<Double> getEdgeWeight(T from, T to) {
-    var res = getNegInfEdgeWeight(from, to);
-    return res == Double.NEGATIVE_INFINITY ? Optional.empty() : Optional.of(res);
-  }
-
-  /**
-   * Gets the neighbors of a node without the overhead of creating an Optional. This method only
-   * belongs in hot code loops. You probably don't care about the overhead of an Optional, and
-   * should use {@link #getNeighbors(T, T)}. Be careful.
-   *
-   * @param node the node to get the neighbors of
-   * @return the neighbors of the node, or an null if the node does not exist
-   */
-  public Set<T> getNullableNeighbors(T node) {
-    return hasNode(node) ? view(internalBiHashMap.get(node).keySet()) : null;
+  public double getEdgeWeight(T from, T to) {
+    assertEdgeExists(from, to);
+    return internalBiHashMap.get(from).get(to);
   }
 
   /**
@@ -118,8 +115,9 @@ public class Graph<T> {
    * @param node the node to get the neighbors of
    * @return the neighbors of the node, or an empty set if the node does not exist
    */
-  public Optional<Set<T>> getNeighbors(T node) {
-    return Optional.ofNullable(getNullableNeighbors(node));
+  public Set<T> getNeighbors(T node) {
+    assertNodeExists(node);
+    return view(internalBiHashMap.get(node).keySet());
   }
 
   /**

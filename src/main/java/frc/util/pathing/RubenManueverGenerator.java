@@ -16,7 +16,6 @@ public class RubenManueverGenerator {
         && end.y <= FieldObstructionMap.FIELD_HEIGHT
         && !FieldObstructionMap.isInsideObstruction(end.toTranslation2d())) {
       adjacencyGraph.addEdge(start, end, weight);
-      adjacencyGraph.addEdge(end, start, weight);
     }
   }
 

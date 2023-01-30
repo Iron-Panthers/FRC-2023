@@ -170,10 +170,7 @@ public class GraphPathfinder {
         return Optional.of(reconstructPath(cameFrom, current));
       }
 
-      var neighbors = graph.getNullableNeighbors(current);
-      if (neighbors == null) continue;
-
-      for (GridCoord neighbor : neighbors) {
+      for (GridCoord neighbor : graph.getNeighbors(current)) {
         double tentativeGScore = gScore.get(current) + current.getDistance(neighbor);
 
         if (tentativeGScore < gScore.getOrDefault(neighbor, Double.POSITIVE_INFINITY)) {

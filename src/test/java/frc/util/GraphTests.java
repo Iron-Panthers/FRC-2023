@@ -57,13 +57,13 @@ public class GraphTests {
     assertThrows(
         UnsupportedOperationException.class,
         () -> {
-          graph.getNeighbors(Nodes.A).get().add(Nodes.D);
+          graph.getNeighbors(Nodes.A).add(Nodes.D);
         });
 
     assertThrows(
         UnsupportedOperationException.class,
         () -> {
-          graph.getNeighbors(Nodes.A).get().remove(Nodes.B);
+          graph.getNeighbors(Nodes.A).remove(Nodes.B);
         });
   }
 
@@ -82,18 +82,9 @@ public class GraphTests {
     assertTrue(graph.hasEdge(Nodes.A, Nodes.C), "Graph does not contain edge A -> C");
     assertTrue(graph.hasEdge(Nodes.B, Nodes.C), "Graph does not contain edge B -> C");
 
-    assertEquals(
-        1.0, graph.getNegInfEdgeWeight(Nodes.A, Nodes.B), "Edge A->B has incorrect weight");
-    assertEquals(
-        Optional.of(1.0), graph.getEdgeWeight(Nodes.A, Nodes.B), "Edge A->B has incorrect weight");
-    assertEquals(
-        2.0, graph.getNegInfEdgeWeight(Nodes.A, Nodes.C), "Edge A->C has incorrect weight");
-    assertEquals(
-        Optional.of(2.0), graph.getEdgeWeight(Nodes.A, Nodes.C), "Edge A->C has incorrect weight");
-    assertEquals(
-        3.0, graph.getNegInfEdgeWeight(Nodes.B, Nodes.C), "Edge B->C has incorrect weight");
-    assertEquals(
-        Optional.of(3.0), graph.getEdgeWeight(Nodes.B, Nodes.C), "Edge B->C has incorrect weight");
+    assertEquals(1.0, graph.getEdgeWeight(Nodes.A, Nodes.B), "Edge A->B has incorrect weight");
+    assertEquals(2.0, graph.getEdgeWeight(Nodes.A, Nodes.C), "Edge A->C has incorrect weight");
+    assertEquals(3.0, graph.getEdgeWeight(Nodes.B, Nodes.C), "Edge B->C has incorrect weight");
   }
 
   @UtilTest
@@ -108,37 +99,33 @@ public class GraphTests {
     graph.addEdge(Nodes.B, Nodes.C, 3.0);
 
     assertFalse(graph.hasEdge(Nodes.B, Nodes.A), "Graph contains edge B -> A");
-    assertEquals(
-        Double.NEGATIVE_INFINITY,
-        graph.getNegInfEdgeWeight(Nodes.B, Nodes.A),
-        "Edge B->A has incorrect weight");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> graph.getEdgeWeight(Nodes.B, Nodes.A),
+        "getEdgeWeight B->A should be illegal");
     assertFalse(graph.hasEdge(Nodes.C, Nodes.A), "Graph contains edge C -> A");
-    assertEquals(
-        Double.NEGATIVE_INFINITY,
-        graph.getNegInfEdgeWeight(Nodes.C, Nodes.A),
-        "Edge C->A has incorrect weight");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> graph.getEdgeWeight(Nodes.C, Nodes.A),
+        "getEdgeWeight C->A should be illegal");
     assertFalse(graph.hasEdge(Nodes.C, Nodes.B), "Graph contains edge C -> B");
-    assertEquals(
-        Double.NEGATIVE_INFINITY,
-        graph.getNegInfEdgeWeight(Nodes.C, Nodes.B),
-        "Edge C->B has incorrect weight");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> graph.getEdgeWeight(Nodes.C, Nodes.B),
+        "getEdgeWeight C->B should be illegal");
+    assertFalse(graph.hasEdge(Nodes.D, Nodes.A), "Graph contains edge D -> A");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> graph.getEdgeWeight(Nodes.D, Nodes.A),
+        "getEdgeWeight D->A should be illegal");
 
     assertTrue(graph.hasEdge(Nodes.A, Nodes.B), "Graph does not contain edge A -> B");
     assertTrue(graph.hasEdge(Nodes.A, Nodes.C), "Graph does not contain edge A -> C");
     assertTrue(graph.hasEdge(Nodes.B, Nodes.C), "Graph does not contain edge B -> C");
 
-    assertEquals(
-        1.0, graph.getNegInfEdgeWeight(Nodes.A, Nodes.B), "Edge A->B has incorrect weight");
-    assertEquals(
-        Optional.of(1.0), graph.getEdgeWeight(Nodes.A, Nodes.B), "Edge A->B has incorrect weight");
-    assertEquals(
-        2.0, graph.getNegInfEdgeWeight(Nodes.A, Nodes.C), "Edge A->C has incorrect weight");
-    assertEquals(
-        Optional.of(2.0), graph.getEdgeWeight(Nodes.A, Nodes.C), "Edge A->C has incorrect weight");
-    assertEquals(
-        3.0, graph.getNegInfEdgeWeight(Nodes.B, Nodes.C), "Edge B->C has incorrect weight");
-    assertEquals(
-        Optional.of(3.0), graph.getEdgeWeight(Nodes.B, Nodes.C), "Edge B->C has incorrect weight");
+    assertEquals(1.0, graph.getEdgeWeight(Nodes.A, Nodes.B), "Edge A->B has incorrect weight");
+    assertEquals(2.0, graph.getEdgeWeight(Nodes.A, Nodes.C), "Edge A->C has incorrect weight");
+    assertEquals(3.0, graph.getEdgeWeight(Nodes.B, Nodes.C), "Edge B->C has incorrect weight");
   }
 
   @UtilTest

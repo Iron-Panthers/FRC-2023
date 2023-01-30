@@ -94,10 +94,10 @@ public class RubenManueverGeneratorTests {
           adjacencyGraph.hasNode(coord.getSecond()),
           String.format("Node %s is missing", coord.getSecond()));
       assertTrue(
-          adjacencyGraph.getNullableNeighbors(coord.getFirst()).contains(coord.getSecond()),
+          adjacencyGraph.getNeighbors(coord.getFirst()).contains(coord.getSecond()),
           String.format("coord %s should be linked to %s", coord.getFirst(), coord.getSecond()));
       assertTrue(
-          adjacencyGraph.getNullableNeighbors(coord.getSecond()).contains(coord.getFirst()),
+          adjacencyGraph.getNeighbors(coord.getSecond()).contains(coord.getFirst()),
           String.format(
               "coord %s should be linked back to %s", coord.getSecond(), coord.getFirst()));
     }
