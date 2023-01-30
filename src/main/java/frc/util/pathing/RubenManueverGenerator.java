@@ -55,7 +55,7 @@ public class RubenManueverGenerator {
 
           // Add edges to adjacent nodes
           for (GridCoord end : getOrthogonalTranslations(start)) {
-            addEdgeIfEndAccessible(start, end, Pathing.CELL_SIZE_METERS);
+            addEdgeIfEndAccessible(start, end, 1);
           }
 
           // TODO: Add edges to diagonal nodes
