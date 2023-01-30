@@ -56,20 +56,14 @@ public class FieldObstructionMapTests {
     }
 
     StringBuilder sb = new StringBuilder();
-    final int tickDistance = (int) Math.ceil(1d / stepSize);
-    for (int y = -1; y < yMax; y++) {
-      for (int x = -1; x < xMax; x++) {
-        if (x == -1 || y == -1) {
-          if (x == -1 && y % tickDistance == 0) {
-            sb.append("―");
-          } else if (y == -1 && x % tickDistance == 0) {
-            sb.append("|");
-          } else {
-            sb.append(" ");
-          }
-        } else {
-          sb.append(obstructionMap[x][y] ? "#" : ".");
-        }
+    sb.append(
+        String.format(
+            "Field length: %f, height: %f\n",
+            FieldObstructionMap.FIELD_LENGTH, FieldObstructionMap.FIELD_HEIGHT));
+    sb.append(String.format("xMax: %d, yMax: %d, Step Size: %f\n", xMax, yMax, stepSize));
+    for (int y = yMax - 1; y >= 0; y--) {
+      for (int x = 0; x < xMax; x++) {
+        sb.append(obstructionMap[x][y] ? "#" : ".");
       }
       sb.append("\n");
     }
