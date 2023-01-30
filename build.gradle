@@ -75,6 +75,18 @@ dependencies {
 
     testImplementation "org.mockito:mockito-core:3.+"
     testImplementation 'org.mockito:mockito-junit-jupiter:4.3.1'
+
+    // snapshot testing!
+    testImplementation 'io.github.origin-energy:java-snapshot-testing-junit5:4.+'
+
+    // java-snapshot-testing json serialization
+    testImplementation 'io.github.origin-energy:java-snapshot-testing-plugin-jackson:4.+'
+    testImplementation 'com.fasterxml.jackson.core:jackson-core:2.11.3'
+    testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.11.3'
+
+    // java-snapshot-testing optional support
+    testRuntimeOnly 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.11.3'
+    testRuntimeOnly 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.3'
 }
 
 // Simulation configuration (e.g. environment variables).

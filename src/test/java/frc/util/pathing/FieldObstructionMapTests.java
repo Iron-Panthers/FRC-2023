@@ -1,9 +1,15 @@
 package frc.util.pathing;
 
+import au.com.origin.snapshots.Expect;
+import au.com.origin.snapshots.junit5.SnapshotExtension;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.UtilTest;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith({SnapshotExtension.class})
 public class FieldObstructionMapTests {
+
+  private Expect expect;
 
   @UtilTest
   public void obstructionMapMatchesString() {
@@ -26,11 +32,11 @@ public class FieldObstructionMapTests {
     StringBuilder sb = new StringBuilder();
     for (int x = 0; x < xMax; x++) {
       for (int y = 0; y < yMax; y++) {
-        sb.append(obstructionMap[x + (y * xMax)] ? "██" : "  ");
+        sb.append(obstructionMap[x + (y * xMax)] ? "#" : ".");
       }
       sb.append("\n");
     }
 
-    // System.out.println(sb.toString());
+    expect.toMatchSnapshot(sb.toString());
   }
 }
