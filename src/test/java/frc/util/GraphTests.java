@@ -54,13 +54,13 @@ public class GraphTests {
     assertThrows(
         UnsupportedOperationException.class,
         () -> {
-          graph.getNeighbors(Nodes.A).add(Nodes.D);
+          graph.getNeighbors(Nodes.A).get().add(Nodes.D);
         });
 
     assertThrows(
         UnsupportedOperationException.class,
         () -> {
-          graph.getNeighbors(Nodes.A).remove(Nodes.B);
+          graph.getNeighbors(Nodes.A).get().remove(Nodes.B);
         });
   }
 
@@ -192,9 +192,13 @@ public class GraphTests {
         () -> graph.getEdgeWeight(Nodes.D, Nodes.E),
         "Strict graph does not throw on missing node D in getEdgeWeight D->E");
 
-    assertThrows(
-        IllegalArgumentException.class,
+    assertDoesNotThrow(
         () -> graph.getNeighbors(Nodes.D),
-        "Strict graph does not throw on missing node D in getNeighbors D");
+        "Strict graph throws on missing node D in getNeighbors D");
+
+    assertEquals(
+        Optional.empty(),
+        graph.getNeighbors(Nodes.D),
+        "Strict graph does not return empty neighbors for missing node D");
   }
 }

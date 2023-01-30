@@ -171,7 +171,10 @@ public class GraphPathfinder {
         return Optional.of(reconstructPath(cameFrom, current));
       }
 
-      for (Translation2d neighbor : graph.getNeighbors(current)) {
+      var neighbors = graph.getNullableNeighbors(current);
+      if (neighbors == null) continue;
+
+      for (Translation2d neighbor : neighbors) {
         double tentativeGScore = gScore.get(current) + current.getDistance(neighbor);
 
         if (tentativeGScore < gScore.getOrDefault(neighbor, Double.POSITIVE_INFINITY)) {

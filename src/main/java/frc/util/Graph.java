@@ -130,13 +130,27 @@ public class Graph<T> {
   }
 
   /**
+   * Gets the neighbors of a node without the overhead of creating an Optional. This method only
+   * belongs in hot code loops. You probably don't care about the overhead of an Optional, and
+   * should use {@link #getNeighbors(T, T)}. Be careful.
+   *
+   * @param node the node to get the neighbors of
+   * @return the neighbors of the node, or an null if the node does not exist
+   */
+  public Set<T> getNullableNeighbors(T node) {
+    return hasNode(node) ? view(internalBiHashMap.get(node).keySet()) : null;
+  }
+
+  /**
    * Gets the neighbors of a node.
    *
    * @param node the node to get the neighbors of
-   * @return the neighbors of the node
+   * @return the neighbors of the node, or an empty set if the node does not exist
    */
-  public Set<T> getNeighbors(T node) {
-    return view(safeGet(node).keySet());
+  public Optional<Set<T>> getNeighbors(T node) {
+    return hasNode(node)
+        ? Optional.of(view(internalBiHashMap.get(node).keySet()))
+        : Optional.empty();
   }
 
   /**

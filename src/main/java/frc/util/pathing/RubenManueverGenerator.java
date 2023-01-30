@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class RubenManueverGenerator {
-  private final Graph<Translation2d> adjacencyGraph = Graph.strict();
+  private final Graph<Translation2d> adjacencyGraph = new Graph<>();
 
   private void addEdgeIfEndAccessible(Translation2d start, Translation2d end, double weight) {
     if (end.getX() >= 0
