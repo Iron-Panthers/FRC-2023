@@ -63,7 +63,12 @@ public class FieldObstructionMapTests {
     sb.append(String.format("xMax: %d, yMax: %d, Step Size: %f\n", xMax, yMax, stepSize));
     for (int y = yMax - 1; y >= 0; y--) {
       for (int x = 0; x < xMax; x++) {
-        sb.append(obstructionMap[x][y] ? "#" : ".");
+        // do pluses to show the center line
+        if (x == xMax / 2) {
+          sb.append("+");
+        } else {
+          sb.append(obstructionMap[x][y] ? "#" : ".");
+        }
       }
       sb.append("\n");
     }

@@ -81,13 +81,16 @@ public class FieldObstructionMap {
       Translation2d bottomLeft,
       Translation2d topRight) {
     obstructions.add(new RectangleObstruction(allianceColor, name, bottomLeft, topRight));
-    // mirror over the center line
+    // mirror over the center line. The final rect should have the same Y coords, but the X coords
+    // should be mirrored
+
+    // this is complected by using topRight and bottomLeft, so we have to do some math
 
     Translation2d mirroredBottomLeft =
-        new Translation2d(FIELD_CENTER_X + bottomLeft.getX(), bottomLeft.getY());
+        new Translation2d(FIELD_CENTER_X - (topRight.getX() - FIELD_CENTER_X), bottomLeft.getY());
 
     Translation2d mirroredTopRight =
-        new Translation2d(FIELD_CENTER_X + topRight.getX(), topRight.getY());
+        new Translation2d(FIELD_CENTER_X - (bottomLeft.getX() - FIELD_CENTER_X), topRight.getY());
 
     obstructions.add(
         new RectangleObstruction(
