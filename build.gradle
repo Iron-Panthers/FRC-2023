@@ -87,6 +87,9 @@ dependencies {
     // java-snapshot-testing optional support
     testRuntimeOnly 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.11.3'
     testRuntimeOnly 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.3'
+
+    // logger!
+    testImplementation 'org.slf4j:slf4j-simple:2.0.6'
 }
 
 // Simulation configuration (e.g. environment variables).
