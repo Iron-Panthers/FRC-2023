@@ -69,7 +69,14 @@ public class RubenManueverGenerator {
         Math.round(point.getY() / Pathing.CELL_SIZE_METERS) * Pathing.CELL_SIZE_METERS);
   }
 
-  protected Optional<List<Translation2d>> findFullPath(Translation2d start, Translation2d end) {
+  /**
+   * Find the full set of translations on the cell grid that are between the start and end points.
+   *
+   * @param start The start point.
+   * @param end The end point.
+   * @return The list of translations between the start and end points.
+   */
+  public Optional<List<Translation2d>> findFullPath(Translation2d start, Translation2d end) {
     return GraphPathfinder.findPath(adjacencyGraph, start, end);
   }
 }
