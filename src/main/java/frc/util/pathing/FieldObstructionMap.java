@@ -99,8 +99,10 @@ public class FieldObstructionMap {
         obstructions,
         AllianceColor.BLUE,
         "Charge Station",
-        new Translation2d(2.9, 1.5),
-        new Translation2d(4.85, 4));
+        new Translation2d(2.919476, 1.508506),
+        // + 1.933575 in x (width)
+        // + 2.47015 in y (height)
+        new Translation2d(4.853051, 3.978656));
 
     // add the scoring grid
     addAndMirrorRectangleObstruction(
@@ -110,6 +112,7 @@ public class FieldObstructionMap {
         new Translation2d(0, 0),
         new Translation2d(1.4, 5.5));
 
+    // make the list immutable
     return Collections.unmodifiableList(obstructions);
   }
 
