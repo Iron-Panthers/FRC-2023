@@ -135,4 +135,13 @@ public class FieldObstructionMap {
 
   public static final List<Obstruction> obstructions =
       Collections.unmodifiableList(initializeObstructions());
+
+  public static boolean isInsideObstruction(Translation2d point) {
+    for (Obstruction obstruction : obstructions) {
+      if (obstruction.contains(point)) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
