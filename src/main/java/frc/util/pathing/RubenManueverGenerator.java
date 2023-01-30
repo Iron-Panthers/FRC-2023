@@ -46,7 +46,7 @@ public class RubenManueverGenerator {
           adjacencyGraph.addNode(start);
 
           // Add edges to adjacent nodes
-          for (Translation2d end : getOrthogonalTranslations(new Translation2d(xCoord, yCoord))) {
+          for (Translation2d end : getOrthogonalTranslations(start)) {
             addEdgeIfEndAccessible(start, end, Pathing.CELL_SIZE_METERS);
           }
 
