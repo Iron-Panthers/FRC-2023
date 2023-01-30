@@ -54,6 +54,8 @@ public final class Constants {
       public static final double TRACKWIDTH_METERS =
           .5207; // 20.5 inches (source: cad) converted to meters
       public static final double WHEELBASE_METERS = TRACKWIDTH_METERS; // robot is square
+
+      public static final double BUMPER_WIDTH_METERS = .851;
     }
 
     public static final class Modules {
