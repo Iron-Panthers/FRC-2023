@@ -10,10 +10,10 @@ import java.util.List;
 public class FieldObstructionMap {
   // copied from 2023 json -> "length": 16.54175, "width": 8.0137
   public static final double FIELD_LENGTH = 16.54175;
-  public static final double FIELD_WIDTH = 8.0137;
+  public static final double FIELD_HEIGHT = 8.0137;
 
   public static final double FIELD_CENTER_X = FIELD_LENGTH / 2d;
-  public static final double FIELD_CENTER_Y = FIELD_WIDTH / 2d;
+  public static final double FIELD_CENTER_Y = FIELD_HEIGHT / 2d;
 
   public enum AllianceColor {
     RED,
@@ -80,7 +80,7 @@ public class FieldObstructionMap {
       String name,
       Translation2d bottomLeft,
       Translation2d topRight) {
-    // obstructions.add(new RectangleObstruction(allianceColor, name, bottomLeft, topRight));
+    obstructions.add(new RectangleObstruction(allianceColor, name, bottomLeft, topRight));
     // mirror over the center line
 
     Translation2d mirroredBottomLeft =
@@ -109,30 +109,30 @@ public class FieldObstructionMap {
         // + 2.47015 in y (height)
         new Translation2d(4.853051, 3.978656));
 
-    // // add the scoring grid
-    // addAndMirrorRectangleObstruction(
-    //     obstructions,
-    //     AllianceColor.BLUE,
-    //     "Scoring Grid",
-    //     new Translation2d(0, 0),
-    //     new Translation2d(1.37795, 5.6388));
+    // add the scoring grid
+    addAndMirrorRectangleObstruction(
+        obstructions,
+        AllianceColor.BLUE,
+        "Scoring Grid",
+        new Translation2d(0, 0),
+        new Translation2d(1.37795, 5.6388));
 
-    // // add the barrier (eyeballed, and inaccurately thin to allow for scoring)
-    // // if your graph is less than .1m per tile, you'll need to make this thicker
-    // addAndMirrorRectangleObstruction(
-    //     obstructions,
-    //     AllianceColor.RED,
-    //     "Barrier",
-    //     new Translation2d(1.17, 5.43),
-    //     new Translation2d(3.31, 5.53));
+    // add the barrier (eyeballed, and inaccurately thin to allow for scoring)
+    // if your graph is less than .1m per tile, you'll need to make this thicker
+    addAndMirrorRectangleObstruction(
+        obstructions,
+        AllianceColor.RED,
+        "Barrier",
+        new Translation2d(1.17, 5.43),
+        new Translation2d(3.31, 5.53));
 
-    // // add the double substation
-    // addAndMirrorRectangleObstruction(
-    //     obstructions,
-    //     AllianceColor.RED,
-    //     "Double Substation",
-    //     new Translation2d(0, 5.6388),
-    //     new Translation2d(0.3556, FIELD_WIDTH));
+    // add the double substation
+    addAndMirrorRectangleObstruction(
+        obstructions,
+        AllianceColor.RED,
+        "Double Substation",
+        new Translation2d(0, 5.6388),
+        new Translation2d(0.3556, FIELD_HEIGHT));
 
     // list is made immutable after calling function to satisfy sonarlint
     return obstructions;
