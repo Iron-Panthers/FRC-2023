@@ -1,6 +1,5 @@
 package frc.util.pathing;
 
-import edu.wpi.first.math.geometry.Translation2d;
 import frc.util.Graph;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -77,13 +76,13 @@ public class GraphPathfinder {
 
   private GraphPathfinder() {}
 
-  private static double heuristic(Translation2d a, Translation2d b) {
+  private static double heuristic(GridCoord a, GridCoord b) {
     return a.getDistance(b);
   }
 
-  private static List<Translation2d> reconstructPath(
-      HashMap<Translation2d, Translation2d> cameFrom, Translation2d current) {
-    List<Translation2d> totalPath = new ArrayList<>();
+  private static List<GridCoord> reconstructPath(
+      HashMap<GridCoord, GridCoord> cameFrom, GridCoord current) {
+    List<GridCoord> totalPath = new ArrayList<>();
     totalPath.add(current);
     while (cameFrom.containsKey(current)) {
       current = cameFrom.get(current);
@@ -93,11 +92,11 @@ public class GraphPathfinder {
   }
 
   private static class Node implements Comparable<Node> {
-    private final Translation2d translation2d;
+    private final GridCoord gridCoord;
     private final double fScore;
 
-    public Node(Translation2d translation2d, double fScore) {
-      this.translation2d = translation2d;
+    public Node(GridCoord gridCoord, double fScore) {
+      this.gridCoord = gridCoord;
       this.fScore = fScore;
     }
 
@@ -113,13 +112,13 @@ public class GraphPathfinder {
       if (!(other instanceof Node)) return false;
 
       Node otherNode = (Node) other;
-      return translation2d.equals(otherNode.translation2d);
+      return gridCoord.equals(otherNode.gridCoord);
     }
 
     @Override
     public int hashCode() {
       // this is evil but fine here
-      return translation2d.hashCode();
+      return gridCoord.hashCode();
     }
   }
 
@@ -131,8 +130,8 @@ public class GraphPathfinder {
    * @param end The end node.
    * @return The optimal path, or an empty optional if no path exists.
    */
-  public static Optional<List<Translation2d>> findPath(
-      Graph<Translation2d> graph, Translation2d start, Translation2d end) {
+  public static Optional<List<GridCoord>> findPath(
+      Graph<GridCoord> graph, GridCoord start, GridCoord end) {
 
     if (!graph.hasNode(start) || !graph.hasNode(end)) {
       return Optional.empty();
@@ -148,24 +147,24 @@ public class GraphPathfinder {
      * For node n, cameFrom[n] is the node immediately preceding it on the cheapest path from start
      * to n currently known.
      */
-    HashMap<Translation2d, Translation2d> cameFrom = new HashMap<>();
+    HashMap<GridCoord, GridCoord> cameFrom = new HashMap<>();
 
     /** For node n, gScore[n] is the cost of the cheapest path from start to n currently known. */
-    HashMap<Translation2d, Double> gScore = new HashMap<>();
+    HashMap<GridCoord, Double> gScore = new HashMap<>();
     gScore.put(start, 0d);
 
     /**
      * For node n, fScore[n] := gScore[n] + h(n). fScore[n] represents our current best guess as to
      * how cheap a path could be from start to finish if it goes through n.
      */
-    HashMap<Translation2d, Double> fScore = new HashMap<>();
+    HashMap<GridCoord, Double> fScore = new HashMap<>();
     fScore.put(start, heuristic(start, end));
 
     openSet.add(new Node(start, fScore.get(start)));
 
     while (!openSet.isEmpty()) {
       Node currentNode = openSet.poll();
-      Translation2d current = currentNode.translation2d;
+      GridCoord current = currentNode.gridCoord;
 
       if (current.equals(end)) {
         return Optional.of(reconstructPath(cameFrom, current));
@@ -174,7 +173,7 @@ public class GraphPathfinder {
       var neighbors = graph.getNullableNeighbors(current);
       if (neighbors == null) continue;
 
-      for (Translation2d neighbor : neighbors) {
+      for (GridCoord neighbor : neighbors) {
         double tentativeGScore = gScore.get(current) + current.getDistance(neighbor);
 
         if (tentativeGScore < gScore.getOrDefault(neighbor, Double.POSITIVE_INFINITY)) {

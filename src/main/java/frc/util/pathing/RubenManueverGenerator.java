@@ -7,25 +7,25 @@ import java.util.List;
 import java.util.Optional;
 
 public class RubenManueverGenerator {
-  private final Graph<Translation2d> adjacencyGraph = new Graph<>();
+  private final Graph<GridCoord> adjacencyGraph = new Graph<>();
 
-  private void addEdgeIfEndAccessible(Translation2d start, Translation2d end, double weight) {
-    if (end.getX() >= 0
-        && end.getX() <= FieldObstructionMap.FIELD_LENGTH
-        && end.getY() >= 0
-        && end.getY() <= FieldObstructionMap.FIELD_HEIGHT
-        && !FieldObstructionMap.isInsideObstruction(end)) {
+  private void addEdgeIfEndAccessible(GridCoord start, GridCoord end, double weight) {
+    if (end.x >= 0
+        && end.x <= FieldObstructionMap.FIELD_LENGTH
+        && end.y >= 0
+        && end.y <= FieldObstructionMap.FIELD_HEIGHT
+        && !FieldObstructionMap.isInsideObstruction(end.toTranslation2d())) {
       adjacencyGraph.addEdge(start, end, weight);
       adjacencyGraph.addEdge(end, start, weight);
     }
   }
 
-  private Translation2d[] getOrthogonalTranslations(Translation2d start) {
-    return new Translation2d[] {
-      new Translation2d(start.getX() + Pathing.CELL_SIZE_METERS, start.getY()),
-      new Translation2d(start.getX() - Pathing.CELL_SIZE_METERS, start.getY()),
-      new Translation2d(start.getX(), start.getY() + Pathing.CELL_SIZE_METERS),
-      new Translation2d(start.getX(), start.getY() - Pathing.CELL_SIZE_METERS)
+  private GridCoord[] getOrthogonalTranslations(GridCoord start) {
+    return new GridCoord[] {
+      new GridCoord(start.x + 1, start.y),
+      new GridCoord(start.x - 1, start.y),
+      new GridCoord(start.x, start.y + 1),
+      new GridCoord(start.x, start.y - 1)
     };
   }
 
@@ -39,11 +39,9 @@ public class RubenManueverGenerator {
 
     for (int x = 0; x < xMax; x++) {
       for (int y = 0; y < yMax; y++) {
-        final double xCoord = x * Pathing.CELL_SIZE_METERS;
-        final double yCoord = y * Pathing.CELL_SIZE_METERS;
-        final Translation2d start = new Translation2d(xCoord, yCoord);
+        final GridCoord start = new GridCoord(x, y);
 
-        if (!FieldObstructionMap.isInsideObstruction(start)) {
+        if (!FieldObstructionMap.isInsideObstruction(start.toTranslation2d())) {
           adjacencyGraph.addNode(start);
         }
       }
@@ -51,14 +49,12 @@ public class RubenManueverGenerator {
 
     for (int x = 0; x < xMax; x++) {
       for (int y = 0; y < yMax; y++) {
-        final double xCoord = x * Pathing.CELL_SIZE_METERS;
-        final double yCoord = y * Pathing.CELL_SIZE_METERS;
-        final Translation2d start = new Translation2d(xCoord, yCoord);
+        final GridCoord start = new GridCoord(x, y);
 
-        if (!FieldObstructionMap.isInsideObstruction(start)) {
+        if (!FieldObstructionMap.isInsideObstruction(start.toTranslation2d())) {
 
           // Add edges to adjacent nodes
-          for (Translation2d end : getOrthogonalTranslations(start)) {
+          for (GridCoord end : getOrthogonalTranslations(start)) {
             addEdgeIfEndAccessible(start, end, Pathing.CELL_SIZE_METERS);
           }
 
@@ -82,13 +78,13 @@ public class RubenManueverGenerator {
   }
 
   /**
-   * Find the full set of translations on the cell grid that are between the start and end points.
+   * Find the full set of grid coords on the cell grid that are between the start and end points.
    *
    * @param start The start point.
    * @param end The end point.
-   * @return The list of translations between the start and end points.
+   * @return The list of grid coords between the start and end points.
    */
-  public Optional<List<Translation2d>> findFullPath(Translation2d start, Translation2d end) {
+  public Optional<List<GridCoord>> findFullPath(GridCoord start, GridCoord end) {
     return GraphPathfinder.findPath(adjacencyGraph, start, end);
   }
 }

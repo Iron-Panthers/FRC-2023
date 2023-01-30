@@ -115,8 +115,8 @@ public class RubenManueverGeneratorTests {
 
     var path =
         rubenManueverGenerator.findFullPath(
-            RubenManueverGenerator.getClosestPoint(start),
-            RubenManueverGenerator.getClosestPoint(end));
+            new GridCoord(RubenManueverGenerator.getClosestPoint(start)),
+            new GridCoord(RubenManueverGenerator.getClosestPoint(end)));
 
     expect
         .scenario(String.format("%s -> %s", start.toString(), end.toString()))
