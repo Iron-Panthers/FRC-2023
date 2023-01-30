@@ -36,8 +36,8 @@ public class RubenManueverGeneratorTests {
 
   public static Stream<Arguments> findFullPathMatchesSnapshotProvider() {
     return Stream.of(
-        Arguments.of(coord(15.4, 7.4), coord(15.4, 7.5))
-
+        Arguments.of(coord(15.4, 7.4), coord(15.4, 7.5)),
+        Arguments.of(coord(15.4, 7.5), coord(15.4, 7.7))
         // load bearing comment (hold the final brace)
         );
   }

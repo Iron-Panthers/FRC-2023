@@ -30,6 +30,10 @@ public class GraphPathfinderTests {
     assertEquals(
         Optional.of(List.of(coord(0, 0), coord(1, 0), coord(2, 0), coord(3, 0))),
         GraphPathfinder.findPath(graph, coord(0, 0), coord(3, 0)));
+
+    assertEquals(
+        Optional.of(List.of(coord(0, 0), coord(1, 0), coord(2, 0), coord(3, 0))),
+        GraphPathfinder.findPath(graph, coord(0, 0), coord(3, 0)));
   }
 
   @UtilTest

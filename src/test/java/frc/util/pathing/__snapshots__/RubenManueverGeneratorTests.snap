@@ -1,3 +1,8 @@
 frc.util.pathing.RubenManueverGeneratorTests.findFullPathMatchesSnapshot[Translation2d(X: 15.40, Y: 7.40) -> Translation2d(X: 15.40, Y: 7.50)]=[
 Optional[[Translation2d(X: 15.40, Y: 7.40), Translation2d(X: 15.40, Y: 7.50)]]
 ]
+
+
+frc.util.pathing.RubenManueverGeneratorTests.findFullPathMatchesSnapshot[Translation2d(X: 15.40, Y: 7.50) -> Translation2d(X: 15.40, Y: 7.70)]=[
+Optional.empty
+]
