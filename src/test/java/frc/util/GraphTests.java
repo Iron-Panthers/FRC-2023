@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import frc.UtilTest;
-import java.util.Optional;
 
 public class GraphTests {
 
@@ -129,7 +128,7 @@ public class GraphTests {
   }
 
   @UtilTest
-  public void graphDoesNotThrowOnMissingNodes() {
+  public void graphThrowsOnMissingNodes() {
     Graph<Nodes> graph = new Graph<Nodes>();
     graph.addNode(Nodes.A);
     graph.addNode(Nodes.B);
@@ -149,35 +148,32 @@ public class GraphTests {
         () -> graph.hasEdge(Nodes.D, Nodes.E), "Graph throws on missing node D in hasEdge D->E");
     assertFalse(graph.hasEdge(Nodes.D, Nodes.E), "Graph contains edge D -> E");
 
-    assertDoesNotThrow(
+    assertThrows(
+        IllegalArgumentException.class,
         () -> graph.getEdgeWeight(Nodes.A, Nodes.D),
         "Graph throws on missing node D in getEdgeWeight A->D");
-    assertEquals(
-        Optional.empty(), graph.getEdgeWeight(Nodes.A, Nodes.D), "Edge A->D has incorrect weight");
-    assertDoesNotThrow(
+
+    assertThrows(
+        IllegalArgumentException.class,
         () -> graph.getEdgeWeight(Nodes.D, Nodes.A),
         "Graph throws on missing node D in getEdgeWeight D->A");
-    assertEquals(
-        Optional.empty(), graph.getEdgeWeight(Nodes.D, Nodes.A), "Edge D->A has incorrect weight");
-    assertDoesNotThrow(
+
+    assertThrows(
+        IllegalArgumentException.class,
         () -> graph.getEdgeWeight(Nodes.D, Nodes.E),
         "Graph throws on missing node D in getEdgeWeight D->E");
-    assertEquals(
-        Optional.empty(), graph.getEdgeWeight(Nodes.D, Nodes.E), "Edge D->E has incorrect weight");
 
-    assertDoesNotThrow(
-        () -> graph.getNeighbors(Nodes.D), "Graph throws on missing node D in getNeighbors D");
-    assertEquals(Optional.empty(), graph.getNeighbors(Nodes.D), "Neighbors of D are incorrect");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> graph.getNeighbors(Nodes.D),
+        "Graph throws on missing node D in getNeighbors D");
 
-    assertDoesNotThrow(
+    assertThrows(
+        IllegalArgumentException.class,
         () -> graph.addEdge(Nodes.A, Nodes.D, 1.0),
         "Graph throws on missing node D in addEdge A->D");
     assertFalse(graph.hasEdge(Nodes.A, Nodes.D), "Graph contains edge A -> D");
 
-    assertEquals(
-        Optional.empty(),
-        graph.getEdgeWeight(Nodes.A, Nodes.D),
-        "Edge A->D has incorrect weight or was implicitly added");
     assertFalse(graph.hasEdge(Nodes.A, Nodes.D), "Graph does not contain edge A -> D");
   }
 
@@ -239,13 +235,10 @@ public class GraphTests {
     assertTrue(graph.hasEdge(Nodes.A, Nodes.C), "Graph does not contain edge A -> C");
     assertTrue(graph.hasEdge(Nodes.B, Nodes.C), "Graph does not contain edge B -> C");
 
-    assertEquals(
-        Optional.of(1.0), graph.getEdgeWeight(Nodes.A, Nodes.B), "Edge A->B has incorrect weight");
+    assertEquals(1d, graph.getEdgeWeight(Nodes.A, Nodes.B), "Edge A->B has incorrect weight");
 
-    assertEquals(
-        Optional.of(2.0), graph.getEdgeWeight(Nodes.A, Nodes.C), "Edge A->C has incorrect weight");
+    assertEquals(2d, graph.getEdgeWeight(Nodes.A, Nodes.C), "Edge A->C has incorrect weight");
 
-    assertEquals(
-        Optional.of(3.0), graph.getEdgeWeight(Nodes.B, Nodes.C), "Edge B->C has incorrect weight");
+    assertEquals(3d, graph.getEdgeWeight(Nodes.B, Nodes.C), "Edge B->C has incorrect weight");
   }
 }

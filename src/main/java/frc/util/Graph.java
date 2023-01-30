@@ -55,6 +55,8 @@ public class Graph<T> {
   }
 
   private void assertEdgeDoesNotExist(T from, T to) {
+    assertNodeExists(from);
+    assertNodeExists(to);
     if (internalBiHashMap.get(from).containsKey(to)) {
       throw new IllegalArgumentException(
           "Edge already exists " + from.toString() + " -> " + to.toString());
