@@ -55,7 +55,11 @@ public class RubenManueverGeneratorTests {
     try {
       Field field = RubenManueverGenerator.class.getDeclaredField("adjacencyGraph");
       field.setAccessible(true);
-      optAdjacencyGraph = Optional.of((Graph<Translation2d>) field.get(rubenManueverGenerator));
+
+      optAdjacencyGraph =
+          field.get(rubenManueverGenerator) instanceof Graph<?>
+              ? Optional.of((Graph<Translation2d>) field.get(rubenManueverGenerator))
+              : Optional.empty();
     } catch (NoSuchFieldException | IllegalAccessException e) {
       e.printStackTrace();
     }
