@@ -150,24 +150,4 @@ public class Graph<T> {
   public boolean hasEdge(T from, T to) {
     return safeGet(from).containsKey(to);
   }
-
-  public String[] visualize() {
-    String[] lines = new String[internalBiHashMap.size() + 1];
-    lines[0] = "digraph G {";
-    int i = 1;
-    for (T node : internalBiHashMap.keySet()) {
-      for (T neighbor : internalBiHashMap.get(node).keySet()) {
-        lines[i++] =
-            "  "
-                + node
-                + " -> "
-                + neighbor
-                + " [label=\""
-                + internalBiHashMap.get(node).get(neighbor)
-                + "\"];";
-      }
-    }
-    lines[lines.length - 1] = "}";
-    return lines;
-  }
 }
