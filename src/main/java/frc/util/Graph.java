@@ -99,12 +99,14 @@ public class Graph<T> {
    */
   public void addEdge(T from, T to, double weight) {
     safeGet(from).put(to, weight);
+    // if the "to" node doesn't exist, it will be implicitly created here
+    safeGet(to);
   }
 
   /**
    * Gets the weight of an edge without the overhead of creating an Optional. This method only
    * belongs in hot code loops. You probably don't care about the overhead of an Optional, and
-   * should use {@link #getEdgeWeight(T, T)} . Be careful.
+   * should use {@link #getEdgeWeight(T, T)}. Be careful.
    *
    * @param from the node the edge is from
    * @param to the node the edge is to

@@ -56,7 +56,20 @@ public class RubenManueverGenerator {
     }
   }
 
-  public Optional<List<Translation2d>> findPath(Translation2d start, Translation2d end) {
+  /**
+   * Find the translation2d that is on the cell grid, by rounding the x and y coordinates to the
+   * nearest cell size.
+   *
+   * @param point The point to round to the nearest cell.
+   * @return The rounded point.
+   */
+  public Translation2d getClosestPoint(Translation2d point) {
+    return new Translation2d(
+        Math.round(point.getX() / Pathing.CELL_SIZE_METERS) * Pathing.CELL_SIZE_METERS,
+        Math.round(point.getY() / Pathing.CELL_SIZE_METERS) * Pathing.CELL_SIZE_METERS);
+  }
+
+  protected Optional<List<Translation2d>> findFullPath(Translation2d start, Translation2d end) {
     return GraphPathfinder.findPath(adjacencyGraph, start, end);
   }
 }

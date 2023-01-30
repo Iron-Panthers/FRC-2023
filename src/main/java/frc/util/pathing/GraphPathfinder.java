@@ -133,6 +133,11 @@ public class GraphPathfinder {
    */
   public static Optional<List<Translation2d>> findPath(
       Graph<Translation2d> graph, Translation2d start, Translation2d end) {
+
+    if (!graph.hasNode(start) || !graph.hasNode(end)) {
+      return Optional.empty();
+    }
+
     /**
      * The set of discovered nodes that may need to be (re-)expanded. Initially, only the start node
      * is known.
