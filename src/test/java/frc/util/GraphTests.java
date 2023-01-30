@@ -34,8 +34,11 @@ public class GraphTests {
     graph.addNode(Nodes.C);
 
     assertTrue(graph.getNodes().contains(Nodes.A), "Graph does not contain node A");
+    assertTrue(graph.hasNode(Nodes.A), "Graph does not have node A");
     assertTrue(graph.getNodes().contains(Nodes.B), "Graph does not contain node B");
+    assertTrue(graph.hasNode(Nodes.B), "Graph does not have node B");
     assertTrue(graph.getNodes().contains(Nodes.C), "Graph does not contain node C");
+    assertTrue(graph.hasNode(Nodes.C), "Graph does not have node C");
   }
 
   @UtilTest
@@ -127,78 +130,43 @@ public class GraphTests {
 
     assertDoesNotThrow(
         () -> graph.hasEdge(Nodes.A, Nodes.D), "Graph throws on missing node D in hasEdge A->D");
+    assertFalse(graph.hasEdge(Nodes.A, Nodes.D), "Graph contains edge A -> D");
     assertDoesNotThrow(
         () -> graph.hasEdge(Nodes.D, Nodes.A), "Graph throws on missing node D in hasEdge D->A");
+    assertFalse(graph.hasEdge(Nodes.D, Nodes.A), "Graph contains edge D -> A");
     assertDoesNotThrow(
         () -> graph.hasEdge(Nodes.D, Nodes.E), "Graph throws on missing node D in hasEdge D->E");
+    assertFalse(graph.hasEdge(Nodes.D, Nodes.E), "Graph contains edge D -> E");
 
     assertDoesNotThrow(
         () -> graph.getEdgeWeight(Nodes.A, Nodes.D),
         "Graph throws on missing node D in getEdgeWeight A->D");
+    assertEquals(
+        Optional.empty(), graph.getEdgeWeight(Nodes.A, Nodes.D), "Edge A->D has incorrect weight");
     assertDoesNotThrow(
         () -> graph.getEdgeWeight(Nodes.D, Nodes.A),
         "Graph throws on missing node D in getEdgeWeight D->A");
+    assertEquals(
+        Optional.empty(), graph.getEdgeWeight(Nodes.D, Nodes.A), "Edge D->A has incorrect weight");
     assertDoesNotThrow(
         () -> graph.getEdgeWeight(Nodes.D, Nodes.E),
         "Graph throws on missing node D in getEdgeWeight D->E");
+    assertEquals(
+        Optional.empty(), graph.getEdgeWeight(Nodes.D, Nodes.E), "Edge D->E has incorrect weight");
 
     assertDoesNotThrow(
         () -> graph.getNeighbors(Nodes.D), "Graph throws on missing node D in getNeighbors D");
+    assertEquals(Optional.empty(), graph.getNeighbors(Nodes.D), "Neighbors of D are incorrect");
 
     assertDoesNotThrow(
         () -> graph.addEdge(Nodes.A, Nodes.D, 1.0),
         "Graph throws on missing node D in addEdge A->D");
+    assertFalse(graph.hasEdge(Nodes.A, Nodes.D), "Graph contains edge A -> D");
 
     assertEquals(
         Optional.of(1.0),
         graph.getEdgeWeight(Nodes.A, Nodes.D),
         "Edge A->D has incorrect weight or wasn't implicitly added");
-  }
-
-  @UtilTest
-  public void graphThrowsOnImplicitWhenStrict() {
-    Graph<Nodes> graph = Graph.strict();
-    graph.addNode(Nodes.A);
-    graph.addNode(Nodes.B);
-    graph.addNode(Nodes.C);
-
-    graph.addEdge(Nodes.A, Nodes.B, 1.0);
-    graph.addEdge(Nodes.A, Nodes.C, 2.0);
-    graph.addEdge(Nodes.B, Nodes.C, 3.0);
-
-    assertDoesNotThrow(
-        () -> graph.hasEdge(Nodes.A, Nodes.D),
-        "Strict graph throws on missing node but not implicitly constructed D in hasEdge A->D");
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> graph.hasEdge(Nodes.D, Nodes.A),
-        "Strict graph does not throw on missing node D in hasEdge D->A");
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> graph.hasEdge(Nodes.D, Nodes.E),
-        "Strict graph does not throw on missing node D in hasEdge D->E");
-
-    assertDoesNotThrow(
-        () -> graph.getEdgeWeight(Nodes.A, Nodes.D),
-        "Strict graph throws on missing node but not implicitly constructed D in getEdgeWeight A->D");
-
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> graph.getEdgeWeight(Nodes.D, Nodes.A),
-        "Strict graph does not throw on missing node D in getEdgeWeight D->A");
-
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> graph.getEdgeWeight(Nodes.D, Nodes.E),
-        "Strict graph does not throw on missing node D in getEdgeWeight D->E");
-
-    assertDoesNotThrow(
-        () -> graph.getNeighbors(Nodes.D),
-        "Strict graph throws on missing node D in getNeighbors D");
-
-    assertEquals(
-        Optional.empty(),
-        graph.getNeighbors(Nodes.D),
-        "Strict graph does not return empty neighbors for missing node D");
+    assertTrue(graph.hasEdge(Nodes.A, Nodes.D), "Graph does not contain edge A -> D");
   }
 }

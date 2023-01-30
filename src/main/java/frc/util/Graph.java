@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * An asymmetric, weighted graph implementation, designed for high performance for path finding
@@ -14,49 +13,16 @@ import java.util.function.Consumer;
  * <p>There is not support for removing nodes or edges.
  */
 public class Graph<T> {
-  private final Map<T, Map<T, Double>> internalBiHashMap = new HashMap<>();
+  private Map<T, Map<T, Double>> internalBiHashMap = new HashMap<>();
 
-  private Consumer<T> implicitNodeKeyAddedCallback = k -> {};
-
-  /**
-   * Creates a new graph, with a function to be called when a node is added implicitly.
-   *
-   * @param implicitNodeKeyAddedCallback The function to be called when a node is added implicitly,
-   *     by being missing and the first param in an accessor or setter.
-   */
-  public Graph(Consumer<T> implicitNodeKeyAddedCallback) {
-    this.implicitNodeKeyAddedCallback = implicitNodeKeyAddedCallback;
-  }
-
-  /** Creates a new graph, that allows implicit node creation. */
+  /** Creates a new graph. */
   public Graph() {}
 
-  /**
-   * Creates a new graph, that allows implicit node creation, but prints to System.out.err when it
-   * happens.
-   *
-   * @param <T> The type of the node keys.
-   * @return A new graph, that allows implicit node creation, but prints to System.out.err when it
-   *     happens.
-   */
-  public static <T> Graph<T> warnOnImplicitNodeKeyAdded() {
-    return new Graph<>(k -> System.err.println("Implicitly added node key: " + k));
-  }
-
-  /**
-   * Creates a new graph, that throws an exception when a node is added implicitly--although it will
-   * still add it. This is useful for debugging and validating that your graph is behaving as you
-   * expect, although is likely unsuited for production robot code.
-   *
-   * @param <T> The type of the node keys.
-   * @return A new graph, that throws an IllegalArgumentException exception when a node is added
-   *     implicitly.
-   */
-  public static <T> Graph<T> strict() {
-    return new Graph<>(
-        k -> {
-          throw new IllegalArgumentException("Implicitly added node key: " + k);
-        });
+  /** lock the graph such that no more mutations can occur. */
+  public void lock() {
+    internalBiHashMap.forEach(
+        (key, value) -> internalBiHashMap.put(key, Collections.unmodifiableMap(value)));
+    internalBiHashMap = Collections.unmodifiableMap(internalBiHashMap);
   }
 
   /**
@@ -71,13 +37,8 @@ public class Graph<T> {
     return Collections.unmodifiableSet(set);
   }
 
-  private Map<T, Double> safeGet(T node) {
-    return internalBiHashMap.computeIfAbsent(
-        node,
-        k -> {
-          implicitNodeKeyAddedCallback.accept(k);
-          return new HashMap<>();
-        });
+  private Map<T, Double> getOrConstruct(T node) {
+    return internalBiHashMap.computeIfAbsent(node, k -> new HashMap<>());
   }
 
   /**
@@ -100,9 +61,9 @@ public class Graph<T> {
    * @param weight the weight of the edge
    */
   public void addEdge(T from, T to, double weight) {
-    safeGet(from).put(to, weight);
+    getOrConstruct(from).put(to, weight);
     // if the "to" node doesn't exist, it will be implicitly created here
-    safeGet(to);
+    getOrConstruct(to);
   }
 
   /**
@@ -115,7 +76,7 @@ public class Graph<T> {
    * @return the weight of the edge, or null if the edge does not exist
    */
   public double getNullableEdgeWeight(T from, T to) {
-    return safeGet(from).get(to);
+    return hasNode(from) ? internalBiHashMap.get(from).get(to) : null;
   }
 
   /**
@@ -126,7 +87,7 @@ public class Graph<T> {
    * @return the weight of the edge if it exists, otherwise empty
    */
   public Optional<Double> getEdgeWeight(T from, T to) {
-    return Optional.ofNullable(safeGet(from).get(to));
+    return Optional.ofNullable(getNullableEdgeWeight(from, to));
   }
 
   /**
@@ -148,9 +109,7 @@ public class Graph<T> {
    * @return the neighbors of the node, or an empty set if the node does not exist
    */
   public Optional<Set<T>> getNeighbors(T node) {
-    return hasNode(node)
-        ? Optional.of(view(internalBiHashMap.get(node).keySet()))
-        : Optional.empty();
+    return Optional.ofNullable(getNullableNeighbors(node));
   }
 
   /**
@@ -167,6 +126,6 @@ public class Graph<T> {
   }
 
   public boolean hasEdge(T from, T to) {
-    return safeGet(from).containsKey(to);
+    return hasNode(from) && internalBiHashMap.get(from).containsKey(to);
   }
 }

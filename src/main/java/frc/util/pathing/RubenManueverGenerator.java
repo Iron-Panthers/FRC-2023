@@ -62,6 +62,8 @@ public class RubenManueverGenerator {
         }
       }
     }
+
+    adjacencyGraph.lock();
   }
 
   /**
