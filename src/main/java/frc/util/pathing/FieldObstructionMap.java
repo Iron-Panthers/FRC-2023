@@ -121,6 +121,14 @@ public class FieldObstructionMap {
         new Translation2d(1.17, 5.43),
         new Translation2d(3.31, 5.53));
 
+    // add the double substation
+    addAndMirrorRectangleObstruction(
+        obstructions,
+        AllianceColor.RED,
+        "Double Substation",
+        new Translation2d(0, 5.6388),
+        new Translation2d(0.3556, FIELD_WIDTH));
+
     // make the list immutable
     return Collections.unmodifiableList(obstructions);
   }
