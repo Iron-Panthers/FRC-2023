@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.UtilTest;
+import frc.util.pathing.DisplayFieldArray.FieldSquare;
 import frc.util.pathing.FieldObstructionMap.RectangleObstruction;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -44,14 +45,16 @@ public class FieldObstructionMapTests {
     final int xMax = (int) Math.ceil(FieldObstructionMap.FIELD_LENGTH / stepSize);
     final int yMax = (int) Math.ceil(FieldObstructionMap.FIELD_HEIGHT / stepSize);
 
-    boolean[][] obstructionMap = new boolean[xMax][yMax];
+    FieldSquare[][] obstructionMap = new FieldSquare[xMax][yMax];
 
     for (int x = 0; x < xMax; x++) {
       for (int y = 0; y < yMax; y++) {
         final double xCoord = x * stepSize;
         final double yCoord = y * stepSize;
         obstructionMap[x][y] =
-            FieldObstructionMap.isInsideObstruction(new Translation2d(xCoord, yCoord));
+            FieldObstructionMap.isInsideObstruction(new Translation2d(xCoord, yCoord))
+                ? FieldSquare.OBSTRUCTION
+                : FieldSquare.EMPTY;
       }
     }
 
@@ -61,17 +64,8 @@ public class FieldObstructionMapTests {
             "Field length: %f, height: %f\n",
             FieldObstructionMap.FIELD_LENGTH, FieldObstructionMap.FIELD_HEIGHT));
     sb.append(String.format("xMax: %d, yMax: %d, Step Size: %f\n", xMax, yMax, stepSize));
-    for (int y = yMax - 1; y >= 0; y--) {
-      for (int x = 0; x < xMax; x++) {
-        // do pluses to show the center line
-        if (x == xMax / 2) {
-          sb.append("+");
-        } else {
-          sb.append(obstructionMap[x][y] ? "#" : ".");
-        }
-      }
-      sb.append("\n");
-    }
+
+    DisplayFieldArray.renderField(sb, obstructionMap);
 
     // add the list of obstructions
     sb.append("\n\n");
