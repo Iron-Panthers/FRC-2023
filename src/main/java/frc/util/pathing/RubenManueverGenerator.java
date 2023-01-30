@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class RubenManueverGenerator {
-  private final Graph<Translation2d> adjacencyGraph = new Graph<>();
+  private final Graph<Translation2d> adjacencyGraph = Graph.strict();
 
   private void addEdgeIfEndAccessible(Translation2d start, Translation2d end, double weight) {
     if (end.getX() >= 0
@@ -16,6 +16,7 @@ public class RubenManueverGenerator {
         && end.getY() <= FieldObstructionMap.FIELD_HEIGHT
         && !FieldObstructionMap.isInsideObstruction(end)) {
       adjacencyGraph.addEdge(start, end, weight);
+      adjacencyGraph.addEdge(end, start, weight);
     }
   }
 
@@ -44,6 +45,17 @@ public class RubenManueverGenerator {
 
         if (!FieldObstructionMap.isInsideObstruction(start)) {
           adjacencyGraph.addNode(start);
+        }
+      }
+    }
+
+    for (int x = 0; x < xMax; x++) {
+      for (int y = 0; y < yMax; y++) {
+        final double xCoord = x * Pathing.CELL_SIZE_METERS;
+        final double yCoord = y * Pathing.CELL_SIZE_METERS;
+        final Translation2d start = new Translation2d(xCoord, yCoord);
+
+        if (!FieldObstructionMap.isInsideObstruction(start)) {
 
           // Add edges to adjacent nodes
           for (Translation2d end : getOrthogonalTranslations(start)) {

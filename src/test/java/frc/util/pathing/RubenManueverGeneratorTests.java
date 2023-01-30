@@ -66,7 +66,14 @@ public class RubenManueverGeneratorTests {
 
     var adjacencyGraph = optAdjacencyGraph.get();
 
-    var coords = List.of(Pair.of(coord(5, 5), coord(5, 5 + Pathing.CELL_SIZE_METERS)));
+    var coords =
+        List.of(
+            Pair.of(coord(5, 5), coord(5, 5 + Pathing.CELL_SIZE_METERS)),
+            Pair.of(coord(5, 5), coord(5 + Pathing.CELL_SIZE_METERS, 5)),
+            Pair.of(coord(5, 5), coord(5, 5 - Pathing.CELL_SIZE_METERS)),
+            Pair.of(coord(5, 5), coord(5 - Pathing.CELL_SIZE_METERS, 5))
+            // brace holder for autoformatting
+            );
 
     for (var coord : coords) {
       assertTrue(
@@ -78,15 +85,16 @@ public class RubenManueverGeneratorTests {
       assertTrue(
           adjacencyGraph.getNeighbors(coord.getFirst()).contains(coord.getSecond()),
           String.format("coord %s should be linked to %s", coord.getFirst(), coord.getSecond()));
-      // assertTrue(
-      //     adjacencyGraph.getNeighbors(coord.getSecond()).contains(coord.getFirst()),
-      //     String.format("coord %s should be linked to %s", coord.getSecond(), coord.getFirst()));
+      assertTrue(
+          adjacencyGraph.getNeighbors(coord.getSecond()).contains(coord.getFirst()),
+          String.format(
+              "coord %s should be linked back to %s", coord.getSecond(), coord.getFirst()));
     }
   }
 
   public static Stream<Arguments> findFullPathMatchesSnapshotProvider() {
     return Stream.of(
-        Arguments.of(coord(5, 5), coord(6, 6))
+        Arguments.of(coord(5, 5), coord(5.1, 5))
         // load bearing comment (hold the final brace)
         );
   }
