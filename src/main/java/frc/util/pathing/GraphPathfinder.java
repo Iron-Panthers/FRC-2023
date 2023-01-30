@@ -75,6 +75,8 @@ function A_Star(start, goal, h)
 /** Optimal pathfinding using A* */
 public class GraphPathfinder {
 
+  private GraphPathfinder() {}
+
   private static double heuristic(Translation2d a, Translation2d b) {
     return a.getDistance(b);
   }
@@ -88,6 +90,37 @@ public class GraphPathfinder {
       totalPath.add(0, current);
     }
     return totalPath;
+  }
+
+  private static class Node implements Comparable<Node> {
+    private final Translation2d translation2d;
+    private final double fScore;
+
+    public Node(Translation2d translation2d, double fScore) {
+      this.translation2d = translation2d;
+      this.fScore = fScore;
+    }
+
+    @Override
+    public int compareTo(Node other) {
+      return Double.compare(fScore, other.fScore);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+      if (other == null) return false;
+      if (other == this) return true;
+      if (!(other instanceof Node)) return false;
+
+      Node otherNode = (Node) other;
+      return translation2d.equals(otherNode.translation2d);
+    }
+
+    @Override
+    public int hashCode() {
+      // this is evil but fine here
+      return translation2d.hashCode();
+    }
   }
 
   /**
@@ -104,7 +137,7 @@ public class GraphPathfinder {
      * The set of discovered nodes that may need to be (re-)expanded. Initially, only the start node
      * is known.
      */
-    PriorityQueue<Translation2d> openSet = new PriorityQueue<>(Collections.reverseOrder());
+    PriorityQueue<Node> openSet = new PriorityQueue<>(Collections.reverseOrder());
 
     /**
      * For node n, cameFrom[n] is the node immediately preceding it on the cheapest path from start
@@ -123,10 +156,11 @@ public class GraphPathfinder {
     HashMap<Translation2d, Double> fScore = new HashMap<>();
     fScore.put(start, heuristic(start, end));
 
-    openSet.add(start);
+    openSet.add(new Node(start, fScore.get(start)));
 
     while (!openSet.isEmpty()) {
-      Translation2d current = openSet.poll();
+      Node currentNode = openSet.poll();
+      Translation2d current = currentNode.translation2d;
 
       if (current.equals(end)) {
         return Optional.of(reconstructPath(cameFrom, current));
@@ -140,8 +174,10 @@ public class GraphPathfinder {
           gScore.put(neighbor, tentativeGScore);
           fScore.put(neighbor, tentativeGScore + heuristic(neighbor, end));
 
-          if (!openSet.contains(neighbor)) {
-            openSet.add(neighbor);
+          Node neighborNode = new Node(neighbor, fScore.get(neighbor));
+
+          if (!openSet.contains(neighborNode)) {
+            openSet.add(neighborNode);
           }
         }
       }
