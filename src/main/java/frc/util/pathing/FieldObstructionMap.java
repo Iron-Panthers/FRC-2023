@@ -129,9 +129,10 @@ public class FieldObstructionMap {
         new Translation2d(0, 5.6388),
         new Translation2d(0.3556, FIELD_WIDTH));
 
-    // make the list immutable
-    return Collections.unmodifiableList(obstructions);
+    // list is made immutable after calling function to satisfy sonarlint
+    return obstructions;
   }
 
-  public static final List<Obstruction> obstructions = initializeObstructions();
+  public static final List<Obstruction> obstructions =
+      Collections.unmodifiableList(initializeObstructions());
 }
