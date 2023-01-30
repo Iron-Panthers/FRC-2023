@@ -69,7 +69,7 @@ public class FieldObstructionMapTests {
     DisplayFieldArray.renderField(sb, obstructionMap);
 
     // add the list of obstructions
-    sb.append("\n\n");
+    sb.append("\n---\n\n");
     ObjectMapper mapper = new ObjectMapper();
     mapper.enable(SerializationFeature.INDENT_OUTPUT);
     for (FieldObstructionMap.Obstruction obstruction : FieldObstructionMap.obstructions) {
