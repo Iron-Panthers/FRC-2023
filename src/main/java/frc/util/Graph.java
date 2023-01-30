@@ -73,10 +73,13 @@ public class Graph<T> {
    *
    * @param from the node the edge is from
    * @param to the node the edge is to
-   * @return the weight of the edge, or null if the edge does not exist
+   * @return the weight of the edge, or {@link Double.NEGATIVE_INFINITY} if the edge does not exist
    */
-  public double getNullableEdgeWeight(T from, T to) {
-    return hasNode(from) ? internalBiHashMap.get(from).get(to) : null;
+  public double getNegInfEdgeWeight(T from, T to) {
+    if (!hasNode(from) || !hasNode(to)) return Double.NEGATIVE_INFINITY;
+    var nullableRes = internalBiHashMap.get(from).get(to);
+    if (nullableRes == null) return Double.NEGATIVE_INFINITY;
+    return nullableRes;
   }
 
   /**
@@ -87,7 +90,8 @@ public class Graph<T> {
    * @return the weight of the edge if it exists, otherwise empty
    */
   public Optional<Double> getEdgeWeight(T from, T to) {
-    return Optional.ofNullable(getNullableEdgeWeight(from, to));
+    var res = getNegInfEdgeWeight(from, to);
+    return res == Double.NEGATIVE_INFINITY ? Optional.empty() : Optional.of(res);
   }
 
   /**
