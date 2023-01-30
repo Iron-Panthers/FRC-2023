@@ -110,7 +110,7 @@ public class FieldObstructionMap {
         AllianceColor.BLUE,
         "Scoring Grid",
         new Translation2d(0, 0),
-        new Translation2d(1.4, 5.5));
+        new Translation2d(1.37795, 5.6388));
 
     // make the list immutable
     return Collections.unmodifiableList(obstructions);
