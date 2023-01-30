@@ -15,6 +15,23 @@ public class GraphPathfinderTests {
   @UtilTest
   public void pathfinderFindsBasicPath() {
     Graph<GridCoord> graph = new Graph<>();
+    graph.addNode(coord(0, 0));
+    graph.addNode(coord(1, 0));
+    graph.addNode(coord(2, 0));
+    graph.addNode(coord(3, 0));
+    graph.addNode(coord(4, 0));
+    graph.addNode(coord(5, 0));
+    graph.addNode(coord(0, 1));
+    graph.addNode(coord(0, 2));
+    graph.addNode(coord(0, 3));
+    graph.addNode(coord(0, 4));
+    graph.addNode(coord(0, 5));
+    graph.addNode(coord(1, 1));
+    graph.addNode(coord(2, 2));
+    graph.addNode(coord(3, 3));
+    graph.addNode(coord(4, 4));
+    graph.addNode(coord(5, 5));
+
     graph.addEdge(coord(0, 0), coord(1, 0), 1);
     graph.addEdge(coord(1, 0), coord(2, 0), 1);
     graph.addEdge(coord(2, 0), coord(3, 0), 1);
@@ -38,6 +55,23 @@ public class GraphPathfinderTests {
   @UtilTest
   public void pathfinderFindsCheaperEdgePath() {
     Graph<GridCoord> graph = new Graph<>();
+    graph.addNode(coord(0, 0));
+    graph.addNode(coord(1, 0));
+    graph.addNode(coord(2, 0));
+    graph.addNode(coord(3, 0));
+    graph.addNode(coord(4, 0));
+    graph.addNode(coord(5, 0));
+    graph.addNode(coord(0, 1));
+    graph.addNode(coord(0, 2));
+    graph.addNode(coord(0, 3));
+    graph.addNode(coord(0, 4));
+    graph.addNode(coord(0, 5));
+    graph.addNode(coord(1, 1));
+    graph.addNode(coord(2, 2));
+    graph.addNode(coord(3, 3));
+    graph.addNode(coord(4, 4));
+    graph.addNode(coord(5, 5));
+
     graph.addEdge(coord(0, 0), coord(1, 0), 1);
     graph.addEdge(coord(1, 0), coord(2, 0), 1);
     graph.addEdge(coord(2, 0), coord(3, 0), 1);
@@ -66,6 +100,23 @@ public class GraphPathfinderTests {
   @UtilTest
   public void pathfinderReturnsEmpty() {
     Graph<GridCoord> graph = new Graph<>();
+    graph.addNode(coord(0, 0));
+    graph.addNode(coord(1, 0));
+    graph.addNode(coord(2, 0));
+    graph.addNode(coord(3, 0));
+    graph.addNode(coord(4, 0));
+    graph.addNode(coord(5, 0));
+    graph.addNode(coord(0, 1));
+    graph.addNode(coord(0, 2));
+    graph.addNode(coord(0, 3));
+    graph.addNode(coord(0, 4));
+    graph.addNode(coord(0, 5));
+    graph.addNode(coord(1, 1));
+    graph.addNode(coord(2, 2));
+    graph.addNode(coord(3, 3));
+    graph.addNode(coord(4, 4));
+    graph.addNode(coord(5, 5));
+
     graph.addEdge(coord(0, 0), coord(1, 0), 1);
     graph.addEdge(coord(1, 0), coord(2, 0), 1);
     graph.addEdge(coord(2, 0), coord(3, 0), 1);
@@ -84,6 +135,24 @@ public class GraphPathfinderTests {
   @UtilTest
   public void pathfinderWorksWithWeightSmallerThanOne() {
     Graph<GridCoord> graph = new Graph<>();
+    // define the nodes
+    graph.addNode(coord(0, 0));
+    graph.addNode(coord(1, 0));
+    graph.addNode(coord(2, 0));
+    graph.addNode(coord(3, 0));
+    graph.addNode(coord(4, 0));
+    graph.addNode(coord(5, 0));
+    graph.addNode(coord(0, 1));
+    graph.addNode(coord(0, 2));
+    graph.addNode(coord(0, 3));
+    graph.addNode(coord(0, 4));
+    graph.addNode(coord(0, 5));
+    graph.addNode(coord(1, 1));
+    graph.addNode(coord(2, 2));
+    graph.addNode(coord(3, 3));
+    graph.addNode(coord(4, 4));
+    graph.addNode(coord(5, 5));
+
     graph.addEdge(coord(0, 0), coord(1, 0), .1);
     graph.addEdge(coord(1, 0), coord(2, 0), .1);
     graph.addEdge(coord(2, 0), coord(3, 0), .1);

@@ -61,9 +61,8 @@ public class Graph<T> {
    * @param weight the weight of the edge
    */
   public void addEdge(T from, T to, double weight) {
-    getOrConstruct(from).put(to, weight);
-    // if the "to" node doesn't exist, it will be implicitly created here
-    getOrConstruct(to);
+    if (!hasNode(from) || !hasNode(to)) return;
+    internalBiHashMap.get(from).put(to, weight);
   }
 
   /**

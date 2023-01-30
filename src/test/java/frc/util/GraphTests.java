@@ -188,9 +188,9 @@ public class GraphTests {
     assertFalse(graph.hasEdge(Nodes.A, Nodes.D), "Graph contains edge A -> D");
 
     assertEquals(
-        Optional.of(1.0),
+        Optional.empty(),
         graph.getEdgeWeight(Nodes.A, Nodes.D),
-        "Edge A->D has incorrect weight or wasn't implicitly added");
-    assertTrue(graph.hasEdge(Nodes.A, Nodes.D), "Graph does not contain edge A -> D");
+        "Edge A->D has incorrect weight or was implicitly added");
+    assertFalse(graph.hasEdge(Nodes.A, Nodes.D), "Graph does not contain edge A -> D");
   }
 }
