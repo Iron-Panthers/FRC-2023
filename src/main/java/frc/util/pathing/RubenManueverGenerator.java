@@ -3,6 +3,8 @@ package frc.util.pathing;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants.Pathing;
 import frc.util.Graph;
+import java.util.List;
+import java.util.Optional;
 
 public class RubenManueverGenerator {
   private final Graph<Translation2d> adjacencyGraph = Graph.warnOnImplicitNodeKeyAdded();
@@ -27,7 +29,7 @@ public class RubenManueverGenerator {
   }
 
   /**
-   * Finds the critical spline points to go from {@link Pose2d} start to {@link Pose2d} end.
+   * Tool to find the critical spline points to go from {@link Pose2d} start to {@link Pose2d} end.
    * Construct this only once to reuse its adjacencyGraph.
    */
   public RubenManueverGenerator() {
@@ -52,5 +54,9 @@ public class RubenManueverGenerator {
         }
       }
     }
+  }
+
+  public Optional<List<Translation2d>> findPath(Translation2d start, Translation2d end) {
+    return GraphPathfinder.findPath(adjacencyGraph, start, end);
   }
 }
