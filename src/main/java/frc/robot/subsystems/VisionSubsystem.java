@@ -9,7 +9,6 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -17,7 +16,6 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import frc.robot.Constants.PoseEstimator;
 import frc.robot.Constants.Vision;
-import frc.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -123,41 +121,5 @@ public class VisionSubsystem {
             currentTime
                 - ((resultSome.getSecond() + PoseEstimator.CAMERA_CAPTURE_LATENCY_FUDGE_MS)
                     / 1000)));
-  }
-
-  public Optional<Rotation2d> getRobotAngleToPointClosestCameraAtTargetAngle(
-      Rotation2d robotAngle) {
-    Optional<VisionSource> closest = Optional.empty();
-
-    for (var source : visionSources) {
-      if (!source.camera.isConnected()) continue;
-      var sourceAngle = source.robotToCam.getRotation().toRotation2d();
-      // System.out.println(
-      //     source.camera.getName()
-      //         + " "
-      //         + Math.abs(Util.relativeAngularDifference(sourceAngle, robotAngle)));
-      if (closest.isEmpty()
-          || (Math.abs(Util.relativeAngularDifference(sourceAngle, robotAngle))
-              < Math.abs(
-                  Util.relativeAngularDifference(
-                      closest.get().robotToCam.getRotation().toRotation2d(), robotAngle)))) {
-        // System.out.println(
-        //     String.format(
-        //         "Found new closest source: %s with degree distance %s",
-        //         source.camera.getName(), Util.relativeAngularDifference(sourceAngle,
-        // robotAngle)));
-        closest = Optional.of(source);
-      }
-    }
-
-    if (closest.isEmpty()) return Optional.empty();
-
-    // System.out.println("Using camera " + closest.get().camera.getName());
-
-    return Optional.of(
-        Rotation2d.fromDegrees(
-            Util.relativeAngularDifference(
-                    closest.get().robotToCam.getRotation().toRotation2d(), robotAngle)
-                * -1));
   }
 }
