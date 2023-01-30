@@ -15,6 +15,8 @@ import java.util.Set;
 public class Graph<T> {
   private Map<T, Map<T, Double>> internalBiHashMap = new HashMap<>();
 
+  private boolean locked = false;
+
   /** Creates a new graph. */
   public Graph() {}
 
@@ -23,6 +25,13 @@ public class Graph<T> {
     internalBiHashMap.forEach(
         (key, value) -> internalBiHashMap.put(key, Collections.unmodifiableMap(value)));
     internalBiHashMap = Collections.unmodifiableMap(internalBiHashMap);
+    locked = true;
+  }
+
+  private void checkLocked() {
+    if (locked) {
+      throw new UnsupportedOperationException("Graph is locked");
+    }
   }
 
   /**
@@ -37,10 +46,6 @@ public class Graph<T> {
     return Collections.unmodifiableSet(set);
   }
 
-  private Map<T, Double> getOrConstruct(T node) {
-    return internalBiHashMap.computeIfAbsent(node, k -> new HashMap<>());
-  }
-
   /**
    * Adds a node to the graph if it does not already exist. If the node already exists, this method
    * does nothing.
@@ -48,6 +53,7 @@ public class Graph<T> {
    * @param node the node to add
    */
   public void addNode(T node) {
+    checkLocked();
     if (!hasNode(node)) {
       internalBiHashMap.put(node, new HashMap<>());
     }
@@ -61,6 +67,7 @@ public class Graph<T> {
    * @param weight the weight of the edge
    */
   public void addEdge(T from, T to, double weight) {
+    checkLocked();
     if (!hasNode(from) || !hasNode(to)) return;
     internalBiHashMap.get(from).put(to, weight);
   }

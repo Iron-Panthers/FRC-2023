@@ -193,4 +193,72 @@ public class GraphTests {
         "Edge A->D has incorrect weight or was implicitly added");
     assertFalse(graph.hasEdge(Nodes.A, Nodes.D), "Graph does not contain edge A -> D");
   }
+
+  @UtilTest
+  public void lockingGraphPreventsModificationAndThrowsErrors() {
+    Graph<Nodes> graph = new Graph<Nodes>();
+    graph.addNode(Nodes.A);
+    graph.addNode(Nodes.B);
+    graph.addNode(Nodes.C);
+
+    graph.addEdge(Nodes.A, Nodes.B, 1.0);
+    graph.addEdge(Nodes.A, Nodes.C, 2.0);
+    graph.addEdge(Nodes.B, Nodes.C, 3.0);
+
+    graph.lock();
+
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> graph.addNode(Nodes.D),
+        "Graph does not throw on addNode after locking");
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> graph.addEdge(Nodes.A, Nodes.D, 1.0),
+        "Graph does not throw on addEdge after locking");
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> graph.addEdge(Nodes.D, Nodes.A, 1.0),
+        "Graph does not throw on addEdge after locking");
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> graph.addEdge(Nodes.D, Nodes.E, 1.0),
+        "Graph does not throw on addEdge after locking");
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> graph.addEdge(Nodes.A, Nodes.B, 1.0),
+        "Graph does not throw on addEdge after locking");
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> graph.addEdge(Nodes.B, Nodes.A, 1.0),
+        "Graph does not throw on addEdge after locking");
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> graph.addEdge(Nodes.B, Nodes.C, 1.0),
+        "Graph does not throw on addEdge after locking");
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> graph.addEdge(Nodes.C, Nodes.B, 1.0),
+        "Graph does not throw on addEdge after locking");
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> graph.addEdge(Nodes.C, Nodes.A, 1.0),
+        "Graph does not throw on addEdge after locking");
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> graph.addEdge(Nodes.A, Nodes.C, 1.0),
+        "Graph does not throw on addEdge after locking");
+
+    assertTrue(graph.hasEdge(Nodes.A, Nodes.B), "Graph does not contain edge A -> B");
+    assertTrue(graph.hasEdge(Nodes.A, Nodes.C), "Graph does not contain edge A -> C");
+    assertTrue(graph.hasEdge(Nodes.B, Nodes.C), "Graph does not contain edge B -> C");
+
+    assertEquals(
+        Optional.of(1.0), graph.getEdgeWeight(Nodes.A, Nodes.B), "Edge A->B has incorrect weight");
+
+    assertEquals(
+        Optional.of(2.0), graph.getEdgeWeight(Nodes.A, Nodes.C), "Edge A->C has incorrect weight");
+
+    assertEquals(
+        Optional.of(3.0), graph.getEdgeWeight(Nodes.B, Nodes.C), "Edge B->C has incorrect weight");
+  }
 }
