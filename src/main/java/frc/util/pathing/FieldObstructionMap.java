@@ -126,8 +126,8 @@ public class FieldObstructionMap {
         obstructions,
         AllianceColor.RED,
         "Barrier",
-        new Translation2d(1.17, 5.43),
-        new Translation2d(3.31, 5.53));
+        new Translation2d(1.17, 5.51),
+        new Translation2d(3.31, 5.61));
 
     // add the double substation
     addAndMirrorRectangleObstruction(
