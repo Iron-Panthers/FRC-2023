@@ -112,6 +112,15 @@ public class FieldObstructionMap {
         new Translation2d(0, 0),
         new Translation2d(1.37795, 5.6388));
 
+    // add the barrier (eyeballed, and inaccurately thin to allow for scoring)
+    // if your graph is less than .1m per tile, you'll need to make this thicker
+    addAndMirrorRectangleObstruction(
+        obstructions,
+        AllianceColor.RED,
+        "Barrier",
+        new Translation2d(1.17, 5.43),
+        new Translation2d(3.31, 5.53));
+
     // make the list immutable
     return Collections.unmodifiableList(obstructions);
   }
