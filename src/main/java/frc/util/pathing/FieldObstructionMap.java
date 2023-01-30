@@ -1,5 +1,6 @@
 package frc.util.pathing;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import edu.wpi.first.math.geometry.Translation2d;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,10 +30,10 @@ public class FieldObstructionMap {
   }
 
   public static class RectangleObstruction implements Obstruction {
-    private final AllianceColor allianceColor;
-    private final String name;
-    private final Translation2d bottomLeft;
-    private final Translation2d topRight;
+    @JsonProperty private final AllianceColor allianceColor;
+    @JsonProperty private final String name;
+    @JsonProperty private final Translation2d bottomLeft;
+    @JsonProperty private final Translation2d topRight;
 
     public RectangleObstruction(
         AllianceColor allianceColor,
@@ -79,14 +80,18 @@ public class FieldObstructionMap {
       String name,
       Translation2d bottomLeft,
       Translation2d topRight) {
-    obstructions.add(new RectangleObstruction(allianceColor, name, bottomLeft, topRight));
+    // obstructions.add(new RectangleObstruction(allianceColor, name, bottomLeft, topRight));
     // mirror over the center line
+
+    Translation2d mirroredBottomLeft =
+        new Translation2d(FIELD_CENTER_X + bottomLeft.getX(), bottomLeft.getY());
+
+    Translation2d mirroredTopRight =
+        new Translation2d(FIELD_CENTER_X + topRight.getX(), topRight.getY());
+
     obstructions.add(
         new RectangleObstruction(
-            invertAllianceColor(allianceColor),
-            name,
-            new Translation2d(FIELD_LENGTH - topRight.getX(), bottomLeft.getY()),
-            new Translation2d(FIELD_LENGTH - bottomLeft.getX(), topRight.getY())));
+            invertAllianceColor(allianceColor), name, mirroredBottomLeft, mirroredTopRight));
   }
 
   private static List<Obstruction> initializeObstructions() {
@@ -104,30 +109,30 @@ public class FieldObstructionMap {
         // + 2.47015 in y (height)
         new Translation2d(4.853051, 3.978656));
 
-    // add the scoring grid
-    addAndMirrorRectangleObstruction(
-        obstructions,
-        AllianceColor.BLUE,
-        "Scoring Grid",
-        new Translation2d(0, 0),
-        new Translation2d(1.37795, 5.6388));
+    // // add the scoring grid
+    // addAndMirrorRectangleObstruction(
+    //     obstructions,
+    //     AllianceColor.BLUE,
+    //     "Scoring Grid",
+    //     new Translation2d(0, 0),
+    //     new Translation2d(1.37795, 5.6388));
 
-    // add the barrier (eyeballed, and inaccurately thin to allow for scoring)
-    // if your graph is less than .1m per tile, you'll need to make this thicker
-    addAndMirrorRectangleObstruction(
-        obstructions,
-        AllianceColor.RED,
-        "Barrier",
-        new Translation2d(1.17, 5.43),
-        new Translation2d(3.31, 5.53));
+    // // add the barrier (eyeballed, and inaccurately thin to allow for scoring)
+    // // if your graph is less than .1m per tile, you'll need to make this thicker
+    // addAndMirrorRectangleObstruction(
+    //     obstructions,
+    //     AllianceColor.RED,
+    //     "Barrier",
+    //     new Translation2d(1.17, 5.43),
+    //     new Translation2d(3.31, 5.53));
 
-    // add the double substation
-    addAndMirrorRectangleObstruction(
-        obstructions,
-        AllianceColor.RED,
-        "Double Substation",
-        new Translation2d(0, 5.6388),
-        new Translation2d(0.3556, FIELD_WIDTH));
+    // // add the double substation
+    // addAndMirrorRectangleObstruction(
+    //     obstructions,
+    //     AllianceColor.RED,
+    //     "Double Substation",
+    //     new Translation2d(0, 5.6388),
+    //     new Translation2d(0.3556, FIELD_WIDTH));
 
     // list is made immutable after calling function to satisfy sonarlint
     return obstructions;
