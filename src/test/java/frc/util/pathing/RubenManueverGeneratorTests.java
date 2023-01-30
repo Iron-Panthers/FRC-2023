@@ -68,10 +68,17 @@ public class RubenManueverGeneratorTests {
 
     var coords =
         List.of(
+            // basic cardinals
             Pair.of(coord(5, 5), coord(5, 5 + Pathing.CELL_SIZE_METERS)),
             Pair.of(coord(5, 5), coord(5 + Pathing.CELL_SIZE_METERS, 5)),
             Pair.of(coord(5, 5), coord(5, 5 - Pathing.CELL_SIZE_METERS)),
-            Pair.of(coord(5, 5), coord(5 - Pathing.CELL_SIZE_METERS, 5))
+            Pair.of(coord(5, 5), coord(5 - Pathing.CELL_SIZE_METERS, 5)),
+            // straight line connectivity
+            Pair.of(
+                coord(5 + Pathing.CELL_SIZE_METERS, 5), coord(5 + Pathing.CELL_SIZE_METERS * 2, 5))
+            // Pair.of(
+            //     coord(5 + Pathing.CELL_SIZE_METERS * 2, 5),
+            //     coord(5 + Pathing.CELL_SIZE_METERS * 3, 5))
             // brace holder for autoformatting
             );
 
@@ -94,7 +101,7 @@ public class RubenManueverGeneratorTests {
 
   public static Stream<Arguments> findFullPathMatchesSnapshotProvider() {
     return Stream.of(
-        Arguments.of(coord(5, 5), coord(5.1, 5))
+        Arguments.of(coord(5, 5), coord(5.1, 5)), Arguments.of(coord(5, 5), coord(5.2, 5))
         // load bearing comment (hold the final brace)
         );
   }
