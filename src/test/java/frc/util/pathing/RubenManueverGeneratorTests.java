@@ -252,7 +252,9 @@ public class RubenManueverGeneratorTests {
 
     var path = rubenManueverGenerator.findFullPath(start, end);
     var criticalPoints = RubenManueverGenerator.findCriticalPoints(path.get());
-    var pathPoints = RubenManueverGenerator.computePathPointsFromCriticalPoints(criticalPoints);
+    var neededCriticalPoints = RubenManueverGenerator.simplifyCriticalPoints(criticalPoints);
+    var pathPoints =
+        RubenManueverGenerator.computePathPointsFromCriticalPoints(neededCriticalPoints);
 
     for (var coord : path.get()) {
       fieldSquares[coord.x][coord.y] = FieldSquare.PATH;
@@ -268,7 +270,7 @@ public class RubenManueverGeneratorTests {
       fieldSquares[coord.x][coord.y] = FieldSquare.SPLINE;
     }
 
-    for (var coord : criticalPoints) {
+    for (var coord : neededCriticalPoints) {
       fieldSquares[coord.x][coord.y] = FieldSquare.CRITICAL_POINT;
     }
 
