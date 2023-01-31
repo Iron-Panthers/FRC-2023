@@ -90,16 +90,13 @@ public class RubenManueverGenerator {
   }
 
   public static boolean isCriticalPoint(GridCoord prev, GridCoord current, GridCoord next) {
+    return !(
     // if the previous and next point are on the same line horizontal or vertical
-    if ((prev.x == current.x && current.x == next.x)
-        || (prev.y == current.y && current.y == next.y)) return false;
-
-    // if the previous and next point are on the same line diagonal
-    if ((prev.x - current.x == prev.y - current.y && current.x - next.x == current.y - next.y)
-        || (prev.x - current.x == current.y - prev.y && current.x - next.x == next.y - current.y))
-      return false;
-
-    return true;
+    (prev.x == current.x && current.x == next.x)
+        || (prev.y == current.y && current.y == next.y)
+        // if the previous and next point are on the same line diagonal
+        || (prev.x - current.x == prev.y - current.y && current.x - next.x == current.y - next.y)
+        || (prev.x - current.x == current.y - prev.y && current.x - next.x == next.y - current.y));
   }
 
   /**
