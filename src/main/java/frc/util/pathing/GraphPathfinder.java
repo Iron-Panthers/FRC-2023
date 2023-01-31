@@ -1,12 +1,11 @@
 package frc.util.pathing;
 
 import frc.util.Graph;
+import frc.util.MinHeap;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.PriorityQueue;
 
 /*
 https://en.wikipedia.org/wiki/A*_search_algorithm
@@ -77,7 +76,7 @@ public class GraphPathfinder {
   private GraphPathfinder() {}
 
   private static double heuristic(GridCoord a, GridCoord b) {
-    return -a.getDistance(b);
+    return a.getDistance(b);
   }
 
   private static List<GridCoord> reconstructPath(
@@ -89,37 +88,6 @@ public class GraphPathfinder {
       totalPath.add(0, current);
     }
     return totalPath;
-  }
-
-  private static class Node implements Comparable<Node> {
-    private final GridCoord gridCoord;
-    private final double fScore;
-
-    public Node(GridCoord gridCoord, double fScore) {
-      this.gridCoord = gridCoord;
-      this.fScore = fScore;
-    }
-
-    @Override
-    public int compareTo(Node other) {
-      return Double.compare(fScore, other.fScore);
-    }
-
-    @Override
-    public boolean equals(Object other) {
-      if (other == null) return false;
-      if (other == this) return true;
-      if (!(other instanceof Node)) return false;
-
-      Node otherNode = (Node) other;
-      return gridCoord.equals(otherNode.gridCoord);
-    }
-
-    @Override
-    public int hashCode() {
-      // this is evil but fine here
-      return gridCoord.hashCode();
-    }
   }
 
   /**
@@ -141,7 +109,7 @@ public class GraphPathfinder {
      * The set of discovered nodes that may need to be (re-)expanded. Initially, only the start node
      * is known.
      */
-    PriorityQueue<Node> openSet = new PriorityQueue<>(Collections.reverseOrder());
+    MinHeap<GridCoord> openSet = new MinHeap<>();
 
     /**
      * For node n, cameFrom[n] is the node immediately preceding it on the cheapest path from start
@@ -160,11 +128,10 @@ public class GraphPathfinder {
     HashMap<GridCoord, Double> fScore = new HashMap<>();
     fScore.put(start, heuristic(start, end));
 
-    openSet.add(new Node(start, fScore.get(start)));
+    openSet.add(start, fScore.get(start));
 
     while (!openSet.isEmpty()) {
-      Node currentNode = openSet.poll();
-      GridCoord current = currentNode.gridCoord;
+      GridCoord current = openSet.getMin();
 
       if (current.equals(end)) {
         return Optional.of(reconstructPath(cameFrom, current));
@@ -176,12 +143,11 @@ public class GraphPathfinder {
         if (tentativeGScore < gScore.getOrDefault(neighbor, Double.POSITIVE_INFINITY)) {
           cameFrom.put(neighbor, current);
           gScore.put(neighbor, tentativeGScore);
-          fScore.put(neighbor, tentativeGScore + heuristic(neighbor, end));
+          double fScoreValue = tentativeGScore + heuristic(neighbor, end);
+          fScore.put(neighbor, fScoreValue);
 
-          Node neighborNode = new Node(neighbor, fScore.get(neighbor));
-
-          if (!openSet.contains(neighborNode)) {
-            openSet.add(neighborNode);
+          if (!openSet.contains(neighbor)) {
+            openSet.add(neighbor, fScoreValue);
           }
         }
       }

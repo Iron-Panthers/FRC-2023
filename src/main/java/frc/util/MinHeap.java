@@ -1,6 +1,5 @@
 package frc.util;
 
-import java.util.Objects;
 import java.util.PriorityQueue;
 
 public class MinHeap<T> {
@@ -10,6 +9,7 @@ public class MinHeap<T> {
     // nothing to do
   }
 
+  /** Note: this class has a natural ordering that is inconsistent with equals. */
   private static class Element<T> implements Comparable<Element<T>> {
     private T item;
     private double priority;
@@ -32,12 +32,13 @@ public class MinHeap<T> {
       if (!(other instanceof Element<?>)) return false;
 
       Element<T> otherElement = (Element<T>) other;
-      return priority == otherElement.priority && item.equals(otherElement.item);
+      return item.equals(otherElement.item);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(item, priority);
+      // dirty, evil, sinful hack
+      return item.hashCode();
     }
   }
 
@@ -51,6 +52,16 @@ public class MinHeap<T> {
 
   public T getMin() {
     return heap.poll().item;
+  }
+
+  /**
+   * Determine if the heap has an item. Priority is not considered.
+   *
+   * @param item The item to check for.
+   * @return True if the item is in the heap, false otherwise.
+   */
+  public boolean contains(T item) {
+    return heap.contains(new Element<>(item, 0));
   }
 
   public boolean isEmpty() {
