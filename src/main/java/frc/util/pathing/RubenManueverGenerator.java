@@ -1,5 +1,8 @@
 package frc.util.pathing;
 
+import com.pathplanner.lib.PathPoint;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants.Pathing;
 import frc.util.Graph;
 import java.util.ArrayList;
@@ -129,5 +132,46 @@ public class RubenManueverGenerator {
     }
 
     return criticalPoints;
+  }
+
+  private static Rotation2d straightLineAngle(Translation2d start, Translation2d end) {
+    double x1 = start.getX();
+    double y1 = start.getY();
+    double x2 = end.getX();
+    double y2 = end.getY();
+
+    double angle = Math.atan2(y2 - y1, x2 - x1);
+    return Rotation2d.fromRadians(angle);
+  }
+
+  public static List<PathPoint> computePathPointsFromCriticalPoints(
+      List<GridCoord> criticalPoints) {
+    List<PathPoint> pathPoints = new ArrayList<>();
+
+    pathPoints.add(
+        new PathPoint(
+            // the position of the point
+            criticalPoints.get(0).toTranslation2d(),
+            // the heading of the spline, pointing towards the next point
+            straightLineAngle(
+                criticalPoints.get(0).toTranslation2d(), criticalPoints.get(1).toTranslation2d()),
+            // the rotation of the robot
+            // FIXME: interpolate this
+            new Rotation2d()));
+
+    for (int i = 1; i < criticalPoints.size() - 1; i++) {
+      GridCoord prev = criticalPoints.get(i - 1);
+      GridCoord current = criticalPoints.get(i);
+      GridCoord next = criticalPoints.get(i + 1);
+
+      pathPoints.add(
+          new PathPoint(
+              current.toTranslation2d(),
+              // find the angle between the previous and next point to maintain smooth curvature
+              straightLineAngle(prev.toTranslation2d(), next.toTranslation2d()),
+              new Rotation2d()));
+    }
+
+    return pathPoints;
   }
 }
