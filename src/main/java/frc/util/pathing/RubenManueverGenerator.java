@@ -172,6 +172,14 @@ public class RubenManueverGenerator {
               new Rotation2d()));
     }
 
+    pathPoints.add(
+        new PathPoint(
+            criticalPoints.get(criticalPoints.size() - 1).toTranslation2d(),
+            straightLineAngle(
+                criticalPoints.get(criticalPoints.size() - 2).toTranslation2d(),
+                criticalPoints.get(criticalPoints.size() - 1).toTranslation2d()),
+            new Rotation2d()));
+
     return pathPoints;
   }
 }

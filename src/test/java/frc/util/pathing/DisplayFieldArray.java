@@ -7,7 +7,8 @@ public class DisplayFieldArray {
     PATH("▀▄"),
     START("SS"),
     END("EE"),
-    CRITICAL_POINT("<>");
+    CRITICAL_POINT("<>"),
+    SPLINE("~~");
 
     private final String display;
 

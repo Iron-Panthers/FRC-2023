@@ -7,7 +7,11 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import au.com.origin.snapshots.Expect;
 import au.com.origin.snapshots.junit5.SnapshotExtension;
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.UtilParamTest;
 import frc.UtilTest;
@@ -177,6 +181,80 @@ public class RubenManueverGeneratorTests {
 
     StringBuilder sb = new StringBuilder();
     DisplayFieldArray.renderField(sb, fieldSquares);
+
+    expect
+        .scenario(
+            String.format(
+                "%s -> %s len: %s",
+                start.toString(), end.toString(), path.map(List::size).orElse(-1)))
+        .toMatchSnapshot(sb.toString());
+  }
+
+  public static Stream<Arguments> computePathPointsForSplineProvider() {
+    return Stream.of(
+        Arguments.of(new GridCoord(50, 50), new GridCoord(50, 55)),
+        Arguments.of(new GridCoord(10, 62), new GridCoord(32, 10))
+        // load bearing comment (hold the final brace)
+        );
+  }
+
+  @UtilParamTest
+  @MethodSource("computePathPointsForSplineProvider")
+  public void computePathPointsForSplineMatchesSnapshot(GridCoord start, GridCoord end) {
+    RubenManueverGenerator rubenManueverGenerator = new RubenManueverGenerator();
+
+    FieldSquare[][] fieldSquares = placeObstructions();
+
+    var path = rubenManueverGenerator.findFullPath(start, end);
+    var criticalPoints = RubenManueverGenerator.findCriticalPoints(path.get());
+    var pathPoints = RubenManueverGenerator.computePathPointsFromCriticalPoints(criticalPoints);
+
+    for (var coord : path.get()) {
+      fieldSquares[coord.x][coord.y] = FieldSquare.PATH;
+    }
+
+    for (var coord : criticalPoints) {
+      fieldSquares[coord.x][coord.y] = FieldSquare.CRITICAL_POINT;
+    }
+
+    // build a spline
+    PathPlannerTrajectory trajectory =
+        PathPlanner.generatePath(new PathConstraints(3, 1), pathPoints);
+
+    // draw the spline
+    for (var states : trajectory.getStates()) {
+      var coord = new GridCoord(states.poseMeters.getTranslation());
+      fieldSquares[coord.x][coord.y] = FieldSquare.SPLINE;
+    }
+
+    // fieldSquares[start.x][start.y] = FieldSquare.START;
+    // fieldSquares[end.x][end.y] = FieldSquare.END;
+
+    StringBuilder sb = new StringBuilder();
+    DisplayFieldArray.renderField(sb, fieldSquares);
+
+    // write the pathpoints to the sb
+    for (var point : pathPoints) {
+      // use reflection to set the access and get the position, heading, and holonomic rotation
+      try {
+        Field positionField = point.getClass().getDeclaredField("position");
+        positionField.setAccessible(true);
+        Translation2d position = (Translation2d) positionField.get(point);
+
+        Field headingField = point.getClass().getDeclaredField("heading");
+        headingField.setAccessible(true);
+        Rotation2d heading = (Rotation2d) headingField.get(point);
+
+        Field holonomicRotationField = point.getClass().getDeclaredField("holonomicRotation");
+        holonomicRotationField.setAccessible(true);
+        Rotation2d holonomicRotation = (Rotation2d) holonomicRotationField.get(point);
+
+        sb.append(
+            String.format("pos:%s heading:%s rotation:%s\n", position, heading, holonomicRotation));
+      } catch (NoSuchFieldException | IllegalAccessException e) {
+        sb.append("error getting field\n");
+      }
+    }
 
     expect
         .scenario(
