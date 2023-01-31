@@ -134,6 +134,45 @@ public class RubenManueverGenerator {
     return criticalPoints;
   }
 
+  /**
+   * Takes a list of critical points, and removes those that are less than a threshold from the line
+   * between their previous and next point. Will always keep the first and last point.
+   *
+   * @param criticalPoints
+   * @return The list of critical points with the unnecessary points removed.
+   */
+  public static List<GridCoord> simplifyCriticalPoints(List<GridCoord> criticalPoints) {
+    List<GridCoord> simplifiedCriticalPoints = new ArrayList<>();
+
+    if (criticalPoints.size() > 0) {
+      simplifiedCriticalPoints.add(criticalPoints.get(0));
+    }
+
+    for (int i = 1; i < criticalPoints.size() - 1; i++) {
+      GridCoord prev = criticalPoints.get(i - 1);
+      GridCoord current = criticalPoints.get(i);
+      GridCoord next = criticalPoints.get(i + 1);
+
+      // if the current point does not diverge far enough from the line between the previous and
+      // next
+      // point, then it is not an important critical point
+      if (Math.abs(
+              (next.y - prev.y) * current.x
+                  - (next.x - prev.x) * current.y
+                  + next.x * prev.y
+                  - next.y * prev.x)
+          > Pathing.CRITICAL_POINT_DIVERGENCE_THRESHOLD) {
+        simplifiedCriticalPoints.add(current);
+      }
+    }
+
+    if (criticalPoints.size() > 1) {
+      simplifiedCriticalPoints.add(criticalPoints.get(criticalPoints.size() - 1));
+    }
+
+    return simplifiedCriticalPoints;
+  }
+
   private static Rotation2d straightLineAngle(Translation2d start, Translation2d end) {
     double x1 = start.getX();
     double y1 = start.getY();

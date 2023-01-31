@@ -169,5 +169,7 @@ public final class Constants {
         (int) Math.ceil(FieldObstructionMap.FIELD_LENGTH / Pathing.CELL_SIZE_METERS);
     public static final int CELL_Y_MAX =
         (int) Math.ceil(FieldObstructionMap.FIELD_HEIGHT / Pathing.CELL_SIZE_METERS);
+
+    public static final double CRITICAL_POINT_DIVERGENCE_THRESHOLD = 2;
   }
 }

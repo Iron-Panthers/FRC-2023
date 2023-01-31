@@ -7,6 +7,7 @@ public class DisplayFieldArray {
     PATH("▀▄"),
     START("SS"),
     END("EE"),
+    REDUNDANT_CRITICAL_POINT("XX"),
     CRITICAL_POINT("<>"),
     SPLINE("~~");
 

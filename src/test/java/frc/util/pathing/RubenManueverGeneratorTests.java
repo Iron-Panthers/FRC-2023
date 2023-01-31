@@ -190,6 +190,51 @@ public class RubenManueverGeneratorTests {
         .toMatchSnapshot(sb.toString());
   }
 
+  public static Stream<Arguments> findRedundantCriticalPointsProvider() {
+    return Stream.of(
+        Arguments.of(new GridCoord(50, 50), new GridCoord(50, 55)),
+        Arguments.of(new GridCoord(10, 62), new GridCoord(32, 10))
+        // load bearing comment (hold the final brace)
+        );
+  }
+
+  @UtilParamTest
+  @MethodSource("findRedundantCriticalPointsProvider")
+  public void findRedundantCriticalPoints(GridCoord start, GridCoord end) {
+    RubenManueverGenerator rubenManueverGenerator = new RubenManueverGenerator();
+
+    FieldSquare[][] fieldSquares = placeObstructions();
+
+    var path = rubenManueverGenerator.findFullPath(start, end);
+    var criticalPoints = RubenManueverGenerator.findCriticalPoints(path.get());
+    var neededCriticalPoints = RubenManueverGenerator.simplifyCriticalPoints(criticalPoints);
+
+    for (var coord : path.get()) {
+      fieldSquares[coord.x][coord.y] = FieldSquare.PATH;
+    }
+
+    for (var coord : criticalPoints) {
+      fieldSquares[coord.x][coord.y] = FieldSquare.REDUNDANT_CRITICAL_POINT;
+    }
+
+    for (var coord : neededCriticalPoints) {
+      fieldSquares[coord.x][coord.y] = FieldSquare.CRITICAL_POINT;
+    }
+
+    // fieldSquares[start.x][start.y] = FieldSquare.START;
+    // fieldSquares[end.x][end.y] = FieldSquare.END;
+
+    StringBuilder sb = new StringBuilder();
+    DisplayFieldArray.renderField(sb, fieldSquares);
+
+    expect
+        .scenario(
+            String.format(
+                "%s -> %s len: %s",
+                start.toString(), end.toString(), path.map(List::size).orElse(-1)))
+        .toMatchSnapshot(sb.toString());
+  }
+
   public static Stream<Arguments> computePathPointsForSplineProvider() {
     return Stream.of(
         Arguments.of(new GridCoord(50, 50), new GridCoord(50, 55)),
