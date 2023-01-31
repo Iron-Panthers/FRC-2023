@@ -170,7 +170,7 @@ frc.util.pathing.RubenManueverGeneratorTests.findFullPathMatchesSnapshot[GridCoo
 ]
 
 
-frc.util.pathing.RubenManueverGeneratorTests.findPathAndCriticalPointsMatchesSnapshot[GridCoord{ 10 62 } -> GridCoord{ 32 10 }]=[
+frc.util.pathing.RubenManueverGeneratorTests.findPathAndCriticalPointsMatchesSnapshot[GridCoord{ 10 62 } -> GridCoord{ 32 10 } len: 71]=[
 ########                                                                                                                                                                                                                                                                                                                            ########
 ########                                                                                                                                                                                                                                                                                                                            ########
 ########                                                                                                                                                                                                                                                                                                                            ########
@@ -256,7 +256,7 @@ frc.util.pathing.RubenManueverGeneratorTests.findPathAndCriticalPointsMatchesSna
 ]
 
 
-frc.util.pathing.RubenManueverGeneratorTests.findPathAndCriticalPointsMatchesSnapshot[GridCoord{ 50 50 } -> GridCoord{ 50 55 }]=[
+frc.util.pathing.RubenManueverGeneratorTests.findPathAndCriticalPointsMatchesSnapshot[GridCoord{ 50 50 } -> GridCoord{ 50 55 } len: 6]=[
 ########                                                                                                                                                                                                                                                                                                                            ########
 ########                                                                                                                                                                                                                                                                                                                            ########
 ########                                                                                                                                                                                                                                                                                                                            ########

@@ -179,7 +179,10 @@ public class RubenManueverGeneratorTests {
     DisplayFieldArray.renderField(sb, fieldSquares);
 
     expect
-        .scenario(String.format("%s -> %s", start.toString(), end.toString()))
+        .scenario(
+            String.format(
+                "%s -> %s len: %s",
+                start.toString(), end.toString(), path.map(List::size).orElse(-1)))
         .toMatchSnapshot(sb.toString());
   }
 }
