@@ -171,8 +171,10 @@ public final class Constants {
     public static final int CELL_Y_MAX =
         (int) Math.ceil(FieldObstructionMap.FIELD_HEIGHT / Pathing.CELL_SIZE_METERS);
 
-    public static final int ROBOT_RADIUS_CELLS =
-        (int) Math.ceil(Dims.BUMPER_WIDTH_METERS / Pathing.CELL_SIZE_METERS);
+    public static final int ROBOT_RADIUS_UNDERESTIMATE_CELLS =
+        // using floor is not a bug, we want to be able to drive up to the edge of the cell if
+        // needed
+        (int) Math.floor((Dims.BUMPER_WIDTH_METERS / 2) / Pathing.CELL_SIZE_METERS);
 
     public static final double CRITICAL_POINT_DIVERGENCE_THRESHOLD = 2;
   }

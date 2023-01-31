@@ -70,33 +70,40 @@ public class RubenManueverGenerator {
           collisionGrid[x][y] = true;
           continue;
         }
-        collisionGrid[x][y] = false;
 
-        // // if the cell would would intersect the robots radius, mark it as a collision
-        // var robotTopRight =
-        //     new GridCoord(x + Pathing.ROBOT_RADIUS_CELLS, y + Pathing.ROBOT_RADIUS_CELLS);
-        // var robotBottomLeft =
-        //     new GridCoord(x - Pathing.ROBOT_RADIUS_CELLS, y - Pathing.ROBOT_RADIUS_CELLS);
+        // if the cell would would intersect the robots radius, mark it as a collision
+        var robotTopRight =
+            new GridCoord(
+                x + Pathing.ROBOT_RADIUS_UNDERESTIMATE_CELLS,
+                y + Pathing.ROBOT_RADIUS_UNDERESTIMATE_CELLS);
+        var robotBottomLeft =
+            new GridCoord(
+                x - Pathing.ROBOT_RADIUS_UNDERESTIMATE_CELLS,
+                y - Pathing.ROBOT_RADIUS_UNDERESTIMATE_CELLS);
 
-        // for (var obstruction : FieldObstructionMap.obstructions) {
-        //   // rectangle intersection with robot body
-        //   if (obstruction instanceof FieldObstructionMap.RectangleObstruction) {
-        //     var rect = (FieldObstructionMap.RectangleObstruction) obstruction;
-        //     var rectTopRight = new GridCoord(rect.topRight);
-        //     var rectBottomLeft = new GridCoord(rect.bottomLeft);
+        boolean didIntersect = false;
+        for (var obstruction : FieldObstructionMap.obstructions) {
+          // rectangle intersection with robot body
+          if (obstruction instanceof FieldObstructionMap.RectangleObstruction) {
+            var rect = (FieldObstructionMap.RectangleObstruction) obstruction;
+            var rectTopRight = new GridCoord(rect.topRight);
+            var rectBottomLeft = new GridCoord(rect.bottomLeft);
 
-        //     if (robotTopRight.x >= rectBottomLeft.x
-        //         && robotTopRight.y >= rectBottomLeft.y
-        //         && robotBottomLeft.x <= rectTopRight.x
-        //         && robotBottomLeft.y <= rectTopRight.y) {
-        //       collisionGrid[x][y] = true;
-        //       break;
-        //     }
-        //   }
-        // }
+            if (robotTopRight.x >= rectBottomLeft.x
+                && robotTopRight.y >= rectBottomLeft.y
+                && robotBottomLeft.x <= rectTopRight.x
+                && robotBottomLeft.y <= rectTopRight.y) {
+              collisionGrid[x][y] = true;
+              didIntersect = true;
+              break;
+            }
+          }
+        }
 
-        // // the cell is not a collision, so allow it to be traversed
-        // collisionGrid[x][y] = false;
+        // the cell is not a collision, so allow it to be traversed
+        if (!didIntersect) {
+          collisionGrid[x][y] = false;
+        }
       }
     }
 

@@ -116,6 +116,49 @@ public class RubenManueverGeneratorTests {
     return fieldSquares;
   }
 
+  private Expect expect;
+
+  @UtilTest
+  public void internalCollisionGridMatchesSnapshot() {
+    // use reflection to read the internal boolean[][] collisionGrid
+    Optional<boolean[][]> optCollisionGrid = Optional.empty();
+    try {
+      Field field = RubenManueverGenerator.class.getDeclaredField("collisionGrid");
+      field.setAccessible(true);
+
+      var obj = field.get(new RubenManueverGenerator());
+
+      optCollisionGrid =
+          obj instanceof boolean[][] ? Optional.of((boolean[][]) obj) : Optional.empty();
+    } catch (NoSuchFieldException | IllegalAccessException e) {
+      e.printStackTrace();
+    }
+
+    if (optCollisionGrid.isEmpty()) {
+      fail("optCollisionGrid is empty because reflection failed");
+    }
+
+    FieldSquare[][] fieldSquares = new FieldSquare[Pathing.CELL_X_MAX][Pathing.CELL_Y_MAX];
+
+    var collisionGrid = optCollisionGrid.get();
+
+    for (int x = 0; x < Pathing.CELL_X_MAX; x++) {
+      for (int y = 0; y < Pathing.CELL_Y_MAX; y++) {
+        // if the collision grid is true, the field square should be an obstruction
+        fieldSquares[x][y] = collisionGrid[x][y] ? FieldSquare.OBSTRUCTION : FieldSquare.EMPTY;
+      }
+    }
+
+    for (var coord : List.of(new GridCoord(10, 62), new GridCoord(32, 10))) {
+      fieldSquares[coord.x][coord.y] = FieldSquare.START;
+    }
+
+    StringBuilder sb = new StringBuilder();
+    DisplayFieldArray.renderField(sb, fieldSquares);
+
+    expect.toMatchSnapshot(sb.toString());
+  }
+
   public static Stream<Arguments> findFullPathMatchesSnapshotProvider() {
     return Stream.of(
         Arguments.of(new GridCoord(50, 50), new GridCoord(50, 55)),
@@ -123,8 +166,6 @@ public class RubenManueverGeneratorTests {
         // load bearing comment (hold the final brace)
         );
   }
-
-  private Expect expect;
 
   @UtilParamTest
   @MethodSource("findFullPathMatchesSnapshotProvider")
