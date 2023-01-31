@@ -79,4 +79,28 @@ public class MinHeapTests {
 
     assertTrue(heap.isEmpty());
   }
+
+  @UtilTest
+  public void addingSameElementAgainCreatesDuplicate() {
+    MinHeap<Items> heap = new MinHeap<>();
+
+    heap.add(Items.A, 1);
+    heap.add(Items.B, 2);
+
+    heap.add(Items.C, 3);
+
+    heap.add(Items.C, -2);
+
+    assertEquals(Items.C, heap.getMin());
+
+    assertEquals(Items.A, heap.getMin());
+    assertEquals(Items.B, heap.getMin());
+    assertEquals(Items.C, heap.getMin());
+
+    assertFalse(heap.isEmpty());
+
+    assertEquals(Items.C, heap.getMin());
+
+    assertTrue(heap.isEmpty());
+  }
 }
