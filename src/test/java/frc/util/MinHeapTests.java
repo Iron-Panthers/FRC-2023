@@ -3,6 +3,7 @@ package frc.util;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import frc.UtilTest;
@@ -81,7 +82,7 @@ public class MinHeapTests {
   }
 
   @UtilTest
-  public void addingSameElementAgainCreatesDuplicate() {
+  public void addingSameElementAgainOverwritesOld() {
     MinHeap<Items> heap = new MinHeap<>();
 
     heap.add(Items.A, 1);
@@ -97,10 +98,8 @@ public class MinHeapTests {
     assertEquals(Items.B, heap.getMin());
     assertEquals(Items.C, heap.getMin());
 
-    assertFalse(heap.isEmpty());
-
-    assertEquals(Items.C, heap.getMin());
-
     assertTrue(heap.isEmpty());
+
+    assertThrows(NullPointerException.class, () -> heap.getMin());
   }
 }
