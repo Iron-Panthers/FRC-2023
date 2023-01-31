@@ -9,7 +9,7 @@ import java.util.Optional;
 public class RubenManueverGenerator {
   private final Graph<GridCoord> adjacencyGraph = new Graph<>();
 
-  private static final double SQRT2 = Math.sqrt(2);
+  private static final double DIAGONAL_COST = Math.sqrt(2);
 
   private void addEdgeIfEndAccessible(GridCoord start, GridCoord end, double weight) {
     if (end.x >= 0
@@ -69,7 +69,7 @@ public class RubenManueverGenerator {
 
           // Add edges to diagonal nodes
           for (GridCoord end : getDiagonalTranslations(start)) {
-            addEdgeIfEndAccessible(start, end, SQRT2);
+            addEdgeIfEndAccessible(start, end, DIAGONAL_COST);
           }
         }
       }
