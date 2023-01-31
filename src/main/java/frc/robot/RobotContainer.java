@@ -44,6 +44,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
   private final DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem();
+  private final TelescopingArmSubysytem armSubystem = new TelescopingArmSubysytem();
 
   /** controller 1 */
   private final CommandXboxController jason = new CommandXboxController(1);
@@ -151,6 +152,9 @@ public class RobotContainer {
         .onTrue(
             new DriveToPlaceCommand(
                 drivebaseSubsystem, new Pose2d(3.2, .5, Rotation2d.fromDegrees(170)), .2, .5));
+
+    jason.a().onTrue(new TelescopingArmPositionCommand(armSubystem, TelescopingArm.MIN_EXTENSION));
+    jason.y().onTrue(new TelescopingArmPositionCommand(armSubystem, TelescopingArm.MAX_EXTENSION));
   }
 
   /**

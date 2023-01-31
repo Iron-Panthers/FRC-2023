@@ -31,9 +31,9 @@ public class TelescopingArmSubysytem extends SubsystemBase {
     motor.configFactoryDefault(); // do we need this??
 
     motor.configForwardSoftLimitThreshold(
-        heightToTicks(TelescopingArm.MIN_HEIGHT), 0); // this is the bottom limit, we stop AT the bottom
+        heightToTicks(TelescopingArm.MIN_EXTENSION), 0); // this is the bottom limit
     motor.configReverseSoftLimitThreshold(
-        heightToTicks(TelescopingArm.MAX_HEIGHT), 0); // this is the top limit, we stop at the very top
+        heightToTicks(TelescopingArm.MAX_EXTENSION), 0); // this is the top limit
 
     motor.configForwardSoftLimitEnable(true, 0);
     motor.configReverseSoftLimitEnable(true, 0);
