@@ -27,4 +27,22 @@ public class GridCoordTests {
         new GridCoord(point).toTranslation2d(),
         String.format("Point %s should become %s", point, expected));
   }
+
+  public static Stream<Arguments> getDistanceCorrectProvider() {
+    return Stream.of(
+        Arguments.of(new GridCoord(0, 0), new GridCoord(0, 0), 0),
+        Arguments.of(new GridCoord(0, 0), new GridCoord(1, 0), 1),
+        Arguments.of(new GridCoord(0, 0), new GridCoord(0, 1), 1),
+        Arguments.of(new GridCoord(0, 0), new GridCoord(1, 1), Math.sqrt(2)),
+        Arguments.of(new GridCoord(0, 0), new GridCoord(2, 2), Math.sqrt(8)),
+        Arguments.of(new GridCoord(2, 2), new GridCoord(0, 0), Math.sqrt(8))
+        // brace holder
+        );
+  }
+
+  @UtilParamTest
+  @MethodSource("getDistanceCorrectProvider")
+  public void getDistanceCorrect(GridCoord a, GridCoord b, double expected) {
+    assertEquals(expected, a.getDistance(b), String.format("Distance between %s and %s", a, b));
+  }
 }

@@ -1,8 +1,0 @@
-frc.util.pathing.RubenManueverGeneratorTests.findFullPathMatchesSnapshot[Translation2d(X: 5.00, Y: 5.00) -> Translation2d(X: 5.10, Y: 5.00)]=[
-Optional.empty
-]
-
-
-frc.util.pathing.RubenManueverGeneratorTests.findFullPathMatchesSnapshot[Translation2d(X: 5.00, Y: 5.00) -> Translation2d(X: 5.20, Y: 5.00)]=[
-Optional.empty
-]

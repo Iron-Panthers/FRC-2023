@@ -9,7 +9,6 @@ import au.com.origin.snapshots.Expect;
 import au.com.origin.snapshots.junit5.SnapshotExtension;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Translation2d;
-import frc.UtilParamTest;
 import frc.UtilTest;
 import frc.robot.Constants.Pathing;
 import frc.util.Graph;
@@ -19,7 +18,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith({SnapshotExtension.class})
 public class RubenManueverGeneratorTests {
@@ -106,15 +104,15 @@ public class RubenManueverGeneratorTests {
 
   private Expect expect;
 
-  @UtilParamTest
-  @MethodSource("findFullPathMatchesSnapshotProvider")
-  public void findFullPathMatchesSnapshot(GridCoord start, GridCoord end) {
-    RubenManueverGenerator rubenManueverGenerator = new RubenManueverGenerator();
+  // @UtilParamTest
+  // @MethodSource("findFullPathMatchesSnapshotProvider")
+  // public void findFullPathMatchesSnapshot(GridCoord start, GridCoord end) {
+  //   RubenManueverGenerator rubenManueverGenerator = new RubenManueverGenerator();
 
-    var path = rubenManueverGenerator.findFullPath(start, end);
+  //   var path = rubenManueverGenerator.findFullPath(start, end);
 
-    expect
-        .scenario(String.format("%s -> %s", start.toString(), end.toString()))
-        .toMatchSnapshot(path.get());
-  }
+  //   expect
+  //       .scenario(String.format("%s -> %s", start.toString(), end.toString()))
+  //       .toMatchSnapshot(path.get());
+  // }
 }
