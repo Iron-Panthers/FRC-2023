@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import frc.robot.Constants.Drive.Dims;
 import frc.util.pathing.FieldObstructionMap;
 
 @SuppressWarnings("java:S1118")
@@ -169,6 +170,9 @@ public final class Constants {
         (int) Math.ceil(FieldObstructionMap.FIELD_LENGTH / Pathing.CELL_SIZE_METERS);
     public static final int CELL_Y_MAX =
         (int) Math.ceil(FieldObstructionMap.FIELD_HEIGHT / Pathing.CELL_SIZE_METERS);
+
+    public static final int ROBOT_RADIUS_CELLS =
+        (int) Math.ceil(Dims.BUMPER_WIDTH_METERS / Pathing.CELL_SIZE_METERS);
 
     public static final double CRITICAL_POINT_DIVERGENCE_THRESHOLD = 2;
   }

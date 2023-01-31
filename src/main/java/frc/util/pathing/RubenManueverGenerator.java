@@ -12,15 +12,27 @@ import java.util.Optional;
 public class RubenManueverGenerator {
   private final Graph<GridCoord> adjacencyGraph = new Graph<>();
 
+  private final boolean[][] collisionGrid = new boolean[Pathing.CELL_X_MAX][Pathing.CELL_Y_MAX];
+
   private static final double DIAGONAL_COST = Math.sqrt(2);
 
+  /**
+   * Determine if a given coordinate is valid for the pathing grid. Factors the robot's width into
+   * consideration.
+   *
+   * @param coord The coordinate to check.
+   * @return True if the coordinate is valid, false otherwise.
+   */
+  private boolean isValidCoord(GridCoord coord) {
+    return coord.x >= 0
+        && coord.x < Pathing.CELL_X_MAX
+        && coord.y >= 0
+        && coord.y < Pathing.CELL_Y_MAX
+        && !collisionGrid[coord.x][coord.y];
+  }
+
   private void addEdgeIfEndAccessible(GridCoord start, GridCoord end, double weight) {
-    if (end.x >= 0
-        && end.x < Pathing.CELL_X_MAX
-        && end.y >= 0
-        && end.y < Pathing.CELL_Y_MAX
-        && !FieldObstructionMap.isInsideObstruction(start.toTranslation2d())
-        && !FieldObstructionMap.isInsideObstruction(end.toTranslation2d())) {
+    if (isValidCoord(end)) {
       adjacencyGraph.addEdge(start, end, weight);
     }
   }
@@ -49,11 +61,50 @@ public class RubenManueverGenerator {
    */
   public RubenManueverGenerator() {
 
+    // populate the collision grid
+    for (int x = 0; x < Pathing.CELL_X_MAX; x++) {
+      for (int y = 0; y < Pathing.CELL_Y_MAX; y++) {
+
+        // if the cell is inside an obstruction, mark it as a collision
+        if (FieldObstructionMap.isInsideObstruction(new GridCoord(x, y).toTranslation2d())) {
+          collisionGrid[x][y] = true;
+          continue;
+        }
+        collisionGrid[x][y] = false;
+
+        // // if the cell would would intersect the robots radius, mark it as a collision
+        // var robotTopRight =
+        //     new GridCoord(x + Pathing.ROBOT_RADIUS_CELLS, y + Pathing.ROBOT_RADIUS_CELLS);
+        // var robotBottomLeft =
+        //     new GridCoord(x - Pathing.ROBOT_RADIUS_CELLS, y - Pathing.ROBOT_RADIUS_CELLS);
+
+        // for (var obstruction : FieldObstructionMap.obstructions) {
+        //   // rectangle intersection with robot body
+        //   if (obstruction instanceof FieldObstructionMap.RectangleObstruction) {
+        //     var rect = (FieldObstructionMap.RectangleObstruction) obstruction;
+        //     var rectTopRight = new GridCoord(rect.topRight);
+        //     var rectBottomLeft = new GridCoord(rect.bottomLeft);
+
+        //     if (robotTopRight.x >= rectBottomLeft.x
+        //         && robotTopRight.y >= rectBottomLeft.y
+        //         && robotBottomLeft.x <= rectTopRight.x
+        //         && robotBottomLeft.y <= rectTopRight.y) {
+        //       collisionGrid[x][y] = true;
+        //       break;
+        //     }
+        //   }
+        // }
+
+        // // the cell is not a collision, so allow it to be traversed
+        // collisionGrid[x][y] = false;
+      }
+    }
+
     for (int x = 0; x < Pathing.CELL_X_MAX; x++) {
       for (int y = 0; y < Pathing.CELL_Y_MAX; y++) {
         final GridCoord start = new GridCoord(x, y);
 
-        if (!FieldObstructionMap.isInsideObstruction(start.toTranslation2d())) {
+        if (!collisionGrid[x][y]) {
           adjacencyGraph.addNode(start);
         }
       }
@@ -63,7 +114,7 @@ public class RubenManueverGenerator {
       for (int y = 0; y < Pathing.CELL_Y_MAX; y++) {
         final GridCoord start = new GridCoord(x, y);
 
-        if (!FieldObstructionMap.isInsideObstruction(start.toTranslation2d())) {
+        if (!collisionGrid[x][y]) {
 
           // Add edges to adjacent nodes
           for (GridCoord end : getOrthogonalTranslations(start)) {

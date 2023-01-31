@@ -32,8 +32,8 @@ public class FieldObstructionMap {
   public static class RectangleObstruction implements Obstruction {
     @JsonProperty private final AllianceColor allianceColor;
     @JsonProperty private final String name;
-    @JsonProperty private final Translation2d bottomLeft;
-    @JsonProperty private final Translation2d topRight;
+    @JsonProperty public final Translation2d bottomLeft;
+    @JsonProperty public final Translation2d topRight;
 
     public RectangleObstruction(
         AllianceColor allianceColor,
