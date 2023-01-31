@@ -157,4 +157,16 @@ public final class Constants {
 
     public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 2;
   }
+
+  public static final class TelescopingArm {
+    public static final int MOTOR_PORT = 0; // TODO find can id
+
+    public static final double MIN_HEIGHT = 0;
+    public static final double MAX_HEIGHT = 12; // TODO find max height (inches)
+
+    public static final int TICKS = 2048;
+    public static final int GEAR_RATIO = 3;
+    public static final double SPOOL_CIRCUMFERENCE = 1.5 * Math.PI;
+
+  }
 }
