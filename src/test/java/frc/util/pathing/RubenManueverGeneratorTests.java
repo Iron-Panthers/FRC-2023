@@ -9,15 +9,18 @@ import au.com.origin.snapshots.Expect;
 import au.com.origin.snapshots.junit5.SnapshotExtension;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Translation2d;
+import frc.UtilParamTest;
 import frc.UtilTest;
 import frc.robot.Constants.Pathing;
 import frc.util.Graph;
+import frc.util.pathing.DisplayFieldArray.FieldSquare;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith({SnapshotExtension.class})
 public class RubenManueverGeneratorTests {
@@ -94,25 +97,47 @@ public class RubenManueverGeneratorTests {
 
   public static Stream<Arguments> findFullPathMatchesSnapshotProvider() {
     return Stream.of(
-        Arguments.of(
-            new GridCoord(new Translation2d(5, 5)), new GridCoord(new Translation2d(5.1, 5))),
-        Arguments.of(
-            new GridCoord(new Translation2d(5, 5)), new GridCoord(new Translation2d(5, 5.5)))
+        Arguments.of(new GridCoord(50, 50), new GridCoord(50, 55))
+        // Arguments.of(
+        //     new GridCoord(new Translation2d(5, 5)), new GridCoord(new Translation2d(5, 5.5)))
         // load bearing comment (hold the final brace)
         );
   }
 
   private Expect expect;
 
-  // @UtilParamTest
-  // @MethodSource("findFullPathMatchesSnapshotProvider")
-  // public void findFullPathMatchesSnapshot(GridCoord start, GridCoord end) {
-  //   RubenManueverGenerator rubenManueverGenerator = new RubenManueverGenerator();
+  @UtilParamTest
+  @MethodSource("findFullPathMatchesSnapshotProvider")
+  public void findFullPathMatchesSnapshot(GridCoord start, GridCoord end) {
+    RubenManueverGenerator rubenManueverGenerator = new RubenManueverGenerator();
 
-  //   var path = rubenManueverGenerator.findFullPath(start, end);
+    var path = rubenManueverGenerator.findFullPath(start, end);
 
-  //   expect
-  //       .scenario(String.format("%s -> %s", start.toString(), end.toString()))
-  //       .toMatchSnapshot(path.get());
-  // }
+    FieldSquare[][] fieldSquares = new FieldSquare[Pathing.CELL_X_MAX][Pathing.CELL_Y_MAX];
+
+    for (int x = 0; x < Pathing.CELL_X_MAX; x++) {
+      for (int y = 0; y < Pathing.CELL_Y_MAX; y++) {
+        final double xCoord = x * Pathing.CELL_SIZE_METERS;
+        final double yCoord = y * Pathing.CELL_SIZE_METERS;
+        fieldSquares[x][y] =
+            FieldObstructionMap.isInsideObstruction(new Translation2d(xCoord, yCoord))
+                ? FieldSquare.OBSTRUCTION
+                : FieldSquare.EMPTY;
+      }
+    }
+
+    for (var coord : path.get()) {
+      fieldSquares[coord.x][coord.y] = FieldSquare.PATH;
+    }
+
+    fieldSquares[start.x][start.y] = FieldSquare.START;
+    fieldSquares[end.x][end.y] = FieldSquare.END;
+
+    StringBuilder sb = new StringBuilder();
+    DisplayFieldArray.renderField(sb, fieldSquares);
+
+    expect
+        .scenario(String.format("%s -> %s", start.toString(), end.toString()))
+        .toMatchSnapshot(sb.toString());
+  }
 }

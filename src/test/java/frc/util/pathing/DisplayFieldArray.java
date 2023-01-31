@@ -2,10 +2,12 @@ package frc.util.pathing;
 
 public class DisplayFieldArray {
   public static enum FieldSquare {
-    OBSTRUCTION("#"),
-    EMPTY("."),
-    PATH("*"),
-    CONTROLPOINT("@");
+    OBSTRUCTION("##"),
+    EMPTY("  "),
+    PATH("▀▄"),
+    START("SS"),
+    END("EE"),
+    CONTROLPOINT("<>");
 
     private final String display;
 
