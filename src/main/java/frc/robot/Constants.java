@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import frc.util.pathing.FieldObstructionMap;
 
 @SuppressWarnings("java:S1118")
 /**
@@ -163,5 +164,10 @@ public final class Constants {
   public static final class Pathing {
     /** The size in meters of a given cell for pathfinding */
     public static final double CELL_SIZE_METERS = 0.1;
+
+    public static final int CELL_X_MAX =
+        (int) Math.ceil(FieldObstructionMap.FIELD_LENGTH / Pathing.CELL_SIZE_METERS);
+    public static final int CELL_Y_MAX =
+        (int) Math.ceil(FieldObstructionMap.FIELD_HEIGHT / Pathing.CELL_SIZE_METERS);
   }
 }

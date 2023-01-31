@@ -11,9 +11,9 @@ public class RubenManueverGenerator {
 
   private void addEdgeIfEndAccessible(GridCoord start, GridCoord end, double weight) {
     if (end.x >= 0
-        && end.x <= FieldObstructionMap.FIELD_LENGTH
+        && end.x <= Pathing.CELL_X_MAX
         && end.y >= 0
-        && end.y <= FieldObstructionMap.FIELD_HEIGHT
+        && end.y <= Pathing.CELL_Y_MAX
         && !FieldObstructionMap.isInsideObstruction(end.toTranslation2d())) {
       adjacencyGraph.addEdge(start, end, weight);
     }
@@ -33,11 +33,9 @@ public class RubenManueverGenerator {
    * Construct this only once to reuse its adjacencyGraph.
    */
   public RubenManueverGenerator() {
-    final int xMax = (int) Math.ceil(FieldObstructionMap.FIELD_LENGTH / Pathing.CELL_SIZE_METERS);
-    final int yMax = (int) Math.ceil(FieldObstructionMap.FIELD_HEIGHT / Pathing.CELL_SIZE_METERS);
 
-    for (int x = 0; x < xMax; x++) {
-      for (int y = 0; y < yMax; y++) {
+    for (int x = 0; x < Pathing.CELL_X_MAX; x++) {
+      for (int y = 0; y < Pathing.CELL_Y_MAX; y++) {
         final GridCoord start = new GridCoord(x, y);
 
         if (!FieldObstructionMap.isInsideObstruction(start.toTranslation2d())) {
@@ -46,8 +44,8 @@ public class RubenManueverGenerator {
       }
     }
 
-    for (int x = 0; x < xMax; x++) {
-      for (int y = 0; y < yMax; y++) {
+    for (int x = 0; x < Pathing.CELL_X_MAX; x++) {
+      for (int y = 0; y < Pathing.CELL_Y_MAX; y++) {
         final GridCoord start = new GridCoord(x, y);
 
         if (!FieldObstructionMap.isInsideObstruction(start.toTranslation2d())) {
