@@ -138,7 +138,7 @@ public class GraphPathfinder {
       }
 
       for (GridCoord neighbor : graph.getNeighbors(current)) {
-        double tentativeGScore = gScore.get(current) + current.getDistance(neighbor);
+        double tentativeGScore = gScore.get(current) + graph.getEdgeWeight(current, neighbor);
 
         if (tentativeGScore < gScore.getOrDefault(neighbor, Double.POSITIVE_INFINITY)) {
           cameFrom.put(neighbor, current);
