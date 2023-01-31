@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.sensors.CANCoder;
@@ -46,16 +47,18 @@ public class OuttakeSubsystem extends SubsystemBase {
     this.outtake = new TalonFX(Outtake.Ports.OUTTAKE_MOTOR);
 
     this.outtake.setInverted(true);
-
-    this.outtake.enableVoltageCompensation(true);
+   
     this.outtake.configVoltageCompSaturation(11);
+    this.outtake.enableVoltageCompensation(true);
+
 
     //this.encoder = new CANCoder(Outtake.Ports.OUTTAKE_ENCODER);
 
     this.pidController = new PIDController(0.01, 0, 0);
     pidController.setTolerance(3);
 
-    filter = LinearFilter.highPass(0.1, 0.02);
+    // FIXME: Change the tap rate to get a better average
+    filter = LinearFilter.movingAverage(10);
 
     filterOutput = 0;
 
@@ -122,6 +125,7 @@ public class OuttakeSubsystem extends SubsystemBase {
 
       this.filterOutput = filter.calculate(this.outtake.getStatorCurrent());
 
+      // FIXME we really need to get these values down
       if(filterOutput > 5) {
         mode = Modes.OPEN;
       }
