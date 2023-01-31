@@ -8,6 +8,8 @@ import java.util.Optional;
 public class RubenManueverGenerator {
   private final Graph<GridCoord> adjacencyGraph = new Graph<>();
 
+  private static final double SQRT2 = Math.sqrt(2);
+
   private void addEdgeIfEndAccessible(GridCoord start, GridCoord end, double weight) {
     if (end.x >= 0
         && end.x < Pathing.CELL_X_MAX
@@ -25,6 +27,15 @@ public class RubenManueverGenerator {
       new GridCoord(start.x - 1, start.y),
       new GridCoord(start.x, start.y + 1),
       new GridCoord(start.x, start.y - 1)
+    };
+  }
+
+  private GridCoord[] getDiagonalTranslations(GridCoord start) {
+    return new GridCoord[] {
+      new GridCoord(start.x + 1, start.y + 1),
+      new GridCoord(start.x - 1, start.y + 1),
+      new GridCoord(start.x + 1, start.y - 1),
+      new GridCoord(start.x - 1, start.y - 1)
     };
   }
 
@@ -55,7 +66,10 @@ public class RubenManueverGenerator {
             addEdgeIfEndAccessible(start, end, 1);
           }
 
-          // TODO: Add edges to diagonal nodes
+          // Add edges to diagonal nodes
+          for (GridCoord end : getDiagonalTranslations(start)) {
+            addEdgeIfEndAccessible(start, end, SQRT2);
+          }
         }
       }
     }
