@@ -95,25 +95,7 @@ public class RubenManueverGeneratorTests {
     }
   }
 
-  public static Stream<Arguments> findFullPathMatchesSnapshotProvider() {
-    return Stream.of(
-        Arguments.of(new GridCoord(50, 50), new GridCoord(50, 55)),
-        Arguments.of(new GridCoord(10, 62), new GridCoord(32, 10))
-        // Arguments.of(
-        //     new GridCoord(new Translation2d(5, 5)), new GridCoord(new Translation2d(5, 5.5)))
-        // load bearing comment (hold the final brace)
-        );
-  }
-
-  private Expect expect;
-
-  @UtilParamTest
-  @MethodSource("findFullPathMatchesSnapshotProvider")
-  public void findFullPathMatchesSnapshot(GridCoord start, GridCoord end) {
-    RubenManueverGenerator rubenManueverGenerator = new RubenManueverGenerator();
-
-    var path = rubenManueverGenerator.findFullPath(start, end);
-
+  private static FieldSquare[][] placeObstructions() {
     FieldSquare[][] fieldSquares = new FieldSquare[Pathing.CELL_X_MAX][Pathing.CELL_Y_MAX];
 
     for (int x = 0; x < Pathing.CELL_X_MAX; x++) {
@@ -127,12 +109,71 @@ public class RubenManueverGeneratorTests {
       }
     }
 
+    return fieldSquares;
+  }
+
+  public static Stream<Arguments> findFullPathMatchesSnapshotProvider() {
+    return Stream.of(
+        Arguments.of(new GridCoord(50, 50), new GridCoord(50, 55)),
+        Arguments.of(new GridCoord(10, 62), new GridCoord(32, 10))
+        // load bearing comment (hold the final brace)
+        );
+  }
+
+  private Expect expect;
+
+  @UtilParamTest
+  @MethodSource("findFullPathMatchesSnapshotProvider")
+  public void findFullPathMatchesSnapshot(GridCoord start, GridCoord end) {
+    RubenManueverGenerator rubenManueverGenerator = new RubenManueverGenerator();
+
+    FieldSquare[][] fieldSquares = placeObstructions();
+
+    var path = rubenManueverGenerator.findFullPath(start, end);
+
     for (var coord : path.get()) {
       fieldSquares[coord.x][coord.y] = FieldSquare.PATH;
     }
 
     fieldSquares[start.x][start.y] = FieldSquare.START;
     fieldSquares[end.x][end.y] = FieldSquare.END;
+
+    StringBuilder sb = new StringBuilder();
+    DisplayFieldArray.renderField(sb, fieldSquares);
+
+    expect
+        .scenario(String.format("%s -> %s", start.toString(), end.toString()))
+        .toMatchSnapshot(sb.toString());
+  }
+
+  public static Stream<Arguments> findPathAndCriticalPointsMatchesSnapshotProvider() {
+    return Stream.of(
+        Arguments.of(new GridCoord(50, 50), new GridCoord(50, 55)),
+        Arguments.of(new GridCoord(10, 62), new GridCoord(32, 10))
+        // load bearing comment (hold the final brace)
+        );
+  }
+
+  @UtilParamTest
+  @MethodSource("findPathAndCriticalPointsMatchesSnapshotProvider")
+  public void findPathAndCriticalPointsMatchesSnapshot(GridCoord start, GridCoord end) {
+    RubenManueverGenerator rubenManueverGenerator = new RubenManueverGenerator();
+
+    FieldSquare[][] fieldSquares = placeObstructions();
+
+    var path = rubenManueverGenerator.findFullPath(start, end);
+    var criticalPoints = RubenManueverGenerator.findCriticalPoints(path.get());
+
+    for (var coord : path.get()) {
+      fieldSquares[coord.x][coord.y] = FieldSquare.PATH;
+    }
+
+    for (var coord : criticalPoints) {
+      fieldSquares[coord.x][coord.y] = FieldSquare.CRITICAL_POINT;
+    }
+
+    // fieldSquares[start.x][start.y] = FieldSquare.START;
+    // fieldSquares[end.x][end.y] = FieldSquare.END;
 
     StringBuilder sb = new StringBuilder();
     DisplayFieldArray.renderField(sb, fieldSquares);
