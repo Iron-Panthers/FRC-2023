@@ -42,13 +42,10 @@ public class FieldObstructionMapTests {
   @UtilTest
   public void obstructionMapMatchesSnapshot(Expect expect) {
 
-    final int xMax = (int) Math.ceil(FieldObstructionMap.FIELD_LENGTH / Pathing.CELL_SIZE_METERS);
-    final int yMax = (int) Math.ceil(FieldObstructionMap.FIELD_HEIGHT / Pathing.CELL_SIZE_METERS);
+    FieldSquare[][] obstructionMap = new FieldSquare[Pathing.CELL_X_MAX][Pathing.CELL_Y_MAX];
 
-    FieldSquare[][] obstructionMap = new FieldSquare[xMax][yMax];
-
-    for (int x = 0; x < xMax; x++) {
-      for (int y = 0; y < yMax; y++) {
+    for (int x = 0; x < Pathing.CELL_X_MAX; x++) {
+      for (int y = 0; y < Pathing.CELL_Y_MAX; y++) {
         final double xCoord = x * Pathing.CELL_SIZE_METERS;
         final double yCoord = y * Pathing.CELL_SIZE_METERS;
         obstructionMap[x][y] =
@@ -64,7 +61,9 @@ public class FieldObstructionMapTests {
             "Field length: %f, height: %f\n",
             FieldObstructionMap.FIELD_LENGTH, FieldObstructionMap.FIELD_HEIGHT));
     sb.append(
-        String.format("xMax: %d, yMax: %d, Step Size: %f\n", xMax, yMax, Pathing.CELL_SIZE_METERS));
+        String.format(
+            "Pathing.CELL_X_MAX: %d, Pathing.CELL_Y_MAX: %d, Step Size: %f\n",
+            Pathing.CELL_X_MAX, Pathing.CELL_Y_MAX, Pathing.CELL_SIZE_METERS));
 
     DisplayFieldArray.renderField(sb, obstructionMap);
 

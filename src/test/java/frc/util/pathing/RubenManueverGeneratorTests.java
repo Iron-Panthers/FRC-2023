@@ -1,6 +1,6 @@
 package frc.util.pathing;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -24,27 +24,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 @ExtendWith({SnapshotExtension.class})
 public class RubenManueverGeneratorTests {
 
-  private static Translation2d coord(double x, double y) {
-    return new Translation2d(x, y);
-  }
-
-  public static Stream<Arguments> getClosestPointProvider() {
-    return Stream.of(
-        Arguments.of(coord(2.001, 2), coord(2, 2)),
-        Arguments.of(coord(3.12, 2.01), coord(3.1, 2)),
-        Arguments.of(coord(3.12, 2.06), coord(3.1, 2.1)),
-        Arguments.of(coord(3.12, -.01), coord(3.1, 0))
-        // brace holder
-        );
-  }
-
-  @UtilParamTest
-  @MethodSource("getClosestPointProvider")
-  public void getClosestPoint(Translation2d point, Translation2d expected) {
-    assertEquals(
-        expected,
-        RubenManueverGenerator.getClosestPoint(point),
-        String.format("Point %s should become %s", point, expected));
+  @UtilTest
+  public void constructsWithoutError() {
+    assertDoesNotThrow(RubenManueverGenerator::new);
   }
 
   @UtilTest
@@ -74,13 +56,14 @@ public class RubenManueverGeneratorTests {
     var coords =
         List.of(
             // basic cardinals
-            Pair.of(coord(5, 5), coord(5, 5 + Pathing.CELL_SIZE_METERS)),
-            Pair.of(coord(5, 5), coord(5 + Pathing.CELL_SIZE_METERS, 5)),
-            Pair.of(coord(5, 5), coord(5, 5 - Pathing.CELL_SIZE_METERS)),
-            Pair.of(coord(5, 5), coord(5 - Pathing.CELL_SIZE_METERS, 5)),
+            Pair.of(new Translation2d(5, 5), new Translation2d(5, 5 + Pathing.CELL_SIZE_METERS)),
+            Pair.of(new Translation2d(5, 5), new Translation2d(5 + Pathing.CELL_SIZE_METERS, 5)),
+            Pair.of(new Translation2d(5, 5), new Translation2d(5, 5 - Pathing.CELL_SIZE_METERS)),
+            Pair.of(new Translation2d(5, 5), new Translation2d(5 - Pathing.CELL_SIZE_METERS, 5)),
             // straight line connectivity
             Pair.of(
-                coord(5 + Pathing.CELL_SIZE_METERS, 5), coord(5 + Pathing.CELL_SIZE_METERS * 2, 5))
+                new Translation2d(5 + Pathing.CELL_SIZE_METERS, 5),
+                new Translation2d(5 + Pathing.CELL_SIZE_METERS * 2, 5))
             // Pair.of(
             //     coord(5 + Pathing.CELL_SIZE_METERS * 2, 5),
             //     coord(5 + Pathing.CELL_SIZE_METERS * 3, 5))
@@ -113,7 +96,10 @@ public class RubenManueverGeneratorTests {
 
   public static Stream<Arguments> findFullPathMatchesSnapshotProvider() {
     return Stream.of(
-        Arguments.of(coord(5, 5), coord(5.1, 5)), Arguments.of(coord(5, 5), coord(5.2, 5))
+        Arguments.of(
+            new GridCoord(new Translation2d(5, 5)), new GridCoord(new Translation2d(5.1, 5))),
+        Arguments.of(
+            new GridCoord(new Translation2d(5, 5)), new GridCoord(new Translation2d(5, 5.5)))
         // load bearing comment (hold the final brace)
         );
   }
@@ -122,16 +108,13 @@ public class RubenManueverGeneratorTests {
 
   @UtilParamTest
   @MethodSource("findFullPathMatchesSnapshotProvider")
-  public void findFullPathMatchesSnapshot(Translation2d start, Translation2d end) {
+  public void findFullPathMatchesSnapshot(GridCoord start, GridCoord end) {
     RubenManueverGenerator rubenManueverGenerator = new RubenManueverGenerator();
 
-    var path =
-        rubenManueverGenerator.findFullPath(
-            new GridCoord(RubenManueverGenerator.getClosestPoint(start)),
-            new GridCoord(RubenManueverGenerator.getClosestPoint(end)));
+    var path = rubenManueverGenerator.findFullPath(start, end);
 
     expect
         .scenario(String.format("%s -> %s", start.toString(), end.toString()))
-        .toMatchSnapshot(path);
+        .toMatchSnapshot(path.get());
   }
 }

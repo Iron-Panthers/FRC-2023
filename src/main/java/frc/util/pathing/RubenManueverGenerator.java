@@ -1,6 +1,5 @@
 package frc.util.pathing;
 
-import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants.Pathing;
 import frc.util.Graph;
 import java.util.List;
@@ -11,9 +10,10 @@ public class RubenManueverGenerator {
 
   private void addEdgeIfEndAccessible(GridCoord start, GridCoord end, double weight) {
     if (end.x >= 0
-        && end.x <= Pathing.CELL_X_MAX
+        && end.x < Pathing.CELL_X_MAX
         && end.y >= 0
-        && end.y <= Pathing.CELL_Y_MAX
+        && end.y < Pathing.CELL_Y_MAX
+        && !FieldObstructionMap.isInsideObstruction(start.toTranslation2d())
         && !FieldObstructionMap.isInsideObstruction(end.toTranslation2d())) {
       adjacencyGraph.addEdge(start, end, weight);
     }
@@ -61,19 +61,6 @@ public class RubenManueverGenerator {
     }
 
     adjacencyGraph.lock();
-  }
-
-  /**
-   * Find the translation2d that is on the cell grid, by rounding the x and y coordinates to the
-   * nearest cell size.
-   *
-   * @param point The point to round to the nearest cell.
-   * @return The rounded point.
-   */
-  public static Translation2d getClosestPoint(Translation2d point) {
-    return new Translation2d(
-        Math.round(point.getX() / Pathing.CELL_SIZE_METERS) * Pathing.CELL_SIZE_METERS,
-        Math.round(point.getY() / Pathing.CELL_SIZE_METERS) * Pathing.CELL_SIZE_METERS);
   }
 
   /**
