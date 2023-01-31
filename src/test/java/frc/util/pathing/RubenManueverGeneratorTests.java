@@ -97,7 +97,8 @@ public class RubenManueverGeneratorTests {
 
   public static Stream<Arguments> findFullPathMatchesSnapshotProvider() {
     return Stream.of(
-        Arguments.of(new GridCoord(50, 50), new GridCoord(50, 55))
+        Arguments.of(new GridCoord(50, 50), new GridCoord(50, 55)),
+        Arguments.of(new GridCoord(10, 62), new GridCoord(32, 10))
         // Arguments.of(
         //     new GridCoord(new Translation2d(5, 5)), new GridCoord(new Translation2d(5, 5.5)))
         // load bearing comment (hold the final brace)

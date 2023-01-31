@@ -77,7 +77,7 @@ public class GraphPathfinder {
   private GraphPathfinder() {}
 
   private static double heuristic(GridCoord a, GridCoord b) {
-    return a.getDistance(b);
+    return -a.getDistance(b);
   }
 
   private static List<GridCoord> reconstructPath(
