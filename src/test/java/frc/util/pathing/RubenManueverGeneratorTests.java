@@ -213,10 +213,6 @@ public class RubenManueverGeneratorTests {
       fieldSquares[coord.x][coord.y] = FieldSquare.PATH;
     }
 
-    for (var coord : criticalPoints) {
-      fieldSquares[coord.x][coord.y] = FieldSquare.CRITICAL_POINT;
-    }
-
     // build a spline
     PathPlannerTrajectory trajectory =
         PathPlanner.generatePath(new PathConstraints(3, 1), pathPoints);
@@ -225,6 +221,10 @@ public class RubenManueverGeneratorTests {
     for (var states : trajectory.getStates()) {
       var coord = new GridCoord(states.poseMeters.getTranslation());
       fieldSquares[coord.x][coord.y] = FieldSquare.SPLINE;
+    }
+
+    for (var coord : criticalPoints) {
+      fieldSquares[coord.x][coord.y] = FieldSquare.CRITICAL_POINT;
     }
 
     // fieldSquares[start.x][start.y] = FieldSquare.START;
