@@ -177,4 +177,72 @@ public class GraphPathfinderTests {
                 coord(0, 2))),
         GraphPathfinder.findPath(graph, coord(0, 0), coord(0, 2)));
   }
+
+  @UtilTest
+  public void pathfinderFindsShortestPathOnGrid() {
+    Graph<GridCoord> graph = new Graph<>();
+    for (int x = 0; x < 20; x++) {
+      for (int y = 0; y < 20; y++) {
+        graph.addNode(coord(x, y));
+      }
+    }
+
+    for (int x = 0; x < 20; x++) {
+      for (int y = 0; y < 19; y++) {
+        graph.addEdge(coord(x, y), coord(x, y + 1), 1);
+      }
+    }
+
+    for (int x = 0; x < 19; x++) {
+      for (int y = 0; y < 20; y++) {
+        graph.addEdge(coord(x, y), coord(x + 1, y), 1);
+      }
+    }
+
+    assertEquals(
+        Optional.of(
+            List.of(
+                coord(0, 0),
+                coord(1, 0),
+                coord(2, 0),
+                coord(3, 0),
+                coord(4, 0),
+                coord(5, 0),
+                coord(6, 0),
+                coord(7, 0),
+                coord(8, 0),
+                coord(9, 0),
+                coord(10, 0),
+                coord(11, 0),
+                coord(12, 0),
+                coord(13, 0),
+                coord(14, 0),
+                coord(15, 0),
+                coord(16, 0),
+                coord(17, 0),
+                coord(18, 0),
+                coord(19, 0),
+                coord(19, 1),
+                coord(19, 2),
+                coord(19, 3),
+                coord(19, 4),
+                coord(19, 5),
+                coord(19, 6),
+                coord(19, 7),
+                coord(19, 8),
+                coord(19, 9),
+                coord(19, 10),
+                coord(19, 11),
+                coord(19, 12),
+                coord(19, 13),
+                coord(19, 14),
+                coord(19, 15),
+                coord(19, 16),
+                coord(19, 17),
+                coord(19, 18),
+                coord(19, 19))),
+        GraphPathfinder.findPath(graph, coord(0, 0), coord(19, 19)));
+
+    assertEquals(Optional.empty(), GraphPathfinder.findPath(graph, coord(19, 19), coord(0, 0)));
+  }
 }
