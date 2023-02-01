@@ -1,6 +1,10 @@
 package frc.util.pathing;
 
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPoint;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants.Pathing;
@@ -391,5 +395,22 @@ public class RubenManueverGenerator {
             new Rotation2d()));
 
     return pathPoints;
+  }
+
+  public Optional<PathPlannerTrajectory> computePath(
+      Pose2d start, Pose2d end, PathConstraints constraints) {
+    // convert the start and end points to grid coordinates
+    GridCoord startCoord = new GridCoord(start.getTranslation());
+    GridCoord endCoord = new GridCoord(end.getTranslation());
+
+    var path = findFullPath(startCoord, endCoord);
+    if (path.isEmpty()) return Optional.empty();
+    var criticalPoints = findCriticalPoints(path.get());
+    var neededCriticalPoints = simplifyCriticalPoints(criticalPoints);
+    var pathPoints = computePathPointsFromCriticalPoints(neededCriticalPoints);
+
+    PathPlannerTrajectory trajectory = PathPlanner.generatePath(constraints, pathPoints);
+
+    return Optional.of(trajectory);
   }
 }
