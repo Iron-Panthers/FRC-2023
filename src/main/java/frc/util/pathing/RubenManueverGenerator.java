@@ -227,14 +227,55 @@ public class RubenManueverGenerator {
   }
 
   /**
-   * Takes a list of critical points, and removes those that are less than a threshold from the line
-   * between their previous and next point. Will always keep the first and last point.
+   * Takes a list of critical points, and removes those don't contribute to the path.
    *
    * @param criticalPoints
    * @return The list of critical points with the unnecessary points removed.
    */
   public static List<GridCoord> simplifyCriticalPoints(List<GridCoord> criticalPoints) {
     List<GridCoord> simplifiedCriticalPoints = new ArrayList<>();
+    // remove corner patterns, replacing with a single point
+    // never remove the first or last point--if they are part of a corner pattern, remove the point
+    // that is not a start or end entirely
+    for (int i = 0; i < criticalPoints.size() - 1; i++) {
+      GridCoord p1 = criticalPoints.get(i);
+      GridCoord p2 = criticalPoints.get(i + 1);
+
+      if (isCornerPattern(p1, p2)) {
+        if (criticalPoints.size() <= i + 2) {
+          simplifiedCriticalPoints.add(p2);
+        } else {
+          // if the two points are adjacent diagonally
+          GridCoord p3 = criticalPoints.get(i + 2);
+          if (p1.x == p2.x) {
+            // if the two points are horizontal
+            if (p2.y == p3.y) {
+              // if the third point is horizontal
+              simplifiedCriticalPoints.add(new GridCoord(p1.x, p2.y));
+            } else {
+              // if the third point is vertical
+              simplifiedCriticalPoints.add(new GridCoord(p2.x, p1.y));
+            }
+          } else {
+            // if the two points are vertical
+            if (p2.x == p3.x) {
+              // if the third point is vertical
+              simplifiedCriticalPoints.add(new GridCoord(p2.x, p1.y));
+            } else {
+              // if the third point is horizontal
+              simplifiedCriticalPoints.add(new GridCoord(p1.x, p2.y));
+            }
+          }
+          i++;
+        }
+      } else {
+        simplifiedCriticalPoints.add(p1);
+      }
+    }
+    if (simplifiedCriticalPoints.get(simplifiedCriticalPoints.size() - 1)
+        != criticalPoints.get(criticalPoints.size() - 1)) {
+      simplifiedCriticalPoints.add(criticalPoints.get(criticalPoints.size() - 1));
+    }
     return simplifiedCriticalPoints;
   }
 
