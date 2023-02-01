@@ -251,15 +251,20 @@ public class RubenManueverGenerator {
       GridCoord current = criticalPoints.get(i);
       GridCoord next = criticalPoints.get(i + 1);
 
-      // if the current point does not diverge far enough from the line between the previous and
-      // next
-      // point, then it is not an important critical point
-      if (Math.abs(
-              (next.y - prev.y) * current.x
-                  - (next.x - prev.x) * current.y
-                  + next.x * prev.y
-                  - next.y * prev.x)
-          > Pathing.CRITICAL_POINT_DIVERGENCE_THRESHOLD) {
+      // next point, and removing the point does not create a line that intersects obstructed tiles,
+      // then it is not an important critical point
+      /*
+      the distance d between the point with cords (x_0, y_0) and the line written
+      in the general form ax+by+c = 0 is the following
+      d = |ax_0 + by_0 + c| / sqrt(a^2 + b^2)
+      */
+      double a = (double) prev.y - (double) next.y;
+      double b = (double) next.x - (double) prev.x;
+      double c = (double) prev.x * next.y - (double) next.x * prev.y;
+
+      double distance = Math.abs(a * current.x + b * current.y + c) / Math.sqrt(a * a + b * b);
+
+      if (distance >= Pathing.CRITICAL_POINT_DIVERGENCE_THRESHOLD) {
         simplifiedCriticalPoints.add(current);
       }
     }
