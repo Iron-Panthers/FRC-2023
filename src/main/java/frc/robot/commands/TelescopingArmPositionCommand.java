@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.TelescopingArmSubysytem;
 
 public class TelescopingArmPositionCommand extends CommandBase {
   private TelescopingArmSubysytem armSubystem;
@@ -14,7 +15,7 @@ public class TelescopingArmPositionCommand extends CommandBase {
     // Use addRequirements() here to declare subsystem dependencies.
     armSubystem = subsystem;
     this.targetPosition = targetPosition;
-    
+
     addRequirements(armSubystem);
   }
 
