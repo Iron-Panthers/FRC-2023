@@ -234,6 +234,12 @@ public class RubenManueverGenerator {
    * @return The list of critical points with the unnecessary points removed.
    */
   public static List<GridCoord> simplifyCriticalPoints(List<GridCoord> criticalPoints) {
+    return simplifyCriticalPoints(criticalPoints, 0);
+  }
+
+  private static List<GridCoord> simplifyCriticalPoints(List<GridCoord> criticalPoints, int pass) {
+    if (pass > 2) return criticalPoints;
+
     List<GridCoord> simplifiedCriticalPoints = new ArrayList<>();
 
     if (criticalPoints.size() > 0) {
@@ -302,7 +308,7 @@ public class RubenManueverGenerator {
           simplifiedCriticalPoints.get(simplifiedCriticalPoints.size() - 1));
     }
 
-    return simplifiedAndDeCorneredCriticalPoints;
+    return simplifyCriticalPoints(simplifiedAndDeCorneredCriticalPoints, pass + 1);
   }
 
   private static Rotation2d straightLineAngle(Translation2d start, Translation2d end) {
