@@ -234,86 +234,8 @@ public class RubenManueverGenerator {
    * @return The list of critical points with the unnecessary points removed.
    */
   public static List<GridCoord> simplifyCriticalPoints(List<GridCoord> criticalPoints) {
-    return simplifyCriticalPoints(criticalPoints, 0);
-  }
-
-  private static List<GridCoord> simplifyCriticalPoints(List<GridCoord> criticalPoints, int pass) {
-    if (pass > 2) return criticalPoints;
-
     List<GridCoord> simplifiedCriticalPoints = new ArrayList<>();
-
-    if (criticalPoints.size() > 0) {
-      simplifiedCriticalPoints.add(criticalPoints.get(0));
-    }
-
-    for (int i = 1; i < criticalPoints.size() - 1; i++) {
-      GridCoord prev = criticalPoints.get(i - 1);
-      GridCoord current = criticalPoints.get(i);
-      GridCoord next = criticalPoints.get(i + 1);
-
-      // next point, and removing the point does not create a line that intersects obstructed tiles,
-      // then it is not an important critical point
-      /*
-      the distance d between the point with cords (x_0, y_0) and the line written
-      in the general form ax+by+c = 0 is the following
-      d = |ax_0 + by_0 + c| / sqrt(a^2 + b^2)
-      */
-      double a = (double) prev.y - (double) next.y;
-      double b = (double) next.x - (double) prev.x;
-      double c = (double) prev.x * next.y - (double) next.x * prev.y;
-
-      double distance = Math.abs(a * current.x + b * current.y + c) / Math.sqrt(a * a + b * b);
-
-      if (distance >= Pathing.CRITICAL_POINT_DIVERGENCE_THRESHOLD) {
-        simplifiedCriticalPoints.add(current);
-      }
-    }
-
-    if (criticalPoints.size() > 1) {
-      simplifiedCriticalPoints.add(criticalPoints.get(criticalPoints.size() - 1));
-    }
-
-    // there are no corner patterns if there are less than 3 points
-    if (simplifiedCriticalPoints.size() < 3) return simplifiedCriticalPoints;
-
-    List<GridCoord> simplifiedAndDeCorneredCriticalPoints = new ArrayList<>();
-
-    // if the first two points match the pattern, keep the first point
-    // if the last two points match the pattern, keep the last point
-    // if two points match the pattern, keep the y of the first point and the x of the second point
-    // if two points don't match the pattern, keep both points
-
-    if (isCornerPattern(simplifiedCriticalPoints.get(0), simplifiedCriticalPoints.get(1))) {
-      simplifiedAndDeCorneredCriticalPoints.add(simplifiedCriticalPoints.get(0));
-    } else {
-      simplifiedAndDeCorneredCriticalPoints.add(simplifiedCriticalPoints.get(0));
-      simplifiedAndDeCorneredCriticalPoints.add(simplifiedCriticalPoints.get(1));
-    }
-    int i = 2;
-    while (i < simplifiedCriticalPoints.size() - 2) {
-      if (isCornerPattern(simplifiedCriticalPoints.get(i), simplifiedCriticalPoints.get(i + 1))) {
-        simplifiedAndDeCorneredCriticalPoints.add(
-            new GridCoord(
-                simplifiedCriticalPoints.get(i).x, simplifiedCriticalPoints.get(i + 1).y));
-        i += 2;
-      } else {
-        simplifiedAndDeCorneredCriticalPoints.add(simplifiedCriticalPoints.get(i));
-        i++;
-      }
-    }
-    if (isCornerPattern(
-        simplifiedCriticalPoints.get(simplifiedCriticalPoints.size() - 2),
-        simplifiedCriticalPoints.get(simplifiedCriticalPoints.size() - 1))) {
-      simplifiedAndDeCorneredCriticalPoints.add(
-          simplifiedCriticalPoints.get(simplifiedCriticalPoints.size() - 1));
-    } else {
-      simplifiedAndDeCorneredCriticalPoints.add(
-          simplifiedCriticalPoints.get(simplifiedCriticalPoints.size() - 2));
-      simplifiedAndDeCorneredCriticalPoints.add(
-          simplifiedCriticalPoints.get(simplifiedCriticalPoints.size() - 1));
-    }
-
-    return simplifyCriticalPoints(simplifiedAndDeCorneredCriticalPoints, pass + 1);
+    return simplifiedCriticalPoints;
   }
 
   private static Rotation2d straightLineAngle(Translation2d start, Translation2d end) {
