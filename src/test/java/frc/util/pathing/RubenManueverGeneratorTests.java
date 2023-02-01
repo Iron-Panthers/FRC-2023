@@ -280,7 +280,10 @@ public class RubenManueverGeneratorTests {
   public static Stream<Arguments> computePathPointsForSplineProvider() {
     return Stream.of(
         Arguments.of(new GridCoord(50, 50), new GridCoord(50, 55)),
-        Arguments.of(new GridCoord(10, 62), new GridCoord(32, 10))
+        Arguments.of(new GridCoord(10, 62), new GridCoord(32, 10)),
+        Arguments.of(
+            new GridCoord(new Translation2d(14.94, 6.78)),
+            new GridCoord(new Translation2d(2.34, .78)))
         // load bearing comment (hold the final brace)
         );
   }
@@ -293,6 +296,9 @@ public class RubenManueverGeneratorTests {
     FieldSquare[][] fieldSquares = placeObstructions();
 
     var path = rubenManueverGenerator.findFullPath(start, end);
+    if (path.isEmpty()) {
+      fail(String.format("No path found from %s to %s", start, end));
+    }
     var criticalPoints = RubenManueverGenerator.findCriticalPoints(path.get());
     var neededCriticalPoints = RubenManueverGenerator.simplifyCriticalPoints(criticalPoints);
     var pathPoints =
