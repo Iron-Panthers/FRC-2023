@@ -34,6 +34,7 @@ import frc.util.ControllerUtil;
 import frc.util.Layer;
 import frc.util.MacUtil;
 import frc.util.Util;
+import frc.util.pathing.RubenManueverGenerator;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -48,6 +49,8 @@ public class RobotContainer {
   private final VisionSubsystem visionSubsystem = new VisionSubsystem();
 
   private final DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem(visionSubsystem);
+
+  private final RubenManueverGenerator manueverGenerator = new RubenManueverGenerator();
 
   /** controller 1 */
   private final CommandXboxController jason = new CommandXboxController(1);
@@ -151,6 +154,7 @@ public class RobotContainer {
             new DriveToPlaceCommand(
                 drivebaseSubsystem,
                 visionSubsystem,
+                manueverGenerator,
                 new Pose2d(1.8, .5, Rotation2d.fromDegrees(180))));
 
     will.y()
@@ -158,6 +162,7 @@ public class RobotContainer {
             new DriveToPlaceCommand(
                 drivebaseSubsystem,
                 visionSubsystem,
+                manueverGenerator,
                 new Pose2d(1.8, 4.97, Rotation2d.fromDegrees(180))));
   }
 

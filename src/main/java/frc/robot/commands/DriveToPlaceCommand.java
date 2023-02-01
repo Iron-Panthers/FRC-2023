@@ -21,11 +21,13 @@ import frc.util.AdvancedSwerveTrajectoryFollower;
 import frc.util.AsyncWorker;
 import frc.util.AsyncWorker.Result;
 import frc.util.Util;
+import frc.util.pathing.RubenManueverGenerator;
 
 public class DriveToPlaceCommand extends CommandBase {
 
   private final DrivebaseSubsystem drivebaseSubsystem;
   private final VisionSubsystem visionSubsystem;
+  private final RubenManueverGenerator manueverGenerator;
 
   private final Pose2d observationPose;
   private final Pose2d finalPose;
@@ -45,12 +47,14 @@ public class DriveToPlaceCommand extends CommandBase {
   public DriveToPlaceCommand(
       DrivebaseSubsystem drivebaseSubsystem,
       VisionSubsystem visionSubsystem,
+      RubenManueverGenerator manueverGenerator,
       Pose2d observationPose,
       Pose2d finalPose,
       double observationTime) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drivebaseSubsystem = drivebaseSubsystem;
     this.visionSubsystem = visionSubsystem;
+    this.manueverGenerator = manueverGenerator;
     this.observationPose = observationPose;
     this.finalPose = finalPose;
     this.observationTime = observationTime;
@@ -68,8 +72,11 @@ public class DriveToPlaceCommand extends CommandBase {
    * @param finalPose The final pose to put the robot in.
    */
   public DriveToPlaceCommand(
-      DrivebaseSubsystem drivebaseSubsystem, VisionSubsystem visionSubsystem, Pose2d finalPose) {
-    this(drivebaseSubsystem, visionSubsystem, finalPose, finalPose, 0.1);
+      DrivebaseSubsystem drivebaseSubsystem,
+      VisionSubsystem visionSubsystem,
+      RubenManueverGenerator manueverGenerator,
+      Pose2d finalPose) {
+    this(drivebaseSubsystem, visionSubsystem, manueverGenerator, finalPose, finalPose, 0.1);
   }
 
   private Rotation2d straightLineAngle(Translation2d start, Translation2d end) {
@@ -92,33 +99,12 @@ public class DriveToPlaceCommand extends CommandBase {
     System.out.println("gen observation trajectory");
     hasObserved = true;
     var currentPose = drivebaseSubsystem.getPose();
-    var initialPoint =
-        new PathPoint(
-            currentPose.getTranslation(),
-            straightLineAngle(currentPose.getTranslation(), finalPose.getTranslation()),
-            // holonomic rotation should start at our current rotation
-            currentPose.getRotation());
 
-    var cameraObservationRobotAngle = observationPose.getRotation();
-    // visionSubsystem
-    //     .getRobotAngleToPointClosestCameraAtTargetAngle(observationPose.getRotation())
-    //     .orElse(observationPose.getRotation());
-
-    var observationPoint =
-        new PathPoint(
-            // drive until we are .2 meter away from the final position
-            observationPose.getTranslation(),
-            // drive in a straight line to the final position
-            straightLineAngle(currentPose.getTranslation(), observationPose.getTranslation()),
-            // holonomic rotation should be the same as the final rotation to ensure tag visibility
-
-            cameraObservationRobotAngle);
-
-    return asyncPathGen(
-        new PathConstraints(10, 4),
-        initialPoint,
-        // stop near the goal to read apriltags
-        observationPoint);
+    return trajectGenerator.submit(
+        () ->
+            manueverGenerator
+                .computePath(currentPose, observationPose, new PathConstraints(5, 2))
+                .get());
   }
 
   private Result<PathPlannerTrajectory> createAdjustTrajectory() {
