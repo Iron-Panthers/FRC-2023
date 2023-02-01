@@ -4,21 +4,22 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.TelescopingArm;
-
 
 public class TelescopingArmSubysytem extends SubsystemBase {
   private TalonFX motor;
   private PIDController pidController;
   private double position; // measured in inches
   private double targetPosition;
-  
+
   private final ShuffleboardTab tab = Shuffleboard.getTab("Telescoping Arm");
   /** Creates a new TelescopingArmSubysytem. */
   public TelescopingArmSubysytem() {
@@ -43,7 +44,6 @@ public class TelescopingArmSubysytem extends SubsystemBase {
     tab.add("PID", pidController);
     tab.addNumber("Current Position", this::getCurrentPosition);
     tab.addNumber("Target Position", () -> targetPosition);
-    
   }
 
   public static double heightToTicks(double height) {
@@ -58,7 +58,7 @@ public class TelescopingArmSubysytem extends SubsystemBase {
     targetPosition = position;
   }
 
-  public void getCurrentPosition() {
+  public double getCurrentPosition() {
     position = motor.getSelectedSensorPosition();
     return position;
   }

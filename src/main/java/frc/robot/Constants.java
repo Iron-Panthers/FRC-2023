@@ -167,6 +167,5 @@ public final class Constants {
     public static final int TICKS = 2048;
     public static final int GEAR_RATIO = 3;
     public static final double SPOOL_CIRCUMFERENCE = 1.5 * Math.PI;
-
   }
 }
