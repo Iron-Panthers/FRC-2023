@@ -19,6 +19,7 @@ public class TelescopingArmSubysytem extends SubsystemBase {
   private PIDController pidController;
   private double position; // measured in inches
   private double targetPosition;
+  private double pidOutput;
 
   private final ShuffleboardTab tab = Shuffleboard.getTab("Telescoping Arm");
   /** Creates a new TelescopingArmSubysytem. */
@@ -28,30 +29,40 @@ public class TelescopingArmSubysytem extends SubsystemBase {
 
     position = 0;
     targetPosition = 0;
+    pidOutput = 0;
 
     motor.configFactoryDefault(); // do we need this??
 
-    motor.configForwardSoftLimitThreshold(
-        heightToTicks(TelescopingArm.MIN_EXTENSION), 0); // this is the bottom limit
-    motor.configReverseSoftLimitThreshold(
-        heightToTicks(TelescopingArm.MAX_EXTENSION), 0); // this is the top limit
+    motor.setInverted(true);
 
-    motor.configForwardSoftLimitEnable(true, 0);
-    motor.configReverseSoftLimitEnable(true, 0);
+    motor.setSelectedSensorPosition(0);
+
+    // motor.configForwardSoftLimitThreshold(
+    //     heightToTicks(TelescopingArm.MAX_EXTENSION), 20); // this is the top limit
+    // motor.configReverseSoftLimitThreshold(
+    //     heightToTicks(TelescopingArm.MIN_EXTENSION), 20); // this is the bottom limit
+
+    // motor.configForwardSoftLimitEnable(true, 20);
+    // motor.configReverseSoftLimitEnable(true, 20);
 
     motor.setNeutralMode(NeutralMode.Brake);
 
     tab.add("PID", pidController);
     tab.addNumber("Current Position", this::getCurrentPosition);
     tab.addNumber("Target Position", () -> targetPosition);
+    tab.addNumber("Percent Output", this::getPercentOutput);
+    tab.addNumber("PID Output", () -> pidOutput);
   }
 
   public static double heightToTicks(double height) {
-    return height / TelescopingArm.SPOOL_CIRCUMFERENCE * TelescopingArm.GEAR_RATIO;
+    return (height / TelescopingArm.SPOOL_CIRCUMFERENCE)
+        * TelescopingArm.GEAR_RATIO
+        * TelescopingArm.TICKS;
   }
 
   public static double ticksToHeight(double ticks) {
-    return ticks / TelescopingArm.GEAR_RATIO * TelescopingArm.SPOOL_CIRCUMFERENCE;
+    return ((ticks / TelescopingArm.TICKS) / TelescopingArm.GEAR_RATIO)
+        * TelescopingArm.SPOOL_CIRCUMFERENCE;
   }
 
   public void setTargetPosition(double position) {
@@ -59,15 +70,20 @@ public class TelescopingArmSubysytem extends SubsystemBase {
   }
 
   public double getCurrentPosition() {
-    position = motor.getSelectedSensorPosition();
+    position = ticksToHeight(motor.getSelectedSensorPosition());
     return position;
+  }
+
+  public double getPercentOutput() {
+    return motor.getMotorOutputPercent();
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
 
-    double pidOutput = MathUtil.clamp(pidController.calculate(position, targetPosition), -0.1, 0.1);
+    pidOutput =
+        MathUtil.clamp(pidController.calculate(getCurrentPosition(), targetPosition), -0.2, 0.2);
     motor.set(TalonFXControlMode.PercentOutput, pidOutput);
   }
 }
