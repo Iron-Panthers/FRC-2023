@@ -171,23 +171,27 @@ public class RubenManueverGenerator {
   public static List<GridCoord> findCriticalPoints(List<GridCoord> path) {
     List<GridCoord> criticalPoints = new ArrayList<>();
 
-    if (path.size() > 0) {
-      criticalPoints.add(path.get(0));
-    }
-
-    for (int i = 1; i < path.size() - 1; i++) {
-      GridCoord prev = path.get(i - 1);
-      GridCoord current = path.get(i);
-      GridCoord next = path.get(i + 1);
-
-      if (isCriticalPoint(prev, current, next)) {
-        criticalPoints.add(current);
+    // find critical points by determining the furthest two points that are equivalent
+    int startPosition = 0;
+    int endPosition = 1;
+    while (endPosition < path.size()) {
+      var line = GridCoord.line(path.get(startPosition), path.get(endPosition));
+      boolean isEquivalent = true;
+      for (int i = 0; i < line.size(); i++) {
+        if (!line.get(i).equals(path.get(startPosition + i))) {
+          isEquivalent = false;
+          break;
+        }
+      }
+      if (isEquivalent) {
+        endPosition++;
+      } else {
+        criticalPoints.add(path.get(startPosition));
+        startPosition = endPosition - 1;
       }
     }
 
-    if (path.size() > 1) {
-      criticalPoints.add(path.get(path.size() - 1));
-    }
+    criticalPoints.add(path.get(path.size() - 1));
 
     return criticalPoints;
   }
@@ -233,6 +237,11 @@ public class RubenManueverGenerator {
    * @return The list of critical points with the unnecessary points removed.
    */
   public static List<GridCoord> simplifyCriticalPoints(List<GridCoord> criticalPoints) {
+    // cannot simplify a path with less than 3 points
+    if (criticalPoints.size() <= 2) {
+      return criticalPoints;
+    }
+
     List<GridCoord> simplifiedCriticalPoints = new ArrayList<>();
     // remove corner patterns, replacing with a single point
     // never remove the first or last point--if they are part of a corner pattern, remove the point
