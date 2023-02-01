@@ -235,7 +235,10 @@ public class RubenManueverGeneratorTests {
   public static Stream<Arguments> findRedundantCriticalPointsProvider() {
     return Stream.of(
         Arguments.of(new GridCoord(50, 50), new GridCoord(50, 55)),
-        Arguments.of(new GridCoord(10, 62), new GridCoord(32, 10))
+        Arguments.of(new GridCoord(10, 62), new GridCoord(32, 10)),
+        Arguments.of(
+            new GridCoord(new Translation2d(14.94, 6.78)),
+            new GridCoord(new Translation2d(2.34, .78)))
         // load bearing comment (hold the final brace)
         );
   }
