@@ -169,6 +169,10 @@ public class RubenManueverGenerator {
    * @return The list of critical points.
    */
   public static List<GridCoord> findCriticalPoints(List<GridCoord> path) {
+    if (path.size() < 3) {
+      return path;
+    }
+
     List<GridCoord> criticalPoints = new ArrayList<>();
 
     // find critical points by determining the furthest two points that are equivalent
@@ -190,8 +194,8 @@ public class RubenManueverGenerator {
         startPosition = endPosition - 1;
       }
     }
-
-    criticalPoints.add(path.get(path.size() - 1));
+    criticalPoints.add(path.get(startPosition));
+    criticalPoints.add(path.get(endPosition - 1));
 
     return criticalPoints;
   }
