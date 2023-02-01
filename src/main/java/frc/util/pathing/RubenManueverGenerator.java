@@ -235,12 +235,13 @@ public class RubenManueverGenerator {
   }
 
   /**
-   * Takes a list of critical points, and removes those don't contribute to the path.
+   * Takes a list of critical points, and removes those don't contribute to the path, like corner
+   * patterns and points that are almost a straight line.
    *
    * @param criticalPoints
    * @return The list of critical points with the unnecessary points removed.
    */
-  public static List<GridCoord> simplifyCriticalPoints(List<GridCoord> criticalPoints) {
+  public List<GridCoord> simplifyCriticalPoints(List<GridCoord> criticalPoints) {
     // cannot simplify a path with less than 3 points
     if (criticalPoints.size() <= 2) {
       return criticalPoints;
@@ -289,6 +290,57 @@ public class RubenManueverGenerator {
         != criticalPoints.get(criticalPoints.size() - 1)) {
       simplifiedCriticalPoints.add(criticalPoints.get(criticalPoints.size() - 1));
     }
+
+    // remove points that are almost a straight line
+    // this is done by finding a point that is within threshold distance of a line between the
+    // previous and next point
+    // and then making a new line between the previous and next point
+    // and ensuring that new line does not have any points in the collision grid
+    // if it does, then the point is not removed
+    // if it does not, then the point is removed
+    // this process is repeated until no points are removed
+
+    // if the path is too short to remove any points, return the original path
+    if (simplifiedCriticalPoints.size() <= 2) {
+      return simplifiedCriticalPoints;
+    }
+
+    boolean removedPoint = true;
+    while (removedPoint) {
+      removedPoint = false;
+      for (int i = 1; i < simplifiedCriticalPoints.size() - 1; i++) {
+        GridCoord p1 = simplifiedCriticalPoints.get(i - 1);
+        GridCoord p2 = simplifiedCriticalPoints.get(i);
+        GridCoord p3 = simplifiedCriticalPoints.get(i + 1);
+
+        /** d = |ax_0 + by_0 + c| / sqrt(a^2 + b^2) */
+        double a = p1.y - (double) p3.y;
+        double b = p3.x - (double) p1.x;
+        double c = p1.x * p3.y - (double) p3.x * p1.y;
+        double d = Math.abs(a * p2.x + b * p2.y + c) / Math.sqrt(a * a + b * b);
+
+        // if the point is within threshold distance of a line between the previous and next point
+        if (d < Pathing.CRITICAL_POINT_DIVERGENCE_THRESHOLD) {
+          // make a new line between the previous and next point
+          List<GridCoord> line = GridCoord.line(p1, p3);
+          // and ensure that new line does not have any points in the collision grid
+          boolean hasCollision = false;
+          for (GridCoord point : line) {
+            if (collisionGrid[point.x][point.y]) {
+              hasCollision = true;
+              break;
+            }
+          }
+          // if it does not, then the point is removed
+          if (!hasCollision) {
+            simplifiedCriticalPoints.remove(i);
+            removedPoint = true;
+            break;
+          }
+        }
+      }
+    }
+
     return simplifiedCriticalPoints;
   }
 

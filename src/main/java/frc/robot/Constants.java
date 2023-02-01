@@ -176,6 +176,6 @@ public final class Constants {
         // needed
         (int) Math.floor((Dims.BUMPER_WIDTH_METERS / 2) / Pathing.CELL_SIZE_METERS);
 
-    public static final double CRITICAL_POINT_DIVERGENCE_THRESHOLD = 1;
+    public static final double CRITICAL_POINT_DIVERGENCE_THRESHOLD = 2.5;
   }
 }
