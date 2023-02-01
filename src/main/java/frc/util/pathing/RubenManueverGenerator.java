@@ -192,6 +192,40 @@ public class RubenManueverGenerator {
     return criticalPoints;
   }
 
+  /*
+  Where . is empty space, X is a point on the path, and * is a critical point:
+
+  detect patterns that look like
+  XX.
+  ..X
+  ..X
+
+  with critical points
+  X*.
+  ..*
+  ..X
+
+  and simplify them to
+  XX*
+  ..X
+  ..X
+
+  additionally, detect the mirrored variants of this pattern, like
+  X..
+  *..
+  .*x
+
+  or
+
+  X*.
+  ..*
+  ..X
+  */
+  private static boolean isCornerPattern(GridCoord p1, GridCoord p2) {
+    // if the two points are adjacent diagonally
+    return Math.abs(p1.x - p2.x) == 1 && Math.abs(p1.y - p2.y) == 1;
+  }
+
   /**
    * Takes a list of critical points, and removes those that are less than a threshold from the line
    * between their previous and next point. Will always keep the first and last point.
@@ -228,7 +262,47 @@ public class RubenManueverGenerator {
       simplifiedCriticalPoints.add(criticalPoints.get(criticalPoints.size() - 1));
     }
 
-    return simplifiedCriticalPoints;
+    // there are no corner patterns if there are less than 3 points
+    if (simplifiedCriticalPoints.size() < 3) return simplifiedCriticalPoints;
+
+    List<GridCoord> simplifiedAndDeCorneredCriticalPoints = new ArrayList<>();
+
+    // if the first two points match the pattern, keep the first point
+    // if the last two points match the pattern, keep the last point
+    // if two points match the pattern, keep the y of the first point and the x of the second point
+    // if two points don't match the pattern, keep both points
+
+    if (isCornerPattern(simplifiedCriticalPoints.get(0), simplifiedCriticalPoints.get(1))) {
+      simplifiedAndDeCorneredCriticalPoints.add(simplifiedCriticalPoints.get(0));
+    } else {
+      simplifiedAndDeCorneredCriticalPoints.add(simplifiedCriticalPoints.get(0));
+      simplifiedAndDeCorneredCriticalPoints.add(simplifiedCriticalPoints.get(1));
+    }
+    int i = 2;
+    while (i < simplifiedCriticalPoints.size() - 2) {
+      if (isCornerPattern(simplifiedCriticalPoints.get(i), simplifiedCriticalPoints.get(i + 1))) {
+        simplifiedAndDeCorneredCriticalPoints.add(
+            new GridCoord(
+                simplifiedCriticalPoints.get(i).x, simplifiedCriticalPoints.get(i + 1).y));
+        i += 2;
+      } else {
+        simplifiedAndDeCorneredCriticalPoints.add(simplifiedCriticalPoints.get(i));
+        i++;
+      }
+    }
+    if (isCornerPattern(
+        simplifiedCriticalPoints.get(simplifiedCriticalPoints.size() - 2),
+        simplifiedCriticalPoints.get(simplifiedCriticalPoints.size() - 1))) {
+      simplifiedAndDeCorneredCriticalPoints.add(
+          simplifiedCriticalPoints.get(simplifiedCriticalPoints.size() - 1));
+    } else {
+      simplifiedAndDeCorneredCriticalPoints.add(
+          simplifiedCriticalPoints.get(simplifiedCriticalPoints.size() - 2));
+      simplifiedAndDeCorneredCriticalPoints.add(
+          simplifiedCriticalPoints.get(simplifiedCriticalPoints.size() - 1));
+    }
+
+    return simplifiedAndDeCorneredCriticalPoints;
   }
 
   private static Rotation2d straightLineAngle(Translation2d start, Translation2d end) {

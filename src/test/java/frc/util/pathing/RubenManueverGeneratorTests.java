@@ -19,6 +19,7 @@ import frc.robot.Constants.Pathing;
 import frc.util.Graph;
 import frc.util.pathing.DisplayFieldArray.FieldSquare;
 import java.lang.reflect.Field;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -254,16 +255,16 @@ public class RubenManueverGeneratorTests {
       fieldSquares[coord.x][coord.y] = FieldSquare.PATH;
     }
 
-    for (var coord : criticalPoints) {
+    var removedCriticalPoints = new HashSet<>(criticalPoints);
+    removedCriticalPoints.removeAll(neededCriticalPoints);
+
+    for (var coord : removedCriticalPoints) {
       fieldSquares[coord.x][coord.y] = FieldSquare.REDUNDANT_CRITICAL_POINT;
     }
 
     for (var coord : neededCriticalPoints) {
       fieldSquares[coord.x][coord.y] = FieldSquare.CRITICAL_POINT;
     }
-
-    // fieldSquares[start.x][start.y] = FieldSquare.START;
-    // fieldSquares[end.x][end.y] = FieldSquare.END;
 
     StringBuilder sb = new StringBuilder();
     DisplayFieldArray.renderField(sb, fieldSquares);
