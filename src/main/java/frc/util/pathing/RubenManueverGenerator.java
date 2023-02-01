@@ -14,7 +14,7 @@ public class RubenManueverGenerator {
 
   private final boolean[][] collisionGrid = new boolean[Pathing.CELL_X_MAX][Pathing.CELL_Y_MAX];
 
-  private static final double DIAGONAL_COST = Math.sqrt(2);
+  private static final double DIAGONAL_COST = Math.sqrt(2) + .001;
 
   /**
    * Determine if a given coordinate is valid for the pathing grid. Factors the robot's width into
