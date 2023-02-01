@@ -22,7 +22,7 @@ public class TelescopingArmSubysytem extends SubsystemBase {
   private final ShuffleboardTab tab = Shuffleboard.getTab("Telescoping Arm");
   /** Creates a new TelescopingArmSubysytem. */
   public TelescopingArmSubysytem() {
-    motor = new TalonFX(0); // TODO find CANID and put in constants
+    motor = new TalonFX(TelescopingArm.MOTOR_PORT); // TODO find CANID and put in constants
     pidController = new PIDController(0.01, 0, 0);
 
     position = 0;
