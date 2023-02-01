@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.UtilParamTest;
+import frc.UtilTest;
+import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -44,5 +46,25 @@ public class GridCoordTests {
   @MethodSource("getDistanceCorrectProvider")
   public void getDistanceCorrect(GridCoord a, GridCoord b, double expected) {
     assertEquals(expected, a.getDistance(b), String.format("Distance between %s and %s", a, b));
+  }
+
+  @UtilTest
+  public void generateLineWorksCorrectly() {
+    GridCoord a = new GridCoord(0, 0);
+    GridCoord b = new GridCoord(2, 2);
+    List<GridCoord> expected =
+        List.of(new GridCoord(0, 0), new GridCoord(1, 1), new GridCoord(2, 2));
+    List<GridCoord> actual = GridCoord.line(a, b);
+    assertEquals(expected, actual, String.format("Line between %s and %s", a, b));
+  }
+
+  @UtilTest
+  public void generateComplexLineWorksCorrectly() {
+    GridCoord a = new GridCoord(0, 0);
+    GridCoord b = new GridCoord(2, 3);
+    List<GridCoord> expected =
+        List.of(new GridCoord(0, 0), new GridCoord(1, 1), new GridCoord(1, 2), new GridCoord(2, 3));
+    List<GridCoord> actual = GridCoord.line(a, b);
+    assertEquals(expected, actual, String.format("Line between %s and %s", a, b));
   }
 }

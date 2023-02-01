@@ -2,6 +2,8 @@ package frc.util.pathing;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants.Pathing;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class GridCoord {
@@ -24,6 +26,35 @@ public class GridCoord {
 
   public double getDistance(GridCoord other) {
     return Math.sqrt(Math.pow(x - other.x, 2) + Math.pow(y - other.y, 2));
+  }
+
+  public static List<GridCoord> line(GridCoord start, GridCoord end) {
+    List<GridCoord> line = new ArrayList<>();
+    int x0 = start.x;
+    int y0 = start.y;
+    int x1 = end.x;
+    int y1 = end.y;
+    int dx = Math.abs(x1 - x0);
+    int dy = Math.abs(y1 - y0);
+    int sx = x0 < x1 ? 1 : -1;
+    int sy = y0 < y1 ? 1 : -1;
+    int err = dx - dy;
+    while (true) {
+      line.add(new GridCoord(x0, y0));
+      if (x0 == x1 && y0 == y1) {
+        break;
+      }
+      int e2 = 2 * err;
+      if (e2 > -dy) {
+        err = err - dy;
+        x0 = x0 + sx;
+      }
+      if (e2 < dx) {
+        err = err + dx;
+        y0 = y0 + sy;
+      }
+    }
+    return line;
   }
 
   @Override
