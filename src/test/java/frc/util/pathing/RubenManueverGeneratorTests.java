@@ -7,6 +7,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import au.com.origin.snapshots.Expect;
 import au.com.origin.snapshots.junit5.SnapshotExtension;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
@@ -150,12 +153,30 @@ public class RubenManueverGeneratorTests {
       }
     }
 
-    for (var coord : List.of(new GridCoord(10, 62), new GridCoord(32, 10))) {
+    var displayCoords =
+        List.of(
+            new GridCoord(10, 62),
+            new GridCoord(32, 10),
+            new GridCoord(new Translation2d(1.8, .5)),
+            new GridCoord(new Translation2d(14.75, .5)));
+
+    for (var coord : displayCoords) {
       fieldSquares[coord.x][coord.y] = FieldSquare.START;
     }
 
     StringBuilder sb = new StringBuilder();
     DisplayFieldArray.renderField(sb, fieldSquares);
+
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+    for (var coord : displayCoords) {
+      try {
+        sb.append(mapper.writeValueAsString(coord));
+      } catch (JsonProcessingException e) {
+        sb.append("failed to serialize coord\n");
+      }
+    }
 
     expect.toMatchSnapshot(sb.toString());
   }
