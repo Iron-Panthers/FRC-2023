@@ -59,6 +59,29 @@ public class RubenManueverGenerator {
     };
   }
 
+  private boolean robotCenterPointCollidesGivenWidth(int cellX, int cellY, int radius) {
+    // if the cell would would intersect the robots radius, mark it as a collision
+    var robotTopRight = new GridCoord(cellX + radius, cellY + radius);
+    var robotBottomLeft = new GridCoord(cellX - radius, cellY - radius);
+
+    for (var obstruction : FieldObstructionMap.obstructions) {
+      // rectangle intersection with robot body
+      if (obstruction instanceof FieldObstructionMap.RectangleObstruction) {
+        var rect = (FieldObstructionMap.RectangleObstruction) obstruction;
+        var rectTopRight = new GridCoord(rect.topRight);
+        var rectBottomLeft = new GridCoord(rect.bottomLeft);
+
+        if (robotTopRight.x >= rectBottomLeft.x
+            && robotTopRight.y >= rectBottomLeft.y
+            && robotBottomLeft.x <= rectTopRight.x
+            && robotBottomLeft.y <= rectTopRight.y) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   /**
    * Tool to find the critical spline points to go from {@link Pose2d} start to {@link Pose2d} end.
    * Construct this only once to reuse its adjacencyGraph.
@@ -76,38 +99,8 @@ public class RubenManueverGenerator {
         }
 
         // if the cell would would intersect the robots radius, mark it as a collision
-        var robotTopRight =
-            new GridCoord(
-                x + Pathing.ROBOT_RADIUS_UNDERESTIMATE_CELLS,
-                y + Pathing.ROBOT_RADIUS_UNDERESTIMATE_CELLS);
-        var robotBottomLeft =
-            new GridCoord(
-                x - Pathing.ROBOT_RADIUS_UNDERESTIMATE_CELLS,
-                y - Pathing.ROBOT_RADIUS_UNDERESTIMATE_CELLS);
-
-        boolean didIntersect = false;
-        for (var obstruction : FieldObstructionMap.obstructions) {
-          // rectangle intersection with robot body
-          if (obstruction instanceof FieldObstructionMap.RectangleObstruction) {
-            var rect = (FieldObstructionMap.RectangleObstruction) obstruction;
-            var rectTopRight = new GridCoord(rect.topRight);
-            var rectBottomLeft = new GridCoord(rect.bottomLeft);
-
-            if (robotTopRight.x >= rectBottomLeft.x
-                && robotTopRight.y >= rectBottomLeft.y
-                && robotBottomLeft.x <= rectTopRight.x
-                && robotBottomLeft.y <= rectTopRight.y) {
-              collisionGrid[x][y] = true;
-              didIntersect = true;
-              break;
-            }
-          }
-        }
-
-        // the cell is not a collision, so allow it to be traversed
-        if (!didIntersect) {
-          collisionGrid[x][y] = false;
-        }
+        collisionGrid[x][y] =
+            robotCenterPointCollidesGivenWidth(x, y, Pathing.ROBOT_RADIUS_UNDERESTIMATE_CELLS);
       }
     }
 
