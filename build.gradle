@@ -76,6 +76,10 @@ dependencies {
     testImplementation "org.mockito:mockito-core:3.+"
     testImplementation 'org.mockito:mockito-junit-jupiter:4.3.1'
 
+    // profiling!
+    testImplementation 'org.openjdk.jmh:jmh-core:1.19'
+    testImplementation 'org.openjdk.jmh:jmh-generator-annprocess:1.19'
+
     // snapshot testing!
     testImplementation 'io.github.origin-energy:java-snapshot-testing-junit5:4.+'
 
