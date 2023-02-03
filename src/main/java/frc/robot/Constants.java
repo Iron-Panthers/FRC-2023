@@ -157,4 +157,13 @@ public final class Constants {
 
     public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 2;
   }
+
+  public static final class Intake {
+    public static final class Ports {
+      public static final int ARM_MOTOR = 0; // FIRXME need real value
+      public static final int INTAKE_MOTOR = 0; // FIRXME need real value
+    }
+
+    public static final double ARM_HARDSTOP_CURRENT = 5; // FIRXME need real value
+  }
 }
