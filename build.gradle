@@ -124,6 +124,12 @@ test {
     }
 }
 
+jmh {
+    warmupIterations = 2
+    iterations = 5
+    fork = 1
+}
+
 // Configure jar and deploy tasks
 deployArtifact.jarTask = jar
 wpi.java.configureExecutableTasks(jar)
