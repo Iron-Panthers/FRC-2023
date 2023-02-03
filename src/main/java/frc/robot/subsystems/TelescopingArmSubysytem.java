@@ -25,7 +25,7 @@ public class TelescopingArmSubysytem extends SubsystemBase {
   /** Creates a new TelescopingArmSubysytem. */
   public TelescopingArmSubysytem() {
     motor = new TalonFX(TelescopingArm.MOTOR_PORT); // TODO find CANID and put in constants
-    pidController = new PIDController(0.01, 0, 0);
+    pidController = new PIDController(0.02, 0, 0);
 
     position = 0;
     targetPosition = 0;
@@ -37,13 +37,13 @@ public class TelescopingArmSubysytem extends SubsystemBase {
 
     motor.setSelectedSensorPosition(0);
 
-    // motor.configForwardSoftLimitThreshold(
-    //     heightToTicks(TelescopingArm.MAX_EXTENSION), 20); // this is the top limit
-    // motor.configReverseSoftLimitThreshold(
-    //     heightToTicks(TelescopingArm.MIN_EXTENSION), 20); // this is the bottom limit
+    motor.configForwardSoftLimitThreshold(
+        heightToTicks(TelescopingArm.MAX_EXTENSION), 0); // this is the top limit
+    motor.configReverseSoftLimitThreshold(
+        heightToTicks(TelescopingArm.MIN_EXTENSION), 0); // this is the bottom limit
 
-    // motor.configForwardSoftLimitEnable(true, 20);
-    // motor.configReverseSoftLimitEnable(true, 20);
+    motor.configForwardSoftLimitEnable(true, 0);
+    motor.configReverseSoftLimitEnable(true, 0);
 
     motor.setNeutralMode(NeutralMode.Brake);
 
