@@ -14,6 +14,7 @@ import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.UtilParamTest;
@@ -343,7 +344,10 @@ public class RubenManueverGeneratorTests {
     var criticalPoints = RubenManueverGenerator.findCriticalPoints(path.get());
     var neededCriticalPoints = rubenManueverGenerator.simplifyCriticalPoints(criticalPoints);
     var pathPoints =
-        RubenManueverGenerator.computePathPointsFromCriticalPoints(neededCriticalPoints);
+        RubenManueverGenerator.computePathPointsFromCriticalPoints(
+            neededCriticalPoints,
+            new Pose2d(start.toTranslation2d(), new Rotation2d()),
+            new Pose2d(end.toTranslation2d(), new Rotation2d()));
 
     for (var coord : path.get()) {
       fieldSquares[coord.x][coord.y] = FieldSquare.PATH;
