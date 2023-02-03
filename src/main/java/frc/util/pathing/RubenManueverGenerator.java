@@ -328,6 +328,9 @@ public class RubenManueverGenerator {
     boolean removedPoint = true;
     while (removedPoint) {
       removedPoint = false;
+      // we want to remove the points furthest from their neighbors first
+      int bestCandidate = -1;
+      double bestDistance = 0;
       for (int i = 1; i < simplifiedCriticalPoints.size() - 1; i++) {
         GridCoord p1 = simplifiedCriticalPoints.get(i - 1);
         GridCoord p2 = simplifiedCriticalPoints.get(i);
@@ -340,7 +343,8 @@ public class RubenManueverGenerator {
         double d = Math.abs(a * p2.x + b * p2.y + c) / Math.sqrt(a * a + b * b);
 
         // if the point is within threshold distance of a line between the previous and next point
-        if (d < Pathing.CRITICAL_POINT_DIVERGENCE_THRESHOLD) {
+        // and greater than the best candidate so far
+        if (d < Pathing.CRITICAL_POINT_DIVERGENCE_THRESHOLD && d > bestDistance) {
           // make a new line between the previous and next point
           List<GridCoord> line = GridCoord.line(p1, p3);
           // and ensure that new line does not have any points in the danger grid
@@ -351,13 +355,18 @@ public class RubenManueverGenerator {
               break;
             }
           }
-          // if it does not, then the point is removed
+          // if it does not, then the point is our new best candidate to remove
           if (!hasDanger) {
-            simplifiedCriticalPoints.remove(i);
-            removedPoint = true;
-            break;
+            bestCandidate = i;
+            bestDistance = d;
           }
         }
+      }
+      // if we found a point to remove
+      if (bestCandidate != -1) {
+        // remove it
+        simplifiedCriticalPoints.remove(bestCandidate);
+        removedPoint = true;
       }
     }
 
