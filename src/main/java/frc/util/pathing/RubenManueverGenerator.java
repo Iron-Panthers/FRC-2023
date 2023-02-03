@@ -407,7 +407,7 @@ public class RubenManueverGenerator {
               // find the angle between the previous and next point to maintain smooth curvature
               straightLineAngle(prev.toTranslation2d(), next.toTranslation2d()),
               // FIXME: interpolate this
-              new Rotation2d()));
+              end.getRotation()));
     }
 
     pathPoints.add(
