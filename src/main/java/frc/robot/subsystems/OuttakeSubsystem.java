@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.Optional;
+
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
@@ -21,10 +23,15 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class OuttakeSubsystem extends SubsystemBase {
   /** The modes of the drivebase subsystem */
   public enum Modes{
-    OPEN,
-    OPENING,
-    CLOSE,
-    HOLD
+    OPEN(Optional.empty()),
+    OPENING(Optional.of(Outtake.StatorCurrents.OPENING_FINISH)),
+    CLOSE(Optional.of(Outtake.StatorCurrents.ENDING_FINISH)),
+    HOLD(Optional.empty());
+
+    public final Optional<Double> statorTransitionCurrent;
+    private Modes(Optional<Double> statorTransitionCurrent) {
+      this.statorTransitionCurrent = statorTransitionCurrent;
+    }
 }
 
   private Modes mode;
@@ -120,28 +127,20 @@ public class OuttakeSubsystem extends SubsystemBase {
 
 
   public void advanceMode() {
-    switch (mode) {
-      case OPENING:
 
-      this.filterOutput = filter.calculate(this.outtake.getStatorCurrent());
-
-      // FIXME we really need to get these values down
-      if(filterOutput > 5) {
-        mode = Modes.OPEN;
+    if(mode.statorTransitionCurrent.isPresent() && filterOutput > mode.statorTransitionCurrent.get()){
+      switch (mode) {
+        case OPENING:
+           mode = Modes.OPEN;
+          break;
+        case CLOSE:
+            mode = Modes.HOLD;
+          break;
+        case OPEN:
+        case HOLD:
+          break;
       }
-        break;
-      case CLOSE:
-      this.filterOutput = filter.calculate(this.outtake.getStatorCurrent());
-
-        if(filterOutput > 5) {
-          mode = Modes.HOLD;
-        }
-        break;
-      case OPEN:
-      case HOLD:
-        break;
-     
-    }
+  }
 
   }
 
@@ -168,6 +167,8 @@ public class OuttakeSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+
+    this.filterOutput = this.filter.calculate(this.outtake.getStatorCurrent());
 
     advanceMode();
 
