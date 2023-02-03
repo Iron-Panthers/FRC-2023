@@ -75,8 +75,8 @@ public class GraphPathfinder {
 
   private GraphPathfinder() {}
 
-  private static double heuristic(GridCoord a, GridCoord b) {
-    return a.getDistance(b);
+  private static double heuristic(GridCoord a, GridCoord b, double heuristicConstant) {
+    return a.getDistance(b) * heuristicConstant;
   }
 
   private static List<GridCoord> reconstructPath(
@@ -99,7 +99,7 @@ public class GraphPathfinder {
    * @return The optimal path, or an empty optional if no path exists.
    */
   public static Optional<List<GridCoord>> findPath(
-      Graph<GridCoord> graph, GridCoord start, GridCoord end) {
+      Graph<GridCoord> graph, GridCoord start, GridCoord end, double heuristicConstant) {
 
     if (!graph.hasNode(start) || !graph.hasNode(end)) {
       return Optional.empty();
@@ -126,7 +126,7 @@ public class GraphPathfinder {
      * how cheap a path could be from start to finish if it goes through n.
      */
     HashMap<GridCoord, Double> fScore = new HashMap<>();
-    fScore.put(start, heuristic(start, end));
+    fScore.put(start, heuristic(start, end, heuristicConstant));
 
     openSet.add(start, fScore.get(start));
 
@@ -143,7 +143,7 @@ public class GraphPathfinder {
         if (tentativeGScore < gScore.getOrDefault(neighbor, Double.POSITIVE_INFINITY)) {
           cameFrom.put(neighbor, current);
           gScore.put(neighbor, tentativeGScore);
-          double fScoreValue = tentativeGScore + heuristic(neighbor, end);
+          double fScoreValue = tentativeGScore + heuristic(neighbor, end, heuristicConstant);
           fScore.put(neighbor, fScoreValue);
 
           if (!openSet.contains(neighbor)) {

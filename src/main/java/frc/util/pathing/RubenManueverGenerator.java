@@ -167,7 +167,8 @@ public class RubenManueverGenerator {
    * @return The list of grid coords between the start and end points.
    */
   public Optional<List<GridCoord>> findFullPath(GridCoord start, GridCoord end) {
-    return GraphPathfinder.findPath(adjacencyGraph, start, end);
+    return GraphPathfinder.findPath(
+        adjacencyGraph, start, end, Pathing.PATHFINDING_HEURISTIC_CONSTANT);
   }
 
   public static boolean isCriticalPoint(GridCoord prev, GridCoord current, GridCoord next) {

@@ -39,7 +39,7 @@ public class GraphPathfinderTests {
 
     assertEquals(
         Optional.of(List.of(coord(0, 0), coord(1, 0), coord(2, 0), coord(3, 0))),
-        GraphPathfinder.findPath(graph, coord(0, 0), coord(3, 0)));
+        GraphPathfinder.findPath(graph, coord(0, 0), coord(3, 0), 1));
   }
 
   @UtilTest
@@ -59,7 +59,7 @@ public class GraphPathfinderTests {
     // teleport!
     graph.addEdge(coord(5, 0), coord(0, 2), 2);
 
-    assertEquals(Optional.empty(), GraphPathfinder.findPath(graph, coord(0, 0), coord(0, 3)));
+    assertEquals(Optional.empty(), GraphPathfinder.findPath(graph, coord(0, 0), coord(0, 3), 1));
   }
 
   @UtilTest
@@ -78,7 +78,7 @@ public class GraphPathfinderTests {
 
     assertEquals(
         Optional.of(List.of(coord(0, 0), coord(1, 1), coord(2, 2), coord(3, 3))),
-        GraphPathfinder.findPath(graph, coord(0, 0), coord(3, 3)));
+        GraphPathfinder.findPath(graph, coord(0, 0), coord(3, 3), 1));
   }
 
   @UtilTest
@@ -114,6 +114,6 @@ public class GraphPathfinderTests {
     }
 
     assertEquals(
-        Optional.of(expectedPath), GraphPathfinder.findPath(graph, coord(0, 0), coord(3, 3)));
+        Optional.of(expectedPath), GraphPathfinder.findPath(graph, coord(0, 0), coord(3, 3), 1));
   }
 }
