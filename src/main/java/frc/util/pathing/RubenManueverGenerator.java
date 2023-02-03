@@ -384,19 +384,17 @@ public class RubenManueverGenerator {
   }
 
   public static List<PathPoint> computePathPointsFromCriticalPoints(
-      List<GridCoord> criticalPoints) {
+      List<GridCoord> criticalPoints, Pose2d start, Pose2d end) {
     List<PathPoint> pathPoints = new ArrayList<>();
 
     pathPoints.add(
         new PathPoint(
             // the position of the point
-            criticalPoints.get(0).toTranslation2d(),
+            start.getTranslation(),
             // the heading of the spline, pointing towards the next point
-            straightLineAngle(
-                criticalPoints.get(0).toTranslation2d(), criticalPoints.get(1).toTranslation2d()),
+            straightLineAngle(start.getTranslation(), criticalPoints.get(1).toTranslation2d()),
             // the rotation of the robot
-            // FIXME: interpolate this
-            new Rotation2d()));
+            start.getRotation()));
 
     for (int i = 1; i < criticalPoints.size() - 1; i++) {
       GridCoord prev = criticalPoints.get(i - 1);
@@ -408,16 +406,17 @@ public class RubenManueverGenerator {
               current.toTranslation2d(),
               // find the angle between the previous and next point to maintain smooth curvature
               straightLineAngle(prev.toTranslation2d(), next.toTranslation2d()),
+              // FIXME: interpolate this
               new Rotation2d()));
     }
 
     pathPoints.add(
         new PathPoint(
-            criticalPoints.get(criticalPoints.size() - 1).toTranslation2d(),
+            end.getTranslation(),
             straightLineAngle(
                 criticalPoints.get(criticalPoints.size() - 2).toTranslation2d(),
-                criticalPoints.get(criticalPoints.size() - 1).toTranslation2d()),
-            new Rotation2d()));
+                end.getTranslation()),
+            end.getRotation()));
 
     return pathPoints;
   }
@@ -432,7 +431,7 @@ public class RubenManueverGenerator {
     if (path.isEmpty()) return Optional.empty();
     var criticalPoints = findCriticalPoints(path.get());
     var neededCriticalPoints = simplifyCriticalPoints(criticalPoints);
-    var pathPoints = computePathPointsFromCriticalPoints(neededCriticalPoints);
+    var pathPoints = computePathPointsFromCriticalPoints(neededCriticalPoints, start, end);
 
     PathPlannerTrajectory trajectory = PathPlanner.generatePath(constraints, pathPoints);
 
