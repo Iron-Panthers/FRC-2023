@@ -130,6 +130,11 @@ jmh {
     fork = 1
 }
 
+tasks.create("bmPathfinding") {
+    jmh.includes.add("GraphPathfinderBenchmarks")
+    finalizedBy("jmh")
+}
+
 // Configure jar and deploy tasks
 deployArtifact.jarTask = jar
 wpi.java.configureExecutableTasks(jar)

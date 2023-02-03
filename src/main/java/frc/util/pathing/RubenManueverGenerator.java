@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class RubenManueverGenerator {
-  private final Graph<GridCoord> adjacencyGraph = new Graph<>();
+  public final Graph<GridCoord> adjacencyGraph = new Graph<>();
 
   private final boolean[][] dangerGrid = new boolean[Pathing.CELL_X_MAX][Pathing.CELL_Y_MAX];
   private final boolean[][] collisionGrid = new boolean[Pathing.CELL_X_MAX][Pathing.CELL_Y_MAX];
