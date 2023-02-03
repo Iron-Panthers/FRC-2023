@@ -126,30 +126,43 @@ public class RubenManueverGeneratorTests {
   public void internalCollisionGridMatchesSnapshot() {
     // use reflection to read the internal boolean[][] collisionGrid
     Optional<boolean[][]> optCollisionGrid = Optional.empty();
+    Optional<boolean[][]> optDangerGrid = Optional.empty();
     try {
-      Field field = RubenManueverGenerator.class.getDeclaredField("collisionGrid");
-      field.setAccessible(true);
+      Field field1 = RubenManueverGenerator.class.getDeclaredField("collisionGrid");
+      field1.setAccessible(true);
+      Field field2 = RubenManueverGenerator.class.getDeclaredField("dangerGrid");
+      field2.setAccessible(true);
 
-      var obj = field.get(new RubenManueverGenerator());
+      var obj1 = field1.get(new RubenManueverGenerator());
+      var obj2 = field2.get(new RubenManueverGenerator());
 
       optCollisionGrid =
-          obj instanceof boolean[][] ? Optional.of((boolean[][]) obj) : Optional.empty();
+          obj1 instanceof boolean[][] ? Optional.of((boolean[][]) obj1) : Optional.empty();
+      optDangerGrid =
+          obj2 instanceof boolean[][] ? Optional.of((boolean[][]) obj2) : Optional.empty();
     } catch (NoSuchFieldException | IllegalAccessException e) {
       e.printStackTrace();
     }
 
-    if (optCollisionGrid.isEmpty()) {
-      fail("optCollisionGrid is empty because reflection failed");
+    if (optCollisionGrid.isEmpty() || optDangerGrid.isEmpty()) {
+      fail("grids are empty because reflection failed");
     }
 
     FieldSquare[][] fieldSquares = new FieldSquare[Pathing.CELL_X_MAX][Pathing.CELL_Y_MAX];
 
     var collisionGrid = optCollisionGrid.get();
+    var dangerGrid = optDangerGrid.get();
 
     for (int x = 0; x < Pathing.CELL_X_MAX; x++) {
       for (int y = 0; y < Pathing.CELL_Y_MAX; y++) {
         // if the collision grid is true, the field square should be an obstruction
-        fieldSquares[x][y] = collisionGrid[x][y] ? FieldSquare.OBSTRUCTION : FieldSquare.EMPTY;
+        if (collisionGrid[x][y]) {
+          fieldSquares[x][y] = FieldSquare.OBSTRUCTION;
+        } else if (dangerGrid[x][y]) {
+          fieldSquares[x][y] = FieldSquare.DANGER;
+        } else {
+          fieldSquares[x][y] = FieldSquare.EMPTY;
+        }
       }
     }
 

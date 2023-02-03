@@ -4,6 +4,7 @@ public class DisplayFieldArray {
   public static enum FieldSquare {
     OBSTRUCTION("##"),
     EMPTY("  "),
+    DANGER("//"),
     PATH("▀▄"),
     START("SS"),
     END("EE"),

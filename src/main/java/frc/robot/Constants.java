@@ -171,13 +171,27 @@ public final class Constants {
     public static final int CELL_Y_MAX =
         (int) Math.ceil(FieldObstructionMap.FIELD_HEIGHT / Pathing.CELL_SIZE_METERS);
 
-    /** this variable is badly named, it refers to half the width decimated to the cell grid */
-    public static final int ROBOT_RADIUS_UNDERESTIMATE_CELLS =
+    /**
+     * this variable is badly named, it refers to half the width decimated to the cell grid. coords
+     * that require going within this distance will be very expensive for pathfinding.
+     */
+    public static final int ROBOT_RADIUS_DANGER_CELLS =
         // using floor is not a bug, we want to be able to drive up to the edge of the cell if
         // needed. this might not work too hot for other robot sizes, but for our size down is much
         // more reasonable than up for .1m cells
         (int) Math.floor((Dims.BUMPER_WIDTH_METERS / 2) / Pathing.CELL_SIZE_METERS);
 
+    /**
+     * grid coords that require going within this distance of field elements will be unavailable for
+     * pathfinding.
+     */
+    public static final int ROBOT_RADIUS_COLLISION_CELLS = ROBOT_RADIUS_DANGER_CELLS - 1;
+
     public static final double CRITICAL_POINT_DIVERGENCE_THRESHOLD = 2.5;
+
+    public static final class Costs {
+      public static final double DIAGONAL = Math.sqrt(2) + .001;
+      public static final double DANGER_MULTIPLIER = 50d;
+    }
   }
 }
