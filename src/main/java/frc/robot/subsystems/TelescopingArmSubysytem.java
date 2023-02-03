@@ -38,12 +38,12 @@ public class TelescopingArmSubysytem extends SubsystemBase {
     motor.setSelectedSensorPosition(0);
 
     motor.configForwardSoftLimitThreshold(
-        heightToTicks(TelescopingArm.MAX_EXTENSION), 0); // this is the top limit
+        heightToTicks(TelescopingArm.MAX_EXTENSION), 20); // this is the top limit
     motor.configReverseSoftLimitThreshold(
-        heightToTicks(TelescopingArm.MIN_EXTENSION), 0); // this is the bottom limit
+        heightToTicks(TelescopingArm.MIN_EXTENSION), 20); // this is the bottom limit
 
-    motor.configForwardSoftLimitEnable(true, 0);
-    motor.configReverseSoftLimitEnable(true, 0);
+    motor.configForwardSoftLimitEnable(true, 20);
+    motor.configReverseSoftLimitEnable(true, 20);
 
     motor.setNeutralMode(NeutralMode.Brake);
 
