@@ -179,13 +179,15 @@ public final class Constants {
         // using floor is not a bug, we want to be able to drive up to the edge of the cell if
         // needed. this might not work too hot for other robot sizes, but for our size down is much
         // more reasonable than up for .1m cells
-        (int) Math.floor((Dims.BUMPER_WIDTH_METERS / 2) / Pathing.CELL_SIZE_METERS);
+        // adding one serves to reduce the risk of a spline clipping something
+        (int) Math.floor((Dims.BUMPER_WIDTH_METERS / 2) / Pathing.CELL_SIZE_METERS) + 1;
 
     /**
      * grid coords that require going within this distance of field elements will be unavailable for
-     * pathfinding.
+     * pathfinding. subtracting one serves to make this number accurate because we added one
+     * earlier.
      */
-    public static final int ROBOT_RADIUS_COLLISION_CELLS = ROBOT_RADIUS_DANGER_CELLS - 1;
+    public static final int ROBOT_RADIUS_COLLISION_CELLS = ROBOT_RADIUS_DANGER_CELLS - 2;
 
     public static final double CRITICAL_POINT_DIVERGENCE_THRESHOLD = 6;
 
