@@ -343,16 +343,16 @@ public class RubenManueverGenerator {
         if (d < Pathing.CRITICAL_POINT_DIVERGENCE_THRESHOLD) {
           // make a new line between the previous and next point
           List<GridCoord> line = GridCoord.line(p1, p3);
-          // and ensure that new line does not have any points in the collision grid
-          boolean hasCollision = false;
+          // and ensure that new line does not have any points in the danger grid
+          boolean hasDanger = false;
           for (GridCoord point : line) {
-            if (collisionGrid[point.x][point.y]) {
-              hasCollision = true;
+            if (dangerGrid[point.x][point.y]) {
+              hasDanger = true;
               break;
             }
           }
           // if it does not, then the point is removed
-          if (!hasCollision) {
+          if (!hasDanger) {
             simplifiedCriticalPoints.remove(i);
             removedPoint = true;
             break;
