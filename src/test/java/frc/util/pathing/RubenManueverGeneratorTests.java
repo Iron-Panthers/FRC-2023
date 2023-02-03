@@ -320,7 +320,8 @@ public class RubenManueverGeneratorTests {
         Arguments.of(new GridCoord(10, 62), new GridCoord(32, 10)),
         Arguments.of(
             new GridCoord(new Translation2d(14.94, 6.78)),
-            new GridCoord(new Translation2d(2.34, .78)))
+            new GridCoord(new Translation2d(2.34, .78))),
+        Arguments.of(new GridCoord(71, 46), new GridCoord(new Translation2d(1.8, .5)))
         // load bearing comment (hold the final brace)
         );
   }
