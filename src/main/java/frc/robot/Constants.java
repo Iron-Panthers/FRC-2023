@@ -187,7 +187,7 @@ public final class Constants {
      */
     public static final int ROBOT_RADIUS_COLLISION_CELLS = ROBOT_RADIUS_DANGER_CELLS - 1;
 
-    public static final double CRITICAL_POINT_DIVERGENCE_THRESHOLD = 2.5;
+    public static final double CRITICAL_POINT_DIVERGENCE_THRESHOLD = 6;
 
     public static final class Costs {
       public static final double DIAGONAL = Math.sqrt(2) + .001;
