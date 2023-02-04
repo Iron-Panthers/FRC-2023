@@ -194,9 +194,9 @@ public final class Constants {
     public static final int PATHFINDING_HEURISTIC_CONSTANT = 1;
 
     public static final class Costs {
-      public static final int CARDINAL = 10;
-      public static final int DIAGONAL = 15;
-      public static final int DANGER_MULTIPLIER = 500;
+      public static final int CARDINAL = 2;
+      public static final int DIAGONAL = 3;
+      public static final int DANGER_MULTIPLIER = 50;
     }
   }
 }
