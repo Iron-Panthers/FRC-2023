@@ -31,19 +31,19 @@ public class TelescopingArmSubysytem extends SubsystemBase {
     targetPosition = 0;
     pidOutput = 0;
 
-    motor.configFactoryDefault(); // do we need this??
+    motor.configFactoryDefault();
 
     motor.setInverted(true);
 
     motor.setSelectedSensorPosition(0);
 
     motor.configForwardSoftLimitThreshold(
-        heightToTicks(TelescopingArm.MAX_EXTENSION), 20); // this is the top limit
+        heightToTicks(TelescopingArm.MAX_EXTENSION), 0); // this is the top limit
     motor.configReverseSoftLimitThreshold(
-        heightToTicks(TelescopingArm.MIN_EXTENSION), 20); // this is the bottom limit
+        heightToTicks(TelescopingArm.MIN_EXTENSION), 0); // this is the bottom limit
 
-    motor.configForwardSoftLimitEnable(true, 20);
-    motor.configReverseSoftLimitEnable(true, 20);
+    motor.configForwardSoftLimitEnable(true, 0);
+    motor.configReverseSoftLimitEnable(true, 0);
 
     motor.setNeutralMode(NeutralMode.Brake);
 
@@ -54,8 +54,8 @@ public class TelescopingArmSubysytem extends SubsystemBase {
     tab.addNumber("PID Output", () -> pidOutput);
   }
 
-  public static double heightToTicks(double height) {
-    return (height / TelescopingArm.SPOOL_CIRCUMFERENCE)
+  public static double heightToTicks(double extension) {
+    return (extension / TelescopingArm.SPOOL_CIRCUMFERENCE)
         * TelescopingArm.GEAR_RATIO
         * TelescopingArm.TICKS;
   }

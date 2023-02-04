@@ -162,7 +162,7 @@ public final class Constants {
     public static final int MOTOR_PORT = 16; // TODO find can id
 
     public static final double MIN_EXTENSION = 0;
-    public static final double MAX_EXTENSION = 19;
+    public static final double MAX_EXTENSION = 12;
 
     public static final int TICKS = 2048;
     public static final int GEAR_RATIO = 3;
