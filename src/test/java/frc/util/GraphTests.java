@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import frc.UtilTest;
+import frc.util.Graph.Edge;
+import frc.util.GraphTests.Nodes;
 
 public class GraphTests {
 
@@ -56,7 +58,7 @@ public class GraphTests {
     assertThrows(
         UnsupportedOperationException.class,
         () -> {
-          graph.getNeighbors(Nodes.A).add(Nodes.D);
+          graph.getNeighbors(Nodes.A).add(new Edge<Nodes>(Nodes.D, 1));
         });
 
     assertThrows(

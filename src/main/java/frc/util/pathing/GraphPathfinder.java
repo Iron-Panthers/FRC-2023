@@ -1,6 +1,7 @@
 package frc.util.pathing;
 
 import frc.util.Graph;
+import frc.util.Graph.Edge;
 import frc.util.MinHeap;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -137,17 +138,17 @@ public class GraphPathfinder {
         return Optional.of(reconstructPath(cameFrom, current));
       }
 
-      for (GridCoord neighbor : graph.getNeighbors(current)) {
-        double tentativeGScore = gScore.get(current) + graph.getEdgeWeight(current, neighbor);
+      for (Edge<GridCoord> neighborEdge : graph.getNeighbors(current)) {
+        double tentativeGScore = gScore.get(current) + neighborEdge.weight;
 
-        if (tentativeGScore < gScore.getOrDefault(neighbor, Double.POSITIVE_INFINITY)) {
-          cameFrom.put(neighbor, current);
-          gScore.put(neighbor, tentativeGScore);
-          double fScoreValue = tentativeGScore + heuristic(neighbor, end, heuristicConstant);
-          fScore.put(neighbor, fScoreValue);
+        if (tentativeGScore < gScore.getOrDefault(neighborEdge.to, Double.POSITIVE_INFINITY)) {
+          cameFrom.put(neighborEdge.to, current);
+          gScore.put(neighborEdge.to, tentativeGScore);
+          double fScoreValue = tentativeGScore + heuristic(neighborEdge.to, end, heuristicConstant);
+          fScore.put(neighborEdge.to, fScoreValue);
 
-          if (!openSet.contains(neighbor)) {
-            openSet.add(neighbor, fScoreValue);
+          if (!openSet.contains(neighborEdge.to)) {
+            openSet.add(neighborEdge.to, fScoreValue);
           }
         }
       }

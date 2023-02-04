@@ -21,6 +21,7 @@ import frc.UtilParamTest;
 import frc.UtilTest;
 import frc.robot.Constants.Pathing;
 import frc.util.Graph;
+import frc.util.Graph.Edge;
 import frc.util.pathing.DisplayFieldArray.FieldSquare;
 import java.lang.reflect.Field;
 import java.util.HashSet;
@@ -96,10 +97,14 @@ public class RubenManueverGeneratorTests {
           adjacencyGraph.hasNode(secondGridCoord),
           String.format("Node %s is missing", secondGridCoord));
       assertTrue(
-          adjacencyGraph.getNeighbors(firstGridCoord).contains(secondGridCoord),
+          adjacencyGraph
+              .getNeighbors(firstGridCoord)
+              .contains(new Edge<GridCoord>(secondGridCoord, 1)),
           String.format("coord %s should be linked to %s", firstGridCoord, secondGridCoord));
       assertTrue(
-          adjacencyGraph.getNeighbors(secondGridCoord).contains(firstGridCoord),
+          adjacencyGraph
+              .getNeighbors(secondGridCoord)
+              .contains(new Edge<GridCoord>(firstGridCoord, 1)),
           String.format("coord %s should be linked back to %s", secondGridCoord, firstGridCoord));
     }
   }
