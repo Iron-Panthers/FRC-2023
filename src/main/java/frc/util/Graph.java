@@ -144,13 +144,15 @@ public class Graph<T> {
    * @return the weight of the edge
    */
   public double getEdgeWeight(T from, T to) {
-    assertEdgeExists(from, to);
-    // FIXME: this is an unneeded additional iteration.
-    return internalHashMap.get(from).stream()
-        .filter(edge -> edge.to.equals(to))
-        .findFirst()
-        .get()
-        .weight;
+    assertNodeExists(from);
+    assertNodeExists(to);
+    for (Edge<T> edge : internalHashMap.get(from)) {
+      if (edge.to.equals(to)) {
+        return edge.weight;
+      }
+    }
+    throw new IllegalArgumentException(
+        "Edge does not exist " + from.toString() + " -> " + to.toString());
   }
 
   /**
@@ -178,6 +180,14 @@ public class Graph<T> {
   }
 
   public boolean hasEdge(T from, T to) {
-    return hasNode(from) && internalHashMap.get(from).stream().anyMatch(edge -> edge.to.equals(to));
+    if (!hasNode(from) || !hasNode(to)) return false;
+
+    for (Edge<T> edge : internalHashMap.get(from)) {
+      if (edge.to.equals(to)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
