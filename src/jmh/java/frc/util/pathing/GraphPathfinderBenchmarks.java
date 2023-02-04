@@ -27,7 +27,7 @@ public class GraphPathfinderBenchmarks {
   @Benchmark
   public void findOptimalPath(Blackhole bh) {
     for (var path : paths) {
-      var pathResult = GraphPathfinder.findPath(graph, path.getFirst(), path.getSecond(), 1d);
+      var pathResult = GraphPathfinder.findPath(graph, path.getFirst(), path.getSecond(), 1);
       bh.consume(pathResult);
     }
   }
@@ -35,7 +35,7 @@ public class GraphPathfinderBenchmarks {
   @Benchmark
   public void findSuboptimalPathC10(Blackhole bh) {
     for (var path : paths) {
-      var pathResult = GraphPathfinder.findPath(graph, path.getFirst(), path.getSecond(), 10d);
+      var pathResult = GraphPathfinder.findPath(graph, path.getFirst(), path.getSecond(), 10);
       bh.consume(pathResult);
     }
   }
@@ -43,7 +43,7 @@ public class GraphPathfinderBenchmarks {
   @Benchmark
   public void findSuboptimalPathC100(Blackhole bh) {
     for (var path : paths) {
-      var pathResult = GraphPathfinder.findPath(graph, path.getFirst(), path.getSecond(), 100d);
+      var pathResult = GraphPathfinder.findPath(graph, path.getFirst(), path.getSecond(), 100);
       bh.consume(pathResult);
     }
   }

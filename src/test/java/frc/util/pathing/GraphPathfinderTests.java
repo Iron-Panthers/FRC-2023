@@ -26,16 +26,16 @@ public class GraphPathfinderTests {
     Graph<GridCoord> graph = new Graph<>();
     addCoords(graph, 3, 3);
 
-    graph.addEdge(coord(0, 0), coord(1, 0), 1);
-    graph.addEdge(coord(1, 0), coord(2, 0), 1);
-    graph.addEdge(coord(2, 0), coord(3, 0), 1);
+    graph.addEdge(coord(0, 0), coord(1, 0), 10);
+    graph.addEdge(coord(1, 0), coord(2, 0), 10);
+    graph.addEdge(coord(2, 0), coord(3, 0), 10);
 
-    graph.addEdge(coord(0, 0), coord(0, 1), 1);
-    graph.addEdge(coord(0, 1), coord(0, 2), 1);
-    graph.addEdge(coord(0, 2), coord(0, 3), 1);
+    graph.addEdge(coord(0, 0), coord(0, 1), 10);
+    graph.addEdge(coord(0, 1), coord(0, 2), 10);
+    graph.addEdge(coord(0, 2), coord(0, 3), 10);
 
-    graph.addEdge(coord(0, 0), coord(1, 1), 1.414);
-    graph.addEdge(coord(1, 1), coord(2, 2), 1.414);
+    graph.addEdge(coord(0, 0), coord(1, 1), 15);
+    graph.addEdge(coord(1, 1), coord(2, 2), 15);
 
     assertEquals(
         Optional.of(List.of(coord(0, 0), coord(1, 0), coord(2, 0), coord(3, 0))),
@@ -90,9 +90,9 @@ public class GraphPathfinderTests {
     // and going right is 1.1x the cost of going up
     for (int x = 0; x <= 3; x++) {
       for (int y = 0; y <= 3; y++) {
-        if (x < 3) graph.addEdge(coord(x, y), coord(x + 1, y), 1.1);
-        if (y < 3) graph.addEdge(coord(x, y), coord(x, y + 1), 1);
-        if (x < 3 && y < 3) graph.addEdge(coord(x, y), coord(x + 1, y + 1), 5);
+        if (x < 3) graph.addEdge(coord(x, y), coord(x + 1, y), 11);
+        if (y < 3) graph.addEdge(coord(x, y), coord(x, y + 1), 10);
+        if (x < 3 && y < 3) graph.addEdge(coord(x, y), coord(x + 1, y + 1), 25);
       }
     }
 
@@ -100,10 +100,10 @@ public class GraphPathfinderTests {
         List.of(
             coord(0, 0),
             coord(0, 1),
-            coord(0, 2),
-            coord(0, 3),
-            coord(1, 3),
-            coord(2, 3),
+            coord(1, 1),
+            coord(1, 2),
+            coord(2, 2),
+            coord(3, 2),
             coord(3, 3));
 
     // ensure the path is available

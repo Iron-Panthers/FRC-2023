@@ -76,7 +76,7 @@ public class GraphPathfinder {
 
   private GraphPathfinder() {}
 
-  private static double heuristic(GridCoord a, GridCoord b, double heuristicConstant) {
+  private static int heuristic(GridCoord a, GridCoord b, int heuristicConstant) {
     return a.getDistance(b) * heuristicConstant;
   }
 
@@ -100,7 +100,7 @@ public class GraphPathfinder {
    * @return The optimal path, or an empty optional if no path exists.
    */
   public static Optional<List<GridCoord>> findPath(
-      Graph<GridCoord> graph, GridCoord start, GridCoord end, double heuristicConstant) {
+      Graph<GridCoord> graph, GridCoord start, GridCoord end, int heuristicConstant) {
 
     if (!graph.hasNode(start) || !graph.hasNode(end)) {
       return Optional.empty();
@@ -119,14 +119,14 @@ public class GraphPathfinder {
     HashMap<GridCoord, GridCoord> cameFrom = new HashMap<>();
 
     /** For node n, gScore[n] is the cost of the cheapest path from start to n currently known. */
-    HashMap<GridCoord, Double> gScore = new HashMap<>();
-    gScore.put(start, 0d);
+    HashMap<GridCoord, Integer> gScore = new HashMap<>();
+    gScore.put(start, 0);
 
     /**
      * For node n, fScore[n] := gScore[n] + h(n). fScore[n] represents our current best guess as to
      * how cheap a path could be from start to finish if it goes through n.
      */
-    HashMap<GridCoord, Double> fScore = new HashMap<>();
+    HashMap<GridCoord, Integer> fScore = new HashMap<>();
     fScore.put(start, heuristic(start, end, heuristicConstant));
 
     openSet.add(start, fScore.get(start));
@@ -139,12 +139,12 @@ public class GraphPathfinder {
       }
 
       for (Edge<GridCoord> neighborEdge : graph.getNeighbors(current)) {
-        double tentativeGScore = gScore.get(current) + neighborEdge.weight;
+        int tentativeGScore = gScore.get(current) + neighborEdge.weight;
 
-        if (tentativeGScore < gScore.getOrDefault(neighborEdge.to, Double.POSITIVE_INFINITY)) {
+        if (tentativeGScore < gScore.getOrDefault(neighborEdge.to, Integer.MAX_VALUE)) {
           cameFrom.put(neighborEdge.to, current);
           gScore.put(neighborEdge.to, tentativeGScore);
-          double fScoreValue = tentativeGScore + heuristic(neighborEdge.to, end, heuristicConstant);
+          int fScoreValue = tentativeGScore + heuristic(neighborEdge.to, end, heuristicConstant);
           fScore.put(neighborEdge.to, fScoreValue);
 
           if (!openSet.contains(neighborEdge.to)) {

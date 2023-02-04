@@ -191,11 +191,12 @@ public final class Constants {
 
     public static final double CRITICAL_POINT_DIVERGENCE_THRESHOLD = 6;
 
-    public static final double PATHFINDING_HEURISTIC_CONSTANT = 1;
+    public static final int PATHFINDING_HEURISTIC_CONSTANT = 1;
 
     public static final class Costs {
-      public static final double DIAGONAL = Math.sqrt(2) + .001;
-      public static final double DANGER_MULTIPLIER = 50d;
+      public static final int CARDINAL = 10;
+      public static final int DIAGONAL = 15;
+      public static final int DANGER_MULTIPLIER = 500;
     }
   }
 }

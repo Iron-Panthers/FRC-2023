@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.UtilParamTest;
 import frc.UtilTest;
+import frc.robot.Constants.Pathing.Costs;
 import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.provider.Arguments;
@@ -33,18 +34,23 @@ public class GridCoordTests {
   public static Stream<Arguments> getDistanceCorrectProvider() {
     return Stream.of(
         Arguments.of(new GridCoord(0, 0), new GridCoord(0, 0), 0),
-        Arguments.of(new GridCoord(0, 0), new GridCoord(1, 0), 1),
-        Arguments.of(new GridCoord(0, 0), new GridCoord(0, 1), 1),
-        Arguments.of(new GridCoord(0, 0), new GridCoord(1, 1), Math.sqrt(2)),
-        Arguments.of(new GridCoord(0, 0), new GridCoord(2, 2), Math.sqrt(8)),
-        Arguments.of(new GridCoord(2, 2), new GridCoord(0, 0), Math.sqrt(8))
+        Arguments.of(new GridCoord(0, 0), new GridCoord(1, 0), Costs.CARDINAL),
+        Arguments.of(new GridCoord(0, 0), new GridCoord(0, 1), Costs.CARDINAL),
+        Arguments.of(new GridCoord(0, 0), new GridCoord(1, 1), Costs.DIAGONAL),
+        Arguments.of(new GridCoord(0, 0), new GridCoord(2, 2), Costs.DIAGONAL * 2),
+        Arguments.of(new GridCoord(2, 2), new GridCoord(0, 0), Costs.DIAGONAL * 2),
+        Arguments.of(new GridCoord(0, 0), new GridCoord(2, 0), Costs.CARDINAL * 2),
+        Arguments.of(new GridCoord(0, 0), new GridCoord(0, 2), Costs.CARDINAL * 2),
+        Arguments.of(new GridCoord(0, 0), new GridCoord(2, 1), Costs.DIAGONAL + Costs.CARDINAL),
+        Arguments.of(new GridCoord(0, 0), new GridCoord(1, 2), Costs.DIAGONAL + Costs.CARDINAL),
+        Arguments.of(new GridCoord(0, 0), new GridCoord(2, 3), Costs.DIAGONAL * 2 + Costs.CARDINAL)
         // brace holder
         );
   }
 
   @UtilParamTest
   @MethodSource("getDistanceCorrectProvider")
-  public void getDistanceCorrect(GridCoord a, GridCoord b, double expected) {
+  public void getDistanceCorrect(GridCoord a, GridCoord b, int expected) {
     assertEquals(expected, a.getDistance(b), String.format("Distance between %s and %s", a, b));
   }
 

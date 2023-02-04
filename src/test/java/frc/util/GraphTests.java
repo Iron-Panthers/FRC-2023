@@ -75,17 +75,17 @@ public class GraphTests {
     graph.addNode(Nodes.B);
     graph.addNode(Nodes.C);
 
-    graph.addEdge(Nodes.A, Nodes.B, 1.0);
-    graph.addEdge(Nodes.A, Nodes.C, 2.0);
-    graph.addEdge(Nodes.B, Nodes.C, 3.0);
+    graph.addEdge(Nodes.A, Nodes.B, 10);
+    graph.addEdge(Nodes.A, Nodes.C, 20);
+    graph.addEdge(Nodes.B, Nodes.C, 30);
 
     assertTrue(graph.hasEdge(Nodes.A, Nodes.B), "Graph does not contain edge A -> B");
     assertTrue(graph.hasEdge(Nodes.A, Nodes.C), "Graph does not contain edge A -> C");
     assertTrue(graph.hasEdge(Nodes.B, Nodes.C), "Graph does not contain edge B -> C");
 
-    assertEquals(1.0, graph.getEdgeWeight(Nodes.A, Nodes.B), "Edge A->B has incorrect weight");
-    assertEquals(2.0, graph.getEdgeWeight(Nodes.A, Nodes.C), "Edge A->C has incorrect weight");
-    assertEquals(3.0, graph.getEdgeWeight(Nodes.B, Nodes.C), "Edge B->C has incorrect weight");
+    assertEquals(10, graph.getEdgeWeight(Nodes.A, Nodes.B), "Edge A->B has incorrect weight");
+    assertEquals(20, graph.getEdgeWeight(Nodes.A, Nodes.C), "Edge A->C has incorrect weight");
+    assertEquals(30, graph.getEdgeWeight(Nodes.B, Nodes.C), "Edge B->C has incorrect weight");
   }
 
   @UtilTest
@@ -95,9 +95,9 @@ public class GraphTests {
     graph.addNode(Nodes.B);
     graph.addNode(Nodes.C);
 
-    graph.addEdge(Nodes.A, Nodes.B, 1.0);
-    graph.addEdge(Nodes.A, Nodes.C, 2.0);
-    graph.addEdge(Nodes.B, Nodes.C, 3.0);
+    graph.addEdge(Nodes.A, Nodes.B, 10);
+    graph.addEdge(Nodes.A, Nodes.C, 20);
+    graph.addEdge(Nodes.B, Nodes.C, 30);
 
     assertFalse(graph.hasEdge(Nodes.B, Nodes.A), "Graph contains edge B -> A");
     assertThrows(
@@ -124,9 +124,9 @@ public class GraphTests {
     assertTrue(graph.hasEdge(Nodes.A, Nodes.C), "Graph does not contain edge A -> C");
     assertTrue(graph.hasEdge(Nodes.B, Nodes.C), "Graph does not contain edge B -> C");
 
-    assertEquals(1.0, graph.getEdgeWeight(Nodes.A, Nodes.B), "Edge A->B has incorrect weight");
-    assertEquals(2.0, graph.getEdgeWeight(Nodes.A, Nodes.C), "Edge A->C has incorrect weight");
-    assertEquals(3.0, graph.getEdgeWeight(Nodes.B, Nodes.C), "Edge B->C has incorrect weight");
+    assertEquals(10, graph.getEdgeWeight(Nodes.A, Nodes.B), "Edge A->B has incorrect weight");
+    assertEquals(20, graph.getEdgeWeight(Nodes.A, Nodes.C), "Edge A->C has incorrect weight");
+    assertEquals(30, graph.getEdgeWeight(Nodes.B, Nodes.C), "Edge B->C has incorrect weight");
   }
 
   @UtilTest
@@ -136,9 +136,9 @@ public class GraphTests {
     graph.addNode(Nodes.B);
     graph.addNode(Nodes.C);
 
-    graph.addEdge(Nodes.A, Nodes.B, 1.0);
-    graph.addEdge(Nodes.A, Nodes.C, 2.0);
-    graph.addEdge(Nodes.B, Nodes.C, 3.0);
+    graph.addEdge(Nodes.A, Nodes.B, 10);
+    graph.addEdge(Nodes.A, Nodes.C, 20);
+    graph.addEdge(Nodes.B, Nodes.C, 30);
 
     assertDoesNotThrow(
         () -> graph.hasEdge(Nodes.A, Nodes.D), "Graph throws on missing node D in hasEdge A->D");
@@ -172,7 +172,7 @@ public class GraphTests {
 
     assertThrows(
         IllegalArgumentException.class,
-        () -> graph.addEdge(Nodes.A, Nodes.D, 1.0),
+        () -> graph.addEdge(Nodes.A, Nodes.D, 10),
         "Graph throws on missing node D in addEdge A->D");
     assertFalse(graph.hasEdge(Nodes.A, Nodes.D), "Graph contains edge A -> D");
 
@@ -186,9 +186,9 @@ public class GraphTests {
     graph.addNode(Nodes.B);
     graph.addNode(Nodes.C);
 
-    graph.addEdge(Nodes.A, Nodes.B, 1.0);
-    graph.addEdge(Nodes.A, Nodes.C, 2.0);
-    graph.addEdge(Nodes.B, Nodes.C, 3.0);
+    graph.addEdge(Nodes.A, Nodes.B, 10);
+    graph.addEdge(Nodes.A, Nodes.C, 20);
+    graph.addEdge(Nodes.B, Nodes.C, 30);
 
     graph.lock();
 
@@ -198,49 +198,49 @@ public class GraphTests {
         "Graph does not throw on addNode after locking");
     assertThrows(
         UnsupportedOperationException.class,
-        () -> graph.addEdge(Nodes.A, Nodes.D, 1.0),
+        () -> graph.addEdge(Nodes.A, Nodes.D, 10),
         "Graph does not throw on addEdge after locking");
     assertThrows(
         UnsupportedOperationException.class,
-        () -> graph.addEdge(Nodes.D, Nodes.A, 1.0),
+        () -> graph.addEdge(Nodes.D, Nodes.A, 10),
         "Graph does not throw on addEdge after locking");
     assertThrows(
         UnsupportedOperationException.class,
-        () -> graph.addEdge(Nodes.D, Nodes.E, 1.0),
+        () -> graph.addEdge(Nodes.D, Nodes.E, 10),
         "Graph does not throw on addEdge after locking");
     assertThrows(
         UnsupportedOperationException.class,
-        () -> graph.addEdge(Nodes.A, Nodes.B, 1.0),
+        () -> graph.addEdge(Nodes.A, Nodes.B, 10),
         "Graph does not throw on addEdge after locking");
     assertThrows(
         UnsupportedOperationException.class,
-        () -> graph.addEdge(Nodes.B, Nodes.A, 1.0),
+        () -> graph.addEdge(Nodes.B, Nodes.A, 10),
         "Graph does not throw on addEdge after locking");
     assertThrows(
         UnsupportedOperationException.class,
-        () -> graph.addEdge(Nodes.B, Nodes.C, 1.0),
+        () -> graph.addEdge(Nodes.B, Nodes.C, 10),
         "Graph does not throw on addEdge after locking");
     assertThrows(
         UnsupportedOperationException.class,
-        () -> graph.addEdge(Nodes.C, Nodes.B, 1.0),
+        () -> graph.addEdge(Nodes.C, Nodes.B, 10),
         "Graph does not throw on addEdge after locking");
     assertThrows(
         UnsupportedOperationException.class,
-        () -> graph.addEdge(Nodes.C, Nodes.A, 1.0),
+        () -> graph.addEdge(Nodes.C, Nodes.A, 10),
         "Graph does not throw on addEdge after locking");
     assertThrows(
         UnsupportedOperationException.class,
-        () -> graph.addEdge(Nodes.A, Nodes.C, 1.0),
+        () -> graph.addEdge(Nodes.A, Nodes.C, 10),
         "Graph does not throw on addEdge after locking");
 
     assertTrue(graph.hasEdge(Nodes.A, Nodes.B), "Graph does not contain edge A -> B");
     assertTrue(graph.hasEdge(Nodes.A, Nodes.C), "Graph does not contain edge A -> C");
     assertTrue(graph.hasEdge(Nodes.B, Nodes.C), "Graph does not contain edge B -> C");
 
-    assertEquals(1d, graph.getEdgeWeight(Nodes.A, Nodes.B), "Edge A->B has incorrect weight");
+    assertEquals(10, graph.getEdgeWeight(Nodes.A, Nodes.B), "Edge A->B has incorrect weight");
 
-    assertEquals(2d, graph.getEdgeWeight(Nodes.A, Nodes.C), "Edge A->C has incorrect weight");
+    assertEquals(20, graph.getEdgeWeight(Nodes.A, Nodes.C), "Edge A->C has incorrect weight");
 
-    assertEquals(3d, graph.getEdgeWeight(Nodes.B, Nodes.C), "Edge B->C has incorrect weight");
+    assertEquals(30, graph.getEdgeWeight(Nodes.B, Nodes.C), "Edge B->C has incorrect weight");
   }
 }

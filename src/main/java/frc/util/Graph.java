@@ -17,9 +17,9 @@ public class Graph<T> {
   /** An edge in the graph. Stores the destination node and the weight of the edge. */
   public static class Edge<T> {
     public final T to;
-    public final double weight;
+    public final int weight;
 
-    public Edge(T to, double weight) {
+    public Edge(T to, int weight) {
       this.to = to;
       this.weight = weight;
     }
@@ -130,7 +130,7 @@ public class Graph<T> {
    * @param to the node the edge is to
    * @param weight the weight of the edge
    */
-  public void addEdge(T from, T to, double weight) {
+  public void addEdge(T from, T to, int weight) {
     checkLocked();
     assertEdgeDoesNotExist(from, to);
     internalHashMap.get(from).add(new Edge<>(to, weight));
@@ -143,7 +143,7 @@ public class Graph<T> {
    * @param to the node the edge is to
    * @return the weight of the edge
    */
-  public double getEdgeWeight(T from, T to) {
+  public int getEdgeWeight(T from, T to) {
     assertNodeExists(from);
     assertNodeExists(to);
     for (Edge<T> edge : internalHashMap.get(from)) {
