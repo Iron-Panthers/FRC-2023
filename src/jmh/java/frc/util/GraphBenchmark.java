@@ -3,7 +3,6 @@ package frc.util;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.infra.Blackhole;
 
 @State(Scope.Benchmark)
 public class GraphBenchmark {
@@ -13,7 +12,7 @@ public class GraphBenchmark {
   };
 
   @Benchmark
-  public void constructGraph(Blackhole bh) {
+  public Graph<String> constructGraph() {
     Graph<String> graph = new Graph<>();
     for (String node : nodes) {
       graph.addNode(node);
@@ -24,6 +23,6 @@ public class GraphBenchmark {
       }
     }
     graph.lock();
-    bh.consume(graph);
+    return graph;
   }
 }
