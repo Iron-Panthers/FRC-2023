@@ -139,7 +139,7 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   /* saftey methods */
-  private boolean withinAngleRange() {
+  public boolean withinAngleRange() {
     if (Math.abs(currentAngle) - Arm.FORWARD_ANGLE_THRESHOLD <= 0 || 360 - Math.abs(currentAngle) <= Arm.REVERSE_ANGLE_THRESHOLD ) {
       return true;
     }
