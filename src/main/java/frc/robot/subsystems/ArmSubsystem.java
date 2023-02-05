@@ -30,7 +30,8 @@ public class ArmSubsystem extends SubsystemBase {
   private final TalonFX armAngleMotor;
   private final PIDController angleController;
   private final CANCoder armEncoder;
-  private double desiredAngle;
+  private double desiredAngle; // measured in degrees
+  private double currentAngle;
 
   private TalonFX telescopingMotor;
   private PIDController extensionController;
@@ -71,6 +72,7 @@ public class ArmSubsystem extends SubsystemBase {
     armEncoder.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
 
     desiredAngle = Arm.Setpoints.STARTING_ANGLE;
+    currentAngle = armEncoder.getAbsolutePosition();
     extension = 0;
     targetExtension = 0;
     extensionOutput = 0;
@@ -92,12 +94,13 @@ public class ArmSubsystem extends SubsystemBase {
 
     tab.addDouble("current angle", this::getAngle);
     tab.addDouble("Desired Angle", () -> desiredAngle);
+    tab.add("Angle Arm PID", angleController);
     tab.add("Telescoping Arm PID", extensionController);
     tab.addNumber("Current Extension", this::getCurrentExtension);
     tab.addNumber("Target Extension", () -> targetExtension);
     tab.addNumber("Percent Output", this::getPercentOutput);
     tab.addNumber("Telescoping PID Output", () -> extensionOutput);
-    
+    tab.addBoolean("Within Angle Range" this::withinAngleRange);
 
   }
 
@@ -135,9 +138,21 @@ public class ArmSubsystem extends SubsystemBase {
     return telescopingMotor.getMotorOutputPercent();
   }
 
+  /* saftey methods */
+  private boolean withinAngleRange() {
+    if (Math.abs(currentAngle) - Arm.FORWARD_ANGLE_THRESHOLD <= 0 || 360 - Math.abs(currentAngle) <= Arm.REVERSE_ANGLE_THRESHOLD ) {
+      return true;
+    }
+    return false;
+  }
+
 
   @Override
   public void periodic() {
+
+    if (withinAngleRange()) {
+      targetExtension = 0;
+    }
 
     extensionOutput =
         MathUtil.clamp(extensionController.calculate(getCurrentExtension(), targetExtension), -0.2, 0.2);
@@ -145,7 +160,7 @@ public class ArmSubsystem extends SubsystemBase {
     telescopingMotor.set(TalonFXControlMode.PercentOutput, extensionOutput);
     
 
-    double currentAngle = getAngle();
+    currentAngle = getAngle();
 
     double angleOutput = angleController.calculate(currentAngle, desiredAngle);
 

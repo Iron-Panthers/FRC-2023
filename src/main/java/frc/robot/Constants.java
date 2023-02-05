@@ -126,6 +126,9 @@ public final class Constants {
     public static final int TELESCOPING_ARM_GEAR_RATIO  = 3;
     public static final double SPOOL_CIRCUMFERENCE = 1.5 * Math.PI;
 
+    public static final int FORWARD_ANGLE_THRESHOLD = 15; // FIXME: real value needed
+    public static final int REVERSE_ANGLE_THRESHOLD = 345; // FIXME: real value needed
+
   }
 
   public static final class Vision {
