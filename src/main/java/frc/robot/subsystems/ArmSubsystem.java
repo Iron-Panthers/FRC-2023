@@ -27,22 +27,40 @@ public class ArmSubsystem extends SubsystemBase {
 
   // TO DO: ADD VOLTAGE LIMITERS!!!
 
-  private final TalonFX armMotor;
-
-  private final PIDController pidController;
+  private final TalonFX armAngleMotor;
+  private final PIDController angleController;
   private final CANCoder armEncoder;
+  private double desiredAngle;
+
+  private TalonFX telescopingMotor;
+  private PIDController extensionController;
+  private double extension; // measured in inches
+  private double targetExtension;
+  private double extensionOutput;
 
   private final ShuffleboardTab tab = Shuffleboard.getTab("Arm");
 
-  private double desiredAngle;
-
   public ArmSubsystem() {
 
-    this.armMotor = new TalonFX(Arm.Ports.ARM_MOTOR_PORT);
+    this.armAngleMotor = new TalonFX(Arm.Ports.ARM_MOTOR_PORT);
+    telescopingMotor = new TalonFX(Arm.Ports.TELESCOPING_MOTOR_PORT);
 
-    armMotor.setNeutralMode(NeutralMode.Brake);
+    armAngleMotor.setNeutralMode(NeutralMode.Brake);
+    telescopingMotor.setNeutralMode(NeutralMode.Brake);
 
-    pidController = new PIDController(0.1, 0, 0);
+    telescopingMotor.configFactoryDefault();
+    telescopingMotor.setInverted(true);
+
+    telescopingMotor.configForwardSoftLimitThreshold(
+        heightToTicks(Arm.Setpoints.MAX_EXTENSION), 0); // this is the top limit
+        telescopingMotor.configReverseSoftLimitThreshold(
+        heightToTicks(Arm.Setpoints.MIN_EXTENSION), 0); // this is the bottom limit
+
+    telescopingMotor.configForwardSoftLimitEnable(true, 0);
+    telescopingMotor.configReverseSoftLimitEnable(true, 0);
+
+    angleController = new PIDController(0.1, 0, 0);
+    extensionController = new PIDController(0.02, 0, 0);
 
     armEncoder = new CANCoder(Arm.Ports.ENCODER_PORT);
 
@@ -53,6 +71,9 @@ public class ArmSubsystem extends SubsystemBase {
     armEncoder.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
 
     desiredAngle = Arm.Setpoints.STARTING_ANGLE;
+    extension = 0;
+    targetExtension = 0;
+    extensionOutput = 0;
 
     var config =
         new StatorCurrentLimitConfiguration(
@@ -61,20 +82,26 @@ public class ArmSubsystem extends SubsystemBase {
             5 /* threshold */,
             .1 /*time in seconds to trip*/);
 
-    armMotor.configStatorCurrentLimit(config);
+    armAngleMotor.configStatorCurrentLimit(config);
 
     armEncoder.configMagnetOffset(Arm.ANGULAR_OFFSET);
 
     armEncoder.setPositionToAbsolute(10); // ms
 
+    telescopingMotor.setSelectedSensorPosition(0);
+
     tab.addDouble("current angle", this::getAngle);
-
     tab.addDouble("Desired Angle", () -> desiredAngle);
-
+    tab.add("Telescoping Arm PID", extensionController);
+    tab.addNumber("Current Extension", this::getCurrentExtension);
+    tab.addNumber("Target Extension", () -> targetExtension);
+    tab.addNumber("Percent Output", this::getPercentOutput);
+    tab.addNumber("Telescoping PID Output", () -> extensionOutput);
     
 
   }
 
+  /* methods for angle arm control */
   public double getAngle() {
     return armEncoder.getAbsolutePosition();
   }
@@ -83,17 +110,50 @@ public class ArmSubsystem extends SubsystemBase {
     this.desiredAngle = desiredAngle;
   }
 
+  /* methods for telescoping arm control */
+  private static double heightToTicks(double extension) {
+    return (extension / Arm.SPOOL_CIRCUMFERENCE)
+        * Arm.TELESCOPING_ARM_GEAR_RATIO
+        * Arm.TICKS;
+  }
+
+  private static double ticksToHeight(double ticks) {
+    return ((ticks / Arm.TICKS) / Arm.TELESCOPING_ARM_GEAR_RATIO)
+        * Arm.SPOOL_CIRCUMFERENCE;
+  }
+
+  public void setTargetExtension(double extension) {
+    targetExtension = extension;
+  }
+
+  public double getCurrentExtension() {
+    extension = ticksToHeight(telescopingMotor.getSelectedSensorPosition());
+    return extension;
+  }
+
+  public double getPercentOutput() {
+    return telescopingMotor.getMotorOutputPercent();
+  }
+
+
   @Override
   public void periodic() {
+
+    extensionOutput =
+        MathUtil.clamp(extensionController.calculate(getCurrentExtension(), targetExtension), -0.2, 0.2);
+    
+    telescopingMotor.set(TalonFXControlMode.PercentOutput, extensionOutput);
+    
+
     double currentAngle = getAngle();
 
-    double output = pidController.calculate(currentAngle, desiredAngle);
+    double angleOutput = angleController.calculate(currentAngle, desiredAngle);
 
     // Add the gravity offset as a function of cosine
     final double gravityOffset =
         Math.cos(Math.toRadians(currentAngle)) * Arm.GRAVITY_CONTROL_PERCENT;
 
-    armMotor.set(
-        TalonFXControlMode.PercentOutput, MathUtil.clamp(output + gravityOffset, -0.1, 0.1));
+    armAngleMotor.set(
+        TalonFXControlMode.PercentOutput, MathUtil.clamp(angleOutput + gravityOffset, -0.1, 0.1));
   }
 }

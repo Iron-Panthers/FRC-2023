@@ -106,6 +106,7 @@ public final class Constants {
   public static final class Arm {
     public static final class Ports {
       public static final int ARM_MOTOR_PORT = 14;
+      public static final int TELESCOPING_MOTOR_PORT = 16; // TODO: find CAN ID
       public static final int ENCODER_PORT = 28;
     }
 
@@ -117,7 +118,14 @@ public final class Constants {
       public static final int STARTING_ANGLE = 0;
       public static final int FORWARD_ANGLE = 90;
       public static final int BACKWARD_ANGLE = -90;
+      public static final double MAX_EXTENSION = 12; // TODO: find accurate value
+      public static final double MIN_EXTENSION = 0;
     }
+    
+    public static final int TICKS = 2048;
+    public static final int TELESCOPING_ARM_GEAR_RATIO  = 3;
+    public static final double SPOOL_CIRCUMFERENCE = 1.5 * Math.PI;
+
   }
 
   public static final class Vision {
