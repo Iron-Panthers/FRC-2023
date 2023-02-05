@@ -143,39 +143,39 @@ public class DrivebaseSubsystem extends SubsystemBase {
   public DrivebaseSubsystem() {
     final SwerveModule frontRightModule =
         createModule(
-            "Front Right Module #1",
+            "Battery CW #1",
             0,
-            Modules.FrontRight.DRIVE_MOTOR,
-            Modules.FrontRight.STEER_MOTOR,
-            Modules.FrontRight.STEER_ENCODER,
-            Modules.FrontRight.STEER_OFFSET);
-
-    final SwerveModule frontLeftModule =
-        createModule(
-            "Front Left Module #2",
-            1,
-            Modules.FrontLeft.DRIVE_MOTOR,
-            Modules.FrontLeft.STEER_MOTOR,
-            Modules.FrontLeft.STEER_ENCODER,
-            Modules.FrontLeft.STEER_OFFSET);
-
-    final SwerveModule backLeftModule =
-        createModule(
-            "Back Left Module #3",
-            2,
-            Modules.BackLeft.DRIVE_MOTOR,
-            Modules.BackLeft.STEER_MOTOR,
-            Modules.BackLeft.STEER_ENCODER,
-            Modules.BackLeft.STEER_OFFSET);
+            Modules.BatteryCW1.DRIVE_MOTOR,
+            Modules.BatteryCW1.STEER_MOTOR,
+            Modules.BatteryCW1.STEER_ENCODER,
+            Modules.BatteryCW1.STEER_OFFSET);
 
     final SwerveModule backRightModule =
         createModule(
-            "Back Right Module #4",
+            "Battery CW #2",
             3,
-            Modules.BackRight.DRIVE_MOTOR,
-            Modules.BackRight.STEER_MOTOR,
-            Modules.BackRight.STEER_ENCODER,
-            Modules.BackRight.STEER_OFFSET);
+            Modules.BatteryCW2.DRIVE_MOTOR,
+            Modules.BatteryCW2.STEER_MOTOR,
+            Modules.BatteryCW2.STEER_ENCODER,
+            Modules.BatteryCW2.STEER_OFFSET);
+
+    final SwerveModule backLeftModule =
+        createModule(
+            "Battery CW #3",
+            2,
+            Modules.BatteryCW3.DRIVE_MOTOR,
+            Modules.BatteryCW3.STEER_MOTOR,
+            Modules.BatteryCW3.STEER_ENCODER,
+            Modules.BatteryCW3.STEER_OFFSET);
+
+    final SwerveModule frontLeftModule =
+        createModule(
+            "Battery CW #4",
+            1,
+            Modules.BatteryCW4.DRIVE_MOTOR,
+            Modules.BatteryCW4.STEER_MOTOR,
+            Modules.BatteryCW4.STEER_ENCODER,
+            Modules.BatteryCW4.STEER_OFFSET);
 
     swerveModules = // modules are always initialized and passed in this order
         new SwerveModule[] {frontRightModule, frontLeftModule, backLeftModule, backRightModule};
