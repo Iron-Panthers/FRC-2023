@@ -4,24 +4,14 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem.Modes;
-
-import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
-
 
 
 public class OuttakeCommand extends CommandBase {
   private final OuttakeSubsystem outtakeSubsystem;
   private final Modes mode; 
-
-
-
-
   
 
   /** Creates a new OuttakeCommand. */
@@ -30,32 +20,26 @@ public class OuttakeCommand extends CommandBase {
     this.mode = mode; 
 
   }
-   
-  
-
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-
-  
-  }
+  public void execute() {}
 
   @Override
   public void initialize() {
-      // TODO Auto-generated method stub
-      outtakeSubsystem.setMode(mode);
+      if(outtakeSubsystem.inStableState()) outtakeSubsystem.setMode(mode);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    
+    // Should we set the state to either be the hold or open "stable" states?
+    // Would allow drivers to have more control...
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return outtakeSubsystem.inStableState();
   }
 }

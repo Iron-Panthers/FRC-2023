@@ -6,10 +6,9 @@ package frc.robot.subsystems;
 
 import java.util.Optional;
 
-import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.ctre.phoenix.sensors.CANCoder;
 
 import frc.robot.Constants.Outtake;
 import edu.wpi.first.math.MathUtil;
@@ -58,21 +57,23 @@ public class OuttakeSubsystem extends SubsystemBase {
     this.outtake.configVoltageCompSaturation(11);
     this.outtake.enableVoltageCompensation(true);
 
+    this.outtake.setNeutralMode(NeutralMode.Brake);
 
-    //this.encoder = new CANCoder(Outtake.Ports.OUTTAKE_ENCODER);
 
     this.pidController = new PIDController(0.01, 0, 0);
     pidController.setTolerance(3);
 
     // FIXME: Change the tap rate to get a better average
-    filter = LinearFilter.movingAverage(10);
+    filter = LinearFilter.movingAverage(9);
 
     filterOutput = 0;
 
-    tab.addNumber("Stator current", ()-> outtake.getStatorCurrent());
+    tab.addNumber("Stator Current", this.outtake::getStatorCurrent);
     tab.addNumber("FilterOUtput", () -> this.filterOutput);
     tab.addNumber("Angle of motor", this::getAngle);
     tab.addString("Current Mode", () -> mode.toString());
+    tab.addNumber("Motor power?", this.outtake::getMotorOutputPercent);
+   
     
   }
 
@@ -90,9 +91,8 @@ public class OuttakeSubsystem extends SubsystemBase {
     return mode;
   }
 
-  public void setMode(Modes mode2) {
-    this.mode = mode2;
-    
+  public void setMode(Modes mode) {
+    this.mode = mode;
   }
 
 
@@ -117,12 +117,16 @@ public class OuttakeSubsystem extends SubsystemBase {
 
   public void holdPeriodic(){
 
-    outtake.set(TalonFXControlMode.PercentOutput, 0.25);
-
+    //outtake.set(TalonFXControlMode.PercentOutput, 0.17);
+    outtake.set(TalonFXControlMode.PercentOutput, 0.0);
   }
 
   public void openingPeriodic () {
-    outtake.set(TalonFXControlMode.PercentOutput, -0.055);
+    outtake.set(TalonFXControlMode.PercentOutput, -0.275);
+  }
+
+  public boolean inStableState() {
+    return this.mode == Modes.OPEN || this.mode == Modes.HOLD;
   }
 
 
