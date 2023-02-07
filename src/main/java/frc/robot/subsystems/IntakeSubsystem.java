@@ -37,9 +37,11 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private final ShuffleboardTab tab = Shuffleboard.getTab("Intake");
 
-  private LinearFilter filter;
+  private LinearFilter armFilter;
+  private LinearFilter intakeFilter;
 
-  private double filterOutput;
+  private double armFilterOutput;
+  private double intakeFilterOutput;
 
   /** Creates a new DrivebaseSubsystem. */
   public IntakeSubsystem() {
@@ -47,11 +49,12 @@ public class IntakeSubsystem extends SubsystemBase {
     this.armMotor = new TalonFX(Intake.Ports.ARM_MOTOR);
     this.intakeMotor = new TalonFX(Intake.Ports.INTAKE_MOTOR);
 
-    filter = LinearFilter.movingAverage(5);
+    armFilter = LinearFilter.movingAverage(5);
+    intakeFilter = LinearFilter.movingAverage(5); // FIXME: tune taps
 
-    filterOutput = 0;
+    armFilterOutput = 0;
 
-    tab.addNumber("Filter Output", () -> filterOutput);
+    tab.addNumber("armFilter Output", () -> armFilterOutput);
   }
 
   /**
@@ -75,7 +78,7 @@ public class IntakeSubsystem extends SubsystemBase {
   public void bitePeriodic() {
     armMotor.set(TalonFXControlMode.PercentOutput, 0.1);
 
-    if (filterOutput > Intake.ARM_HARDSTOP_CURRENT) {
+    if (armFilterOutput > Intake.ARM_HARDSTOP_CURRENT) {
       intakeMotor.set(TalonFXControlMode.PercentOutput, 0.3);
     }
   }
@@ -101,7 +104,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public Modes advanceMode(Modes mode) {
 
-    if (filterOutput > mode.transitionStatorCurrent) {
+    if (armFilterOutput > mode.transitionStatorCurrent) {
 
       switch (mode) {
         case MOVE_DOWN:
@@ -153,7 +156,7 @@ public class IntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
 
-    this.filterOutput = filter.calculate(armMotor.getStatorCurrent());
+    this.armFilterOutput = armFilter.calculate(armMotor.getStatorCurrent());
 
     this.mode = this.advanceMode(mode);
 
