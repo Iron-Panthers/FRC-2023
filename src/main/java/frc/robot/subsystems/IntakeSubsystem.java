@@ -12,19 +12,29 @@ public class IntakeSubsystem extends SubsystemBase {
 
   /** The modes of the intake subsystem */
   public enum Modes {
-    MOVE_DOWN(Intake.ARM_HARDSTOP_CURRENT),
-    BITE(1),
-    SWALLOW(0.5),
-    MOVE_UP(2),
-    EJECT(2),
-    OFF(2);
+    MOVE_DOWN(Intake.ARM_HARDSTOP_CURRENT, true),
+    BITE(1, false),
+    SWALLOW(0.5, false),
+    MOVE_UP(2, true),
+    EJECT(2, false),
+    OFF(2, true);
 
     // FIXME:   Above values are FAKE!!!
 
     public final double transitionStatorCurrent;
+    private final boolean isArmTransition;
 
-    private Modes(double transitionStatorCurrent) {
+    private Modes(double transitionStatorCurrent, boolean isArmTransition) {
       this.transitionStatorCurrent = transitionStatorCurrent;
+      this.isArmTransition = isArmTransition;
+    }
+
+    boolean isTransitionReady(double armFilterOutput, double intakeFilterOutput) {
+      if (isArmTransition) {
+        return armFilterOutput > transitionStatorCurrent;
+      } else {
+        return intakeFilterOutput > transitionStatorCurrent;
+      }
     }
   }
 
@@ -53,6 +63,7 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeFilter = LinearFilter.movingAverage(5); // FIXME: tune taps
 
     armFilterOutput = 0;
+    intakeFilterOutput = 0;
 
     tab.addNumber("armFilter Output", () -> armFilterOutput);
   }
@@ -104,7 +115,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public Modes advanceMode(Modes mode) {
 
-    if (armFilterOutput > mode.transitionStatorCurrent) {
+    if (mode.isTransitionReady(armFilterOutput, intakeFilterOutput)) {
 
       switch (mode) {
         case MOVE_DOWN:
@@ -157,6 +168,7 @@ public class IntakeSubsystem extends SubsystemBase {
   public void periodic() {
 
     this.armFilterOutput = armFilter.calculate(armMotor.getStatorCurrent());
+    this.intakeFilterOutput = intakeFilter.calculate(intakeMotor.getStatorCurrent());
 
     this.mode = this.advanceMode(mode);
 
