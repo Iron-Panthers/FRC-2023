@@ -79,7 +79,6 @@ public class OuttakeSubsystem extends SubsystemBase {
 
   public double getAngle () {
     return outtake.getSelectedSensorPosition();
-    //return encoder.getAbsolutePosition();
   }
 
   /**
@@ -100,24 +99,17 @@ public class OuttakeSubsystem extends SubsystemBase {
     double output = pidController.calculate(getAngle(), desiredAngle);
 
     outtake.set(TalonFXControlMode.PercentOutput, MathUtil.clamp(output, -0.3, 0.3));
-
   }
 
   public void openPeriodic(){
-
     outtake.set(TalonFXControlMode.PercentOutput, 0.0);
   }
 
   public void closePeriodic(){
-
-
     outtake.set(TalonFXControlMode.PercentOutput, 0.075);
-
   }
 
   public void holdPeriodic(){
-
-    //outtake.set(TalonFXControlMode.PercentOutput, 0.17);
     outtake.set(TalonFXControlMode.PercentOutput, 0.0);
   }
 
