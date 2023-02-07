@@ -56,6 +56,37 @@ public final class Constants {
       public static final double WHEELBASE_METERS = TRACKWIDTH_METERS; // robot is square
     }
 
+    /*
+     module layout:
+        ┌──────
+     ┌─►│#   ##steer motor
+     │  │  ##cancoder
+     │  │##drive motor
+     module number
+
+     steer is always left
+     from corner perspective
+
+     robot visualization:
+    ┌──────────────────────┐
+    │2   10          04   1│
+    │  25              24  │
+    │11     S      D     03│
+    │     D          S     │
+    │                      │
+    │                      │
+    │     S          D     │
+    │       D      S       │
+    │12    ┌────────┐    02│
+    │  26  │        │  27  │
+    │3   13│  batt  │01   4│
+    └──────┴───┬┬───┴──────┘
+               ││
+               ││
+               ▼▼
+         software front
+     */
+
     public static final class Modules {
       public static final class FrontRight { // Module 1
         public static final int DRIVE_MOTOR = 4;
