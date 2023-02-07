@@ -13,9 +13,9 @@ public class IntakeSubsystem extends SubsystemBase {
   /** The modes of the intake subsystem */
   public enum Modes {
     MOVE_DOWN(Intake.ARM_HARDSTOP_CURRENT),
-    INTAKE(1),
+    BITE(1),
+    SWALLOW(0.5),
     MOVE_UP(2),
-    DROP(1),
     EJECT(2),
     OFF(2);
 
@@ -63,12 +63,16 @@ public class IntakeSubsystem extends SubsystemBase {
     return mode;
   }
 
+  public void setMode(Modes mode) {
+    this.mode = mode;
+  }
+
   public void moveDownPeriodic() {
 
     armMotor.set(TalonFXControlMode.PercentOutput, 0.3);
   }
 
-  public void intakePeriodic() {
+  public void bitePeriodic() {
     armMotor.set(TalonFXControlMode.PercentOutput, 0.1);
 
     if (filterOutput > Intake.ARM_HARDSTOP_CURRENT) {
@@ -76,19 +80,18 @@ public class IntakeSubsystem extends SubsystemBase {
     }
   }
 
+  public void swallowPeriodic() {
+    intakeMotor.set(TalonFXControlMode.PercentOutput, 0.15);
+  }
+
   public void moveUpPeriodic() {
 
     armMotor.set(TalonFXControlMode.PercentOutput, -0.3);
   }
 
-  public void dropPeriodic() {
-
-    intakeMotor.set(TalonFXControlMode.PercentOutput, -0.3);
-  }
-
   public void ejectPeriodic() {
 
-    intakeMotor.set(TalonFXControlMode.PercentOutput, -0.5);
+    intakeMotor.set(TalonFXControlMode.PercentOutput, -0.3);
   }
 
   public void offPeriodic() {
@@ -102,15 +105,15 @@ public class IntakeSubsystem extends SubsystemBase {
 
       switch (mode) {
         case MOVE_DOWN:
-        case EJECT:
-          return Modes.INTAKE;
+          return Modes.BITE;
+        case BITE:
+          return Modes.SWALLOW;
+        case SWALLOW:
+          return Modes.MOVE_UP;
         case MOVE_UP:
-          return Modes.DROP;
-        case DROP:
+        case EJECT:
         case OFF:
           return Modes.OFF;
-        case INTAKE:
-          return mode;
       }
     }
 
@@ -129,14 +132,14 @@ public class IntakeSubsystem extends SubsystemBase {
       case MOVE_DOWN:
         moveDownPeriodic();
         break;
-      case INTAKE:
-        intakePeriodic();
+      case BITE:
+        bitePeriodic();
+        break;
+      case SWALLOW:
+        swallowPeriodic();
         break;
       case MOVE_UP:
         moveUpPeriodic();
-        break;
-      case DROP:
-        dropPeriodic();
         break;
       case EJECT:
         ejectPeriodic();
