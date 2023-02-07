@@ -56,6 +56,37 @@ public final class Constants {
       public static final double WHEELBASE_METERS = TRACKWIDTH_METERS; // robot is square
     }
 
+    /*
+     module layout:
+        ┌──────
+     ┌─►│#   ##steer motor
+     │  │  ##cancoder
+     │  │##drive motor
+     module number
+
+     steer is always left
+     from corner perspective
+
+     robot visualization:
+    ┌──────────────────────┐
+    │2   10          04   1│
+    │  25              24  │
+    │11     S      D     03│
+    │     D          S     │
+    │                      │
+    │                      │
+    │     S          D     │
+    │       D      S       │
+    │12    ┌────────┐    02│
+    │  26  │        │  27  │
+    │3   13│  batt  │01   4│
+    └──────┴───┬┬───┴──────┘
+               ││
+               ││
+               ▼▼
+         software front
+     */
+
     public static final class Modules {
       public static final class FrontRight { // Module 1
         public static final int DRIVE_MOTOR = 4;
@@ -64,7 +95,7 @@ public final class Constants {
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
-                ? -Math.toRadians(289.951) // comp bot offset
+                ? -Math.toRadians(8.07400 + 180) // comp bot offset
                 : -Math.toRadians(39.462890); // practice bot offset
       }
 
@@ -75,7 +106,7 @@ public final class Constants {
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
-                ? -Math.toRadians(267.715 + 180) // comp bot offset
+                ? -Math.toRadians(274.562 + 180) // comp bot offset
                 : -Math.toRadians(222.7148); // practice bot offset
       }
 
@@ -86,7 +117,7 @@ public final class Constants {
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
-                ? -Math.toRadians(7.734) // comp bot offset
+                ? -Math.toRadians(225.082 + 180) // comp bot offset
                 : -Math.toRadians(129.63867); // practice bot offset
       }
 
@@ -97,7 +128,7 @@ public final class Constants {
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
-                ? -Math.toRadians(152.051) // comp bot offset
+                ? -Math.toRadians(335.124 + 180) // comp bot offset
                 : -Math.toRadians(61.3476); // practice bot offset
       }
     }
