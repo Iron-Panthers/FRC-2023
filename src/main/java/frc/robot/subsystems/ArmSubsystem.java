@@ -53,6 +53,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     telescopingMotor.configFactoryDefault();
     telescopingMotor.setInverted(true);
+    armAngleMotor.setInverted(true);
 
     telescopingMotor.configForwardSoftLimitThreshold(
         heightToTicks(Arm.Setpoints.MAX_EXTENSION), 0); // this is the top limit
@@ -103,6 +104,7 @@ public class ArmSubsystem extends SubsystemBase {
     tab.addNumber("Target Extension", () -> targetExtension);
     tab.addNumber("Telescoping PID Output", () -> extensionOutput);
     tab.addBoolean("Within Angle Range", () -> withinAngleRange);
+    tab.addNumber("Gravity control", () -> Math.cos(Math.toRadians(currentAngle)) * Arm.GRAVITY_CONTROL_PERCENT);
   }
 
   /* methods for angle arm control */
@@ -165,30 +167,30 @@ public class ArmSubsystem extends SubsystemBase {
     final double gravityOffset =
         Math.cos(Math.toRadians(currentAngle)) * Arm.GRAVITY_CONTROL_PERCENT;
 
+    if (withinAngleRange(currentAngle) || targetPassesAngleRange()) {
+      targetExtension = 0;
+    }
+
     extensionOutput =
         MathUtil.clamp(
             extensionController.calculate(getCurrentExtension(), targetExtension), -0.2, 0.2);
-
-    telescopingMotor.set(TalonFXControlMode.PercentOutput, extensionOutput);
 
     double angleOutput =
         angleController.calculate(
             currentAngle,
             MathUtil.clamp(desiredAngle, Arm.UPPER_ANGLE_LIMIT, -Arm.UPPER_ANGLE_LIMIT));
 
-    if (withinAngleRange(currentAngle) || targetPassesAngleRange()) {
-      targetExtension = 0;
-    }
-
-    if (Util.epsilonEquals(Math.abs(currentAngle), Arm.ANGLE_THRESHOLD, 5) && extension > 0.5) {
+    if (Util.epsilonEquals(Math.abs(currentAngle), Arm.ANGLE_THRESHOLD, 5) && extension > 0.5) { // within lower angle limits while arm is extended
       armAngleMotor.set(
           TalonFXControlMode.PercentOutput, gravityOffset); // hold arm at current angle
       telescopingMotor.set(TalonFXControlMode.PercentOutput, -0.2); // retract telescoping arm
-    } else if (Math.abs(currentAngle) > Arm.UPPER_ANGLE_LIMIT) {
-          armAngleMotor.set(TalonFXControlMode.PercentOutput, 0);
+    } else if (Math.abs(currentAngle) > Arm.UPPER_ANGLE_LIMIT) { // within upper angle limits
+      armAngleMotor.set(TalonFXControlMode.PercentOutput, 0);
+      telescopingMotor.set(TalonFXControlMode.PercentOutput, extensionOutput);
     } else {
       armAngleMotor.set(
-          TalonFXControlMode.PercentOutput, MathUtil.clamp(angleOutput + gravityOffset, -0.1, 0.1));
+          TalonFXControlMode.PercentOutput, MathUtil.clamp(gravityOffset, -0.1, 0.1));
+          telescopingMotor.set(TalonFXControlMode.PercentOutput, extensionOutput);
     }
   }
 }

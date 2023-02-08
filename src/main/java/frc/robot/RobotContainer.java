@@ -159,9 +159,21 @@ public class RobotContainer {
             new DriveToPlaceCommand(
                 drivebaseSubsystem, new Pose2d(3.2, .5, Rotation2d.fromDegrees(170)), .2, .5));
 
-    jason.b().onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.FORWARD_ANGLE, Arm.Setpoints.MAX_EXTENSION));
-    jason.x().onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.BACKWARD_ANGLE, Arm.Setpoints.MAX_EXTENSION));
-    jason.a().onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STARTING_ANGLE, Arm.Setpoints.MIN_EXTENSION));
+    jason
+        .b()
+        .onTrue(
+            new ArmPositionCommand(
+                armSubsystem, Arm.Setpoints.FORWARD_ANGLE, Arm.Setpoints.MAX_EXTENSION));
+    jason
+        .x()
+        .onTrue(
+            new ArmPositionCommand(
+                armSubsystem, Arm.Setpoints.BACKWARD_ANGLE, Arm.Setpoints.MAX_EXTENSION));
+    jason
+        .a()
+        .onTrue(
+            new ArmPositionCommand(
+                armSubsystem, Arm.Setpoints.STARTING_ANGLE, Arm.Setpoints.MIN_EXTENSION));
   }
 
   /**
