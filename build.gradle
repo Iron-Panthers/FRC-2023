@@ -1,7 +1,7 @@
 plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2023.2.1"
-    id "com.diffplug.spotless" version "6.2.0"
+    id "com.diffplug.spotless" version "6.13.0"
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
@@ -151,7 +151,7 @@ spotless {
         fileTree(".github") {
             include "**/*.yml"
         }
-        prettier("2.5.1")
+        // prettier("2.5.1")
     }
     format 'misc', {
         target fileTree('.') {
