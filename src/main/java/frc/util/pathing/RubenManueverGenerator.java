@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class RubenManueverGenerator {
-  private final Graph<GridCoord> adjacencyGraph = new Graph<>();
+  public final Graph<GridCoord> adjacencyGraph = new Graph<>();
 
   private final boolean[][] dangerGrid = new boolean[Pathing.CELL_X_MAX][Pathing.CELL_Y_MAX];
   private final boolean[][] collisionGrid = new boolean[Pathing.CELL_X_MAX][Pathing.CELL_Y_MAX];
@@ -39,7 +39,7 @@ public class RubenManueverGenerator {
    * Determine how much cost to multiply a given edge by based on the danger of the cell it leads to
    * and comes from.
    */
-  private double computeDanger(GridCoord start, GridCoord end) {
+  private int computeDanger(GridCoord start, GridCoord end) {
     var danger = 1;
 
     if (dangerGrid[start.x][start.y]) danger *= Costs.DANGER_MULTIPLIER;
@@ -49,7 +49,7 @@ public class RubenManueverGenerator {
     return danger;
   }
 
-  private void addEdgeIfEndAccessible(GridCoord start, GridCoord end, double weight) {
+  private void addEdgeIfEndAccessible(GridCoord start, GridCoord end, int weight) {
     if (isValidCoord(end)) {
       adjacencyGraph.addEdge(start, end, weight * computeDanger(start, end));
     }
@@ -146,7 +146,7 @@ public class RubenManueverGenerator {
 
         // Add edges to adjacent nodes
         for (GridCoord end : getOrthogonalTranslations(start)) {
-          addEdgeIfEndAccessible(start, end, 1);
+          addEdgeIfEndAccessible(start, end, Costs.CARDINAL);
         }
 
         // Add edges to diagonal nodes

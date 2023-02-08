@@ -2,6 +2,7 @@ package frc.util.pathing;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants.Pathing;
+import frc.robot.Constants.Pathing.Costs;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -24,8 +25,17 @@ public class GridCoord {
     return new Translation2d(x * Pathing.CELL_SIZE_METERS, y * Pathing.CELL_SIZE_METERS);
   }
 
-  public double getDistance(GridCoord other) {
-    return Math.sqrt(Math.pow(x - other.x, 2) + Math.pow(y - other.y, 2));
+  /**
+   * Determine the integer distance between two grid coordinates, using {@link Costs.DIAGONAL} and
+   * {@link Costs.CARDINAL} costs.
+   *
+   * @param other The other coordinate to measure distance to.
+   * @return The distance between the two coordinates.
+   */
+  public int getDistance(GridCoord other) {
+    int dx = Math.abs(x - other.x);
+    int dy = Math.abs(y - other.y);
+    return Math.min(dx, dy) * Costs.DIAGONAL + Math.abs(dx - dy) * Costs.CARDINAL;
   }
 
   public static List<GridCoord> line(GridCoord start, GridCoord end) {

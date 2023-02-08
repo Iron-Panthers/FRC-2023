@@ -1,7 +1,9 @@
 package frc.util;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,7 +14,31 @@ import java.util.Set;
  * <p>There is not support for removing nodes or edges.
  */
 public class Graph<T> {
-  private Map<T, Map<T, Double>> internalBiHashMap = new HashMap<>();
+  /** An edge in the graph. Stores the destination node and the weight of the edge. */
+  public static class Edge<T> {
+    public final T to;
+    public final int weight;
+
+    public Edge(T to, int weight) {
+      this.to = to;
+      this.weight = weight;
+    }
+
+    @Override
+    public int hashCode() {
+      return to.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj == null) return false;
+      if (!(obj instanceof Edge)) return false;
+      Edge<?> other = (Edge<?>) obj;
+      return to.equals(other.to);
+    }
+  }
+
+  private Map<T, List<Edge<T>>> internalHashMap = new HashMap<>();
 
   private boolean locked = false;
 
@@ -21,9 +47,9 @@ public class Graph<T> {
 
   /** lock the graph such that no more mutations can occur. */
   public void lock() {
-    internalBiHashMap.forEach(
-        (key, value) -> internalBiHashMap.put(key, Collections.unmodifiableMap(value)));
-    internalBiHashMap = Collections.unmodifiableMap(internalBiHashMap);
+    internalHashMap.forEach(
+        (key, value) -> internalHashMap.put(key, Collections.unmodifiableList(value)));
+    internalHashMap = Collections.unmodifiableMap(internalHashMap);
     locked = true;
   }
 
@@ -34,30 +60,37 @@ public class Graph<T> {
   }
 
   private void assertNodeExists(T node) {
-    if (!internalBiHashMap.containsKey(node)) {
+    if (!internalHashMap.containsKey(node)) {
       throw new IllegalArgumentException("Node does not exist " + node.toString());
     }
   }
 
   private void assertNodeDoesNotExist(T node) {
-    if (internalBiHashMap.containsKey(node)) {
+    if (internalHashMap.containsKey(node)) {
       throw new IllegalArgumentException("Node already exists " + node.toString());
     }
   }
 
-  private void assertEdgeExists(T from, T to) {
-    assertNodeExists(to);
+  private Edge<T> internalGetEdge(T from, T to) {
     assertNodeExists(from);
-    if (!internalBiHashMap.get(from).containsKey(to)) {
+    assertNodeExists(to);
+    for (Edge<T> edge : internalHashMap.get(from)) {
+      if (edge.to.equals(to)) {
+        return edge;
+      }
+    }
+    return null;
+  }
+
+  private void assertEdgeExists(T from, T to) {
+    if (internalGetEdge(from, to) == null) {
       throw new IllegalArgumentException(
           "Edge does not exist " + from.toString() + " -> " + to.toString());
     }
   }
 
   private void assertEdgeDoesNotExist(T from, T to) {
-    assertNodeExists(from);
-    assertNodeExists(to);
-    if (internalBiHashMap.get(from).containsKey(to)) {
+    if (internalGetEdge(from, to) != null) {
       throw new IllegalArgumentException(
           "Edge already exists " + from.toString() + " -> " + to.toString());
     }
@@ -75,6 +108,10 @@ public class Graph<T> {
     return Collections.unmodifiableSet(set);
   }
 
+  private static <T> List<T> view(List<T> list) {
+    return Collections.unmodifiableList(list);
+  }
+
   /**
    * Adds a node to the graph if it does not already exist.
    *
@@ -83,7 +120,7 @@ public class Graph<T> {
   public void addNode(T node) {
     checkLocked();
     assertNodeDoesNotExist(node);
-    internalBiHashMap.put(node, new HashMap<>());
+    internalHashMap.put(node, new ArrayList<>());
   }
 
   /**
@@ -93,10 +130,10 @@ public class Graph<T> {
    * @param to the node the edge is to
    * @param weight the weight of the edge
    */
-  public void addEdge(T from, T to, double weight) {
+  public void addEdge(T from, T to, int weight) {
     checkLocked();
     assertEdgeDoesNotExist(from, to);
-    internalBiHashMap.get(from).put(to, weight);
+    internalHashMap.get(from).add(new Edge<>(to, weight));
   }
 
   /**
@@ -106,20 +143,27 @@ public class Graph<T> {
    * @param to the node the edge is to
    * @return the weight of the edge
    */
-  public double getEdgeWeight(T from, T to) {
-    assertEdgeExists(from, to);
-    return internalBiHashMap.get(from).get(to);
+  public int getEdgeWeight(T from, T to) {
+    assertNodeExists(from);
+    assertNodeExists(to);
+    for (Edge<T> edge : internalHashMap.get(from)) {
+      if (edge.to.equals(to)) {
+        return edge.weight;
+      }
+    }
+    throw new IllegalArgumentException(
+        "Edge does not exist " + from.toString() + " -> " + to.toString());
   }
 
   /**
    * Gets the neighbors of a node.
    *
    * @param node the node to get the neighbors of
-   * @return the neighbors of the node, or an empty set if the node does not exist
+   * @return the neighbors of the node, as a list of edges
    */
-  public Set<T> getNeighbors(T node) {
+  public List<Edge<T>> getNeighbors(T node) {
     assertNodeExists(node);
-    return view(internalBiHashMap.get(node).keySet());
+    return view(internalHashMap.get(node));
   }
 
   /**
@@ -128,14 +172,22 @@ public class Graph<T> {
    * @return the nodes in the graph
    */
   public Set<T> getNodes() {
-    return view(internalBiHashMap.keySet());
+    return view(internalHashMap.keySet());
   }
 
   public boolean hasNode(T node) {
-    return internalBiHashMap.containsKey(node);
+    return internalHashMap.containsKey(node);
   }
 
   public boolean hasEdge(T from, T to) {
-    return hasNode(from) && internalBiHashMap.get(from).containsKey(to);
+    if (!hasNode(from) || !hasNode(to)) return false;
+
+    for (Edge<T> edge : internalHashMap.get(from)) {
+      if (edge.to.equals(to)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
