@@ -39,7 +39,7 @@ deploy {
 }
 
 repositories {
-  maven { url 'https://jitpack.io' }
+    maven { url 'https://jitpack.io' }
 }
 
 def deployArtifact = deploy.targets.roborio.artifacts.frcJava

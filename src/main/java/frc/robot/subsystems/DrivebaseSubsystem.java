@@ -34,7 +34,8 @@ import frc.robot.Constants.PoseEstimator;
 import frc.util.AdvancedSwerveTrajectoryFollower;
 import frc.util.Util;
 import io.github.oblarg.oblog.Loggable;
-
+import io.github.oblarg.oblog.annotations.Config;
+import io.github.oblarg.oblog.annotations.Log;
 import java.util.Optional;
 
 public class DrivebaseSubsystem extends SubsystemBase implements Loggable {
@@ -90,6 +91,8 @@ public class DrivebaseSubsystem extends SubsystemBase implements Loggable {
   /** The current ChassisSpeeds goal for the drivetrain */
   private ChassisSpeeds chassisSpeeds = new ChassisSpeeds(); // defaults to zeros
 
+  @Config private final boolean test = true;
+
   /** The modes of the drivebase subsystem */
   public enum Modes {
     DRIVE,
@@ -105,9 +108,10 @@ public class DrivebaseSubsystem extends SubsystemBase implements Loggable {
   /** Contains each swerve module. Order: FR, FL, BL, BR. Or in Quadrants: I, II, III, IV */
   private final SwerveModule[] swerveModules;
 
+  @Config(name = "funny controller")
   private final PIDController rotController;
 
-  private double targetAngle = 0; // default target angle to zero
+  @Log private double targetAngle = 0; // default target angle to zero
 
   private Pair<Double, Double> xyInput = new Pair<>(0d, 0d); // the x and y for using target angles
   /**
@@ -202,6 +206,8 @@ public class DrivebaseSubsystem extends SubsystemBase implements Loggable {
 
     SmartDashboard.putData(this.field);
 
+    tab.add(rotController);
+
     // tab.addNumber("target angle", () -> targetAngle);
     // tab.addNumber("current angle", () -> getGyroscopeRotation().getDegrees());
     // tab.addNumber(
@@ -283,6 +289,11 @@ public class DrivebaseSubsystem extends SubsystemBase implements Loggable {
 
   public double getRotVelocity() {
     return navx.getRate();
+  }
+
+  @Config
+  public PIDController getRotController() {
+    return rotController;
   }
 
   /**
@@ -422,6 +433,7 @@ public class DrivebaseSubsystem extends SubsystemBase implements Loggable {
     /* Calculate time since last run and update odometry accordingly */
     final double timestamp = Timer.getFPGATimestamp();
     final double dt = timestamp - lastTimestamp;
+
     lastTimestamp = timestamp;
 
     /* get the current set-points for the drivetrain */
