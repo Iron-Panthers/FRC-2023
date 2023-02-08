@@ -188,8 +188,9 @@ public final class Constants {
 
     public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 2;
   }
-  public static final class Outtake{
-    public static final class Ports{
+
+  public static final class Outtake {
+    public static final class Ports {
       public static final int OUTTAKE_MOTOR = 17; // Placeholder value
       public static final int OUTTAKE_ENCODER = 0; // PLaceholder value
     }
@@ -198,8 +199,8 @@ public final class Constants {
     public static final int CLAMP_ANGLE = 0;
 
     public static final class StatorCurrents {
-      public static final double OPENING_FINISH  = 25; 
-      public static final double ENDING_FINISH  = 25;
+      public static final double OPENING_FINISH = 25;
+      public static final double ENDING_FINISH = 25;
     }
   }
 }

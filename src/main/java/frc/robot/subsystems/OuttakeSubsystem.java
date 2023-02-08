@@ -7,7 +7,6 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -92,7 +91,7 @@ public class OuttakeSubsystem extends SubsystemBase {
   public void setMotorToAngle(double desiredAngle) {
     double output = pidController.calculate(getAngle(), desiredAngle);
 
-    outtake.set(TalonFXControlMode.PercentOutput, MathUtil.clamp(output, -0.3, 0.3));
+    // outtake.set(TalonFXControlMode.PercentOutput, MathUtil.clamp(output, -0.3, 0.3));
   }
 
   public void openPeriodic() {
@@ -108,7 +107,7 @@ public class OuttakeSubsystem extends SubsystemBase {
   }
 
   public void openingPeriodic() {
-    outtake.set(TalonFXControlMode.PercentOutput, -0.275);
+    outtake.set(TalonFXControlMode.PercentOutput, -0.25);
   }
 
   public boolean inStableState() {
