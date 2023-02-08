@@ -5,29 +5,16 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.ArmSubsystem;
 
-public class TelescopingArmPositionCommand extends CommandBase {
-  private ArmSubsystem armSubsystem;
-  private double targetExtension;
-  private boolean withinAngleRange;
-  /** Creates a new TelescopingArmPositionCommand. */
-  public TelescopingArmPositionCommand(ArmSubsystem subsystem, double targetExtension) {
+public class ArmPositionCommand extends CommandBase {
+  /** Creates a new ArmPositionCommand. */
+  public ArmPositionCommand() {
     // Use addRequirements() here to declare subsystem dependencies.
-    armSubsystem = subsystem;
-    this.targetExtension = targetExtension;
-    withinAngleRange = false;
-    addRequirements(armSubsystem);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-    withinAngleRange = armSubsystem.withinAngleRange(armSubsystem.getAngle());
-    if (!withinAngleRange) {
-      armSubsystem.setTargetExtension(targetExtension);
-    }
-  }
+  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -40,6 +27,6 @@ public class TelescopingArmPositionCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return withinAngleRange;
+    return false;
   }
 }

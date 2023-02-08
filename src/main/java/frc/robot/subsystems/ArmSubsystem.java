@@ -6,6 +6,8 @@ package frc.robot.subsystems;
 
 import static frc.robot.Constants.Arm;
 
+import java.math.MathContext;
+
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
@@ -19,6 +21,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Arm;
+import frc.util.Util;
 
 /** Add your docs here. */
 public class ArmSubsystem extends SubsystemBase {
@@ -98,7 +101,6 @@ public class ArmSubsystem extends SubsystemBase {
     tab.add("Telescoping Arm PID", extensionController);
     tab.addNumber("Current Extension", this::getCurrentExtension);
     tab.addNumber("Target Extension", () -> targetExtension);
-    tab.addNumber("Percent Output", this::getPercentOutput);
     tab.addNumber("Telescoping PID Output", () -> extensionOutput);
     tab.addBoolean("Within Angle Range" this::withinAngleRange);
 
@@ -114,6 +116,15 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   /* methods for telescoping arm control */
+  public void setTargetExtension(double extension) {
+    targetExtension = extension;
+  }
+
+  public double getCurrentExtension() {
+    extension = ticksToHeight(telescopingMotor.getSelectedSensorPosition());
+    return extension;
+  }
+
   private static double heightToTicks(double extension) {
     return (extension / Arm.SPOOL_CIRCUMFERENCE)
         * Arm.TELESCOPING_ARM_GEAR_RATIO
@@ -125,22 +136,21 @@ public class ArmSubsystem extends SubsystemBase {
         * Arm.SPOOL_CIRCUMFERENCE;
   }
 
-  public void setTargetExtension(double extension) {
+  public void setDesiredPosition(double angle, double extension) {
+    desiredAngle = angle;
     targetExtension = extension;
   }
 
-  public double getCurrentExtension() {
-    extension = ticksToHeight(telescopingMotor.getSelectedSensorPosition());
-    return extension;
-  }
-
-  public double getPercentOutput() {
-    return telescopingMotor.getMotorOutputPercent();
-  }
-
   /* saftey methods */
-  public boolean withinAngleRange() {
-    if (Math.abs(currentAngle) - Arm.FORWARD_ANGLE_THRESHOLD <= 0 || 360 - Math.abs(currentAngle) <= Arm.REVERSE_ANGLE_THRESHOLD ) {
+  public boolean withinAngleRange(double angle) {
+    if (Math.abs(angle) < Arm.ANGLE_THRESHOLD) {
+      return true;
+    }
+    return false;
+  }
+
+  public boolean targetPassesAngleRange() {
+    if (withinAngleRange(desiredAngle) || (desiredAngle/currentAngle < 0)) {// if the signs are opposite, arm must pass through bottom
       return true;
     }
     return false;
@@ -150,25 +160,31 @@ public class ArmSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
 
-    if (withinAngleRange()) {
-      targetExtension = 0;
-    }
-
-    extensionOutput =
-        MathUtil.clamp(extensionController.calculate(getCurrentExtension(), targetExtension), -0.2, 0.2);
-    
-    telescopingMotor.set(TalonFXControlMode.PercentOutput, extensionOutput);
-    
-
     currentAngle = getAngle();
-
-    double angleOutput = angleController.calculate(currentAngle, desiredAngle);
 
     // Add the gravity offset as a function of cosine
     final double gravityOffset =
         Math.cos(Math.toRadians(currentAngle)) * Arm.GRAVITY_CONTROL_PERCENT;
 
+    extensionOutput =
+        MathUtil.clamp(extensionController.calculate(getCurrentExtension(), targetExtension), -0.2, 0.2);
+    
+    telescopingMotor.set(TalonFXControlMode.PercentOutput, extensionOutput);
+
+    double angleOutput = angleController.calculate(currentAngle, MathUtil.clamp(desiredAngle, Arm.UPPER_ANGLE_LIMIT, -Arm.UPPER_ANGLE_LIMIT));
+
+    if (withinAngleRange(currentAngle) || targetPassesAngleRange()) {
+      targetExtension = 0;
+    }
+
+    if (Util.epsilonEquals(Math.abs(currentAngle), Arm.ANGLE_THRESHOLD, 5) && extension > 0.5) {
+      armAngleMotor.set(TalonFXControlMode.PercentOutput, gravityOffset); // hold arm at current angle
+      telescopingMotor.set(TalonFXControlMode.PercentOutput, -0.2); // retract telescoping arm
+    } else if (Math.abs(currentAngle) > Arm.UPPER_ANGLE_LIMIT) {
+      armAngleMotor.set(TalonFXControlMode.PercentOutput, 0);
+    } else {
     armAngleMotor.set(
         TalonFXControlMode.PercentOutput, MathUtil.clamp(angleOutput + gravityOffset, -0.1, 0.1));
+    }
   }
 }

@@ -118,7 +118,7 @@ public final class Constants {
       public static final int STARTING_ANGLE = 0;
       public static final int FORWARD_ANGLE = 90;
       public static final int BACKWARD_ANGLE = -90;
-      public static final double MAX_EXTENSION = 12; // TODO: find accurate value
+      public static final double MAX_EXTENSION = 12; // FIXME: find accurate value
       public static final double MIN_EXTENSION = 0;
     }
     
@@ -126,8 +126,8 @@ public final class Constants {
     public static final int TELESCOPING_ARM_GEAR_RATIO  = 3;
     public static final double SPOOL_CIRCUMFERENCE = 1.5 * Math.PI;
 
-    public static final int FORWARD_ANGLE_THRESHOLD = 15; // FIXME: real value needed
-    public static final int REVERSE_ANGLE_THRESHOLD = 345; // FIXME: real value needed
+    public static final int ANGLE_THRESHOLD = 40; // FIXME: real value needed
+    public static final int UPPER_ANGLE_LIMIT = 150; // FIXME: real value needed
 
   }
 
