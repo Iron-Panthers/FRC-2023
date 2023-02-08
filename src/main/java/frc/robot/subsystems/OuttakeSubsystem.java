@@ -116,8 +116,8 @@ public class OuttakeSubsystem extends SubsystemBase {
 
   public void advanceMode() {
 
-    if (mode.statorTransitionCurrent.isPresent()
-        && filterOutput > mode.statorTransitionCurrent.get()) {
+    if (mode.statorTransitionCurrent.isPresent() 
+        && filterOutput > mode.statorTransitionCurrent.get() ) {
       switch (mode) {
         case OPENING:
           mode = Modes.OPEN;

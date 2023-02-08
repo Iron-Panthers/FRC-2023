@@ -200,7 +200,7 @@ public final class Constants {
 
     public static final class StatorCurrents {
       // FIXME find real value using glass
-      public static final double OPENING_FINISH = 250;
+      public static final double OPENING_FINISH = 20;
       public static final double ENDING_FINISH = 80;
     }
   }

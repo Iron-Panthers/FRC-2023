@@ -159,7 +159,10 @@ public class RobotContainer {
 
     will.x().onTrue(new OuttakeCommand(outtakeSubsystem, Modes.CLOSE));
 
+    will.x().onFalse(new OuttakeCommand(outtakeSubsystem, Modes.HOLD));
+
     will.a().onTrue(new OuttakeCommand(outtakeSubsystem, Modes.OPENING));
+    will.a().onFalse(new OuttakeCommand(outtakeSubsystem, Modes.OPEN));
   }
 
   /**
