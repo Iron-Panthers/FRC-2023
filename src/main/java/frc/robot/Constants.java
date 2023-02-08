@@ -152,14 +152,13 @@ public final class Constants {
       public static final double MAX_EXTENSION = 12; // FIXME: find accurate value
       public static final double MIN_EXTENSION = 0;
     }
-    
+
     public static final int TICKS = 2048;
-    public static final int TELESCOPING_ARM_GEAR_RATIO  = 3;
+    public static final int TELESCOPING_ARM_GEAR_RATIO = 3;
     public static final double SPOOL_CIRCUMFERENCE = 1.5 * Math.PI;
 
     public static final int ANGLE_THRESHOLD = 40; // FIXME: real value needed
     public static final int UPPER_ANGLE_LIMIT = 150; // FIXME: real value needed
-
   }
 
   public static final class Vision {
@@ -208,6 +207,7 @@ public final class Constants {
                 2, // y
                 2 * Math.PI // theta
                 );
+
     public static final double CAMERA_CAPTURE_LATENCY_FUDGE_MS = 11;
 
     /** about one inch */
@@ -215,5 +215,4 @@ public final class Constants {
 
     public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 2;
   }
-
 }

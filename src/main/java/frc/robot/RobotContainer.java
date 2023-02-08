@@ -19,8 +19,10 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.Arm;
 import frc.robot.autonomous.commands.AutoTestSequence;
 import frc.robot.commands.AngleArmCommand;
+import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
@@ -156,6 +158,10 @@ public class RobotContainer {
         .onTrue(
             new DriveToPlaceCommand(
                 drivebaseSubsystem, new Pose2d(3.2, .5, Rotation2d.fromDegrees(170)), .2, .5));
+
+    jason.b().onTrue(new ArmPositionCommand(armSubsystem, 90, Arm.Setpoints.MAX_EXTENSION));
+    jason.x().onTrue(new ArmPositionCommand(armSubsystem, -90, Arm.Setpoints.MAX_EXTENSION));
+    jason.a().onTrue(new ArmPositionCommand(armSubsystem, 0, 0));
   }
 
   /**

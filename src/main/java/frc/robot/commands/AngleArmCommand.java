@@ -31,7 +31,6 @@ public class AngleArmCommand extends CommandBase {
 
     double angleOutput = -((controllerInput * 90) + 90);
 
-
     armSubsystem.setDesiredAngle(angleOutput);
   }
 
