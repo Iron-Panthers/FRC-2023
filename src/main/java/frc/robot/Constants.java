@@ -14,6 +14,8 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import frc.robot.subsystems.OuttakeSubsystem.OuttakeDetails;
+import java.util.Optional;
 
 @SuppressWarnings("java:S1118")
 /**
@@ -198,7 +200,17 @@ public final class Constants {
     public static final int OPEN_ANGLE = 500;
     public static final int CLAMP_ANGLE = 0;
 
-    public static final class StatorCurrents {
+    public static final class OuttakeModes {
+      public static final OuttakeDetails HOLD = new OuttakeDetails(0.1, Optional.empty());
+      public static final OuttakeDetails INTAKE =
+          new OuttakeDetails(0.7, Optional.of(new OuttakeDetails.StatorLimit(80, true)));
+      public static final OuttakeDetails OUTTAKE =
+          new OuttakeDetails(-0.2, Optional.of(new OuttakeDetails.StatorLimit(20, false)));
+      public static final OuttakeDetails OFF = new OuttakeDetails(0.0, Optional.empty());
+    }
+
+    // Thinking of using these to plug into the stator limits above
+    private static final class StatorCurrents {
       // FIXME find real value using glass
       public static final double OPENING_FINISH = 20;
       public static final double ENDING_FINISH = 80;
