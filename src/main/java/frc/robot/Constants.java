@@ -199,8 +199,9 @@ public final class Constants {
     public static final int CLAMP_ANGLE = 0;
 
     public static final class StatorCurrents {
-      public static final double OPENING_FINISH = 25;
-      public static final double ENDING_FINISH = 25;
+      // FIXME find real value using glass
+      public static final double OPENING_FINISH = 250;
+      public static final double ENDING_FINISH = 80;
     }
   }
 }

@@ -49,10 +49,10 @@ public class OuttakeSubsystem extends SubsystemBase {
 
     this.outtake = new TalonFX(Outtake.Ports.OUTTAKE_MOTOR);
 
-    this.outtake.setInverted(true);
+    // this.outtake.setInverted(true);
 
     this.outtake.configVoltageCompSaturation(11);
-    this.outtake.enableVoltageCompensation(true);
+    this.outtake.enableVoltageCompensation(false);
 
     this.outtake.setNeutralMode(NeutralMode.Brake);
 
@@ -60,7 +60,7 @@ public class OuttakeSubsystem extends SubsystemBase {
     pidController.setTolerance(3);
 
     // FIXME: Change the tap rate to get a better average
-    filter = LinearFilter.movingAverage(9);
+    filter = LinearFilter.movingAverage(90);
 
     filterOutput = 0;
 
@@ -99,15 +99,15 @@ public class OuttakeSubsystem extends SubsystemBase {
   }
 
   public void closePeriodic() {
-    outtake.set(TalonFXControlMode.PercentOutput, 0.075);
+    outtake.set(TalonFXControlMode.PercentOutput, 0.7);
   }
 
   public void holdPeriodic() {
-    outtake.set(TalonFXControlMode.PercentOutput, 0.0);
+    outtake.set(TalonFXControlMode.PercentOutput, 0.1);
   }
 
   public void openingPeriodic() {
-    outtake.set(TalonFXControlMode.PercentOutput, -0.25);
+    outtake.set(TalonFXControlMode.PercentOutput, -0.2);
   }
 
   public boolean inStableState() {
