@@ -30,11 +30,11 @@ import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.VibrateControllerCommand;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
-import frc.robot.subsystems.OuttakeSubsystem.Modes;
 import frc.util.ControllerUtil;
 import frc.util.Layer;
 import frc.util.MacUtil;
 import frc.util.Util;
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -157,12 +157,19 @@ public class RobotContainer {
             new DriveToPlaceCommand(
                 drivebaseSubsystem, new Pose2d(3.2, .5, Rotation2d.fromDegrees(170)), .2, .5));
 
-    will.x().onTrue(new OuttakeCommand(outtakeSubsystem, Modes.CLOSE));
+    will.x()
+        .whileTrue(
+            new OuttakeCommand(
+                outtakeSubsystem,
+                OuttakeSubsystem.Modes.INTAKE,
+                Optional.of(OuttakeSubsystem.Modes.HOLD)));
 
-    will.x().onFalse(new OuttakeCommand(outtakeSubsystem, Modes.HOLD));
-
-    will.a().onTrue(new OuttakeCommand(outtakeSubsystem, Modes.OPENING));
-    will.a().onFalse(new OuttakeCommand(outtakeSubsystem, Modes.OPEN));
+    will.a()
+        .whileTrue(
+            new OuttakeCommand(
+                outtakeSubsystem,
+                OuttakeSubsystem.Modes.OUTTAKE,
+                Optional.of(OuttakeSubsystem.Modes.OFF)));
   }
 
   /**
