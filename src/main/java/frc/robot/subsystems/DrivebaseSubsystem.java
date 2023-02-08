@@ -33,9 +33,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.PoseEstimator;
 import frc.util.AdvancedSwerveTrajectoryFollower;
 import frc.util.Util;
+import io.github.oblarg.oblog.Loggable;
+
 import java.util.Optional;
 
-public class DrivebaseSubsystem extends SubsystemBase {
+public class DrivebaseSubsystem extends SubsystemBase implements Loggable {
   private final AdvancedSwerveTrajectoryFollower follower =
       new AdvancedSwerveTrajectoryFollower(
           new PIDController(1.3853, 0, 0),

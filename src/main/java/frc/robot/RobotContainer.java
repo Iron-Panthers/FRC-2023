@@ -34,6 +34,9 @@ import frc.util.MacUtil;
 import frc.util.Util;
 import java.util.function.DoubleSupplier;
 
+import io.github.oblarg.oblog.Logger;
+
+
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
@@ -54,6 +57,8 @@ public class RobotContainer {
 
   /** the sendable chooser to select which auto to run. */
   private final SendableChooser<Command> autoSelector = new SendableChooser<>();
+
+
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -76,6 +81,13 @@ public class RobotContainer {
 
     // Create and put autonomous selector to dashboard
     setupAutonomousCommands();
+
+    // Configuring the logger
+    Logger.configureLoggingAndConfig(this, false);
+  }
+
+  public void updateLogger() {
+    Logger.updateEntries();
   }
 
   public void containerTeleopInit() {

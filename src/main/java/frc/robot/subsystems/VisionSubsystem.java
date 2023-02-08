@@ -17,6 +17,8 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import frc.robot.Constants.PoseEstimator;
 import frc.robot.Constants.Vision;
+import io.github.oblarg.oblog.Loggable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +26,7 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.RobotPoseEstimator;
 import org.photonvision.RobotPoseEstimator.PoseStrategy;
 
-public class VisionSubsystem {
+public class VisionSubsystem implements Loggable{
   class VisionSource {
     PhotonCamera camera;
     Transform3d robotToCam;
