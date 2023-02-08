@@ -108,23 +108,38 @@ public final class Constants {
   }
 
   public static final class Vision {
-    public static final double LIMELIGHT_CLUSTER_HEIGHT = 0.3048;
 
     public static final class FrontCam {
       public static final String NAME = "frontCam";
-      /** Cam mounted facing forward, centered, at the back of the robot */
       public static final Transform3d ROBOT_TO_CAM =
           new Transform3d(
-              new Translation3d(-0.2248, 0, LIMELIGHT_CLUSTER_HEIGHT), new Rotation3d(0, 0, 0));
+              // 9.867 in to the left looking from behind the front of the robot
+              // 7 inch forward from center
+              // up 17.422 inches
+              new Translation3d(
+                  0.1778, // front/back
+                  -0.2506218, // right/left
+                  0.4425188 // up/down
+                  ),
+              new Rotation3d(
+                  0,
+                  Math.toRadians(11.5), // angle up/down
+                  0));
     }
 
     public static final class BackCam {
       public static final String NAME = "backCam";
-      /** Cam mounted facing backward, centered, at the back of the robot */
       public static final Transform3d ROBOT_TO_CAM =
           new Transform3d(
-              new Translation3d(-0.301, 0, LIMELIGHT_CLUSTER_HEIGHT),
-              new Rotation3d(0, 0, Math.PI));
+              // 9.867 in to the left looking from behind the front of the robot
+              // 48.5 inches up
+              // two inches forward
+              new Translation3d(
+                  0.0508, // front/back
+                  -0.2506218, // right/left
+                  1.2319 // up/down
+                  ),
+              new Rotation3d(0, Math.toRadians(-17), Math.PI));
     }
   }
 
