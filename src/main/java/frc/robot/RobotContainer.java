@@ -5,6 +5,7 @@
 package frc.robot;
 
 import static frc.robot.Constants.Drive;
+import static frc.robot.Constants.Intake;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -24,10 +25,12 @@ import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
+import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.VibrateControllerCommand;
 import frc.robot.subsystems.DrivebaseSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.util.ControllerUtil;
 import frc.util.Layer;
 import frc.util.MacUtil;
@@ -44,6 +47,8 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
   private final DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem();
+
+  private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 
   /** controller 1 */
   private final CommandXboxController jason = new CommandXboxController(1);
@@ -151,6 +156,11 @@ public class RobotContainer {
         .onTrue(
             new DriveToPlaceCommand(
                 drivebaseSubsystem, new Pose2d(3.2, .5, Rotation2d.fromDegrees(170)), .2, .5));
+
+    jason.x().onTrue(new IntakeCommand(intakeSubsystem, Intake.MOVE_DOWN));
+    jason.b().onTrue(new IntakeCommand(intakeSubsystem, Intake.MOVE_UP));
+    jason.rightBumper().onTrue(new IntakeCommand(intakeSubsystem, Intake.EJECT));
+    jason.leftBumper().onTrue(new IntakeCommand(intakeSubsystem, Intake.OFF));
   }
 
   /**

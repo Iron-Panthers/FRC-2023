@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import frc.robot.subsystems.IntakeSubsystem.IntakeModes;
 
 @SuppressWarnings("java:S1118")
 /**
@@ -196,5 +197,10 @@ public final class Constants {
     }
 
     public static final double ARM_HARDSTOP_CURRENT = 5; // FIRXME need real value
+
+    public static final IntakeModes MOVE_DOWN = IntakeModes.MOVE_DOWN;
+    public static final IntakeModes MOVE_UP = IntakeModes.MOVE_UP;
+    public static final IntakeModes EJECT = IntakeModes.EJECT;
+    public static final IntakeModes OFF = IntakeModes.OFF;
   }
 }

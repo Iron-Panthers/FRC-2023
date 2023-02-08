@@ -10,8 +10,8 @@ import frc.robot.Constants.Intake;
 
 public class IntakeSubsystem extends SubsystemBase {
 
-  /** The modes of the intake subsystem */
-  public enum Modes {
+  /** The IntakeModes of the intake subsystem */
+  public enum IntakeModes {
     MOVE_DOWN(Intake.ARM_HARDSTOP_CURRENT, true),
     BITE(1, false),
     SWALLOW(0.5, false),
@@ -24,7 +24,7 @@ public class IntakeSubsystem extends SubsystemBase {
     public final double transitionStatorCurrent;
     private final boolean isArmTransition;
 
-    private Modes(double transitionStatorCurrent, boolean isArmTransition) {
+    private IntakeModes(double transitionStatorCurrent, boolean isArmTransition) {
       this.transitionStatorCurrent = transitionStatorCurrent;
       this.isArmTransition = isArmTransition;
     }
@@ -39,7 +39,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   /** The current mode */
-  private Modes mode = Modes.OFF;
+  private IntakeModes mode = IntakeModes.OFF;
 
   private TalonFX armMotor;
 
@@ -73,11 +73,11 @@ public class IntakeSubsystem extends SubsystemBase {
    *
    * @return the current mode
    */
-  public Modes getMode() {
+  public IntakeModes getMode() {
     return mode;
   }
 
-  public void setMode(Modes mode) {
+  public void setMode(IntakeModes mode) {
     this.mode = mode;
   }
 
@@ -113,21 +113,21 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeMotor.set(TalonFXControlMode.PercentOutput, 0.0);
   }
 
-  public Modes advanceMode(Modes mode) {
+  public IntakeModes advanceMode(IntakeModes mode) {
 
     if (mode.isTransitionReady(armFilterOutput, intakeFilterOutput)) {
 
       switch (mode) {
         case MOVE_DOWN:
-          return Modes.BITE;
+          return IntakeModes.BITE;
         case BITE:
-          return Modes.SWALLOW;
+          return IntakeModes.SWALLOW;
         case SWALLOW:
-          return Modes.MOVE_UP;
+          return IntakeModes.MOVE_UP;
         case MOVE_UP:
         case EJECT:
         case OFF:
-          return Modes.OFF;
+          return IntakeModes.OFF;
       }
     }
 
@@ -140,7 +140,7 @@ public class IntakeSubsystem extends SubsystemBase {
    *
    * @param mode The mode to use (should use the current mode value)
    */
-  public void applyMode(Modes mode) {
+  public void applyMode(IntakeModes mode) {
 
     switch (mode) {
       case MOVE_DOWN:
