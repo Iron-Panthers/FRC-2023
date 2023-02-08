@@ -38,6 +38,10 @@ deploy {
     }
 }
 
+repositories {
+  maven { url 'https://jitpack.io' }
+}
+
 def deployArtifact = deploy.targets.roborio.artifacts.frcJava
 
 // Set to true to use debug for JNI.
@@ -54,6 +58,9 @@ dependencies {
 
     // lets us read system uptime data
     implementation group: 'com.github.oshi', name: 'oshi-core', version: '6.3.1'
+
+    //Oblog
+    implementation "com.github.Oblarg:Oblog:5.1.0"
 
     roborioDebug wpi.java.deps.wpilibJniDebug(wpi.platforms.roborio)
     roborioDebug wpi.java.vendor.jniDebug(wpi.platforms.roborio)
