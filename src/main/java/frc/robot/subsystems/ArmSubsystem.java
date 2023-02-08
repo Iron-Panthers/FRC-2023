@@ -185,7 +185,7 @@ public class ArmSubsystem extends SubsystemBase {
           TalonFXControlMode.PercentOutput, gravityOffset); // hold arm at current angle
       telescopingMotor.set(TalonFXControlMode.PercentOutput, -0.2); // retract telescoping arm
     } else if (Math.abs(currentAngle) > Arm.UPPER_ANGLE_LIMIT) {
-      armAngleMotor.set(TalonFXControlMode.PercentOutput, 0);
+          armAngleMotor.set(TalonFXControlMode.PercentOutput, 0);
     } else {
       armAngleMotor.set(
           TalonFXControlMode.PercentOutput, MathUtil.clamp(angleOutput + gravityOffset, -0.1, 0.1));
