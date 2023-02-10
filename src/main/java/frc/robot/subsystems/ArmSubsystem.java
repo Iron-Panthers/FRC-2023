@@ -163,6 +163,11 @@ public class ArmSubsystem extends SubsystemBase {
     return Math.sin(Math.toRadians(getAngle())) * Arm.GRAVITY_CONTROL_PERCENT;
   }
 
+  private void moveArm(double armPower, double extensionPower) {
+    armAngleMotor.set(TalonFXControlMode.PercentOutput, armPower);
+    telescopingMotor.set(TalonFXControlMode.PercentOutput, extensionOutput);
+  }
+
   @Override
   public void periodic() {
 
@@ -180,22 +185,23 @@ public class ArmSubsystem extends SubsystemBase {
         MathUtil.clamp(
             extensionController.calculate(getCurrentExtension(), targetExtension), -0.2, 0.2);
 
-    double angleOutput =
+    /*double angleOutput =
         angleController.calculate(
             currentAngle,
-            MathUtil.clamp(desiredAngle, Arm.UPPER_ANGLE_LIMIT, -Arm.UPPER_ANGLE_LIMIT));
-
+            MathUtil.clamp(desiredAngle, Arm.UPPER_ANGLE_LIMIT, -Arm.UPPER_ANGLE_LIMIT));*/
+    
+            double armAngleOutput;
+            
     if (Util.epsilonEquals(Math.abs(currentAngle), Arm.ANGLE_THRESHOLD, 5) && extension > 0.5) { // within lower angle limits while arm is extended
-      armAngleMotor.set(
-          TalonFXControlMode.PercentOutput, gravityOffset); // hold arm at current angle
-      telescopingMotor.set(TalonFXControlMode.PercentOutput, -0.2); // retract telescoping arm
+      armAngleOutput = gravityOffset; // hold arm at current angle
+      extensionOutput = -0.2; // retract telescoping arm
     } else if (Math.abs(currentAngle) > Arm.UPPER_ANGLE_LIMIT) { // within upper angle limits
-      armAngleMotor.set(TalonFXControlMode.PercentOutput, 0);
-      telescopingMotor.set(TalonFXControlMode.PercentOutput, extensionOutput);
+      armAngleOutput = 0;
     } else {
-      armAngleMotor.set(
-          TalonFXControlMode.PercentOutput, MathUtil.clamp(gravityOffset, -0.3, 0.3));
-          telescopingMotor.set(TalonFXControlMode.PercentOutput, extensionOutput);
+      armAngleOutput = MathUtil.clamp(gravityOffset, -0.3, 0.3);
     }
+
+    moveArm(armAngleOutput, extensionOutput);
+
   }
 }
