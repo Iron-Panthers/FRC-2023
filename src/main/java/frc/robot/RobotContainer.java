@@ -74,7 +74,8 @@ public class RobotContainer {
             () -> (-modifyAxis(will.getLeftX()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
             will.rightBumper()));
 
-    armSubsystem.setDefaultCommand(new AngleArmCommand(armSubsystem, jason::getRightY));
+    armSubsystem.setDefaultCommand(
+        new AngleArmCommand(armSubsystem, () -> ControllerUtil.deadband(jason.getLeftY(), 0.2)));
 
     SmartDashboard.putBoolean("is comp bot", MacUtil.IS_COMP_BOT);
 
