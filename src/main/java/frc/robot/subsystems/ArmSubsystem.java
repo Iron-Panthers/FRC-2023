@@ -41,6 +41,8 @@ public class ArmSubsystem extends SubsystemBase {
   private double targetExtension;
   private double extensionOutput;
 
+  private double angleOutput;
+
   private final ShuffleboardTab tab = Shuffleboard.getTab("Arm");
 
   public ArmSubsystem() {
@@ -63,7 +65,7 @@ public class ArmSubsystem extends SubsystemBase {
     telescopingMotor.configForwardSoftLimitEnable(true, 0);
     telescopingMotor.configReverseSoftLimitEnable(true, 0);
 
-    angleController = new PIDController(0.1, 0, 0);
+    angleController = new PIDController(0.01, 0, 0.001);
     extensionController = new PIDController(0.02, 0, 0);
 
     armEncoder = new CANCoder(Arm.Ports.ENCODER_PORT);
@@ -80,6 +82,7 @@ public class ArmSubsystem extends SubsystemBase {
     targetExtension = 0;
     extensionOutput = 0;
     withinAngleRange = false;
+    angleOutput = 0;
 
     var config =
         new StatorCurrentLimitConfiguration(
@@ -105,6 +108,8 @@ public class ArmSubsystem extends SubsystemBase {
     tab.addNumber("Telescoping PID Output", () -> extensionOutput);
     tab.addBoolean("Within Angle Range", () -> withinAngleRange);
     tab.addNumber("Gravity control", this::gravityOffset);
+    tab.addNumber("Angle Output", () -> angleOutput);
+    tab.addNumber("Angle Error", () -> Math.abs(desiredAngle - currentAngle));
   }
 
   /* methods for angle arm control */
@@ -113,7 +118,11 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   public void setDesiredAngle(double desiredAngle) {
-    this.desiredAngle = desiredAngle;
+    this.desiredAngle = MathUtil.clamp(desiredAngle, -Arm.UPPER_ANGLE_LIMIT, Arm.UPPER_ANGLE_LIMIT);
+  }
+
+  public double getDesiredAngle() {
+    return desiredAngle;
   }
 
   /* methods for telescoping arm control */
@@ -174,7 +183,7 @@ public class ArmSubsystem extends SubsystemBase {
     currentAngle = getAngle();
 
     // Add the gravity offset as a function of cosine
-    final double gravityOffset = MathUtil.clamp(gravityOffset(), -0.2, 0.2);
+    final double gravityOffset = gravityOffset();
 
     if (withinAngleRange(currentAngle) || targetPassesAngleRange()) {
       targetExtension = 0;
@@ -184,20 +193,14 @@ public class ArmSubsystem extends SubsystemBase {
         MathUtil.clamp(
             extensionController.calculate(getCurrentExtension(), targetExtension), -0.2, 0.2);
 
-    double angleOutput =
-        MathUtil.clamp(
-            angleController.calculate(
-                currentAngle,
-                MathUtil.clamp(desiredAngle, Arm.UPPER_ANGLE_LIMIT, -Arm.UPPER_ANGLE_LIMIT)),
-            -0.2,
-            0.2);
+    angleOutput = MathUtil.clamp(angleController.calculate(currentAngle, desiredAngle), -0.7, 0.7);
 
     if (Util.epsilonEquals(Math.abs(currentAngle), Arm.ANGLE_THRESHOLD, 5)
         && extension > 0.5) { // within lower angle limits while arm is extended
       // hold arm at current angle
       // retract telescoping arm
 
-      moveArm(gravityOffset, -0.2);
+      moveArm(gravityOffset - 0.1, -0.2);
     } else if (Math.abs(currentAngle) > Arm.UPPER_ANGLE_LIMIT) { // within upper angle limits
       moveArm(0, extensionOutput);
     } else {
