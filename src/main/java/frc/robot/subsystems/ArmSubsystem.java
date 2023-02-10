@@ -185,15 +185,21 @@ public class ArmSubsystem extends SubsystemBase {
     // Add the gravity offset as a function of cosine
     final double gravityOffset = gravityOffset();
 
-    if (withinAngleRange(currentAngle) || targetPassesAngleRange()) {
-      targetExtension = 0;
-    }
+    double tempTargetExtension =
+        withinAngleRange(currentAngle) || targetPassesAngleRange() ? 0 : targetExtension;
+
+    double tempDesiredAngle =
+        !Util.epsilonEquals(getCurrentExtension(), 0, 2)
+                && (withinAngleRange(currentAngle) || targetPassesAngleRange())
+            ? Math.copySign(Arm.ANGLE_THRESHOLD, getAngle())
+            : desiredAngle;
 
     extensionOutput =
         MathUtil.clamp(
-            extensionController.calculate(getCurrentExtension(), targetExtension), -0.2, 0.2);
+            extensionController.calculate(getCurrentExtension(), tempTargetExtension), -0.2, 0.2);
 
-    angleOutput = MathUtil.clamp(angleController.calculate(currentAngle, desiredAngle), -0.7, 0.7);
+    angleOutput =
+        MathUtil.clamp(angleController.calculate(currentAngle, tempDesiredAngle), -0.7, 0.7);
 
     if (Util.epsilonEquals(Math.abs(currentAngle), Arm.ANGLE_THRESHOLD, 5)
         && extension > 0.5) { // within lower angle limits while arm is extended
