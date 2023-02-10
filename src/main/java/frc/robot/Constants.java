@@ -209,7 +209,8 @@ public final class Constants {
       public static final OuttakeDetails OFF = new OuttakeDetails(0.0, Optional.empty());
     }
 
-    // Thinking of using these to plug into the stator limits above
+    // Thinking of using these to plug into the stator limits above...?
+    // Better readability?
     private static final class StatorCurrents {
       // FIXME find real value using glass
       public static final double OPENING_FINISH = 20;

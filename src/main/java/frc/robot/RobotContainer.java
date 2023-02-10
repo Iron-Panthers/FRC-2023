@@ -25,6 +25,7 @@ import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
 import frc.robot.commands.OuttakeCommand;
+import frc.robot.commands.OuttakeEndCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.VibrateControllerCommand;
@@ -34,7 +35,6 @@ import frc.util.ControllerUtil;
 import frc.util.Layer;
 import frc.util.MacUtil;
 import frc.util.Util;
-import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -157,19 +157,17 @@ public class RobotContainer {
             new DriveToPlaceCommand(
                 drivebaseSubsystem, new Pose2d(3.2, .5, Rotation2d.fromDegrees(170)), .2, .5));
 
+    will.x().onTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
     will.x()
-        .whileTrue(
-            new OuttakeCommand(
-                outtakeSubsystem,
-                OuttakeSubsystem.Modes.INTAKE,
-                Optional.of(OuttakeSubsystem.Modes.HOLD)));
+        .onFalse(
+            new OuttakeEndCommand(
+                outtakeSubsystem, OuttakeSubsystem.Modes.HOLD, OuttakeSubsystem.Modes.OFF));
 
+    will.a().onTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
     will.a()
-        .whileTrue(
-            new OuttakeCommand(
-                outtakeSubsystem,
-                OuttakeSubsystem.Modes.OUTTAKE,
-                Optional.of(OuttakeSubsystem.Modes.OFF)));
+        .onFalse(
+            new OuttakeEndCommand(
+                outtakeSubsystem, OuttakeSubsystem.Modes.OFF, OuttakeSubsystem.Modes.HOLD));
   }
 
   /**

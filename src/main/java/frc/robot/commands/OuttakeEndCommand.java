@@ -8,14 +8,16 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem.Modes;
 
-public class OuttakeCommand extends CommandBase {
+public class OuttakeEndCommand extends CommandBase {
   private final OuttakeSubsystem outtakeSubsystem;
-  private final Modes mode;
+  private final Modes successMode;
+  private final Modes failMode;
 
   /** Creates a new OuttakeCommand. */
-  public OuttakeCommand(OuttakeSubsystem outtakeSubsystem, Modes mode) {
+  public OuttakeEndCommand(OuttakeSubsystem outtakeSubsystem, Modes successMode, Modes failMode) {
     this.outtakeSubsystem = outtakeSubsystem;
-    this.mode = mode;
+    this.successMode = successMode;
+    this.failMode = failMode;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -24,7 +26,7 @@ public class OuttakeCommand extends CommandBase {
 
   @Override
   public void initialize() {
-    outtakeSubsystem.setMode(mode);
+    if (!(outtakeSubsystem.getMode() == successMode)) outtakeSubsystem.setMode(failMode);
   }
 
   // Called once the command ends or is interrupted.
@@ -35,6 +37,6 @@ public class OuttakeCommand extends CommandBase {
   @Override
   public boolean isFinished() {
     // If we're in a stable state (Hold or Off), OR we have reached a specified end mode, we can end
-    return outtakeSubsystem.inStableState();
+    return outtakeSubsystem.getMode() == successMode || outtakeSubsystem.getMode() == failMode;
   }
 }
