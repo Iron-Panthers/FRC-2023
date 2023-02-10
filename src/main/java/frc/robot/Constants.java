@@ -188,4 +188,10 @@ public final class Constants {
 
     public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 2;
   }
+
+  public static final class NetworkWatchdog {
+    public static final double BOOT_SCAN_DELAY_SECONDS = 20;
+    public static final double PING_TIMEOUT_SECONDS = .5;
+    public static final double SWITCH_POWERCYCLE_SCAN_DELAY_SECONDS = 10;
+  }
 }
