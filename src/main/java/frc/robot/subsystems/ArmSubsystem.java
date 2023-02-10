@@ -104,7 +104,7 @@ public class ArmSubsystem extends SubsystemBase {
     tab.addNumber("Target Extension", () -> targetExtension);
     tab.addNumber("Telescoping PID Output", () -> extensionOutput);
     tab.addBoolean("Within Angle Range", () -> withinAngleRange);
-    tab.addNumber("Gravity control", () -> Math.cos(Math.toRadians(currentAngle)) * Arm.GRAVITY_CONTROL_PERCENT);
+    tab.addNumber("Gravity control", this::gravityOffset);
   }
 
   /* methods for angle arm control */
@@ -158,6 +158,11 @@ public class ArmSubsystem extends SubsystemBase {
     return false;
   }
 
+  // Add the gravity offset as a function of cosine
+  public double gravityOffset() {
+    return Math.sin(Math.toRadians(getAngle())) * Arm.GRAVITY_CONTROL_PERCENT;
+  }
+
   @Override
   public void periodic() {
 
@@ -165,7 +170,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     // Add the gravity offset as a function of cosine
     final double gravityOffset =
-        Math.cos(Math.toRadians(currentAngle)) * Arm.GRAVITY_CONTROL_PERCENT;
+        gravityOffset();
 
     if (withinAngleRange(currentAngle) || targetPassesAngleRange()) {
       targetExtension = 0;
@@ -189,7 +194,7 @@ public class ArmSubsystem extends SubsystemBase {
       telescopingMotor.set(TalonFXControlMode.PercentOutput, extensionOutput);
     } else {
       armAngleMotor.set(
-          TalonFXControlMode.PercentOutput, MathUtil.clamp(gravityOffset, -0.1, 0.1));
+          TalonFXControlMode.PercentOutput, MathUtil.clamp(gravityOffset, -0.3, 0.3));
           telescopingMotor.set(TalonFXControlMode.PercentOutput, extensionOutput);
     }
   }
