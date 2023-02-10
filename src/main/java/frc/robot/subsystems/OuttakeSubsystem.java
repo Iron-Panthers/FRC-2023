@@ -94,7 +94,7 @@ public class OuttakeSubsystem extends SubsystemBase {
     this.outtake.setNeutralMode(NeutralMode.Brake);
 
     // FIXME: Change the tap rate to get a better average
-    filter = LinearFilter.movingAverage(90);
+    filter = LinearFilter.movingAverage(30);
 
     filterOutput = 0;
 
@@ -126,19 +126,18 @@ public class OuttakeSubsystem extends SubsystemBase {
   }
 
   public Modes advanceMode() {
+    if (!modeFinished()) return mode;
 
-    if (modeFinished()) {
-      switch (mode) {
-        case INTAKE:
-          return Modes.HOLD;
-        case OUTTAKE:
-          return Modes.OFF;
-        case OFF:
-        case HOLD:
-          return mode;
-      }
+    switch (mode) {
+      case INTAKE:
+        return Modes.HOLD;
+      case OUTTAKE:
+        return Modes.OFF;
+      case OFF:
+      case HOLD:
+      default:
+        return mode;
     }
-    return mode;
   }
 
   public void applyMode() {

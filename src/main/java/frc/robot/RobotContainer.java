@@ -25,7 +25,6 @@ import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
 import frc.robot.commands.OuttakeCommand;
-import frc.robot.commands.OuttakeEndCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.VibrateControllerCommand;
@@ -158,16 +157,8 @@ public class RobotContainer {
                 drivebaseSubsystem, new Pose2d(3.2, .5, Rotation2d.fromDegrees(170)), .2, .5));
 
     will.x().onTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
-    will.x()
-        .onFalse(
-            new OuttakeEndCommand(
-                outtakeSubsystem, OuttakeSubsystem.Modes.HOLD, OuttakeSubsystem.Modes.OFF));
 
     will.a().onTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
-    will.a()
-        .onFalse(
-            new OuttakeEndCommand(
-                outtakeSubsystem, OuttakeSubsystem.Modes.OFF, OuttakeSubsystem.Modes.HOLD));
   }
 
   /**

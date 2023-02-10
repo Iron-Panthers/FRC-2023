@@ -203,9 +203,9 @@ public final class Constants {
     public static final class OuttakeModes {
       public static final OuttakeDetails HOLD = new OuttakeDetails(0.1, Optional.empty());
       public static final OuttakeDetails INTAKE =
-          new OuttakeDetails(0.7, Optional.of(new OuttakeDetails.StatorLimit(80, true)));
+          new OuttakeDetails(0.7, Optional.of(new OuttakeDetails.StatorLimit(75, true)));
       public static final OuttakeDetails OUTTAKE =
-          new OuttakeDetails(-0.2, Optional.of(new OuttakeDetails.StatorLimit(20, false)));
+          new OuttakeDetails(-0.2, Optional.of(new OuttakeDetails.StatorLimit(10, false)));
       public static final OuttakeDetails OFF = new OuttakeDetails(0.0, Optional.empty());
     }
 
