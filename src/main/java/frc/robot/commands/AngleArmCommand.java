@@ -29,9 +29,9 @@ public class AngleArmCommand extends CommandBase {
 
     double controllerInput = angleSupplier.getAsDouble();
 
-    double angleOutput = -((controllerInput * 90) + 90);
+    double angleOutput = controllerInput * .1;
 
-    armSubsystem.setDesiredAngle(angleOutput);
+    armSubsystem.setDesiredAngle(armSubsystem.getDesiredAngle() + angleOutput);
   }
 
   // Called once the command ends or is interrupted.
