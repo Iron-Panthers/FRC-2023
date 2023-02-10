@@ -196,9 +196,9 @@ public class ArmSubsystem extends SubsystemBase {
 
       moveArm(gravityOffset, -0.2);
     } else if (Math.abs(currentAngle) > Arm.UPPER_ANGLE_LIMIT) { // within upper angle limits
-      moveArm(0, 0);
+      moveArm(0, extensionOutput);
     } else {
-      moveArm(gravityOffset, 0);
+      moveArm(gravityOffset, extensionOutput);
     }
   }
 }
