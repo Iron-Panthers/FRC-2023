@@ -191,7 +191,7 @@ public final class Constants {
 
   public static final class NetworkWatchdog {
     public static final double BOOT_SCAN_DELAY_SECONDS = 20;
-    public static final double PING_TIMEOUT_SECONDS = .5;
+    public static final int PING_TIMEOUT_SECONDS = 2;
     public static final double SWITCH_POWERCYCLE_SCAN_DELAY_SECONDS = 10;
   }
 }
