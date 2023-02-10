@@ -35,8 +35,8 @@ public class ArmSubsystem extends SubsystemBase {
   private double currentAngle;
   private boolean withinAngleRange;
 
-  private TalonFX telescopingMotor;
-  private PIDController extensionController;
+  private final TalonFX telescopingMotor;
+  private final PIDController extensionController;
   private double extension; // measured in inches
   private double targetExtension;
   private double extensionOutput;
@@ -66,7 +66,7 @@ public class ArmSubsystem extends SubsystemBase {
     telescopingMotor.configReverseSoftLimitEnable(true, 0);
 
     angleController = new PIDController(0.01, 0, 0.001);
-    extensionController = new PIDController(0.02, 0, 0);
+    extensionController = new PIDController(0.08, 0, 0);
 
     armEncoder = new CANCoder(Arm.Ports.ENCODER_PORT);
 
@@ -174,7 +174,7 @@ public class ArmSubsystem extends SubsystemBase {
 
   private void moveArm(double armPower, double extensionPower) {
     armAngleMotor.set(TalonFXControlMode.PercentOutput, armPower);
-    telescopingMotor.set(TalonFXControlMode.PercentOutput, extensionOutput);
+    telescopingMotor.set(TalonFXControlMode.PercentOutput, extensionPower);
   }
 
   @Override
@@ -200,7 +200,7 @@ public class ArmSubsystem extends SubsystemBase {
       // hold arm at current angle
       // retract telescoping arm
 
-      moveArm(gravityOffset - 0.1, -0.2);
+      moveArm(gravityOffset, -0.2);
     } else if (Math.abs(currentAngle) > Arm.UPPER_ANGLE_LIMIT) { // within upper angle limits
       moveArm(0, extensionOutput);
     } else {
