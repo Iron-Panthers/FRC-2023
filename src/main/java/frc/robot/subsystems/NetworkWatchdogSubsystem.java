@@ -80,11 +80,20 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
               // to the while conditional
               while (!Thread.interrupted()) {
                 if (canPing(NetworkWatchdog.TEST_IP_ADDRESS)) {
+                  System.out.println(
+                      "[network watchdog] Pinged "
+                          + NetworkWatchdog.TEST_IP_ADDRESS
+                          + " successfully.");
                   sleep(NetworkWatchdog.HEALTHY_CHECK_INTERVAL_MS);
                 } else {
+                  System.out.println(
+                      "[network watchdog] Failed to ping "
+                          + NetworkWatchdog.TEST_IP_ADDRESS
+                          + ", rebooting switch.");
                   pdh.setSwitchableChannel(false);
                   sleep(NetworkWatchdog.REBOOT_DURATION_MS);
                   pdh.setSwitchableChannel(true);
+                  System.out.println("[network watchdog] Switch rebooted.");
                 }
               }
             });
@@ -100,5 +109,6 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
   public void matchStarting() {
     // stop the thread
     networkWatchdogThread.interrupt();
+    System.out.println("[network watchdog] Network watchdog thread stopped.");
   }
 }
