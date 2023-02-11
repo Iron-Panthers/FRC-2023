@@ -62,7 +62,7 @@ public class ArmSubsystem extends SubsystemBase {
     extensionMotor.configForwardSoftLimitEnable(true, 0);
     extensionMotor.configReverseSoftLimitEnable(true, 0);
 
-    angleController = new PIDController(0.001, 0, 0);
+    angleController = new PIDController(0.005, 0, 0);
     extensionController = new PIDController(0.08, 0, 0);
 
     angleEncoder = new CANCoder(Arm.Ports.ENCODER_PORT);
@@ -165,9 +165,7 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   private boolean extensionIsRetracted() {
-    return getCurrentExtensionInches()
-        < Arm.Setpoints.Extensions.MIN_EXTENSION
-            + Arm.Thresholds.Extensions.FULLY_RETRACTED_INCHES_THRESHOLD;
+    return getCurrentExtensionInches() < Arm.Thresholds.Extensions.FULLY_RETRACTED_INCHES_THRESHOLD;
   }
 
   private double computeIntermediateAngleGoal() {
