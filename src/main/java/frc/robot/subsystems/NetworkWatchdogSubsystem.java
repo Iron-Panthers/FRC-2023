@@ -53,4 +53,7 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
   }
+
+  /** Stop rebooting the network switch. */
+  public void matchStarting() {}
 }
