@@ -86,6 +86,8 @@ public class ArmSubsystem extends SubsystemBase {
 
     angleEncoder.configMagnetOffset(Arm.ANGULAR_OFFSET);
 
+    angleEncoder.configSensorDirection(true);
+
     angleEncoder.setPositionToAbsolute(10); // ms
 
     extensionMotor.setSelectedSensorPosition(0);
