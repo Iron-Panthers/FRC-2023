@@ -164,17 +164,23 @@ public class RobotContainer {
         .b()
         .onTrue(
             new ArmPositionCommand(
-                armSubsystem, Arm.Setpoints.TEST_ANGLE, Arm.Setpoints.MAX_EXTENSION));
+                armSubsystem,
+                Arm.Setpoints.Angles.TEST_ANGLE,
+                Arm.Setpoints.Extensions.MAX_EXTENSION));
     jason
         .x()
         .onTrue(
             new ArmPositionCommand(
-                armSubsystem, Arm.Setpoints.BACKWARD_ANGLE, Arm.Setpoints.MAX_EXTENSION));
+                armSubsystem,
+                Arm.Setpoints.Angles.BACKWARD_ANGLE,
+                Arm.Setpoints.Extensions.MAX_EXTENSION));
     jason
         .a()
         .onTrue(
             new ArmPositionCommand(
-                armSubsystem, Arm.Setpoints.STARTING_ANGLE, Arm.Setpoints.MIN_EXTENSION));
+                armSubsystem,
+                Arm.Setpoints.Angles.STARTING_ANGLE,
+                Arm.Setpoints.Extensions.MIN_EXTENSION));
   }
 
   /**

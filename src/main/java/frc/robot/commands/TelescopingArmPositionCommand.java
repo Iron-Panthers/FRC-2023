@@ -23,10 +23,7 @@ public class TelescopingArmPositionCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    withinAngleRange = armSubsystem.withinAngleRange(armSubsystem.getAngle());
-    if (!withinAngleRange) {
-      armSubsystem.setTargetExtensionInches(targetExtension);
-    }
+    armSubsystem.setTargetExtensionInches(targetExtension);
   }
 
   // Called every time the scheduler runs while the command is scheduled.

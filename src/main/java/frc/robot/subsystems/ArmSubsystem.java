@@ -62,7 +62,7 @@ public class ArmSubsystem extends SubsystemBase {
     extensionMotor.configForwardSoftLimitEnable(true, 0);
     extensionMotor.configReverseSoftLimitEnable(true, 0);
 
-    angleController = new PIDController(0.01, 0, 0.001);
+    angleController = new PIDController(0.001, 0, 0);
     extensionController = new PIDController(0.08, 0, 0);
 
     angleEncoder = new CANCoder(Arm.Ports.ENCODER_PORT);
