@@ -114,8 +114,8 @@ public class ArmSubsystem extends SubsystemBase {
     this.targetAngleDegrees =
         MathUtil.clamp(
             targetAngleDegrees,
-            -Arm.Thresholds.Angles.UNSAFE_EXTENSION_ANGLE_THRESHOLD,
-            Arm.Thresholds.Angles.UNSAFE_EXTENSION_ANGLE_THRESHOLD);
+            -Arm.Thresholds.Angles.UPPER_ANGLE_LIMIT,
+            Arm.Thresholds.Angles.UPPER_ANGLE_LIMIT);
   }
 
   public double getTargetAngleDegrees() {
