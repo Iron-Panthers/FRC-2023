@@ -4,9 +4,11 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.NetworkWatchdog;
 import java.io.IOException;
+import oshi.SystemInfo;
 
 /**
  * A subsystem that monitors the full system network connection, reports status to the shuffleboard,
@@ -14,6 +16,8 @@ import java.io.IOException;
  * and fix the network.
  */
 public class NetworkWatchdogSubsystem extends SubsystemBase {
+  private Thread networkWatchdogThread;
+  private PowerDistribution pdh = new PowerDistribution();
 
   /**
    * Blocking method that tests if /bin/ping can reach the specified host. You should never call
@@ -46,8 +50,46 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
     return false;
   }
 
+  /**
+   * Sleep that handles interrupts and uses an int. Don't do this please?
+   *
+   * @param millis
+   */
+  private static void sleep(final int millis) {
+    try {
+      Thread.sleep(millis);
+    } catch (InterruptedException e) {
+      // restore the interrupted status
+      Thread.currentThread().interrupt();
+    }
+  }
+
   /** Creates a new NetworkWatchdogSubsystem. */
-  public NetworkWatchdogSubsystem() {}
+  public NetworkWatchdogSubsystem() {
+    pdh.setSwitchableChannel(true);
+    networkWatchdogThread =
+        new Thread(
+            () -> {
+              final int initialUptimeMS =
+                  (int) Math.floor(new SystemInfo().getOperatingSystem().getSystemUptime() * 1000d);
+              if (initialUptimeMS < NetworkWatchdog.BOOT_SCAN_DELAY_MS) {
+                sleep(NetworkWatchdog.BOOT_SCAN_DELAY_MS - initialUptimeMS);
+              }
+
+              // to ensure we don't miss an interrupt, only sleep once per branch before coming back
+              // to the while conditional
+              while (!Thread.interrupted()) {
+                if (canPing(NetworkWatchdog.TEST_IP_ADDRESS)) {
+                  sleep(NetworkWatchdog.HEALTHY_CHECK_INTERVAL_MS);
+                } else {
+                  pdh.setSwitchableChannel(false);
+                  sleep(NetworkWatchdog.REBOOT_DURATION_MS);
+                  pdh.setSwitchableChannel(true);
+                }
+              }
+            });
+    networkWatchdogThread.start();
+  }
 
   @Override
   public void periodic() {
@@ -55,5 +97,8 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
   }
 
   /** Stop rebooting the network switch. */
-  public void matchStarting() {}
+  public void matchStarting() {
+    // stop the thread
+    networkWatchdogThread.interrupt();
+  }
 }
