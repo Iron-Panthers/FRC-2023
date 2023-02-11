@@ -25,7 +25,7 @@ public class TelescopingArmPositionCommand extends CommandBase {
   public void initialize() {
     withinAngleRange = armSubsystem.withinAngleRange(armSubsystem.getAngle());
     if (!withinAngleRange) {
-      armSubsystem.setTargetExtension(targetExtension);
+      armSubsystem.setTargetExtensionInches(targetExtension);
     }
   }
 

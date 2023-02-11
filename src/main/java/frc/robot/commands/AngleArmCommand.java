@@ -31,7 +31,7 @@ public class AngleArmCommand extends CommandBase {
 
     double angleOutput = controllerInput;
 
-    armSubsystem.setDesiredAngle(armSubsystem.getDesiredAngle() + angleOutput);
+    armSubsystem.setTargetAngleDegrees(armSubsystem.getTargetAngleDegrees() + angleOutput);
   }
 
   // Called once the command ends or is interrupted.
