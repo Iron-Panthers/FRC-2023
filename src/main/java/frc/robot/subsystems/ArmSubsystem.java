@@ -58,9 +58,9 @@ public class ArmSubsystem extends SubsystemBase {
     armAngleMotor.setInverted(true);
 
     telescopingMotor.configForwardSoftLimitThreshold(
-        heightToTicks(Arm.Setpoints.MAX_EXTENSION), 0); // this is the top limit
+        inchesLengthToTicks(Arm.Setpoints.MAX_EXTENSION), 0); // this is the top limit
     telescopingMotor.configReverseSoftLimitThreshold(
-        heightToTicks(Arm.Setpoints.MIN_EXTENSION), 0); // this is the bottom limit
+        inchesLengthToTicks(Arm.Setpoints.MIN_EXTENSION), 0); // this is the bottom limit
 
     telescopingMotor.configForwardSoftLimitEnable(true, 0);
     telescopingMotor.configReverseSoftLimitEnable(true, 0);
@@ -131,15 +131,15 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   public double getCurrentExtension() {
-    extension = ticksToHeight(telescopingMotor.getSelectedSensorPosition());
+    extension = ticksLengthToInches(telescopingMotor.getSelectedSensorPosition());
     return extension;
   }
 
-  private static double heightToTicks(double extension) {
+  private static double inchesLengthToTicks(double extension) {
     return (extension / Arm.SPOOL_CIRCUMFERENCE) * Arm.TELESCOPING_ARM_GEAR_RATIO * Arm.TICKS;
   }
 
-  private static double ticksToHeight(double ticks) {
+  private static double ticksLengthToInches(double ticks) {
     return ((ticks / Arm.TICKS) / Arm.TELESCOPING_ARM_GEAR_RATIO) * Arm.SPOOL_CIRCUMFERENCE;
   }
 
