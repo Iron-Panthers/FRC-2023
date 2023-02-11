@@ -110,5 +110,7 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
     // stop the thread
     networkWatchdogThread.interrupt();
     System.out.println("[network watchdog] Network watchdog thread stopped.");
+    // always reenable switchable channel after killing the thread
+    pdh.setSwitchableChannel(true);
   }
 }
