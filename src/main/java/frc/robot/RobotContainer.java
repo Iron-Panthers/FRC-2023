@@ -165,7 +165,7 @@ public class RobotContainer {
         .onTrue(
             new ArmPositionCommand(
                 armSubsystem,
-                Arm.Setpoints.Angles.TEST_ANGLE,
+                Arm.Setpoints.Angles.FORWARD_ANGLE,
                 Arm.Setpoints.Extensions.MAX_EXTENSION));
     jason
         .x()

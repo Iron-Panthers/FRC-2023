@@ -143,7 +143,7 @@ public final class Constants {
 
     public static final double GRAVITY_CONTROL_PERCENT = 0.07;
 
-    public static final double ANGULAR_OFFSET = 96.8;
+    public static final double ANGULAR_OFFSET = 8;
 
     public static final class Setpoints {
       public static final class Angles {
@@ -154,7 +154,7 @@ public final class Constants {
       }
 
       public static final class Extensions {
-        public static final double MAX_EXTENSION = 12; // FIXME: find accurate value
+        public static final double MAX_EXTENSION = 10;
         public static final double MIN_EXTENSION = 0;
       }
     }
