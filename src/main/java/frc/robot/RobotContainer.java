@@ -186,8 +186,8 @@ public class RobotContainer {
             new ArmPositionCommand(
                 armSubsystem,
                 Arm.Setpoints.Angles.GROUND_INTAKE_ANGLE,
-                Arm.Setpoints.Extensions.MIN_EXTENSION))
-        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+                Arm.Setpoints.Extensions.MAX_EXTENSION))
+        .whileTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
   }
 
   /**
