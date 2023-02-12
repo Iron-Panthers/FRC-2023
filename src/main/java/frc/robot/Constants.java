@@ -150,6 +150,9 @@ public final class Constants {
     public static final class Setpoints {
       public static final class Angles {
         public static final int STARTING_ANGLE = 0;
+        public static final int GROUND_INTAKE_ANGLE = 40; // FIXME calculate real angle
+        public static final int SCORE_MID = 60; // FIXME calculate real angle
+        public static final int SCORE_HIGH = 100; // FIXME calculate real angle
         public static final int FORWARD_ANGLE = 90;
         public static final int BACKWARD_ANGLE = -90;
         public static final int TEST_ANGLE = 45;

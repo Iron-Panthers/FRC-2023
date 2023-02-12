@@ -169,26 +169,25 @@ public class RobotContainer {
         .onTrue(
             new ArmPositionCommand(
                 armSubsystem,
-                Arm.Setpoints.Angles.FORWARD_ANGLE,
-                Arm.Setpoints.Extensions.MAX_EXTENSION));
+                Arm.Setpoints.Angles.SCORE_HIGH,
+                Arm.Setpoints.Extensions.MAX_EXTENSION))
+        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
     jason
         .x()
         .onTrue(
             new ArmPositionCommand(
                 armSubsystem,
-                Arm.Setpoints.Angles.BACKWARD_ANGLE,
-                Arm.Setpoints.Extensions.MAX_EXTENSION));
+                Arm.Setpoints.Angles.SCORE_MID,
+                Arm.Setpoints.Extensions.MAX_EXTENSION))
+        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
     jason
         .a()
         .onTrue(
             new ArmPositionCommand(
                 armSubsystem,
-                Arm.Setpoints.Angles.STARTING_ANGLE,
-                Arm.Setpoints.Extensions.MIN_EXTENSION));
-
-    will.x().onTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
-
-    will.a().onTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+                Arm.Setpoints.Angles.GROUND_INTAKE_ANGLE,
+                Arm.Setpoints.Extensions.MIN_EXTENSION))
+        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
   }
 
   /**
