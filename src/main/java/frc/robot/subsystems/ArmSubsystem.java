@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Arm;
+import frc.util.Util;
 
 /** Add your docs here. */
 public class ArmSubsystem extends SubsystemBase {
@@ -195,7 +196,12 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   public boolean atTarget() {
-    return extensionController.atSetpoint() && angleController.atSetpoint();
+    Util.epsilonEquals(getAngle(), targetAngleDegrees, 5);
+    return 
+      Util.epsilonEquals(getAngle(), targetAngleDegrees, 5)
+      && Util.epsilonEquals(getCurrentExtensionInches(), targetExtensionInches, 5)
+      && extensionController.atSetpoint()
+      && angleController.atSetpoint();
   }
 
   @Override
