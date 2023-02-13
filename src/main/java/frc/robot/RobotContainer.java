@@ -21,8 +21,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
 import frc.robot.autonomous.commands.AutoTestSequence;
-import frc.robot.commands.AngleArmCommand;
-import frc.robot.commands.ArmExtensionCommand;
+import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
@@ -80,7 +79,7 @@ public class RobotContainer {
             will.rightBumper()));
 
     armSubsystem.setDefaultCommand(
-        new AngleArmCommand(armSubsystem, () -> ControllerUtil.deadband(jason.getLeftY(), 0.2)));
+        new ArmManualCommand(armSubsystem, () -> ControllerUtil.deadband(jason.getLeftY(), 0.2), () -> ControllerUtil.deadband(jason.getRightY(), 0.2)));
 
     SmartDashboard.putBoolean("is comp bot", MacUtil.IS_COMP_BOT);
 
@@ -165,33 +164,28 @@ public class RobotContainer {
             new DriveToPlaceCommand(
                 drivebaseSubsystem, new Pose2d(3.2, .5, Rotation2d.fromDegrees(170)), .2, .5));
 
-    new Trigger(() -> ControllerUtil.deadband(jason.getRightY(), 0.2) > 0)
-        .whileTrue(
-            new ArmExtensionCommand(
-                armSubsystem, () -> ControllerUtil.deadband(jason.getRightY(), 0.2)));
-
-    jason
-        .leftTrigger()
+    jasonLayer.off(
+        jason.leftTrigger())
         .whileTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
-    jason
-        .rightTrigger()
+    jasonLayer.off(
+        jason.rightTrigger())
         .whileTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
-    jason.x().onTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF));
-    jason
-        .a()
+    jasonLayer.off(jason.x()).onTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF));
+    jasonLayer.off(
+        jason.a())
         .onTrue(
             new ArmPositionCommand(
                 armSubsystem,
-                Arm.Setpoints.Angles.GROUND_INTAKE_ANGLE,
-                Arm.Setpoints.Extensions.MAX_EXTENSION))
+                Arm.Setpoints.GroundIntake.ANGLE,
+                Arm.Setpoints.GroundIntake.EXTENSION))
         .whileTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
-    jason
-        .b()
+    jasonLayer.off(
+        jason.b())
         .onTrue(
             new ArmPositionCommand(
                 armSubsystem,
-                Arm.Setpoints.Angles.SHELF_INTAKE_ANGLE,
-                Arm.Setpoints.Extensions.MAX_EXTENSION))
+                Arm.Setpoints.ShelfIntake.ANGLE,
+                Arm.Setpoints.ShelfIntake.EXTENSION))
         .whileTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
 
     jasonLayer

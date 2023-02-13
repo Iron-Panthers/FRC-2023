@@ -8,14 +8,16 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ArmSubsystem;
 import java.util.function.DoubleSupplier;
 
-public class AngleArmCommand extends CommandBase {
+public class ArmManualCommand extends CommandBase {
   ArmSubsystem armSubsystem;
   DoubleSupplier angleSupplier;
+  DoubleSupplier extensionSupplier;
   /** Creates a new AngleArmCommand. */
-  public AngleArmCommand(ArmSubsystem armSubsystem, DoubleSupplier angleSupplier) {
+  public ArmManualCommand(ArmSubsystem armSubsystem, DoubleSupplier angleSupplier, DoubleSupplier extensionSupplier) {
     this.armSubsystem = armSubsystem;
 
     this.angleSupplier = angleSupplier;
+    this.extensionSupplier = extensionSupplier;
     addRequirements(armSubsystem);
   }
 
@@ -28,8 +30,9 @@ public class AngleArmCommand extends CommandBase {
   public void execute() {
 
     double angleOutput = angleSupplier.getAsDouble();
+    double extensionOutput = extensionSupplier.getAsDouble();
 
-    armSubsystem.setTargetAngleDegrees(armSubsystem.getTargetAngleDegrees() + angleOutput);
+    armSubsystem.setTargetPosition(armSubsystem.getTargetAngleDegrees() + angleOutput, armSubsystem.getTargetExtensionInches() + extensionOutput);
   }
 
   // Called once the command ends or is interrupted.
