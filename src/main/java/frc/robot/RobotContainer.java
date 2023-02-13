@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
 import frc.robot.autonomous.commands.AutoTestSequence;
 import frc.robot.commands.AngleArmCommand;
+import frc.robot.commands.ArmExtensionCommand;
 import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
@@ -164,22 +165,21 @@ public class RobotContainer {
             new DriveToPlaceCommand(
                 drivebaseSubsystem, new Pose2d(3.2, .5, Rotation2d.fromDegrees(170)), .2, .5));
 
+    new Trigger(() -> ControllerUtil.deadband(jason.getRightY(), 0.2) > 0)
+        .whileTrue(new ArmExtensionCommand(armSubsystem, () -> ControllerUtil.deadband(jason.getRightY(), 0.2)));
+    
     jason
-        .b()
-        .onTrue(
-            new ArmPositionCommand(
-                armSubsystem,
-                Arm.Setpoints.Angles.SCORE_HIGH,
-                Arm.Setpoints.Extensions.MAX_EXTENSION))
-        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+        .leftTrigger()
+        .whileTrue(
+            new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+    jason
+        .rightTrigger()
+        .whileTrue(
+            new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
     jason
         .x()
         .onTrue(
-            new ArmPositionCommand(
-                armSubsystem,
-                Arm.Setpoints.Angles.SCORE_MID,
-                Arm.Setpoints.Extensions.MAX_EXTENSION))
-        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+            new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF));
     jason
         .a()
         .onTrue(
@@ -188,6 +188,40 @@ public class RobotContainer {
                 Arm.Setpoints.Angles.GROUND_INTAKE_ANGLE,
                 Arm.Setpoints.Extensions.MAX_EXTENSION))
         .whileTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+    jason
+        .b()
+        .onTrue(
+            new ArmPositionCommand(
+                armSubsystem,
+                Arm.Setpoints.Angles.SHELF_INTAKE_ANGLE,
+                Arm.Setpoints.Extensions.MAX_EXTENSION))
+        .whileTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+
+    jasonLayer
+        .on(jason.a())
+        .whileTrue(
+            new ArmPositionCommand(
+                armSubsystem,
+                Arm.Setpoints.ScoreLow.ANGLE,
+                Arm.Setpoints.ScoreLow.EXTENSION))
+        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+    jasonLayer
+        .on(jason.b())
+        .whileTrue(
+            new ArmPositionCommand(
+                armSubsystem,
+                Arm.Setpoints.ScoreMid.ANGLE,
+                Arm.Setpoints.ScoreMid.EXTENSION))
+        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+    jasonLayer
+        .on(jason.y())
+        .whileTrue(
+            new ArmPositionCommand(
+                armSubsystem,
+                Arm.Setpoints.ScoreHigh.ANGLE,
+                Arm.Setpoints.ScoreHigh.EXTENSION))
+        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+    
   }
 
   /**
