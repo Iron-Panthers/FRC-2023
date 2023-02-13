@@ -152,14 +152,17 @@ public final class Constants {
         public static final int ANGLE = 40;
         public static final double EXTENSION = Extensions.MAX_EXTENSION;
       }
+
       public static final class ScoreMid {
         public static final int ANGLE = 90;
         public static final double EXTENSION = Extensions.MAX_EXTENSION;
       }
+
       public static final class ScoreHigh {
         public static final int ANGLE = 110;
         public static final double EXTENSION = Extensions.MAX_EXTENSION;
       }
+
       public static final class Angles {
         public static final int STARTING_ANGLE = 0;
         public static final int GROUND_INTAKE_ANGLE = 40; // FIXME calculate real angle

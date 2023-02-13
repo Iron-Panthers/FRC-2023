@@ -166,20 +166,17 @@ public class RobotContainer {
                 drivebaseSubsystem, new Pose2d(3.2, .5, Rotation2d.fromDegrees(170)), .2, .5));
 
     new Trigger(() -> ControllerUtil.deadband(jason.getRightY(), 0.2) > 0)
-        .whileTrue(new ArmExtensionCommand(armSubsystem, () -> ControllerUtil.deadband(jason.getRightY(), 0.2)));
-    
+        .whileTrue(
+            new ArmExtensionCommand(
+                armSubsystem, () -> ControllerUtil.deadband(jason.getRightY(), 0.2)));
+
     jason
         .leftTrigger()
-        .whileTrue(
-            new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+        .whileTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
     jason
         .rightTrigger()
-        .whileTrue(
-            new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
-    jason
-        .x()
-        .onTrue(
-            new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF));
+        .whileTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+    jason.x().onTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF));
     jason
         .a()
         .onTrue(
@@ -201,27 +198,20 @@ public class RobotContainer {
         .on(jason.a())
         .whileTrue(
             new ArmPositionCommand(
-                armSubsystem,
-                Arm.Setpoints.ScoreLow.ANGLE,
-                Arm.Setpoints.ScoreLow.EXTENSION))
+                armSubsystem, Arm.Setpoints.ScoreLow.ANGLE, Arm.Setpoints.ScoreLow.EXTENSION))
         .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
     jasonLayer
         .on(jason.b())
         .whileTrue(
             new ArmPositionCommand(
-                armSubsystem,
-                Arm.Setpoints.ScoreMid.ANGLE,
-                Arm.Setpoints.ScoreMid.EXTENSION))
+                armSubsystem, Arm.Setpoints.ScoreMid.ANGLE, Arm.Setpoints.ScoreMid.EXTENSION))
         .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
     jasonLayer
         .on(jason.y())
         .whileTrue(
             new ArmPositionCommand(
-                armSubsystem,
-                Arm.Setpoints.ScoreHigh.ANGLE,
-                Arm.Setpoints.ScoreHigh.EXTENSION))
+                armSubsystem, Arm.Setpoints.ScoreHigh.ANGLE, Arm.Setpoints.ScoreHigh.EXTENSION))
         .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
-    
   }
 
   /**

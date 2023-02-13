@@ -58,7 +58,8 @@ public class ArmSubsystem extends SubsystemBase {
     extensionMotor.configForwardSoftLimitThreshold(
         inchesLengthToTicks(Arm.Setpoints.Extensions.MAX_EXTENSION), 20); // this is the top limit
     extensionMotor.configReverseSoftLimitThreshold(
-        inchesLengthToTicks(Arm.Setpoints.Extensions.MIN_EXTENSION), 20); // this is the bottom limit
+        inchesLengthToTicks(Arm.Setpoints.Extensions.MIN_EXTENSION),
+        20); // this is the bottom limit
 
     extensionMotor.configForwardSoftLimitEnable(true, 20);
     extensionMotor.configReverseSoftLimitEnable(true, 20);
@@ -133,7 +134,11 @@ public class ArmSubsystem extends SubsystemBase {
 
   /* methods for telescoping arm control */
   public void setTargetExtensionInches(double targetExtensionInches) {
-    this.targetExtensionInches = MathUtil.clamp(targetExtensionInches, Arm.Setpoints.Extensions.MIN_EXTENSION, Arm.Setpoints.Extensions.MAX_EXTENSION);
+    this.targetExtensionInches =
+        MathUtil.clamp(
+            targetExtensionInches,
+            Arm.Setpoints.Extensions.MIN_EXTENSION,
+            Arm.Setpoints.Extensions.MAX_EXTENSION);
   }
 
   public double getCurrentExtensionInches() {
@@ -155,7 +160,8 @@ public class ArmSubsystem extends SubsystemBase {
 
   /* safety methods */
   private boolean withinAngleRange(double angle) {
-    return angle < Arm.Thresholds.Angles.FORWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD && angle > Arm.Thresholds.Angles.BACKWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD;
+    return angle < Arm.Thresholds.Angles.FORWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD
+        && angle > Arm.Thresholds.Angles.BACKWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD;
   }
 
   private boolean currentOrTargetAnglePassesUnsafeRange() {
@@ -197,11 +203,10 @@ public class ArmSubsystem extends SubsystemBase {
 
   public boolean atTarget() {
     Util.epsilonEquals(getAngle(), targetAngleDegrees, 5);
-    return 
-      Util.epsilonEquals(getAngle(), targetAngleDegrees, 5)
-      && Util.epsilonEquals(getCurrentExtensionInches(), targetExtensionInches, 5)
-      && extensionController.atSetpoint()
-      && angleController.atSetpoint();
+    return Util.epsilonEquals(getAngle(), targetAngleDegrees, 5)
+        && Util.epsilonEquals(getCurrentExtensionInches(), targetExtensionInches, 5)
+        && extensionController.atSetpoint()
+        && angleController.atSetpoint();
   }
 
   @Override
