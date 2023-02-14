@@ -162,10 +162,12 @@ public final class Constants {
         public static final int ANGLE = 110;
         public static final double EXTENSION = Extensions.MAX_EXTENSION;
       }
+
       public static final class GroundIntake {
         public static final int ANGLE = 40;
         public static final double EXTENSION = Extensions.MAX_EXTENSION;
       }
+
       public static final class ShelfIntake {
         public static final int ANGLE = 90;
         public static final double EXTENSION = Extensions.MAX_EXTENSION;
@@ -275,13 +277,21 @@ public final class Constants {
     public static final int OPEN_ANGLE = 500;
     public static final int CLAMP_ANGLE = 0;
 
+    public static final double OUTTAKE_DURATION = 3;
+
     public static final class OuttakeModes {
-      public static final OuttakeDetails HOLD = new OuttakeDetails(0.1, Optional.empty());
+      public static final OuttakeDetails HOLD =
+          new OuttakeDetails(0.1, Optional.empty(), Optional.empty());
       public static final OuttakeDetails INTAKE =
-          new OuttakeDetails(0.7, Optional.of(new OuttakeDetails.StatorLimit(75, true)));
+          new OuttakeDetails(
+              0.7, Optional.of(new OuttakeDetails.StatorLimit(75, true)), Optional.empty());
       public static final OuttakeDetails OUTTAKE =
-          new OuttakeDetails(-0.2, Optional.of(new OuttakeDetails.StatorLimit(10, false)));
-      public static final OuttakeDetails OFF = new OuttakeDetails(0.0, Optional.empty());
+          new OuttakeDetails(
+              -0.2,
+              Optional.of(new OuttakeDetails.StatorLimit(10, false)),
+              Optional.of(OUTTAKE_DURATION));
+      public static final OuttakeDetails OFF =
+          new OuttakeDetails(0.0, Optional.empty(), Optional.empty());
     }
 
     // Thinking of using these to plug into the stator limits above...?

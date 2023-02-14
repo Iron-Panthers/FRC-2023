@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -19,6 +20,7 @@ public class OuttakeSubsystem extends SubsystemBase {
   public static class OuttakeDetails {
     public final double motorPower;
     public final Optional<StatorLimit> statorLimit;
+    public final Optional<Double> minTimeSeconds;
 
     public static class StatorLimit {
       public final double statorTransitionCurrent;
@@ -31,13 +33,15 @@ public class OuttakeSubsystem extends SubsystemBase {
       }
     }
 
-    public OuttakeDetails(double motorPower, Optional<StatorLimit> statorLimit) {
+    public OuttakeDetails(
+        double motorPower, Optional<StatorLimit> statorLimit, Optional<Double> minTimeSeconds) {
       this.motorPower = motorPower;
       this.statorLimit = statorLimit;
+      this.minTimeSeconds = minTimeSeconds;
     }
 
     public OuttakeDetails stableState(double motorPower) {
-      return new OuttakeDetails(motorPower, Optional.empty());
+      return new OuttakeDetails(motorPower, Optional.empty(), Optional.empty());
     }
   }
 
@@ -54,7 +58,7 @@ public class OuttakeSubsystem extends SubsystemBase {
       this.outtakeDetails = outtakeDetails;
     }
 
-    public Boolean modeFinished(double filterOutput) {
+    public boolean modeFinished(double filterOutput, Optional<Double> lastTransitionTime) {
       // If there's no stator limit, then the mode is finished, and we can transition
       if (this.outtakeDetails.statorLimit.isEmpty()) return true;
 
@@ -62,16 +66,34 @@ public class OuttakeSubsystem extends SubsystemBase {
       double statorTransitionCurrent =
           this.outtakeDetails.statorLimit.get().statorTransitionCurrent;
 
-      // Then, if we want transition when we're above the threshold current, we see if our output is
-      // above the threshold
+      // Then, if we want transition when we're above the threshold current, we see if our output
+      // is above the threshold
       // Otherwise, we can transition when we're below the threshold
-      return this.outtakeDetails.statorLimit.get().transitionWhenAboveThresholdCurrent
-          ? filterOutput > statorTransitionCurrent
-          : filterOutput < statorTransitionCurrent;
+      //
+      boolean isStatorCurrentTripped =
+          this.outtakeDetails.statorLimit.get().transitionWhenAboveThresholdCurrent
+              ? filterOutput > statorTransitionCurrent
+              : filterOutput < statorTransitionCurrent;
+
+      boolean isMinTimeExceeded = false;
+      if (lastTransitionTime.isPresent()) {
+        double minTimeSeconds = 0;
+
+        if (this.outtakeDetails.minTimeSeconds.isPresent()) {
+          minTimeSeconds = this.outtakeDetails.minTimeSeconds.get();
+        }
+
+        isMinTimeExceeded = Timer.getFPGATimestamp() - lastTransitionTime.get() > minTimeSeconds;
+      }
+
+      // If the stator current has been tripped or the min time has been exceeded
+      return isStatorCurrentTripped || isMinTimeExceeded;
     }
   }
 
   private Modes mode;
+  private double lastTransitionTime = 0;
+
   private final TalonFX outtake;
 
   private LinearFilter filter;
@@ -114,19 +136,17 @@ public class OuttakeSubsystem extends SubsystemBase {
   }
 
   public void setMode(Modes mode) {
+    if (this.mode != mode) lastTransitionTime = Timer.getFPGATimestamp();
     this.mode = mode;
   }
 
-  public Boolean modeFinished() {
-    return this.mode.modeFinished(this.filterOutput);
-  }
-
-  public Boolean inStableState() {
+  public boolean inStableState() {
     return this.mode == Modes.HOLD || this.mode == Modes.OFF;
   }
 
   public Modes advanceMode() {
-    if (!modeFinished()) return mode;
+
+    if (!mode.modeFinished(filterOutput, Optional.of(lastTransitionTime))) return mode;
 
     switch (mode) {
       case INTAKE:
