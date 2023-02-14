@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Arm;
+import frc.util.Util;
 
 /** Add your docs here. */
 public class ArmSubsystem extends SubsystemBase {
@@ -55,15 +56,18 @@ public class ArmSubsystem extends SubsystemBase {
     angleMotor.setInverted(true);
 
     extensionMotor.configForwardSoftLimitThreshold(
-        inchesLengthToTicks(Arm.Setpoints.Extensions.MAX_EXTENSION), 0); // this is the top limit
+        inchesLengthToTicks(Arm.Setpoints.Extensions.MAX_EXTENSION), 20); // this is the top limit
     extensionMotor.configReverseSoftLimitThreshold(
-        inchesLengthToTicks(Arm.Setpoints.Extensions.MIN_EXTENSION), 0); // this is the bottom limit
+        inchesLengthToTicks(Arm.Setpoints.Extensions.MIN_EXTENSION),
+        20); // this is the bottom limit
 
-    extensionMotor.configForwardSoftLimitEnable(true, 0);
-    extensionMotor.configReverseSoftLimitEnable(true, 0);
+    extensionMotor.configForwardSoftLimitEnable(true, 20);
+    extensionMotor.configReverseSoftLimitEnable(true, 20);
 
     angleController = new PIDController(0.005, 0, 0);
     extensionController = new PIDController(0.48, 0, 0); // within 0.1 inches of accuracy
+    angleController.setTolerance(5, 2); // FIXME not sure if these are good values
+    extensionController.setTolerance(0.2, 1);
 
     angleEncoder = new CANCoder(Arm.Ports.ENCODER_PORT);
 
@@ -124,9 +128,17 @@ public class ArmSubsystem extends SubsystemBase {
     return targetAngleDegrees;
   }
 
+  public double getTargetExtensionInches() {
+    return targetExtensionInches;
+  }
+
   /* methods for telescoping arm control */
   public void setTargetExtensionInches(double targetExtensionInches) {
-    this.targetExtensionInches = targetExtensionInches;
+    this.targetExtensionInches =
+        MathUtil.clamp(
+            targetExtensionInches,
+            Arm.Setpoints.Extensions.MIN_EXTENSION,
+            Arm.Setpoints.Extensions.MAX_EXTENSION);
   }
 
   public double getCurrentExtensionInches() {
@@ -148,7 +160,8 @@ public class ArmSubsystem extends SubsystemBase {
 
   /* safety methods */
   private boolean withinAngleRange(double angle) {
-    return Math.abs(angle) < Arm.Thresholds.Angles.UNSAFE_EXTENSION_ANGLE_THRESHOLD;
+    return angle < Arm.Thresholds.Angles.FORWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD
+        && angle > Arm.Thresholds.Angles.BACKWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD;
   }
 
   private boolean currentOrTargetAnglePassesUnsafeRange() {
@@ -161,7 +174,7 @@ public class ArmSubsystem extends SubsystemBase {
         || Math.signum(targetAngleDegrees) != Math.signum(getAngle());
   }
 
-  // Add the gravity offset as a function of cosine
+  // Add the gravity offset as a function of sine
   private double computeArmGravityOffset() {
     return Math.sin(Math.toRadians(getAngle())) * Arm.GRAVITY_CONTROL_PERCENT;
   }
@@ -173,7 +186,10 @@ public class ArmSubsystem extends SubsystemBase {
   private double computeIntermediateAngleGoal() {
     if (!extensionIsRetracted() && currentOrTargetAnglePassesUnsafeRange()) {
       // set the intermediate angle to the lowest safe angle on the same side as we are currently on
-      return Math.copySign(Arm.Thresholds.Angles.UNSAFE_EXTENSION_ANGLE_THRESHOLD, getAngle());
+      if (getAngle() < 0) {
+        return Arm.Thresholds.Angles.BACKWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD;
+      }
+      return Arm.Thresholds.Angles.FORWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD;
     }
     return targetAngleDegrees;
   }
@@ -185,12 +201,20 @@ public class ArmSubsystem extends SubsystemBase {
     return targetExtensionInches;
   }
 
+  public boolean atTarget() {
+    Util.epsilonEquals(getAngle(), targetAngleDegrees, 5);
+    return Util.epsilonEquals(getAngle(), targetAngleDegrees, 5)
+        && Util.epsilonEquals(getCurrentExtensionInches(), targetExtensionInches, 5)
+        && extensionController.atSetpoint()
+        && angleController.atSetpoint();
+  }
+
   @Override
   public void periodic() {
 
     double currentAngle = getAngle();
 
-    // Add the gravity offset as a function of cosine
+    // Add the gravity offset as a function of sine
     final double armGravityOffset = computeArmGravityOffset();
 
     extensionOutput =

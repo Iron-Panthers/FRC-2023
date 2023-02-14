@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
 import frc.robot.autonomous.commands.AutoTestSequence;
-import frc.robot.commands.AngleArmCommand;
+import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
@@ -79,7 +79,7 @@ public class RobotContainer {
             will.rightBumper()));
 
     armSubsystem.setDefaultCommand(
-        new AngleArmCommand(armSubsystem, () -> ControllerUtil.deadband(jason.getLeftY(), 0.2)));
+        new ArmManualCommand(armSubsystem, () -> ControllerUtil.deadband(jason.getLeftY(), 0.2), () -> ControllerUtil.deadband(jason.getRightY(), 0.2)));
 
     SmartDashboard.putBoolean("is comp bot", MacUtil.IS_COMP_BOT);
 
@@ -164,31 +164,48 @@ public class RobotContainer {
             new DriveToPlaceCommand(
                 drivebaseSubsystem, new Pose2d(3.2, .5, Rotation2d.fromDegrees(170)), .2, .5));
 
-    jason
-        .b()
+    jasonLayer.off(
+        jason.leftTrigger())
+        .whileTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+    jasonLayer.off(
+        jason.rightTrigger())
+        .whileTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+    jasonLayer.off(jason.x()).onTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF));
+    jasonLayer.off(
+        jason.a())
         .onTrue(
             new ArmPositionCommand(
                 armSubsystem,
-                Arm.Setpoints.Angles.FORWARD_ANGLE,
-                Arm.Setpoints.Extensions.MAX_EXTENSION));
-    jason
-        .x()
+                Arm.Setpoints.GroundIntake.ANGLE,
+                Arm.Setpoints.GroundIntake.EXTENSION))
+        .whileTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+    jasonLayer.off(
+        jason.b())
         .onTrue(
             new ArmPositionCommand(
                 armSubsystem,
-                Arm.Setpoints.Angles.BACKWARD_ANGLE,
-                Arm.Setpoints.Extensions.MAX_EXTENSION));
-    jason
-        .a()
-        .onTrue(
-            new ArmPositionCommand(
-                armSubsystem,
-                Arm.Setpoints.Angles.STARTING_ANGLE,
-                Arm.Setpoints.Extensions.MIN_EXTENSION));
+                Arm.Setpoints.ShelfIntake.ANGLE,
+                Arm.Setpoints.ShelfIntake.EXTENSION))
+        .whileTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
 
-    will.x().onTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
-
-    will.a().onTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+    jasonLayer
+        .on(jason.a())
+        .whileTrue(
+            new ArmPositionCommand(
+                armSubsystem, Arm.Setpoints.ScoreLow.ANGLE, Arm.Setpoints.ScoreLow.EXTENSION))
+        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+    jasonLayer
+        .on(jason.b())
+        .whileTrue(
+            new ArmPositionCommand(
+                armSubsystem, Arm.Setpoints.ScoreMid.ANGLE, Arm.Setpoints.ScoreMid.EXTENSION))
+        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+    jasonLayer
+        .on(jason.y())
+        .whileTrue(
+            new ArmPositionCommand(
+                armSubsystem, Arm.Setpoints.ScoreHigh.ANGLE, Arm.Setpoints.ScoreHigh.EXTENSION))
+        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
   }
 
   /**
