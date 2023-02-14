@@ -72,8 +72,8 @@ public class ArmSubsystem extends SubsystemBase {
 
     angleController = new PIDController(0.005, 0, 0);
     extensionController = new PIDController(0.48, 0, 0); // within 0.1 inches of accuracy
-    angleController.setTolerance(5, 2); // FIXME not sure if these are good values
-    extensionController.setTolerance(0.2, 1);
+    angleController.setTolerance(5); // FIXME not sure if these are good values
+    extensionController.setTolerance(0.2);
 
     angleEncoder = new CANCoder(Arm.Ports.ENCODER_PORT);
 
@@ -115,6 +115,7 @@ public class ArmSubsystem extends SubsystemBase {
     tab.addNumber("Arm Gravity Offset", this::computeArmGravityOffset);
     tab.addNumber("Angle Output", () -> angleOutput);
     tab.addNumber("Angle Error", () -> Math.abs(targetAngleDegrees - getAngle()));
+    tab.addBoolean("At target", this::atTarget);
   }
 
   /* methods for angle arm control */
@@ -208,11 +209,10 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   public boolean atTarget() {
-    Util.epsilonEquals(getAngle(), targetAngleDegrees, 5);
     return Util.epsilonEquals(getAngle(), targetAngleDegrees, 5)
-        && Util.epsilonEquals(getCurrentExtensionInches(), targetExtensionInches, 5)
-        && extensionController.atSetpoint()
-        && angleController.atSetpoint();
+        && Util.epsilonEquals(getCurrentExtensionInches(), targetExtensionInches, 0.2);
+        // && extensionController.atSetpoint()
+        // && angleController.atSetpoint();
   }
 
   @Override

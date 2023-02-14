@@ -18,6 +18,7 @@ public class OuttakeEndCommand extends CommandBase {
     this.outtakeSubsystem = outtakeSubsystem;
     this.successMode = successMode;
     this.failMode = failMode;
+    addRequirements(outtakeSubsystem);
   }
 
   // Called every time the scheduler runs while the command is scheduled.

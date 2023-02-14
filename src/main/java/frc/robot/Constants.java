@@ -162,10 +162,12 @@ public final class Constants {
         public static final int ANGLE = 110;
         public static final double EXTENSION = Extensions.MAX_EXTENSION;
       }
+
       public static final class GroundIntake {
-        public static final int ANGLE = 40;
+        public static final int ANGLE = 30;
         public static final double EXTENSION = Extensions.MAX_EXTENSION;
       }
+
       public static final class ShelfIntake {
         public static final int ANGLE = 90;
         public static final double EXTENSION = Extensions.MAX_EXTENSION;
