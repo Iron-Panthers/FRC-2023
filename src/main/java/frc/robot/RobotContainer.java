@@ -190,6 +190,11 @@ public class RobotContainer {
             new ArmPositionCommand(
                 armSubsystem, Arm.Setpoints.ShelfIntake.ANGLE, Arm.Setpoints.ShelfIntake.EXTENSION))
         .whileTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+    jasonLayer
+        .off(jason.y())
+        .onTrue(
+            new ArmPositionCommand(
+                armSubsystem, Arm.Setpoints.Angles.STARTING_ANGLE, Arm.Setpoints.Extensions.MIN_EXTENSION));
 
     jasonLayer
         .on(jason.a())
