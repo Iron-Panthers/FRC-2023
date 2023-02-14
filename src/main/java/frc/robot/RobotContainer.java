@@ -27,11 +27,13 @@ import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
+import frc.robot.commands.OuttakeCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.VibrateControllerCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
+import frc.robot.subsystems.OuttakeSubsystem;
 import frc.util.ControllerUtil;
 import frc.util.Layer;
 import frc.util.MacUtil;
@@ -50,6 +52,8 @@ public class RobotContainer {
   private final DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem();
 
   private final ArmSubsystem armSubsystem = new ArmSubsystem();
+  private final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
+
   /** controller 1 */
   private final CommandXboxController jason = new CommandXboxController(1);
   /** controller 1 climb layer */
@@ -165,7 +169,7 @@ public class RobotContainer {
         .onTrue(
             new ArmPositionCommand(
                 armSubsystem,
-                Arm.Setpoints.Angles.TEST_ANGLE,
+                Arm.Setpoints.Angles.FORWARD_ANGLE,
                 Arm.Setpoints.Extensions.MAX_EXTENSION));
     jason
         .x()
@@ -181,6 +185,10 @@ public class RobotContainer {
                 armSubsystem,
                 Arm.Setpoints.Angles.STARTING_ANGLE,
                 Arm.Setpoints.Extensions.MIN_EXTENSION));
+
+    will.x().onTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+
+    will.a().onTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
   }
 
   /**
