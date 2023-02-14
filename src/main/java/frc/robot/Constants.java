@@ -136,6 +136,81 @@ public final class Constants {
     }
   }
 
+  public static final class Arm {
+    public static final class Ports {
+      public static final int ARM_MOTOR_PORT = 14;
+      public static final int TELESCOPING_MOTOR_PORT = 16; // TODO: find CAN ID
+      public static final int ENCODER_PORT = 28;
+    }
+
+    public static final double GRAVITY_CONTROL_PERCENT = 0.07;
+
+    public static final double ANGULAR_OFFSET = 8;
+
+    public static final class Setpoints {
+      public static final class ScoreLow {
+        public static final int ANGLE = 40;
+        public static final double EXTENSION = Extensions.MAX_EXTENSION;
+      }
+
+      public static final class ScoreMid {
+        public static final int ANGLE = 90;
+        public static final double EXTENSION = Extensions.MAX_EXTENSION;
+      }
+
+      public static final class ScoreHigh {
+        public static final int ANGLE = 110;
+        public static final double EXTENSION = Extensions.MAX_EXTENSION;
+      }
+      public static final class GroundIntake {
+        public static final int ANGLE = 40;
+        public static final double EXTENSION = Extensions.MAX_EXTENSION;
+      }
+      public static final class ShelfIntake {
+        public static final int ANGLE = 90;
+        public static final double EXTENSION = Extensions.MAX_EXTENSION;
+      }
+
+      public static final class Angles {
+        public static final int STARTING_ANGLE = 0;
+        public static final int FORWARD_ANGLE = 90;
+        public static final int BACKWARD_ANGLE = -90;
+        public static final int TEST_ANGLE = 45;
+      }
+
+      public static final class Extensions {
+        public static final double MAX_EXTENSION = 10;
+        public static final double MIN_EXTENSION = 0;
+      }
+    }
+
+    public static final int TICKS = 2048;
+    public static final int TELESCOPING_ARM_GEAR_RATIO = 3;
+    public static final double SPOOL_CIRCUMFERENCE = 1.5 * Math.PI;
+
+    public static final class Thresholds {
+      /**
+       * These thresholds, unless otherwise specified in a doc comment, apply to the positive and
+       * negative sign of their angle in degrees
+       */
+      public static final class Angles {
+        public static final double BACKWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD =
+            -40; // FIXME: real value needed
+        public static final double FORWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD =
+            20; // FIXME: real value needed
+        public static final double UPPER_ANGLE_LIMIT = 100; // FIXME: real value needed
+      }
+
+      public static final class Extensions {
+        /**
+         * The amount of additional extension from min extension to treat as fully retracted for
+         * safety purposes
+         */
+        public static final double FULLY_RETRACTED_INCHES_THRESHOLD = 1;
+      }
+    }
+  }
+
   public static final class Vision {
     public static final double LIMELIGHT_CLUSTER_HEIGHT = 0.3048;
 

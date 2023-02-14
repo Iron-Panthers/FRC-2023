@@ -19,7 +19,10 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.Arm;
 import frc.robot.autonomous.commands.AutoTestSequence;
+import frc.robot.commands.ArmManualCommand;
+import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
@@ -28,6 +31,7 @@ import frc.robot.commands.OuttakeCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.VibrateControllerCommand;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.util.ControllerUtil;
@@ -47,6 +51,7 @@ public class RobotContainer {
 
   private final DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem();
 
+  private final ArmSubsystem armSubsystem = new ArmSubsystem();
   private final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
 
   /** controller 1 */
@@ -72,6 +77,9 @@ public class RobotContainer {
             () -> (-modifyAxis(will.getLeftY()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
             () -> (-modifyAxis(will.getLeftX()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
             will.rightBumper()));
+
+    armSubsystem.setDefaultCommand(
+        new ArmManualCommand(armSubsystem, () -> ControllerUtil.deadband(jason.getLeftY(), 0.2), () -> ControllerUtil.deadband(jason.getRightY(), 0.2)));
 
     SmartDashboard.putBoolean("is comp bot", MacUtil.IS_COMP_BOT);
 
@@ -156,9 +164,48 @@ public class RobotContainer {
             new DriveToPlaceCommand(
                 drivebaseSubsystem, new Pose2d(3.2, .5, Rotation2d.fromDegrees(170)), .2, .5));
 
-    will.x().onTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+    jasonLayer.off(
+        jason.leftTrigger())
+        .whileTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+    jasonLayer.off(
+        jason.rightTrigger())
+        .whileTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+    jasonLayer.off(jason.x()).onTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF));
+    jasonLayer.off(
+        jason.a())
+        .onTrue(
+            new ArmPositionCommand(
+                armSubsystem,
+                Arm.Setpoints.GroundIntake.ANGLE,
+                Arm.Setpoints.GroundIntake.EXTENSION))
+        .whileTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+    jasonLayer.off(
+        jason.b())
+        .onTrue(
+            new ArmPositionCommand(
+                armSubsystem,
+                Arm.Setpoints.ShelfIntake.ANGLE,
+                Arm.Setpoints.ShelfIntake.EXTENSION))
+        .whileTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
 
-    will.a().onTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+    jasonLayer
+        .on(jason.a())
+        .whileTrue(
+            new ArmPositionCommand(
+                armSubsystem, Arm.Setpoints.ScoreLow.ANGLE, Arm.Setpoints.ScoreLow.EXTENSION))
+        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+    jasonLayer
+        .on(jason.b())
+        .whileTrue(
+            new ArmPositionCommand(
+                armSubsystem, Arm.Setpoints.ScoreMid.ANGLE, Arm.Setpoints.ScoreMid.EXTENSION))
+        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+    jasonLayer
+        .on(jason.y())
+        .whileTrue(
+            new ArmPositionCommand(
+                armSubsystem, Arm.Setpoints.ScoreHigh.ANGLE, Arm.Setpoints.ScoreHigh.EXTENSION))
+        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
   }
 
   /**
