@@ -16,6 +16,7 @@ public class OuttakeCommand extends CommandBase {
   public OuttakeCommand(OuttakeSubsystem outtakeSubsystem, Modes mode) {
     this.outtakeSubsystem = outtakeSubsystem;
     this.mode = mode;
+    addRequirements(outtakeSubsystem);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
