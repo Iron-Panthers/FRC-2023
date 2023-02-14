@@ -202,7 +202,6 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   public boolean atTarget() {
-    Util.epsilonEquals(getAngle(), targetAngleDegrees, 5);
     return Util.epsilonEquals(getAngle(), targetAngleDegrees, 5)
         && Util.epsilonEquals(getCurrentExtensionInches(), targetExtensionInches, 5)
         && extensionController.atSetpoint()
