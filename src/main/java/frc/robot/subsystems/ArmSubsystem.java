@@ -15,6 +15,7 @@ import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -40,6 +41,11 @@ public class ArmSubsystem extends SubsystemBase {
   // gross members for logging to shuffleboard motor powers
   private double extensionOutput = 0;
   private double angleOutput = 0;
+
+  //stator limits
+  private LinearFilter filter;
+
+  private double filterOutput;
 
   private final ShuffleboardTab tab = Shuffleboard.getTab("Arm");
 
@@ -226,5 +232,11 @@ public class ArmSubsystem extends SubsystemBase {
     angleMotor.set(
         ControlMode.PercentOutput, MathUtil.clamp(angleOutput + armGravityOffset, -.7, .7));
     extensionMotor.set(ControlMode.PercentOutput, MathUtil.clamp(extensionOutput, -.2, .2));
+
+    this.filterOutput = this.filter.calculate(this.extensionMotor.getStatorCurrent());
+
+    if (filterOutput > Arm.StatorLimits.EXTENSION_LIMIT){//FIXME 20 is not correct value
+      extensionMotor.setSelectedSensorPosition(0);
+    }
   }
 }
