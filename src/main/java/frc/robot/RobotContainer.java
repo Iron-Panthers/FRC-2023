@@ -52,6 +52,7 @@ public class RobotContainer {
   private final DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem();
 
   private final ArmSubsystem armSubsystem = new ArmSubsystem();
+
   private final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
 
   /** controller 1 */
@@ -194,7 +195,9 @@ public class RobotContainer {
         .off(jason.y())
         .onTrue(
             new ArmPositionCommand(
-                armSubsystem, Arm.Setpoints.Angles.STARTING_ANGLE, Arm.Setpoints.Extensions.MIN_EXTENSION));
+                armSubsystem,
+                Arm.Setpoints.Angles.STARTING_ANGLE,
+                Arm.Setpoints.Extensions.MIN_EXTENSION));
 
     jasonLayer
         .on(jason.a())
