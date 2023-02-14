@@ -58,7 +58,8 @@ public class OuttakeSubsystem extends SubsystemBase {
       this.outtakeDetails = outtakeDetails;
     }
 
-    public boolean modeFinished(double filterOutput, Optional<Double> lastTransitionTime) {
+    public boolean modeFinished(
+        double filterOutput, boolean modeLocked, Optional<Double> lastTransitionTime) {
       // If there's no stator limit, then the mode is finished, and we can transition
       if (this.outtakeDetails.statorLimit.isEmpty()) return true;
 
@@ -69,30 +70,32 @@ public class OuttakeSubsystem extends SubsystemBase {
       // Then, if we want transition when we're above the threshold current, we see if our output
       // is above the threshold
       // Otherwise, we can transition when we're below the threshold
-      //
       boolean isStatorCurrentTripped =
           this.outtakeDetails.statorLimit.get().transitionWhenAboveThresholdCurrent
               ? filterOutput > statorTransitionCurrent
               : filterOutput < statorTransitionCurrent;
 
+      // If the stator current has been tripped, then return true
+      if (isStatorCurrentTripped) return true;
+
       boolean isMinTimeExceeded = false;
-      if (lastTransitionTime.isPresent()) {
-        double minTimeSeconds = 0;
 
-        if (this.outtakeDetails.minTimeSeconds.isPresent()) {
-          minTimeSeconds = this.outtakeDetails.minTimeSeconds.get();
-        }
-
-        isMinTimeExceeded = Timer.getFPGATimestamp() - lastTransitionTime.get() > minTimeSeconds;
+      // If there's both a last transition time, and a minimum time is present
+      if (lastTransitionTime.isPresent() && this.outtakeDetails.minTimeSeconds.isPresent()) {
+        // Checking if the transition time has been exceeded
+        isMinTimeExceeded =
+            (Timer.getFPGATimestamp() - lastTransitionTime.get())
+                > this.outtakeDetails.minTimeSeconds.get();
       }
 
-      // If the stator current has been tripped or the min time has been exceeded
-      return isStatorCurrentTripped || isMinTimeExceeded;
+      // Otherwise, if the min time has been exceeded and the mode is unlocked, return true
+      return !(modeLocked) && isMinTimeExceeded;
     }
   }
 
   private Modes mode;
-  private double lastTransitionTime = 0;
+  private double lastTransitionTime;
+  private boolean modeLocked;
 
   private final TalonFX outtake;
 
@@ -114,6 +117,10 @@ public class OuttakeSubsystem extends SubsystemBase {
     this.outtake.enableVoltageCompensation(false);
 
     this.outtake.setNeutralMode(NeutralMode.Brake);
+
+    lastTransitionTime = 0;
+
+    modeLocked = false;
 
     // FIXME: Change the tap rate to get a better average
     filter = LinearFilter.movingAverage(30);
@@ -140,13 +147,23 @@ public class OuttakeSubsystem extends SubsystemBase {
     this.mode = mode;
   }
 
+  public void lockMode() {
+    this.modeLocked = true;
+  }
+
+  public void unlockMode() {
+    this.modeLocked = false;
+  }
+
   public boolean inStableState() {
     return this.mode == Modes.HOLD || this.mode == Modes.OFF;
   }
 
-  public Modes advanceMode() {
+  private Modes advanceMode() {
 
-    if (!mode.modeFinished(filterOutput, Optional.of(lastTransitionTime))) return mode;
+    if (!mode.modeFinished(filterOutput, modeLocked, Optional.of(lastTransitionTime))) {
+      return mode;
+    }
 
     switch (mode) {
       case INTAKE:
@@ -160,7 +177,7 @@ public class OuttakeSubsystem extends SubsystemBase {
     }
   }
 
-  public void applyMode() {
+  private void applyMode() {
     outtake.set(TalonFXControlMode.PercentOutput, mode.outtakeDetails.motorPower);
   }
 
