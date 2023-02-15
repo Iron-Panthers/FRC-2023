@@ -198,9 +198,5 @@ public final class Constants {
 
     public static final double ARM_HARDSTOP_CURRENT = 5; // FIRXME need real value
 
-    public static final IntakeModes MOVE_DOWN = IntakeModes.MOVE_DOWN;
-    public static final IntakeModes MOVE_UP = IntakeModes.MOVE_UP;
-    public static final IntakeModes EJECT = IntakeModes.EJECT;
-    public static final IntakeModes OFF = IntakeModes.OFF;
   }
 }
