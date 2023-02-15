@@ -93,7 +93,8 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
                   pdh.setSwitchableChannel(false);
                   sleep(NetworkWatchdog.REBOOT_DURATION_MS);
                   pdh.setSwitchableChannel(true);
-                  System.out.println("[network watchdog] Switch rebooted.");
+                  System.out.println("[network watchdog] Switch rebooted. Waiting.");
+                  sleep(NetworkWatchdog.SWITCH_POWERCYCLE_SCAN_DELAY_MS);
                 }
               }
             });

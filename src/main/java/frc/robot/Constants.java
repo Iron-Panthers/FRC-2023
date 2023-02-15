@@ -215,6 +215,6 @@ public final class Constants {
      * The number of ms to wait before rerunning health checks after a failed check which triggered
      * switch reboot.
      */
-    public static final double SWITCH_POWERCYCLE_SCAN_DELAY_MS = 2_000;
+    public static final int SWITCH_POWERCYCLE_SCAN_DELAY_MS = 6_000;
   }
 }
