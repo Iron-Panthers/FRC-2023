@@ -140,6 +140,7 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   public void setTargetAngleDegrees(double targetAngleDegrees) {
+    mode = Modes.DRIVETOPOS; 
     this.targetAngleDegrees =
         MathUtil.clamp(
             targetAngleDegrees,
@@ -157,6 +158,7 @@ public class ArmSubsystem extends SubsystemBase {
 
   /* methods for telescoping arm control */
   public void setTargetExtensionInches(double targetExtensionInches) {
+    mode = Modes.DRIVETOPOS; 
     this.targetExtensionInches =
         MathUtil.clamp(
             targetExtensionInches,
@@ -177,7 +179,6 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   public void setTargetPosition(double targetAngleDegrees, double targetExtensionInches) {
-    mode = Modes.DRIVETOPOS; 
     setTargetAngleDegrees(targetAngleDegrees);
     setTargetExtensionInches(targetExtensionInches);
 

@@ -39,6 +39,6 @@ public class SetZeroModeCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return armSubsystem.getMode() != Modes.ZERO;
   }
 }
