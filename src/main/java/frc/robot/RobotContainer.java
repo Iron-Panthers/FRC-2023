@@ -28,6 +28,7 @@ import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.VibrateControllerCommand;
 import frc.robot.subsystems.DrivebaseSubsystem;
+import frc.robot.subsystems.NetworkWatchdogSubsystem;
 import frc.util.ControllerUtil;
 import frc.util.Layer;
 import frc.util.MacUtil;
@@ -44,6 +45,8 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
   private final DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem();
+
+  private final NetworkWatchdogSubsystem networkWatchdogSubsystem = new NetworkWatchdogSubsystem();
 
   /** controller 1 */
   private final CommandXboxController jason = new CommandXboxController(1);
@@ -78,9 +81,30 @@ public class RobotContainer {
     setupAutonomousCommands();
   }
 
+  /**
+   * Use this method to do things as the drivers gain control of the robot. We use it to vibrate the
+   * driver b controller to notice accidental swaps.
+   *
+   * <p>Please use this very, very sparingly. It doesn't exist by default for good reason.
+   */
   public void containerTeleopInit() {
     // runs when teleop happens
     CommandScheduler.getInstance().schedule(new VibrateControllerCommand(jason, 5, .5));
+  }
+
+  /**
+   * Use this method to do things as soon as the robot starts being used. We use it to stop doing
+   * things that could be harmful or undesirable during game play--rebooting the network switch is a
+   * good example. Subsystems need to be explicitly wired up to this method.
+   *
+   * <p>Depending on which mode the robot is enabled in, this will either be called before auto or
+   * before teleop, whichever is first.
+   *
+   * <p>Please use this very, very sparingly. It doesn't exist by default for good reason.
+   */
+  public void containerMatchStarting() {
+    // runs when the match starts
+    networkWatchdogSubsystem.matchStarting();
   }
 
   /**

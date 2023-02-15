@@ -188,4 +188,33 @@ public final class Constants {
 
     public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 2;
   }
+
+  public static final class NetworkWatchdog {
+    /** The IP address to ping for testing bridging, on the second vlan. */
+    public static final String TEST_IP_ADDRESS = "10.50.26.19";
+
+    /**
+     * The number of ms (sleep delta using oshi system uptime) to wait before beginning to ping the
+     * test IP.
+     */
+    public static final int BOOT_SCAN_DELAY_MS = 20_000;
+
+    /** The number of seconds for ping to wait before giving up on reaching a device. */
+    public static final int PING_TIMEOUT_SECONDS = 2;
+
+    /** The number of ms to wait before retrying successful health checks. */
+    public static final int HEALTHY_CHECK_INTERVAL_MS = 5_000;
+
+    /**
+     * The number of ms to leave the switching pdh port off before turning it back on as part of
+     * rebooting the network switch.
+     */
+    public static final int REBOOT_DURATION_MS = 1_000;
+
+    /**
+     * The number of ms to wait before rerunning health checks after a failed check which triggered
+     * switch reboot.
+     */
+    public static final int SWITCH_POWERCYCLE_SCAN_DELAY_MS = 6_000;
+  }
 }
