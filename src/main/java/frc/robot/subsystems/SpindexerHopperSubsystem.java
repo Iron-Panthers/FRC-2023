@@ -113,7 +113,7 @@ public class SpindexerHopperSubsystem extends SubsystemBase {
    *
    * @param mode The mode to use (should use the current mode value)
    */
-  public void applyMode(Modes mode) {
+  private void applyMode(Modes mode) {
     switch (mode) {
       case IDLE:
         idlePeriodic();
@@ -133,7 +133,7 @@ public class SpindexerHopperSubsystem extends SubsystemBase {
     }
   }
 
-  public Modes advanceMode(double currentTime, double previousTimeOfTransition, Modes mode) {
+  private Modes advanceMode(double currentTime, double previousTimeOfTransition, Modes mode) {
     
     if((currentTime - previousTimeOfTransition) >= transitionTime) {
       switch (mode) {
