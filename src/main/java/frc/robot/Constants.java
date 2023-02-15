@@ -192,8 +192,8 @@ public final class Constants {
 
   public static final class Intake {
     public static final class Ports {
-      public static final int ARM_MOTOR = 0; // FIRXME need real value
-      public static final int INTAKE_MOTOR = 0; // FIRXME need real value
+      public static final int ARM_MOTOR = 19; // FIRXME need real value
+      public static final int INTAKE_MOTOR = 18; // FIRXME need real value
     }
 
     public static final class TransitionTimes {

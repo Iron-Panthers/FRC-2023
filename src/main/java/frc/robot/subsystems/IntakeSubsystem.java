@@ -85,7 +85,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public void deployPeriodic() {
 
-    armMotor.set(TalonFXControlMode.PercentOutput, 0.3);
+    armMotor.set(TalonFXControlMode.PercentOutput, 0.09);
   }
 
   public void intakePeriodic() {
@@ -94,22 +94,22 @@ public class IntakeSubsystem extends SubsystemBase {
     // if (armFilterOutput > Intake.ARM_HARDSTOP_CURRENT) {
     //   intakeMotor.set(TalonFXControlMode.PercentOutput, 0.3);
     // }
-    intakeMotor.set(TalonFXControlMode.PercentOutput, 0.3);
+    intakeMotor.set(TalonFXControlMode.PercentOutput, 0.09);
   }
 
   public void retractPeriodic() {
 
-    armMotor.set(TalonFXControlMode.PercentOutput, -0.3);
+    armMotor.set(TalonFXControlMode.PercentOutput, -0.09);
   }
 
   public void ejectPeriodic() {
 
-    intakeMotor.set(TalonFXControlMode.PercentOutput, -0.3);
+    intakeMotor.set(TalonFXControlMode.PercentOutput, -0.09);
   }
 
   public void offPeriodic() {
 
-    intakeMotor.set(TalonFXControlMode.PercentOutput, 0.0);
+    intakeMotor.set(TalonFXControlMode.PercentOutput, 0.09);
   }
 
   public IntakeModes advanceMode(IntakeModes mode) {
