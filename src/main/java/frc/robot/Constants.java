@@ -14,6 +14,8 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import frc.robot.subsystems.OuttakeSubsystem.OuttakeDetails;
+import java.util.Optional;
 
 @SuppressWarnings("java:S1118")
 /**
@@ -56,6 +58,37 @@ public final class Constants {
       public static final double WHEELBASE_METERS = TRACKWIDTH_METERS; // robot is square
     }
 
+    /*
+     module layout:
+        ┌──────
+     ┌─►│#   ##steer motor
+     │  │  ##cancoder
+     │  │##drive motor
+     module number
+
+     steer is always left
+     from corner perspective
+
+     robot visualization:
+    ┌──────────────────────┐
+    │2   10          04   1│
+    │  25              24  │
+    │11     S      D     03│
+    │     D          S     │
+    │                      │
+    │                      │
+    │     S          D     │
+    │       D      S       │
+    │12    ┌────────┐    02│
+    │  26  │        │  27  │
+    │3   13│  batt  │01   4│
+    └──────┴───┬┬───┴──────┘
+               ││
+               ││
+               ▼▼
+         software front
+     */
+
     public static final class Modules {
       public static final class FrontRight { // Module 1
         public static final int DRIVE_MOTOR = 4;
@@ -64,7 +97,7 @@ public final class Constants {
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
-                ? -Math.toRadians(289.951) // comp bot offset
+                ? -Math.toRadians(8.07400 + 180) // comp bot offset
                 : -Math.toRadians(39.462890); // practice bot offset
       }
 
@@ -75,7 +108,7 @@ public final class Constants {
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
-                ? -Math.toRadians(267.715 + 180) // comp bot offset
+                ? -Math.toRadians(274.562 + 180) // comp bot offset
                 : -Math.toRadians(222.7148); // practice bot offset
       }
 
@@ -86,7 +119,7 @@ public final class Constants {
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
-                ? -Math.toRadians(7.734) // comp bot offset
+                ? -Math.toRadians(225.082 + 180) // comp bot offset
                 : -Math.toRadians(129.63867); // practice bot offset
       }
 
@@ -97,8 +130,85 @@ public final class Constants {
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
-                ? -Math.toRadians(152.051) // comp bot offset
+                ? -Math.toRadians(335.124 + 180) // comp bot offset
                 : -Math.toRadians(61.3476); // practice bot offset
+      }
+    }
+  }
+
+  public static final class Arm {
+    public static final class Ports {
+      public static final int ARM_MOTOR_PORT = 14;
+      public static final int TELESCOPING_MOTOR_PORT = 16; // TODO: find CAN ID
+      public static final int ENCODER_PORT = 28;
+    }
+
+    public static final double GRAVITY_CONTROL_PERCENT = 0.07;
+
+    public static final double ANGULAR_OFFSET = 8;
+
+    public static final class Setpoints {
+      public static final class ScoreLow {
+        public static final int ANGLE = 40;
+        public static final double EXTENSION = Extensions.MAX_EXTENSION;
+      }
+
+      public static final class ScoreMid {
+        public static final int ANGLE = 90;
+        public static final double EXTENSION = Extensions.MAX_EXTENSION;
+      }
+
+      public static final class ScoreHigh {
+        public static final int ANGLE = 110;
+        public static final double EXTENSION = Extensions.MAX_EXTENSION;
+      }
+
+      public static final class GroundIntake {
+        public static final int ANGLE = 30;
+        public static final double EXTENSION = Extensions.MAX_EXTENSION;
+      }
+
+      public static final class ShelfIntake {
+        public static final int ANGLE = 90;
+        public static final double EXTENSION = Extensions.MAX_EXTENSION;
+      }
+
+      public static final class Angles {
+        public static final int STARTING_ANGLE = 0;
+        public static final int FORWARD_ANGLE = 90;
+        public static final int BACKWARD_ANGLE = -90;
+        public static final int TEST_ANGLE = 45;
+      }
+
+      public static final class Extensions {
+        public static final double MAX_EXTENSION = 10;
+        public static final double MIN_EXTENSION = 0;
+      }
+    }
+
+    public static final int TICKS = 2048;
+    public static final int TELESCOPING_ARM_GEAR_RATIO = 3;
+    public static final double SPOOL_CIRCUMFERENCE = 1.5 * Math.PI;
+
+    public static final class Thresholds {
+      /**
+       * These thresholds, unless otherwise specified in a doc comment, apply to the positive and
+       * negative sign of their angle in degrees
+       */
+      public static final class Angles {
+        public static final double BACKWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD =
+            -40; // FIXME: real value needed
+        public static final double FORWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD =
+            20; // FIXME: real value needed
+        public static final double UPPER_ANGLE_LIMIT = 100; // FIXME: real value needed
+      }
+
+      public static final class Extensions {
+        /**
+         * The amount of additional extension from min extension to treat as fully retracted for
+         * safety purposes
+         */
+        public static final double FULLY_RETRACTED_INCHES_THRESHOLD = 1;
       }
     }
   }
@@ -156,6 +266,38 @@ public final class Constants {
     public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .05;
 
     public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 2;
+  }
+
+  public static final class Outtake {
+    public static final class Ports {
+      public static final int OUTTAKE_MOTOR = 17; // Placeholder value
+      public static final int OUTTAKE_ENCODER = 0; // PLaceholder value
+    }
+
+    public static final int OPEN_ANGLE = 500;
+    public static final int CLAMP_ANGLE = 0;
+
+    public static final class OuttakeModes {
+      public static final OuttakeDetails HOLD =
+          new OuttakeDetails(0.1, Optional.empty(), Optional.empty());
+
+      public static final OuttakeDetails INTAKE =
+          new OuttakeDetails(0.7, Optional.of(new OuttakeDetails.StatorLimit(75)), Optional.of(2d));
+
+      public static final OuttakeDetails OUTTAKE =
+          new OuttakeDetails(-0.2, Optional.empty(), Optional.of(2d));
+
+      public static final OuttakeDetails OFF =
+          new OuttakeDetails(0.0, Optional.empty(), Optional.empty());
+    }
+
+    // Thinking of using these to plug into the stator limits above...?
+    // Better readability?
+    private static final class StatorCurrents {
+      // FIXME find real value using glass
+      public static final double OPENING_FINISH = 20;
+      public static final double ENDING_FINISH = 80;
+    }
   }
 
   public static final class SpindexerHopper {
