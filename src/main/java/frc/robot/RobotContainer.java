@@ -31,6 +31,7 @@ import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.VibrateControllerCommand;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.IntakeSubsystem.IntakeModes;
 import frc.util.ControllerUtil;
 import frc.util.Layer;
 import frc.util.MacUtil;
@@ -157,10 +158,10 @@ public class RobotContainer {
             new DriveToPlaceCommand(
                 drivebaseSubsystem, new Pose2d(3.2, .5, Rotation2d.fromDegrees(170)), .2, .5));
 
-    jason.x().onTrue(new IntakeCommand(intakeSubsystem, Intake.MOVE_DOWN));
-    jason.b().onTrue(new IntakeCommand(intakeSubsystem, Intake.MOVE_UP));
-    jason.rightBumper().onTrue(new IntakeCommand(intakeSubsystem, Intake.EJECT));
-    jason.leftBumper().onTrue(new IntakeCommand(intakeSubsystem, Intake.OFF));
+    jason.x().onTrue(new IntakeCommand(intakeSubsystem, IntakeModes.MOVE_DOWN));
+    jason.b().onTrue(new IntakeCommand(intakeSubsystem, IntakeModes.MOVE_UP));
+    jason.rightBumper().onTrue(new IntakeCommand(intakeSubsystem, IntakeModes.EJECT));
+    jason.leftBumper().onTrue(new IntakeCommand(intakeSubsystem, IntakeModes.OFF));
   }
 
   /**
