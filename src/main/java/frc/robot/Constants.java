@@ -15,8 +15,8 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import frc.robot.Constants.Drive.Dims;
-import frc.util.pathing.FieldObstructionMap;
 import frc.robot.subsystems.OuttakeSubsystem.OuttakeDetails;
+import frc.util.pathing.FieldObstructionMap;
 import java.util.Optional;
 
 @SuppressWarnings("java:S1118")
