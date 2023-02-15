@@ -13,7 +13,8 @@ public class ArmManualCommand extends CommandBase {
   DoubleSupplier angleSupplier;
   DoubleSupplier extensionSupplier;
   /** Creates a new AngleArmCommand. */
-  public ArmManualCommand(ArmSubsystem armSubsystem, DoubleSupplier angleSupplier, DoubleSupplier extensionSupplier) {
+  public ArmManualCommand(
+      ArmSubsystem armSubsystem, DoubleSupplier angleSupplier, DoubleSupplier extensionSupplier) {
     this.armSubsystem = armSubsystem;
 
     this.angleSupplier = angleSupplier;
@@ -32,7 +33,9 @@ public class ArmManualCommand extends CommandBase {
     double angleOutput = angleSupplier.getAsDouble();
     double extensionOutput = extensionSupplier.getAsDouble();
 
-    armSubsystem.setTargetPosition(armSubsystem.getTargetAngleDegrees() + angleOutput, armSubsystem.getTargetExtensionInches() + extensionOutput);
+    armSubsystem.setTargetPosition(
+        armSubsystem.getTargetAngleDegrees() + angleOutput,
+        armSubsystem.getTargetExtensionInches() + extensionOutput);
   }
 
   // Called once the command ends or is interrupted.

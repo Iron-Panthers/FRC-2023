@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -19,25 +20,21 @@ public class OuttakeSubsystem extends SubsystemBase {
   public static class OuttakeDetails {
     public final double motorPower;
     public final Optional<StatorLimit> statorLimit;
+    public final Optional<Double> minTimeSeconds;
 
     public static class StatorLimit {
       public final double statorTransitionCurrent;
-      public final boolean transitionWhenAboveThresholdCurrent;
 
-      public StatorLimit(
-          double statorTransitionCurrent, boolean transitionWhenAboveThresholdCurrent) {
+      public StatorLimit(double statorTransitionCurrent) {
         this.statorTransitionCurrent = statorTransitionCurrent;
-        this.transitionWhenAboveThresholdCurrent = transitionWhenAboveThresholdCurrent;
       }
     }
 
-    public OuttakeDetails(double motorPower, Optional<StatorLimit> statorLimit) {
+    public OuttakeDetails(
+        double motorPower, Optional<StatorLimit> statorLimit, Optional<Double> minTimeSeconds) {
       this.motorPower = motorPower;
       this.statorLimit = statorLimit;
-    }
-
-    public OuttakeDetails stableState(double motorPower) {
-      return new OuttakeDetails(motorPower, Optional.empty());
+      this.minTimeSeconds = minTimeSeconds;
     }
   }
 
@@ -54,24 +51,26 @@ public class OuttakeSubsystem extends SubsystemBase {
       this.outtakeDetails = outtakeDetails;
     }
 
-    public Boolean modeFinished(double filterOutput) {
-      // If there's no stator limit, then the mode is finished, and we can transition
-      if (this.outtakeDetails.statorLimit.isEmpty()) return true;
-
-      // If there's a stator transition current, get it
-      double statorTransitionCurrent =
-          this.outtakeDetails.statorLimit.get().statorTransitionCurrent;
-
-      // Then, if we want transition when we're above the threshold current, we see if our output is
-      // above the threshold
-      // Otherwise, we can transition when we're below the threshold
-      return this.outtakeDetails.statorLimit.get().transitionWhenAboveThresholdCurrent
-          ? filterOutput > statorTransitionCurrent
-          : filterOutput < statorTransitionCurrent;
+    public boolean modeFinished(
+        double filterOutput, boolean modeLocked, double lastTransitionTime) {
+      boolean exceededTimeLimit =
+          outtakeDetails.minTimeSeconds.isEmpty()
+              || Timer.getFPGATimestamp() - lastTransitionTime
+                  > outtakeDetails.minTimeSeconds.get();
+      // if time likmit is exceedd and mode is not locked
+      if (exceededTimeLimit && !modeLocked) return true;
+      // if time limit is exceeded and stator limit is exceeded, even if locked
+      if (exceededTimeLimit
+          && outtakeDetails.statorLimit.isPresent()
+          && outtakeDetails.statorLimit.get().statorTransitionCurrent <= filterOutput) return true;
+      return false;
     }
   }
 
   private Modes mode;
+  private double lastTransitionTime;
+  private boolean modeLocked;
+
   private final TalonFX outtake;
 
   private LinearFilter filter;
@@ -92,6 +91,10 @@ public class OuttakeSubsystem extends SubsystemBase {
     this.outtake.enableVoltageCompensation(false);
 
     this.outtake.setNeutralMode(NeutralMode.Brake);
+
+    lastTransitionTime = 0;
+
+    modeLocked = false;
 
     // FIXME: Change the tap rate to get a better average
     filter = LinearFilter.movingAverage(30);
@@ -114,19 +117,24 @@ public class OuttakeSubsystem extends SubsystemBase {
   }
 
   public void setMode(Modes mode) {
+    if (this.mode != mode) lastTransitionTime = Timer.getFPGATimestamp();
     this.mode = mode;
   }
 
-  public Boolean modeFinished() {
-    return this.mode.modeFinished(this.filterOutput);
+  public void lockMode() {
+    this.modeLocked = true;
   }
 
-  public Boolean inStableState() {
+  public void unlockMode() {
+    this.modeLocked = false;
+  }
+
+  public boolean inStableState() {
     return this.mode == Modes.HOLD || this.mode == Modes.OFF;
   }
 
-  public Modes advanceMode() {
-    if (!modeFinished()) return mode;
+  private Modes advanceMode() {
+    if (!mode.modeFinished(filterOutput, modeLocked, lastTransitionTime)) return mode;
 
     switch (mode) {
       case INTAKE:
@@ -140,7 +148,7 @@ public class OuttakeSubsystem extends SubsystemBase {
     }
   }
 
-  public void applyMode() {
+  private void applyMode() {
     outtake.set(TalonFXControlMode.PercentOutput, mode.outtakeDetails.motorPower);
   }
 
