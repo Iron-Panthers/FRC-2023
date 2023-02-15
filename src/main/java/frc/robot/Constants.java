@@ -224,12 +224,12 @@ public final class Constants {
       public static final String NAME = "frontCam";
       public static final Transform3d ROBOT_TO_CAM =
           new Transform3d(
-              // 9.867 in to the left looking from behind the front of the robot
+              // 9.867 in to the right looking from behind the front of the robot
               // 7 inch forward from center
               // up 17.422 inches
               new Translation3d(
                   0.1778, // front/back
-                  -0.2506218, // right/left
+                  0.2506218, // right/left
                   0.4425188 // up/down
                   ),
               new Rotation3d(
