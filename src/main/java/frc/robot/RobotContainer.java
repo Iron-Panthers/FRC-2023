@@ -36,6 +36,7 @@ import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.NetworkWatchdogSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
+import frc.robot.subsystems.OuttakeSubsystem.Modes;
 import frc.util.ControllerUtil;
 import frc.util.Layer;
 import frc.util.MacUtil;
@@ -86,7 +87,7 @@ public class RobotContainer {
     armSubsystem.setDefaultCommand(
         new ArmManualCommand(
             armSubsystem,
-            () -> ControllerUtil.deadband(jason.getLeftY(), 0.2),
+            () -> ControllerUtil.deadband(-jason.getLeftY(), 0.2),
             () -> ControllerUtil.deadband(jason.getRightY(), 0.2)));
 
     SmartDashboard.putBoolean("is comp bot", MacUtil.IS_COMP_BOT);
@@ -235,7 +236,8 @@ public class RobotContainer {
         .whileTrue(
             new ArmPositionCommand(
                 armSubsystem, Arm.Setpoints.ScoreMid.ANGLE, Arm.Setpoints.ScoreMid.EXTENSION))
-        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+        .onFalse(new ArmPositionCommand(
+            armSubsystem, Arm.Setpoints.ScoreMid.CAPPED_ANGLE, Arm.Setpoints.ScoreMid.EXTENSION).alongWith(new OuttakeCommand(outtakeSubsystem, Modes.OFF)));
     jasonLayer
         .on(jason.y())
         .whileTrue(
