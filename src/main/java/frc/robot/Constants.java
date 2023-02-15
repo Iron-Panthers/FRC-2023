@@ -162,12 +162,10 @@ public final class Constants {
         public static final int ANGLE = 110;
         public static final double EXTENSION = Extensions.MAX_EXTENSION;
       }
-
       public static final class GroundIntake {
-        public static final int ANGLE = 30;
+        public static final int ANGLE = 40;
         public static final double EXTENSION = Extensions.MAX_EXTENSION;
       }
-
       public static final class ShelfIntake {
         public static final int ANGLE = 90;
         public static final double EXTENSION = Extensions.MAX_EXTENSION;
@@ -184,6 +182,12 @@ public final class Constants {
         public static final double MAX_EXTENSION = 10;
         public static final double MIN_EXTENSION = 0;
       }
+    }
+
+    
+    public static final class StatorLimits{
+      public static final double EXTENSION_LIMIT = 20; 
+      public static final double ZERO_CONSTANT = 0.25;//FIXME
     }
 
     public static final int TICKS = 2048;

@@ -42,12 +42,12 @@ public class ArmSubsystem extends SubsystemBase {
   private double extensionOutput = 0;
   private double angleOutput = 0;
 
+  private final ShuffleboardTab tab = Shuffleboard.getTab("Arm");
+
   //stator limits
   private LinearFilter filter;
 
   private double filterOutput;
-
-  private final ShuffleboardTab tab = Shuffleboard.getTab("Arm");
 
   public ArmSubsystem() {
 
@@ -116,6 +116,26 @@ public class ArmSubsystem extends SubsystemBase {
     tab.addNumber("Angle Output", () -> angleOutput);
     tab.addNumber("Angle Error", () -> Math.abs(targetAngleDegrees - getAngle()));
     tab.addBoolean("At target", this::atTarget);
+  }
+
+  public enum Modes{
+    DRIVETOPOS,
+    ZERO
+  }
+
+  //current mode
+  private Modes mode = Modes.DRIVETOPOS;
+
+  public Modes getMode() {
+    return mode;
+  }
+
+  public void setMode(Modes mode) {
+    this.mode = mode;
+  }
+  
+  public void setZeroMode(){
+    mode = Modes.ZERO; 
   }
 
   /* methods for angle arm control */
@@ -215,11 +235,41 @@ public class ArmSubsystem extends SubsystemBase {
         // && angleController.atSetpoint();
   }
 
+  public void updateModules(Modes mode) {
+    switch (mode) {
+      case DRIVETOPOS:
+        driveToPosPeriodic();
+        break;
+      case ZERO:
+       zeroPeriodic();
+        break;
+    }
+  }
+
+ 
+
   @Override
   public void periodic() {
 
-    double currentAngle = getAngle();
+    Modes currentMode = getMode(); 
 
+    updateModules(currentMode);
+    
+  }
+
+  public void zeroPeriodic(){
+    extensionMotor.set(ControlMode.PercentOutput, Arm.StatorLimits.ZERO_CONSTANT);
+    this.filterOutput = this.filter.calculate(this.extensionMotor.getStatorCurrent());
+    if (filterOutput > Arm.StatorLimits.EXTENSION_LIMIT){//FIXME 20 is not correct value
+      extensionMotor.setSelectedSensorPosition(0);
+      setMode(Modes.DRIVETOPOS);
+    }
+    
+  }
+
+  public void driveToPosPeriodic(){
+
+    double currentAngle = getAngle();
     // Add the gravity offset as a function of sine
     final double armGravityOffset = computeArmGravityOffset();
 
@@ -228,15 +278,8 @@ public class ArmSubsystem extends SubsystemBase {
             getCurrentExtensionInches(), computeIntermediateExtensionGoal());
 
     angleOutput = angleController.calculate(currentAngle, computeIntermediateAngleGoal());
-
     angleMotor.set(
-        ControlMode.PercentOutput, MathUtil.clamp(angleOutput + armGravityOffset, -.7, .7));
-    extensionMotor.set(ControlMode.PercentOutput, MathUtil.clamp(extensionOutput, -.2, .2));
-
-    this.filterOutput = this.filter.calculate(this.extensionMotor.getStatorCurrent());
-
-    if (filterOutput > Arm.StatorLimits.EXTENSION_LIMIT){//FIXME 20 is not correct value
-      extensionMotor.setSelectedSensorPosition(0);
-    }
+      ControlMode.PercentOutput, MathUtil.clamp(angleOutput + armGravityOffset, -.7, .7));
+  extensionMotor.set(ControlMode.PercentOutput, MathUtil.clamp(extensionOutput, -.2, .2));
   }
 }
