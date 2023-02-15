@@ -7,12 +7,14 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.OuttakeSubsystem;
 
-public class ForceIntakeCommand extends CommandBase {
+public class ForceOuttakeCommand extends CommandBase {
   private final OuttakeSubsystem outtakeSubsystem;
+  private final OuttakeSubsystem.Modes mode;
 
   /** Creates a new ForceIntakeCommand. */
-  public ForceIntakeCommand(OuttakeSubsystem outtakeSubsystem) {
+  public ForceOuttakeCommand(OuttakeSubsystem outtakeSubsystem, OuttakeSubsystem.Modes mode) {
     this.outtakeSubsystem = outtakeSubsystem;
+    this.mode = mode;
     addRequirements(outtakeSubsystem);
   }
 
@@ -22,7 +24,7 @@ public class ForceIntakeCommand extends CommandBase {
 
   @Override
   public void initialize() {
-    outtakeSubsystem.setMode(OuttakeSubsystem.Modes.INTAKE);
+    outtakeSubsystem.setMode(mode);
     outtakeSubsystem.lockMode();
   }
 

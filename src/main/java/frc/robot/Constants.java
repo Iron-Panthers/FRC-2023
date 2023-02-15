@@ -277,8 +277,8 @@ public final class Constants {
     public static final int OPEN_ANGLE = 500;
     public static final int CLAMP_ANGLE = 0;
 
-    public static final double INTAKE_DURATION = 5;
-    public static final double OUTTAKE_DURATION = 3;
+    public static final double INTAKE_DURATION = 2;
+    public static final double OUTTAKE_DURATION = 2;
 
     public static final class OuttakeModes {
       public static final OuttakeDetails HOLD =
