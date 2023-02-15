@@ -56,7 +56,7 @@ public class IntakeSubsystem extends SubsystemBase {
     this.intakeMotor = new TalonFX(Intake.Ports.INTAKE_MOTOR);
     intakeMotor.setInverted(true);
     intakeMotor.configOpenloopRamp(1);
-    
+    intakeMotor.configStatorCurrentLimit(20);
 
     armFilter = LinearFilter.movingAverage(5);
     intakeFilter = LinearFilter.movingAverage(5); // FIXME: tune taps
