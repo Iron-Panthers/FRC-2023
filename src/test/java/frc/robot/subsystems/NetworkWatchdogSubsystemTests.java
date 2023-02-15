@@ -32,7 +32,7 @@ public class NetworkWatchdogSubsystemTests {
 
   private static boolean isOnline() {
     if (!resolved) return false;
-    resolved = isReachable("8.8.8.8", 443, 500);
+    resolved = isReachable("google.com", 80, 500);
     return resolved;
   }
 
@@ -40,6 +40,10 @@ public class NetworkWatchdogSubsystemTests {
     // check if the file /bin/ping exists
     File f = new File("/bin/ping");
     return f.isFile();
+  }
+
+  private static boolean isNotCI() {
+    return System.getenv("CI") == null;
   }
 
   @RobotTest
@@ -55,6 +59,9 @@ public class NetworkWatchdogSubsystemTests {
   @RobotTest
   public void subsystemCanPing() {
     // use assumption to skip test if we don't have network connectivity or ping binary
+    assumeTrue(
+        NetworkWatchdogSubsystemTests::isNotCI,
+        "Skipping test on CI, azure does not provide public IP address");
     assumeTrue(NetworkWatchdogSubsystemTests::hasPingBinary, "no ping binary");
     assumeTrue(NetworkWatchdogSubsystemTests::isOnline, "No network connectivity");
     assertTrue(NetworkWatchdogSubsystem.canPing("8.8.8.8"));
@@ -64,6 +71,9 @@ public class NetworkWatchdogSubsystemTests {
   @RobotTest
   @Timeout(NetworkWatchdog.PING_TIMEOUT_SECONDS + 1)
   public void subsystemFailsToPing() {
+    assumeTrue(
+        NetworkWatchdogSubsystemTests::isNotCI,
+        "Skipping test on CI, azure does not provide public IP address");
     assumeTrue(NetworkWatchdogSubsystemTests::hasPingBinary, "no ping binary");
     assumeTrue(NetworkWatchdogSubsystemTests::isOnline, "No network connectivity");
     assertFalse(
