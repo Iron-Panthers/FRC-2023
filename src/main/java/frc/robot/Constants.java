@@ -162,10 +162,12 @@ public final class Constants {
         public static final int ANGLE = 110;
         public static final double EXTENSION = Extensions.MAX_EXTENSION;
       }
+
       public static final class GroundIntake {
         public static final int ANGLE = 40;
         public static final double EXTENSION = Extensions.MAX_EXTENSION;
       }
+
       public static final class ShelfIntake {
         public static final int ANGLE = 90;
         public static final double EXTENSION = Extensions.MAX_EXTENSION;
@@ -184,13 +186,9 @@ public final class Constants {
       }
     }
 
-    
-    
-    public static final double EXTENSION_STATORLIMIT = 20; 
-     
-    
+    public static final double EXTENSION_STATORLIMIT = 20;
 
-    public static final double ZERO_RETRACTION_PERCENT = 0.25;//FIXME
+    public static final double ZERO_RETRACTION_PERCENT = 0.25; // FIXME
     public static final int TICKS = 2048;
     public static final int TELESCOPING_ARM_GEAR_RATIO = 3;
     public static final double SPOOL_CIRCUMFERENCE = 1.5 * Math.PI;

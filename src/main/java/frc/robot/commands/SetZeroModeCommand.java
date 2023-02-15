@@ -8,15 +8,12 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ArmSubsystem.Modes;
 
-import java.util.function.DoubleSupplier;
-
 public class SetZeroModeCommand extends CommandBase {
   ArmSubsystem armSubsystem;
- 
-  public SetZeroModeCommand(ArmSubsystem armSubsystem){
+
+  public SetZeroModeCommand(ArmSubsystem armSubsystem) {
     this.armSubsystem = armSubsystem;
   }
-  
 
   // Called when the command is initially scheduled.
   @Override
@@ -24,13 +21,9 @@ public class SetZeroModeCommand extends CommandBase {
     armSubsystem.setZeroMode();
   }
 
-
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-
-   
-  }
+  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override

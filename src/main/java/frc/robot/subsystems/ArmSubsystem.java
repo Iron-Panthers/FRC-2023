@@ -44,7 +44,7 @@ public class ArmSubsystem extends SubsystemBase {
 
   private final ShuffleboardTab tab = Shuffleboard.getTab("Arm");
 
-  //stator limits
+  // stator limits
   private LinearFilter filter;
 
   private double filterOutput;
@@ -118,20 +118,20 @@ public class ArmSubsystem extends SubsystemBase {
     tab.addBoolean("At target", this::atTarget);
   }
 
-  public enum Modes{
+  public enum Modes {
     DRIVETOPOS,
     ZERO
   }
 
-  //current mode
+  // current mode
   private Modes mode = Modes.DRIVETOPOS;
 
   public Modes getMode() {
     return mode;
   }
-  
-  public void setZeroMode(){
-    mode = Modes.ZERO; 
+
+  public void setZeroMode() {
+    mode = Modes.ZERO;
   }
 
   /* methods for angle arm control */
@@ -140,7 +140,7 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   public void setTargetAngleDegrees(double targetAngleDegrees) {
-    mode = Modes.DRIVETOPOS; 
+    mode = Modes.DRIVETOPOS;
     this.targetAngleDegrees =
         MathUtil.clamp(
             targetAngleDegrees,
@@ -158,7 +158,7 @@ public class ArmSubsystem extends SubsystemBase {
 
   /* methods for telescoping arm control */
   public void setTargetExtensionInches(double targetExtensionInches) {
-    mode = Modes.DRIVETOPOS; 
+    mode = Modes.DRIVETOPOS;
     this.targetExtensionInches =
         MathUtil.clamp(
             targetExtensionInches,
@@ -181,8 +181,6 @@ public class ArmSubsystem extends SubsystemBase {
   public void setTargetPosition(double targetAngleDegrees, double targetExtensionInches) {
     setTargetAngleDegrees(targetAngleDegrees);
     setTargetExtensionInches(targetExtensionInches);
-
-
   }
 
   /* safety methods */
@@ -231,8 +229,8 @@ public class ArmSubsystem extends SubsystemBase {
   public boolean atTarget() {
     return Util.epsilonEquals(getAngle(), targetAngleDegrees, 5)
         && Util.epsilonEquals(getCurrentExtensionInches(), targetExtensionInches, 0.2);
-        // && extensionController.atSetpoint()
-        // && angleController.atSetpoint();
+    // && extensionController.atSetpoint()
+    // && angleController.atSetpoint();
   }
 
   @Override
@@ -243,23 +241,21 @@ public class ArmSubsystem extends SubsystemBase {
         driveToPosPeriodic();
         break;
       case ZERO:
-       zeroPeriodic();
+        zeroPeriodic();
         break;
     }
-    
   }
 
-  public void zeroPeriodic(){
+  public void zeroPeriodic() {
     extensionMotor.set(ControlMode.PercentOutput, Arm.ZERO_RETRACTION_PERCENT);
     this.filterOutput = this.filter.calculate(this.extensionMotor.getStatorCurrent());
-    if (filterOutput > Arm.EXTENSION_STATORLIMIT){//FIXME 20 is not correct value
+    if (filterOutput > Arm.EXTENSION_STATORLIMIT) { // FIXME 20 is not correct value
       extensionMotor.setSelectedSensorPosition(0);
-      mode = Modes.DRIVETOPOS; 
+      mode = Modes.DRIVETOPOS;
     }
-    
   }
 
-  public void driveToPosPeriodic(){
+  public void driveToPosPeriodic() {
 
     double currentAngle = getAngle();
     // Add the gravity offset as a function of sine
@@ -271,7 +267,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     angleOutput = angleController.calculate(currentAngle, computeIntermediateAngleGoal());
     angleMotor.set(
-      ControlMode.PercentOutput, MathUtil.clamp(angleOutput + armGravityOffset, -.7, .7));
-  extensionMotor.set(ControlMode.PercentOutput, MathUtil.clamp(extensionOutput, -.2, .2));
+        ControlMode.PercentOutput, MathUtil.clamp(angleOutput + armGravityOffset, -.7, .7));
+    extensionMotor.set(ControlMode.PercentOutput, MathUtil.clamp(extensionOutput, -.2, .2));
   }
 }

@@ -218,13 +218,7 @@ public class RobotContainer {
             new ArmPositionCommand(
                 armSubsystem, Arm.Setpoints.ScoreHigh.ANGLE, Arm.Setpoints.ScoreHigh.EXTENSION))
         .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
-    jasonLayer
-        .on(jason.x())
-        .onTrue(
-            new SetZeroModeCommand(
-                armSubsystem
-            )
-        );
+    jasonLayer.on(jason.x()).onTrue(new SetZeroModeCommand(armSubsystem));
   }
 
   /**
