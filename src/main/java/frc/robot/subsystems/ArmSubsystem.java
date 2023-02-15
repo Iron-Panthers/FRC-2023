@@ -51,6 +51,8 @@ public class ArmSubsystem extends SubsystemBase {
 
   public ArmSubsystem() {
 
+    filter = LinearFilter.movingAverage(30);
+
     this.angleMotor = new TalonFX(Arm.Ports.ARM_MOTOR_PORT);
     extensionMotor = new TalonFX(Arm.Ports.TELESCOPING_MOTOR_PORT);
 
@@ -116,6 +118,8 @@ public class ArmSubsystem extends SubsystemBase {
     tab.addNumber("Angle Output", () -> angleOutput);
     tab.addNumber("Angle Error", () -> Math.abs(targetAngleDegrees - getAngle()));
     tab.addBoolean("At target", this::atTarget);
+    tab.addString("Current Mode", () -> mode.toString());
+    tab.addNumber("Stator current", () -> this.extensionMotor.getStatorCurrent());
   }
 
   public enum Modes {
@@ -131,7 +135,10 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   public void setZeroMode() {
+    extensionMotor.configForwardSoftLimitEnable(false, 20);
+    extensionMotor.configReverseSoftLimitEnable(false, 20);
     mode = Modes.ZERO;
+
   }
 
   /* methods for angle arm control */
@@ -247,11 +254,14 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   public void zeroPeriodic() {
+    angleMotor.set(ControlMode.PercentOutput, computeArmGravityOffset());
     extensionMotor.set(ControlMode.PercentOutput, Arm.ZERO_RETRACTION_PERCENT);
     this.filterOutput = this.filter.calculate(this.extensionMotor.getStatorCurrent());
     if (filterOutput > Arm.EXTENSION_STATORLIMIT) { // FIXME 20 is not correct value
       extensionMotor.setSelectedSensorPosition(0);
       mode = Modes.DRIVETOPOS;
+      extensionMotor.configForwardSoftLimitEnable(true, 20);
+      extensionMotor.configReverseSoftLimitEnable(true, 20);
     }
   }
 
