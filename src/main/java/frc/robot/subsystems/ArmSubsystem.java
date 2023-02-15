@@ -129,10 +129,6 @@ public class ArmSubsystem extends SubsystemBase {
   public Modes getMode() {
     return mode;
   }
-
-  public void setMode(Modes mode) {
-    this.mode = mode;
-  }
   
   public void setZeroMode(){
     mode = Modes.ZERO; 
@@ -181,8 +177,11 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   public void setTargetPosition(double targetAngleDegrees, double targetExtensionInches) {
+    mode = Modes.DRIVETOPOS; 
     setTargetAngleDegrees(targetAngleDegrees);
     setTargetExtensionInches(targetExtensionInches);
+
+
   }
 
   /* safety methods */
@@ -235,7 +234,9 @@ public class ArmSubsystem extends SubsystemBase {
         // && angleController.atSetpoint();
   }
 
-  public void updateModules(Modes mode) {
+  @Override
+  public void periodic() {
+
     switch (mode) {
       case DRIVETOPOS:
         driveToPosPeriodic();
@@ -244,25 +245,15 @@ public class ArmSubsystem extends SubsystemBase {
        zeroPeriodic();
         break;
     }
-  }
-
- 
-
-  @Override
-  public void periodic() {
-
-    Modes currentMode = getMode(); 
-
-    updateModules(currentMode);
     
   }
 
   public void zeroPeriodic(){
-    extensionMotor.set(ControlMode.PercentOutput, Arm.StatorLimits.ZERO_CONSTANT);
+    extensionMotor.set(ControlMode.PercentOutput, Arm.ZERO_RETRACTION_PERCENT);
     this.filterOutput = this.filter.calculate(this.extensionMotor.getStatorCurrent());
-    if (filterOutput > Arm.StatorLimits.EXTENSION_LIMIT){//FIXME 20 is not correct value
+    if (filterOutput > Arm.EXTENSION_STATORLIMIT){//FIXME 20 is not correct value
       extensionMotor.setSelectedSensorPosition(0);
-      setMode(Modes.DRIVETOPOS);
+      mode = Modes.DRIVETOPOS; 
     }
     
   }
