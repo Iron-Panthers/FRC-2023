@@ -198,8 +198,7 @@ public final class Constants {
 
     public static final class TransitionTimes {
       public static final double DEPLOY_TIMING = 2.0; //FIXME need real value
-      public static final double BITE_TIMING = 2.0; //FIXME need real value
-      public static final double SWALLOW_TIMING = 2.0; //FIXME need real value
+      public static final double INTAKE_TIMING = 2.0; //FIXME need real value
       public static final double RETRACT_TIMING = 2.0; //FIXME need real value
       public static final double EJECT_TIMING = 2.0; //FIXME need real value
     }

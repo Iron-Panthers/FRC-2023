@@ -158,10 +158,10 @@ public class RobotContainer {
             new DriveToPlaceCommand(
                 drivebaseSubsystem, new Pose2d(3.2, .5, Rotation2d.fromDegrees(170)), .2, .5));
 
-    jason.x().onTrue(new IntakeCommand(intakeSubsystem, IntakeModes.DEPLOY));
-    jason.b().onTrue(new IntakeCommand(intakeSubsystem, IntakeModes.RETRACT));
-    jason.rightBumper().onTrue(new IntakeCommand(intakeSubsystem, IntakeModes.EJECT));
-    jason.leftBumper().onTrue(new IntakeCommand(intakeSubsystem, IntakeModes.OFF));
+    jason.x().whileTrue(new IntakeCommand(intakeSubsystem, IntakeModes.DEPLOY));
+    jason.b().whileTrue(new IntakeCommand(intakeSubsystem, IntakeModes.RETRACT));
+    jason.a().whileTrue(new IntakeCommand(intakeSubsystem, IntakeModes.INTAKE));
+    jason.y().whileTrue(new IntakeCommand(intakeSubsystem, IntakeModes.EJECT));
   }
 
   /**

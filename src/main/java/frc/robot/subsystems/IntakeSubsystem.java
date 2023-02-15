@@ -14,8 +14,7 @@ public class IntakeSubsystem extends SubsystemBase {
   /** The IntakeModes of the intake subsystem */
   public enum IntakeModes {
     DEPLOY(Intake.ARM_HARDSTOP_CURRENT, Intake.TransitionTimes.DEPLOY_TIMING),
-    BITE(1, Intake.TransitionTimes.BITE_TIMING),
-    SWALLOW(0.5, Intake.TransitionTimes.SWALLOW_TIMING),
+    INTAKE(1, Intake.TransitionTimes.INTAKE_TIMING),
     RETRACT(2, Intake.TransitionTimes.RETRACT_TIMING),
     EJECT(2, Intake.TransitionTimes.EJECT_TIMING),
     OFF(2, 0);
@@ -44,8 +43,8 @@ public class IntakeSubsystem extends SubsystemBase {
   private LinearFilter armFilter;
   private LinearFilter intakeFilter;
 
-  private double armFilterOutput;
-  private double intakeFilterOutput;
+  // private double armFilterOutput;
+  // private double intakeFilterOutput;
 
   private double previousTransitionTime;
 
@@ -58,10 +57,12 @@ public class IntakeSubsystem extends SubsystemBase {
     armFilter = LinearFilter.movingAverage(5);
     intakeFilter = LinearFilter.movingAverage(5); // FIXME: tune taps
 
-    armFilterOutput = 0;
-    intakeFilterOutput = 0;
+    // armFilterOutput = 0;
+    // intakeFilterOutput = 0;
 
-    tab.addNumber("armFilter Output", () -> armFilterOutput);
+    previousTransitionTime = 0;
+
+    // tab.addNumber("armFilter Output", () -> armFilterOutput);
   }
 
   /**
@@ -87,16 +88,13 @@ public class IntakeSubsystem extends SubsystemBase {
     armMotor.set(TalonFXControlMode.PercentOutput, 0.3);
   }
 
-  public void bitePeriodic() {
-    armMotor.set(TalonFXControlMode.PercentOutput, 0.1);
+  public void intakePeriodic() {
+    // armMotor.set(TalonFXControlMode.PercentOutput, 0.1);
 
-    if (armFilterOutput > Intake.ARM_HARDSTOP_CURRENT) {
-      intakeMotor.set(TalonFXControlMode.PercentOutput, 0.3);
-    }
-  }
-
-  public void swallowPeriodic() {
-    intakeMotor.set(TalonFXControlMode.PercentOutput, 0.15);
+    // if (armFilterOutput > Intake.ARM_HARDSTOP_CURRENT) {
+    //   intakeMotor.set(TalonFXControlMode.PercentOutput, 0.3);
+    // }
+    intakeMotor.set(TalonFXControlMode.PercentOutput, 0.3);
   }
 
   public void retractPeriodic() {
@@ -120,10 +118,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
       switch (mode) {
         case DEPLOY:
-          return IntakeModes.BITE;
-        case BITE:
-          return IntakeModes.SWALLOW;
-        case SWALLOW:
+          return IntakeModes.INTAKE;
+        case INTAKE:
           return IntakeModes.RETRACT;
         case RETRACT:
           return IntakeModes.OFF;
@@ -149,11 +145,8 @@ public class IntakeSubsystem extends SubsystemBase {
       case DEPLOY:
         deployPeriodic();
         break;
-      case BITE:
-        bitePeriodic();
-        break;
-      case SWALLOW:
-        swallowPeriodic();
+      case INTAKE:
+        intakePeriodic();
         break;
       case RETRACT:
         retractPeriodic();
@@ -170,10 +163,10 @@ public class IntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
 
-    armFilterOutput = armFilter.calculate(armMotor.getStatorCurrent());
-    intakeFilterOutput = intakeFilter.calculate(intakeMotor.getStatorCurrent());
+    // armFilterOutput = armFilter.calculate(armMotor.getStatorCurrent());
+    // intakeFilterOutput = intakeFilter.calculate(intakeMotor.getStatorCurrent());
 
-    mode = advanceMode(mode);
+    // mode = advanceMode(mode);
 
     applyMode(mode);
   }
