@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import edu.wpi.first.math.filter.LinearFilter;
@@ -43,8 +44,10 @@ public class IntakeSubsystem extends SubsystemBase {
   private LinearFilter armFilter;
   private LinearFilter intakeFilter;
 
-  // private double armFilterOutput;
-  // private double intakeFilterOutput;
+  private StatorCurrentLimitConfiguration statorCurrentLimitConfiguration = new StatorCurrentLimitConfiguration(true, 20, 25, 0.5);
+
+  private double armFilterOutput;
+  private double intakeFilterOutput;
 
   private double previousTransitionTime;
 
@@ -56,13 +59,13 @@ public class IntakeSubsystem extends SubsystemBase {
     this.intakeMotor = new TalonFX(Intake.Ports.INTAKE_MOTOR);
     intakeMotor.setInverted(true);
     intakeMotor.configOpenloopRamp(1);
-    intakeMotor.configStatorCurrentLimit(20);
+    intakeMotor.configStatorCurrentLimit(statorCurrentLimitConfiguration);
 
     armFilter = LinearFilter.movingAverage(5);
     intakeFilter = LinearFilter.movingAverage(5); // FIXME: tune taps
 
-    // armFilterOutput = 0;
-    // intakeFilterOutput = 0;
+    armFilterOutput = 0;
+    intakeFilterOutput = 0;
 
     previousTransitionTime = 0;
 
@@ -170,7 +173,7 @@ public class IntakeSubsystem extends SubsystemBase {
     // armFilterOutput = armFilter.calculate(armMotor.getStatorCurrent());
     // intakeFilterOutput = intakeFilter.calculate(intakeMotor.getStatorCurrent());
 
-    // mode = advanceMode(mode);
+    mode = advanceMode(mode);
 
     applyMode(mode);
   }
