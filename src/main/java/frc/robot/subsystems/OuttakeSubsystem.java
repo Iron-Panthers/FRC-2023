@@ -24,12 +24,9 @@ public class OuttakeSubsystem extends SubsystemBase {
 
     public static class StatorLimit {
       public final double statorTransitionCurrent;
-      public final boolean transitionWhenAboveThresholdCurrent;
 
-      public StatorLimit(
-          double statorTransitionCurrent, boolean transitionWhenAboveThresholdCurrent) {
+      public StatorLimit(double statorTransitionCurrent) {
         this.statorTransitionCurrent = statorTransitionCurrent;
-        this.transitionWhenAboveThresholdCurrent = transitionWhenAboveThresholdCurrent;
       }
     }
 
@@ -38,10 +35,6 @@ public class OuttakeSubsystem extends SubsystemBase {
       this.motorPower = motorPower;
       this.statorLimit = statorLimit;
       this.minTimeSeconds = minTimeSeconds;
-    }
-
-    public OuttakeDetails stableState(double motorPower) {
-      return new OuttakeDetails(motorPower, Optional.empty(), Optional.empty());
     }
   }
 
@@ -59,37 +52,18 @@ public class OuttakeSubsystem extends SubsystemBase {
     }
 
     public boolean modeFinished(
-        double filterOutput, boolean modeLocked, Optional<Double> lastTransitionTime) {
-      // If there's no stator limit, then the mode is finished, and we can transition
-      if (this.outtakeDetails.statorLimit.isEmpty()) return true;
-
-      // If there's a stator transition current, get it
-      double statorTransitionCurrent =
-          this.outtakeDetails.statorLimit.get().statorTransitionCurrent;
-
-      // Then, if we want transition when we're above the threshold current, we see if our output
-      // is above the threshold
-      // Otherwise, we can transition when we're below the threshold
-      boolean isStatorCurrentTripped =
-          this.outtakeDetails.statorLimit.get().transitionWhenAboveThresholdCurrent
-              ? filterOutput > statorTransitionCurrent
-              : filterOutput < statorTransitionCurrent;
-
-      // If the stator current has been tripped, then return true
-      if (isStatorCurrentTripped) return true;
-
-      boolean isMinTimeExceeded = false;
-
-      // If there's both a last transition time, and a minimum time is present
-      if (lastTransitionTime.isPresent() && this.outtakeDetails.minTimeSeconds.isPresent()) {
-        // Checking if the transition time has been exceeded
-        isMinTimeExceeded =
-            (Timer.getFPGATimestamp() - lastTransitionTime.get())
-                > this.outtakeDetails.minTimeSeconds.get();
-      }
-
-      // Otherwise, if the min time has been exceeded and the mode is unlocked, return true
-      return !(modeLocked) && isMinTimeExceeded;
+        double filterOutput, boolean modeLocked, double lastTransitionTime) {
+      boolean exceededTimeLimit =
+          outtakeDetails.minTimeSeconds.isEmpty()
+              || Timer.getFPGATimestamp() - lastTransitionTime
+                  > outtakeDetails.minTimeSeconds.get();
+      // if time likmit is exceedd and mode is not locked
+      if (exceededTimeLimit && !modeLocked) return true;
+      // if time limit is exceeded and stator limit is exceeded, even if locked
+      if (exceededTimeLimit
+          && outtakeDetails.statorLimit.isPresent()
+          && outtakeDetails.statorLimit.get().statorTransitionCurrent <= filterOutput) return true;
+      return false;
     }
   }
 
@@ -160,10 +134,7 @@ public class OuttakeSubsystem extends SubsystemBase {
   }
 
   private Modes advanceMode() {
-
-    if (!mode.modeFinished(filterOutput, modeLocked, Optional.of(lastTransitionTime))) {
-      return mode;
-    }
+    if (!mode.modeFinished(filterOutput, modeLocked, lastTransitionTime)) return mode;
 
     switch (mode) {
       case INTAKE:

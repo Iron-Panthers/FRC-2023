@@ -277,24 +277,15 @@ public final class Constants {
     public static final int OPEN_ANGLE = 500;
     public static final int CLAMP_ANGLE = 0;
 
-    public static final double INTAKE_DURATION = 2;
-    public static final double OUTTAKE_DURATION = 2;
-
     public static final class OuttakeModes {
       public static final OuttakeDetails HOLD =
           new OuttakeDetails(0.1, Optional.empty(), Optional.empty());
 
       public static final OuttakeDetails INTAKE =
-          new OuttakeDetails(
-              0.7,
-              Optional.of(new OuttakeDetails.StatorLimit(75, true)),
-              Optional.of(INTAKE_DURATION));
+          new OuttakeDetails(0.7, Optional.of(new OuttakeDetails.StatorLimit(75)), Optional.of(2d));
 
       public static final OuttakeDetails OUTTAKE =
-          new OuttakeDetails(
-              -0.2,
-              Optional.of(new OuttakeDetails.StatorLimit(10, false)),
-              Optional.of(OUTTAKE_DURATION));
+          new OuttakeDetails(-0.2, Optional.empty(), Optional.of(2d));
 
       public static final OuttakeDetails OFF =
           new OuttakeDetails(0.0, Optional.empty(), Optional.empty());

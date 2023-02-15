@@ -185,13 +185,13 @@ public class RobotContainer {
                 armSubsystem,
                 Arm.Setpoints.GroundIntake.ANGLE,
                 Arm.Setpoints.GroundIntake.EXTENSION))
-        .whileTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+        .whileTrue(new ForceOuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
     jasonLayer
         .off(jason.b())
         .onTrue(
             new ArmPositionCommand(
                 armSubsystem, Arm.Setpoints.ShelfIntake.ANGLE, Arm.Setpoints.ShelfIntake.EXTENSION))
-        .whileTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+        .whileTrue(new ForceOuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
     jasonLayer
         .off(jason.y())
         .onTrue(
