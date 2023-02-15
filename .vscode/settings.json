@@ -39,6 +39,7 @@
   "cSpell.words": [
     "AHRS",
     "apriltag",
+    "CONTROLPOINT",
     "cancoder",
     "Deadband",
     "deadbanded",
@@ -48,6 +49,8 @@
     "Mockito",
     "navx",
     "Odometry",
+    "pathfinding",
+    "pathing",
     "oshi",
     "POWERCYCLE",
     "repath",
