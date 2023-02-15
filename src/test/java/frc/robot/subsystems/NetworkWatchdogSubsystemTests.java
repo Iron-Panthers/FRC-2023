@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.condition.OS.LINUX;
 
 import frc.RobotTest;
 import frc.robot.Constants.NetworkWatchdog;
+import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -35,15 +36,26 @@ public class NetworkWatchdogSubsystemTests {
     return resolved;
   }
 
+  private static boolean hasPingBinary() {
+    // check if the file /bin/ping exists
+    File f = new File("/bin/ping");
+    return f.isFile();
+  }
+
   @RobotTest
   public void subsystemConstructs() {
-    assertDoesNotThrow(NetworkWatchdogSubsystem::new);
+    assertDoesNotThrow(
+        () -> {
+          var subsystem = new NetworkWatchdogSubsystem();
+          subsystem.matchStarting();
+        });
   }
 
   @EnabledOnOs(LINUX)
   @RobotTest
   public void subsystemCanPing() {
-    // use assumption to skip test if we don't have network connectivity
+    // use assumption to skip test if we don't have network connectivity or ping binary
+    assumeTrue(NetworkWatchdogSubsystemTests::hasPingBinary, "no ping binary");
     assumeTrue(NetworkWatchdogSubsystemTests::isOnline, "No network connectivity");
     assertTrue(NetworkWatchdogSubsystem.canPing("8.8.8.8"));
   }
@@ -52,6 +64,7 @@ public class NetworkWatchdogSubsystemTests {
   @RobotTest
   @Timeout(NetworkWatchdog.PING_TIMEOUT_SECONDS + 1)
   public void subsystemFailsToPing() {
+    assumeTrue(NetworkWatchdogSubsystemTests::hasPingBinary, "no ping binary");
     assumeTrue(NetworkWatchdogSubsystemTests::isOnline, "No network connectivity");
     assertFalse(
         () -> isReachable("192.0.2.0", 443, 500),
