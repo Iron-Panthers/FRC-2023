@@ -48,6 +48,8 @@
     "Mockito",
     "navx",
     "Odometry",
+    "oshi",
+    "POWERCYCLE",
     "repath",
     "REPATHS",
     "setpoint",
