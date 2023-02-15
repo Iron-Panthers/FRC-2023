@@ -196,6 +196,14 @@ public final class Constants {
       public static final int INTAKE_MOTOR = 0; // FIRXME need real value
     }
 
+    public static final class TransitionTimes {
+      public static final double DEPLOY_TIMING = 2.0; //FIXME need real value
+      public static final double BITE_TIMING = 2.0; //FIXME need real value
+      public static final double SWALLOW_TIMING = 2.0; //FIXME need real value
+      public static final double RETRACT_TIMING = 2.0; //FIXME need real value
+      public static final double EJECT_TIMING = 2.0; //FIXME need real value
+    }
+
     public static final double ARM_HARDSTOP_CURRENT = 5; // FIRXME need real value
 
   }

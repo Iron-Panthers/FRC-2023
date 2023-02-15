@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -12,30 +13,23 @@ public class IntakeSubsystem extends SubsystemBase {
 
   /** The IntakeModes of the intake subsystem */
   public enum IntakeModes {
-    MOVE_DOWN(Intake.ARM_HARDSTOP_CURRENT, true),
-    BITE(1, false),
-    SWALLOW(0.5, false),
-    MOVE_UP(2, true),
-    EJECT(2, false),
-    OFF(2, true);
+    DEPLOY(Intake.ARM_HARDSTOP_CURRENT, Intake.TransitionTimes.DEPLOY_TIMING),
+    BITE(1, Intake.TransitionTimes.BITE_TIMING),
+    SWALLOW(0.5, Intake.TransitionTimes.SWALLOW_TIMING),
+    RETRACT(2, Intake.TransitionTimes.RETRACT_TIMING),
+    EJECT(2, Intake.TransitionTimes.EJECT_TIMING),
+    OFF(2, 0);
 
     // FIXME:   Above values are FAKE!!!
 
     public final double transitionStatorCurrent;
-    private final boolean isArmTransition;
+    public final double transitionTime;
 
-    private IntakeModes(double transitionStatorCurrent, boolean isArmTransition) {
+    private IntakeModes(double transitionStatorCurrent, double transitionTime) {
       this.transitionStatorCurrent = transitionStatorCurrent;
-      this.isArmTransition = isArmTransition;
+      this.transitionTime = transitionTime;
     }
 
-    boolean isTransitionReady(double armFilterOutput, double intakeFilterOutput) {
-      if (isArmTransition) {
-        return armFilterOutput > transitionStatorCurrent;
-      } else {
-        return intakeFilterOutput > transitionStatorCurrent;
-      }
-    }
   }
 
   /** The current mode */
@@ -52,6 +46,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private double armFilterOutput;
   private double intakeFilterOutput;
+
+  private double previousTransitionTime;
 
   /** Creates a new DrivebaseSubsystem. */
   public IntakeSubsystem() {
@@ -78,10 +74,15 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void setMode(IntakeModes mode) {
+
+    if(mode != this.mode) {
+      previousTransitionTime = Timer.getFPGATimestamp();
+    }
+
     this.mode = mode;
   }
 
-  public void moveDownPeriodic() {
+  public void deployPeriodic() {
 
     armMotor.set(TalonFXControlMode.PercentOutput, 0.3);
   }
@@ -98,7 +99,7 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeMotor.set(TalonFXControlMode.PercentOutput, 0.15);
   }
 
-  public void moveUpPeriodic() {
+  public void retractPeriodic() {
 
     armMotor.set(TalonFXControlMode.PercentOutput, -0.3);
   }
@@ -115,17 +116,19 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public IntakeModes advanceMode(IntakeModes mode) {
 
-    if (mode.isTransitionReady(armFilterOutput, intakeFilterOutput)) {
+    if (Timer.getFPGATimestamp() - previousTransitionTime >= mode.transitionTime) {
 
       switch (mode) {
-        case MOVE_DOWN:
+        case DEPLOY:
           return IntakeModes.BITE;
         case BITE:
           return IntakeModes.SWALLOW;
         case SWALLOW:
-          return IntakeModes.MOVE_UP;
-        case MOVE_UP:
+          return IntakeModes.RETRACT;
+        case RETRACT:
+          return IntakeModes.OFF;
         case EJECT:
+          return IntakeModes.OFF;
         case OFF:
           return IntakeModes.OFF;
       }
@@ -143,8 +146,8 @@ public class IntakeSubsystem extends SubsystemBase {
   public void applyMode(IntakeModes mode) {
 
     switch (mode) {
-      case MOVE_DOWN:
-        moveDownPeriodic();
+      case DEPLOY:
+        deployPeriodic();
         break;
       case BITE:
         bitePeriodic();
@@ -152,8 +155,8 @@ public class IntakeSubsystem extends SubsystemBase {
       case SWALLOW:
         swallowPeriodic();
         break;
-      case MOVE_UP:
-        moveUpPeriodic();
+      case RETRACT:
+        retractPeriodic();
         break;
       case EJECT:
         ejectPeriodic();
@@ -167,11 +170,11 @@ public class IntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
 
-    this.armFilterOutput = armFilter.calculate(armMotor.getStatorCurrent());
-    this.intakeFilterOutput = intakeFilter.calculate(intakeMotor.getStatorCurrent());
+    armFilterOutput = armFilter.calculate(armMotor.getStatorCurrent());
+    intakeFilterOutput = intakeFilter.calculate(intakeMotor.getStatorCurrent());
 
-    this.mode = this.advanceMode(mode);
+    mode = advanceMode(mode);
 
-    this.applyMode(mode);
+    applyMode(mode);
   }
 }
