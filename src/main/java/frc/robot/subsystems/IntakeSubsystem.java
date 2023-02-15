@@ -52,7 +52,11 @@ public class IntakeSubsystem extends SubsystemBase {
   public IntakeSubsystem() {
 
     this.armMotor = new TalonFX(Intake.Ports.ARM_MOTOR);
+    armMotor.setInverted(true);
     this.intakeMotor = new TalonFX(Intake.Ports.INTAKE_MOTOR);
+    intakeMotor.setInverted(true);
+    intakeMotor.configOpenloopRamp(1);
+    
 
     armFilter = LinearFilter.movingAverage(5);
     intakeFilter = LinearFilter.movingAverage(5); // FIXME: tune taps
@@ -62,7 +66,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     previousTransitionTime = 0;
 
-    // tab.addNumber("armFilter Output", () -> armFilterOutput);
+    tab.addString("Current mode", () -> this.mode.toString());
   }
 
   /**
@@ -85,7 +89,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public void deployPeriodic() {
 
-    armMotor.set(TalonFXControlMode.PercentOutput, 0.09);
+    armMotor.set(TalonFXControlMode.PercentOutput, 0.2);
   }
 
   public void intakePeriodic() {
@@ -94,22 +98,22 @@ public class IntakeSubsystem extends SubsystemBase {
     // if (armFilterOutput > Intake.ARM_HARDSTOP_CURRENT) {
     //   intakeMotor.set(TalonFXControlMode.PercentOutput, 0.3);
     // }
-    intakeMotor.set(TalonFXControlMode.PercentOutput, 0.09);
+    intakeMotor.set(TalonFXControlMode.PercentOutput, 0.7);
   }
 
   public void retractPeriodic() {
 
-    armMotor.set(TalonFXControlMode.PercentOutput, -0.09);
+    armMotor.set(TalonFXControlMode.PercentOutput, -0.3);
   }
 
   public void ejectPeriodic() {
 
-    intakeMotor.set(TalonFXControlMode.PercentOutput, -0.09);
+    intakeMotor.set(TalonFXControlMode.PercentOutput, -0.7);
   }
 
   public void offPeriodic() {
-
-    intakeMotor.set(TalonFXControlMode.PercentOutput, 0.09);
+    armMotor.set(TalonFXControlMode.PercentOutput, 0.0);
+    intakeMotor.set(TalonFXControlMode.PercentOutput, 0.0);
   }
 
   public IntakeModes advanceMode(IntakeModes mode) {

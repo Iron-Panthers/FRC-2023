@@ -204,6 +204,6 @@ public final class Constants {
     }
 
     public static final double ARM_HARDSTOP_CURRENT = 5; // FIRXME need real value
-
+    
   }
 }
