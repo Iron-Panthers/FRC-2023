@@ -35,8 +35,10 @@ import frc.robot.commands.StartSpindexerHopperCommand;
 import frc.robot.commands.VibrateControllerCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
+import frc.robot.subsystems.NetworkWatchdogSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.SpindexerHopperSubsystem;
+import frc.robot.subsystems.OuttakeSubsystem.Modes;
 import frc.util.ControllerUtil;
 import frc.util.Layer;
 import frc.util.MacUtil;
@@ -53,6 +55,8 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
   private final DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem();
+
+  private final NetworkWatchdogSubsystem networkWatchdogSubsystem = new NetworkWatchdogSubsystem();
 
   private final ArmSubsystem armSubsystem = new ArmSubsystem();
 
@@ -87,7 +91,7 @@ public class RobotContainer {
     armSubsystem.setDefaultCommand(
         new ArmManualCommand(
             armSubsystem,
-            () -> ControllerUtil.deadband(jason.getLeftY(), 0.2),
+            () -> ControllerUtil.deadband(-jason.getLeftY(), 0.2),
             () -> ControllerUtil.deadband(jason.getRightY(), 0.2)));
 
     SmartDashboard.putBoolean("is comp bot", MacUtil.IS_COMP_BOT);
@@ -99,9 +103,30 @@ public class RobotContainer {
     setupAutonomousCommands();
   }
 
+  /**
+   * Use this method to do things as the drivers gain control of the robot. We use it to vibrate the
+   * driver b controller to notice accidental swaps.
+   *
+   * <p>Please use this very, very sparingly. It doesn't exist by default for good reason.
+   */
   public void containerTeleopInit() {
     // runs when teleop happens
     CommandScheduler.getInstance().schedule(new VibrateControllerCommand(jason, 5, .5));
+  }
+
+  /**
+   * Use this method to do things as soon as the robot starts being used. We use it to stop doing
+   * things that could be harmful or undesirable during game play--rebooting the network switch is a
+   * good example. Subsystems need to be explicitly wired up to this method.
+   *
+   * <p>Depending on which mode the robot is enabled in, this will either be called before auto or
+   * before teleop, whichever is first.
+   *
+   * <p>Please use this very, very sparingly. It doesn't exist by default for good reason.
+   */
+  public void containerMatchStarting() {
+    // runs when the match starts
+    networkWatchdogSubsystem.matchStarting();
   }
 
   /**
@@ -217,7 +242,8 @@ public class RobotContainer {
         .whileTrue(
             new ArmPositionCommand(
                 armSubsystem, Arm.Setpoints.ScoreMid.ANGLE, Arm.Setpoints.ScoreMid.EXTENSION))
-        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+        .onFalse(new ArmPositionCommand(
+            armSubsystem, Arm.Setpoints.ScoreMid.CAPPED_ANGLE, Arm.Setpoints.ScoreMid.EXTENSION).alongWith(new OuttakeCommand(outtakeSubsystem, Modes.OFF)));
     jasonLayer
         .on(jason.y())
         .whileTrue(
