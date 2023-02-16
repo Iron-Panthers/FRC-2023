@@ -151,7 +151,14 @@ public class GraphPathfinder {
       GridCoord current = openSet.getMin();
 
       if (current.equals(end)) {
-        return Optional.of(reconstructPath(cameFrom, current));
+        var ret = Optional.of(reconstructPath(cameFrom, current));
+
+        openSetPool.put(openSet);
+        cameFromPool.put(cameFrom);
+        gScorePool.put(gScore);
+        fScorePool.put(fScore);
+
+        return ret;
       }
 
       for (Edge<GridCoord> neighborEdge : graph.getNeighbors(current)) {
@@ -169,6 +176,11 @@ public class GraphPathfinder {
         }
       }
     }
+
+    openSetPool.put(openSet);
+    cameFromPool.put(cameFrom);
+    gScorePool.put(gScore);
+    fScorePool.put(fScore);
 
     return Optional.empty();
   }
