@@ -18,11 +18,13 @@ public class CollectionPool<T> {
     if (pool.isEmpty()) {
       return init.get();
     }
-    return pool.pop();
+    var collection = pool.pop();
+    reset.accept(collection);
+    return collection;
   }
 
   public void put(T t) {
-    reset.accept(t);
+    // we will wait to reset the collection until it is popped from the pool
     pool.push(t);
   }
 }

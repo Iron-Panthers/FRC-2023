@@ -1,5 +1,6 @@
 package frc.util.pathing;
 
+import frc.util.CollectionPool;
 import frc.util.Graph;
 import frc.util.Graph.Edge;
 import frc.util.MinHeap;
@@ -91,6 +92,18 @@ public class GraphPathfinder {
     return totalPath;
   }
 
+  private static CollectionPool<MinHeap<GridCoord>> openSetPool =
+      new CollectionPool<>(MinHeap::new, MinHeap::clear);
+
+  private static CollectionPool<HashMap<GridCoord, GridCoord>> cameFromPool =
+      new CollectionPool<>(HashMap::new, HashMap::clear);
+
+  private static CollectionPool<HashMap<GridCoord, Integer>> gScorePool =
+      new CollectionPool<>(HashMap::new, HashMap::clear);
+
+  private static CollectionPool<HashMap<GridCoord, Integer>> fScorePool =
+      new CollectionPool<>(HashMap::new, HashMap::clear);
+
   /**
    * Finds the optimal path between two nodes in a graph.
    *
@@ -113,23 +126,23 @@ public class GraphPathfinder {
      * The set of discovered nodes that may need to be (re-)expanded. Initially, only the start node
      * is known.
      */
-    MinHeap<GridCoord> openSet = new MinHeap<>();
+    MinHeap<GridCoord> openSet = openSetPool.get();
 
     /**
      * For node n, cameFrom[n] is the node immediately preceding it on the cheapest path from start
      * to n currently known.
      */
-    HashMap<GridCoord, GridCoord> cameFrom = new HashMap<>();
+    HashMap<GridCoord, GridCoord> cameFrom = cameFromPool.get();
 
     /** For node n, gScore[n] is the cost of the cheapest path from start to n currently known. */
-    HashMap<GridCoord, Integer> gScore = new HashMap<>();
+    HashMap<GridCoord, Integer> gScore = gScorePool.get();
     gScore.put(start, 0);
 
     /**
      * For node n, fScore[n] := gScore[n] + h(n). fScore[n] represents our current best guess as to
      * how cheap a path could be from start to finish if it goes through n.
      */
-    HashMap<GridCoord, Integer> fScore = new HashMap<>();
+    HashMap<GridCoord, Integer> fScore = fScorePool.get();
     fScore.put(start, heuristic(start, end, heuristicConstant));
 
     openSet.add(start, fScore.get(start));

@@ -67,4 +67,8 @@ public class MinHeap<T> {
   public boolean isEmpty() {
     return heap.isEmpty();
   }
+
+  public void clear() {
+    heap.clear();
+  }
 }
