@@ -97,6 +97,9 @@ public class GraphPathfinder {
    * @param graph The graph to search.
    * @param start The start node.
    * @param end The end node.
+   * @param heuristicConstant The heuristic constant. A higher value will make the pathfinder weight
+   *     the heuristic more heavily. This sacrifices accuracy for speed, although too high a value
+   *     will result in greedy depth-first search.
    * @return The optimal path, or an empty optional if no path exists.
    */
   public static Optional<List<GridCoord>> findPath(
