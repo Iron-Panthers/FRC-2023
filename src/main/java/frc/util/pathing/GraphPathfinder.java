@@ -141,11 +141,9 @@ public class GraphPathfinder {
           cameFrom.put(neighborEdge.to, current);
           gScore.put(neighborEdge.to, tentativeGScore);
           int fScoreValue = tentativeGScore + heuristic(neighborEdge.to, end, heuristicConstant);
-          // fScore.put(neighborEdge.to, fScoreValue);
-
-          if (!openSet.contains(neighborEdge.to)) {
-            openSet.add(neighborEdge.to, fScoreValue);
-          }
+          // If the node is already in the open set, there will be a duplicate, but profiling shows
+          // that this is faster than removing the old value to update it.
+          openSet.add(neighborEdge.to, fScoreValue);
         }
       }
     }
