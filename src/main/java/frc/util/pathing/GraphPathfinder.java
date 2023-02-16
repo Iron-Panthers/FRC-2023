@@ -104,6 +104,17 @@ public class GraphPathfinder {
   private static CollectionPool<HashMap<GridCoord, Integer>> fScorePool =
       new CollectionPool<>(HashMap::new, HashMap::clear);
 
+  private static void putBackInPools(
+      MinHeap<GridCoord> openSet,
+      HashMap<GridCoord, GridCoord> cameFrom,
+      HashMap<GridCoord, Integer> gScore,
+      HashMap<GridCoord, Integer> fScore) {
+    openSetPool.put(openSet);
+    cameFromPool.put(cameFrom);
+    gScorePool.put(gScore);
+    fScorePool.put(fScore);
+  }
+
   /**
    * Finds the optimal path between two nodes in a graph.
    *
@@ -152,12 +163,7 @@ public class GraphPathfinder {
 
       if (current.equals(end)) {
         var ret = Optional.of(reconstructPath(cameFrom, current));
-
-        openSetPool.put(openSet);
-        cameFromPool.put(cameFrom);
-        gScorePool.put(gScore);
-        fScorePool.put(fScore);
-
+        putBackInPools(openSet, cameFrom, gScore, fScore);
         return ret;
       }
 
@@ -177,10 +183,7 @@ public class GraphPathfinder {
       }
     }
 
-    openSetPool.put(openSet);
-    cameFromPool.put(cameFrom);
-    gScorePool.put(gScore);
-    fScorePool.put(fScore);
+    putBackInPools(openSet, cameFrom, gScore, fScore);
 
     return Optional.empty();
   }
