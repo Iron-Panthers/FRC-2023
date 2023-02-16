@@ -12,16 +12,16 @@ public class MinHeap<T> {
   /** Note: this class has a natural ordering that is inconsistent with equals. */
   private static class Element<T> implements Comparable<Element<T>> {
     private T item;
-    private double priority;
+    private int priority;
 
-    public Element(T item, double priority) {
+    public Element(T item, int priority) {
       this.item = item;
       this.priority = priority;
     }
 
     @Override
     public int compareTo(Element<T> other) {
-      return Double.compare(priority, other.priority);
+      return Integer.compare(priority, other.priority);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class MinHeap<T> {
     }
   }
 
-  public void add(T item, double priority) {
+  public void add(T item, int priority) {
     heap.add(new Element<>(item, priority));
   }
 
