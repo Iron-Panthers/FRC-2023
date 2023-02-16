@@ -17,8 +17,8 @@ import java.util.Optional;
 public class RubenManueverGenerator {
   public final Graph<GridCoord> adjacencyGraph = new Graph<>();
 
-  private final boolean[][] dangerGrid = new boolean[Pathing.CELL_X_MAX][Pathing.CELL_Y_MAX];
-  private final boolean[][] collisionGrid = new boolean[Pathing.CELL_X_MAX][Pathing.CELL_Y_MAX];
+  private final BoolGrid dangerGrid = new BoolGrid(Pathing.CELL_X_MAX, Pathing.CELL_Y_MAX);
+  private final BoolGrid collisionGrid = new BoolGrid(Pathing.CELL_X_MAX, Pathing.CELL_Y_MAX);
 
   /**
    * Determine if a given coordinate is valid for the pathing grid. Factors the robot's width into
@@ -32,7 +32,7 @@ public class RubenManueverGenerator {
         && coord.x < Pathing.CELL_X_MAX
         && coord.y >= 0
         && coord.y < Pathing.CELL_Y_MAX
-        && !collisionGrid[coord.x][coord.y];
+        && !collisionGrid.get(coord);
   }
 
   /**
@@ -42,9 +42,9 @@ public class RubenManueverGenerator {
   private int computeDanger(GridCoord start, GridCoord end) {
     var danger = 1;
 
-    if (dangerGrid[start.x][start.y]) danger *= Costs.DANGER_MULTIPLIER;
+    if (dangerGrid.get(start)) danger *= Costs.DANGER_MULTIPLIER;
 
-    if (dangerGrid[end.x][end.y]) danger *= Costs.DANGER_MULTIPLIER;
+    if (dangerGrid.get(end)) danger *= Costs.DANGER_MULTIPLIER;
 
     return danger;
   }
@@ -108,41 +108,39 @@ public class RubenManueverGenerator {
 
         // if the cell is inside an obstruction, mark it as a collision
         if (FieldObstructionMap.isInsideObstruction(new GridCoord(x, y).toTranslation2d())) {
-          collisionGrid[x][y] = true;
-          dangerGrid[x][y] = true;
+          collisionGrid.set(x, y, true);
+          dangerGrid.set(x, y, true);
           continue;
         }
 
         // if the cell would would intersect the robots collision radius, mark it as a collision
         if (robotCenterPointCollidesGivenWidth(x, y, Pathing.ROBOT_RADIUS_COLLISION_CELLS)) {
-          collisionGrid[x][y] = true;
-          dangerGrid[x][y] = true;
+          collisionGrid.set(x, y, true);
+          dangerGrid.set(x, y, true);
         } else if (robotCenterPointCollidesGivenWidth(x, y, Pathing.ROBOT_RADIUS_DANGER_CELLS)) {
-          collisionGrid[x][y] = false;
-          dangerGrid[x][y] = true;
+          collisionGrid.set(x, y, false);
+          dangerGrid.set(x, y, true);
         } else {
           // this is a safe place to put the center of the robot
-          collisionGrid[x][y] = false;
-          dangerGrid[x][y] = false;
+          collisionGrid.set(x, y, false);
+          dangerGrid.set(x, y, false);
         }
       }
     }
 
     for (int x = 0; x < Pathing.CELL_X_MAX; x++) {
       for (int y = 0; y < Pathing.CELL_Y_MAX; y++) {
-        final GridCoord start = new GridCoord(x, y);
+        if (collisionGrid.get(x, y)) continue;
 
-        if (!collisionGrid[x][y]) {
-          adjacencyGraph.addNode(start);
-        }
+        adjacencyGraph.addNode(new GridCoord(x, y));
       }
     }
 
     for (int x = 0; x < Pathing.CELL_X_MAX; x++) {
       for (int y = 0; y < Pathing.CELL_Y_MAX; y++) {
-        final GridCoord start = new GridCoord(x, y);
+        if (collisionGrid.get(x, y)) continue;
 
-        if (collisionGrid[x][y]) continue;
+        final GridCoord start = new GridCoord(x, y);
 
         // Add edges to adjacent nodes
         for (GridCoord end : getOrthogonalTranslations(start)) {
@@ -351,7 +349,7 @@ public class RubenManueverGenerator {
           // and ensure that new line does not have any points in the danger grid
           boolean hasDanger = false;
           for (GridCoord point : line) {
-            if (dangerGrid[point.x][point.y]) {
+            if (dangerGrid.get(point)) {
               hasDanger = true;
               break;
             }

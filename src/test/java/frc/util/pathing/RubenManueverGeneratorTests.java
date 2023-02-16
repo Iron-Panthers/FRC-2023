@@ -130,9 +130,9 @@ public class RubenManueverGeneratorTests {
 
   @UtilTest
   public void internalCollisionGridMatchesSnapshot() {
-    // use reflection to read the internal boolean[][] collisionGrid
-    Optional<boolean[][]> optCollisionGrid = Optional.empty();
-    Optional<boolean[][]> optDangerGrid = Optional.empty();
+    // use reflection to read the internal BoolGrid collisionGrid
+    Optional<BoolGrid> optCollisionGrid = Optional.empty();
+    Optional<BoolGrid> optDangerGrid = Optional.empty();
     try {
       Field field1 = RubenManueverGenerator.class.getDeclaredField("collisionGrid");
       field1.setAccessible(true);
@@ -142,10 +142,8 @@ public class RubenManueverGeneratorTests {
       var obj1 = field1.get(new RubenManueverGenerator());
       var obj2 = field2.get(new RubenManueverGenerator());
 
-      optCollisionGrid =
-          obj1 instanceof boolean[][] ? Optional.of((boolean[][]) obj1) : Optional.empty();
-      optDangerGrid =
-          obj2 instanceof boolean[][] ? Optional.of((boolean[][]) obj2) : Optional.empty();
+      optCollisionGrid = obj1 instanceof BoolGrid ? Optional.of((BoolGrid) obj1) : Optional.empty();
+      optDangerGrid = obj2 instanceof BoolGrid ? Optional.of((BoolGrid) obj2) : Optional.empty();
     } catch (NoSuchFieldException | IllegalAccessException e) {
       e.printStackTrace();
     }
@@ -162,9 +160,9 @@ public class RubenManueverGeneratorTests {
     for (int x = 0; x < Pathing.CELL_X_MAX; x++) {
       for (int y = 0; y < Pathing.CELL_Y_MAX; y++) {
         // if the collision grid is true, the field square should be an obstruction
-        if (collisionGrid[x][y]) {
+        if (collisionGrid.get(x, y)) {
           fieldSquares[x][y] = FieldSquare.OBSTRUCTION;
-        } else if (dangerGrid[x][y]) {
+        } else if (dangerGrid.get(x, y)) {
           fieldSquares[x][y] = FieldSquare.DANGER;
         } else {
           fieldSquares[x][y] = FieldSquare.EMPTY;
