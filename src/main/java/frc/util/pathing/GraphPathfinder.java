@@ -1,6 +1,5 @@
 package frc.util.pathing;
 
-import frc.util.CollectionPool;
 import frc.util.Graph;
 import frc.util.Graph.Edge;
 import frc.util.MinHeap;
@@ -92,29 +91,6 @@ public class GraphPathfinder {
     return totalPath;
   }
 
-  private static CollectionPool<MinHeap<GridCoord>> openSetPool =
-      new CollectionPool<>(MinHeap::new, MinHeap::clear);
-
-  private static CollectionPool<HashMap<GridCoord, GridCoord>> cameFromPool =
-      new CollectionPool<>(HashMap::new, HashMap::clear);
-
-  private static CollectionPool<HashMap<GridCoord, Integer>> gScorePool =
-      new CollectionPool<>(HashMap::new, HashMap::clear);
-
-  private static CollectionPool<HashMap<GridCoord, Integer>> fScorePool =
-      new CollectionPool<>(HashMap::new, HashMap::clear);
-
-  private static void putBackInPools(
-      MinHeap<GridCoord> openSet,
-      HashMap<GridCoord, GridCoord> cameFrom,
-      HashMap<GridCoord, Integer> gScore,
-      HashMap<GridCoord, Integer> fScore) {
-    openSetPool.put(openSet);
-    cameFromPool.put(cameFrom);
-    gScorePool.put(gScore);
-    fScorePool.put(fScore);
-  }
-
   /**
    * Finds the optimal path between two nodes in a graph.
    *
@@ -137,34 +113,25 @@ public class GraphPathfinder {
      * The set of discovered nodes that may need to be (re-)expanded. Initially, only the start node
      * is known.
      */
-    MinHeap<GridCoord> openSet = openSetPool.get();
+    MinHeap<GridCoord> openSet = new MinHeap<>();
 
     /**
      * For node n, cameFrom[n] is the node immediately preceding it on the cheapest path from start
      * to n currently known.
      */
-    HashMap<GridCoord, GridCoord> cameFrom = cameFromPool.get();
+    HashMap<GridCoord, GridCoord> cameFrom = new HashMap<>();
 
     /** For node n, gScore[n] is the cost of the cheapest path from start to n currently known. */
-    HashMap<GridCoord, Integer> gScore = gScorePool.get();
+    HashMap<GridCoord, Integer> gScore = new HashMap<>();
     gScore.put(start, 0);
 
-    /**
-     * For node n, fScore[n] := gScore[n] + h(n). fScore[n] represents our current best guess as to
-     * how cheap a path could be from start to finish if it goes through n.
-     */
-    HashMap<GridCoord, Integer> fScore = fScorePool.get();
-    fScore.put(start, heuristic(start, end, heuristicConstant));
-
-    openSet.add(start, fScore.get(start));
+    openSet.add(start, heuristic(start, end, heuristicConstant));
 
     while (!openSet.isEmpty()) {
       GridCoord current = openSet.getMin();
 
       if (current.equals(end)) {
-        var ret = Optional.of(reconstructPath(cameFrom, current));
-        putBackInPools(openSet, cameFrom, gScore, fScore);
-        return ret;
+        return Optional.of(reconstructPath(cameFrom, current));
       }
 
       for (Edge<GridCoord> neighborEdge : graph.getNeighbors(current)) {
@@ -174,7 +141,7 @@ public class GraphPathfinder {
           cameFrom.put(neighborEdge.to, current);
           gScore.put(neighborEdge.to, tentativeGScore);
           int fScoreValue = tentativeGScore + heuristic(neighborEdge.to, end, heuristicConstant);
-          fScore.put(neighborEdge.to, fScoreValue);
+          // fScore.put(neighborEdge.to, fScoreValue);
 
           if (!openSet.contains(neighborEdge.to)) {
             openSet.add(neighborEdge.to, fScoreValue);
@@ -182,8 +149,6 @@ public class GraphPathfinder {
         }
       }
     }
-
-    putBackInPools(openSet, cameFrom, gScore, fScore);
 
     return Optional.empty();
   }
