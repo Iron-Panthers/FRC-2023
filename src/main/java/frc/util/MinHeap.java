@@ -21,7 +21,7 @@ public class MinHeap<T> {
 
     @Override
     public int compareTo(Element<T> other) {
-      return Integer.compare(priority, other.priority);
+      return priority - other.priority;
     }
 
     @Override
