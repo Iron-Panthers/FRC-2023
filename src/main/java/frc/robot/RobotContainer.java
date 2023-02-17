@@ -28,6 +28,7 @@ import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefaultIntakeCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
+import frc.robot.commands.ForceIntakeCommand;
 import frc.robot.commands.ForceOuttakeCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
 import frc.robot.commands.IntakeCommand;
@@ -152,7 +153,7 @@ public class RobotContainer {
           jason.getHID().setRumble(RumbleType.kRightRumble, power);
         });
 
-    jason.a().onTrue(new StartSpindexerHopperCommand(spindexerHopperSubsystem, SpindexerHopperSubsystem.Modes.IDLE));
+    //jason.a().onTrue(new StartSpindexerHopperCommand(spindexerHopperSubsystem, SpindexerHopperSubsystem.Modes.IDLE));
 
     will.start().onTrue(new InstantCommand(drivebaseSubsystem::zeroGyroscope, drivebaseSubsystem));
     will.leftBumper().whileTrue(new DefenseModeCommand(drivebaseSubsystem));
@@ -231,36 +232,37 @@ public class RobotContainer {
                 armSubsystem, Arm.Setpoints.ShelfIntake.ANGLE, Arm.Setpoints.ShelfIntake.EXTENSION))
         .whileTrue(new ForceOuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
     jasonLayer
-        .off(jason.y())
-        .onTrue(
+        .off(jason.y()).onTrue(new StartSpindexerHopperCommand(spindexerHopperSubsystem, SpindexerHopperSubsystem.Modes.IDLE));
+        /*.onTrue(
             new ArmPositionCommand(
                 armSubsystem,
                 Arm.Setpoints.Angles.STARTING_ANGLE,
-                Arm.Setpoints.Extensions.MIN_EXTENSION));
+                Arm.Setpoints.Extensions.MIN_EXTENSION));*/
 
     jasonLayer
-        .on(jason.a())
-        .whileTrue(
+        .on(jason.a()).whileTrue(new ForceIntakeCommand(intakeSubsystem, IntakeModes.RETRACT, IntakeModes.OFF));
+        /*.whileTrue(
             new ArmPositionCommand(
                 armSubsystem, Arm.Setpoints.ScoreLow.ANGLE, Arm.Setpoints.ScoreLow.EXTENSION))
-        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));*/
     jasonLayer
-        .on(jason.b())
-        .whileTrue(
+        .on(jason.b()).whileTrue(new ForceIntakeCommand(intakeSubsystem, IntakeModes.EJECT, IntakeModes.OFF));
+        /*.whileTrue(
             new ArmPositionCommand(
                 armSubsystem, Arm.Setpoints.ScoreMid.ANGLE, Arm.Setpoints.ScoreMid.EXTENSION))
         .onFalse(new ArmPositionCommand(
-            armSubsystem, Arm.Setpoints.ScoreMid.CAPPED_ANGLE, Arm.Setpoints.ScoreMid.EXTENSION).alongWith(new OuttakeCommand(outtakeSubsystem, Modes.OFF)));
+            armSubsystem, Arm.Setpoints.ScoreMid.CAPPED_ANGLE, Arm.Setpoints.ScoreMid.EXTENSION).alongWith(new OuttakeCommand(outtakeSubsystem, Modes.OFF)));*/
     jasonLayer
-        .on(jason.y())
-        .whileTrue(
+        .on(jason.y()).whileTrue(new ForceIntakeCommand(intakeSubsystem, IntakeModes.INTAKE, IntakeModes.OFF));
+        /* .whileTrue(
             new ArmPositionCommand(
                 armSubsystem, Arm.Setpoints.ScoreHigh.ANGLE, Arm.Setpoints.ScoreHigh.EXTENSION))
-        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));*/
     jasonLayer
         .on(jason.x())
         .whileTrue(
             new DefaultIntakeCommand(intakeSubsystem));
+    jasonLayer.on(jason.leftBumper()).onTrue(new StartSpindexerHopperCommand(spindexerHopperSubsystem, SpindexerHopperSubsystem.Modes.IDLE));
   }
 
   /**

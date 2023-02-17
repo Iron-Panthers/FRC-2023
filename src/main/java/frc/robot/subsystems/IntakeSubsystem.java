@@ -44,7 +44,7 @@ public class IntakeSubsystem extends SubsystemBase {
   private LinearFilter armFilter;
   private LinearFilter intakeFilter;
 
-  private StatorCurrentLimitConfiguration statorCurrentLimitConfiguration = new StatorCurrentLimitConfiguration(true, 50, 60, 0.5);
+  private StatorCurrentLimitConfiguration statorCurrentLimitConfiguration = new StatorCurrentLimitConfiguration(true, 60, 70, 0.5);
 
   private double armFilterOutput;
   private double intakeFilterOutput;
