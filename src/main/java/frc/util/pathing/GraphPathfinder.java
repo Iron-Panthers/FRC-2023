@@ -97,6 +97,9 @@ public class GraphPathfinder {
    * @param graph The graph to search.
    * @param start The start node.
    * @param end The end node.
+   * @param heuristicConstant The heuristic constant. A higher value will make the pathfinder weight
+   *     the heuristic more heavily. This sacrifices accuracy for speed, although too high a value
+   *     will result in greedy depth-first search.
    * @return The optimal path, or an empty optional if no path exists.
    */
   public static Optional<List<GridCoord>> findPath(
@@ -122,14 +125,7 @@ public class GraphPathfinder {
     HashMap<GridCoord, Integer> gScore = new HashMap<>();
     gScore.put(start, 0);
 
-    /**
-     * For node n, fScore[n] := gScore[n] + h(n). fScore[n] represents our current best guess as to
-     * how cheap a path could be from start to finish if it goes through n.
-     */
-    HashMap<GridCoord, Integer> fScore = new HashMap<>();
-    fScore.put(start, heuristic(start, end, heuristicConstant));
-
-    openSet.add(start, fScore.get(start));
+    openSet.add(start, heuristic(start, end, heuristicConstant));
 
     while (!openSet.isEmpty()) {
       GridCoord current = openSet.getMin();
@@ -145,11 +141,8 @@ public class GraphPathfinder {
           cameFrom.put(neighborEdge.to, current);
           gScore.put(neighborEdge.to, tentativeGScore);
           int fScoreValue = tentativeGScore + heuristic(neighborEdge.to, end, heuristicConstant);
-          fScore.put(neighborEdge.to, fScoreValue);
-
-          if (!openSet.contains(neighborEdge.to)) {
-            openSet.add(neighborEdge.to, fScoreValue);
-          }
+          // If the node is already in the open set it will be updated with the new fScore value
+          openSet.add(neighborEdge.to, fScoreValue);
         }
       }
     }

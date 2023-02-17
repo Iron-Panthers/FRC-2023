@@ -131,7 +131,7 @@ jmh {
 }
 
 tasks.create("bmPathfinding") {
-    jmh.includes.add("GraphPathfinderBenchmarks")
+    jmh.includes.add("GraphPathfinderBenchmarks.findOptimalPath")
     finalizedBy("jmh")
 }
 

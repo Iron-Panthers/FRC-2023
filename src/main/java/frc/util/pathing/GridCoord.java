@@ -29,6 +29,8 @@ public class GridCoord {
    * Determine the integer distance between two grid coordinates, using {@link Costs.DIAGONAL} and
    * {@link Costs.CARDINAL} costs.
    *
+   * <p>This is Chebyshev distance.
+   *
    * @param other The other coordinate to measure distance to.
    * @return The distance between the two coordinates.
    */

@@ -90,6 +90,8 @@ public class MinHeapTests {
 
     heap.add(Items.C, 3);
 
+    assertEquals(Items.A, heap.peakMin());
+
     heap.add(Items.C, -2);
 
     assertEquals(Items.C, heap.getMin());

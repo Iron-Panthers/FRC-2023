@@ -197,7 +197,9 @@ public class RobotContainer {
                 drivebaseSubsystem,
                 visionSubsystem,
                 manueverGenerator,
-                new Pose2d(1.8, .5, Rotation2d.fromDegrees(180))));
+                new Pose2d(2.5, 1, Rotation2d.fromDegrees(180)),
+                new Pose2d(1.8, .5, Rotation2d.fromDegrees(180)),
+                .05));
 
     will.y()
         .onTrue(
