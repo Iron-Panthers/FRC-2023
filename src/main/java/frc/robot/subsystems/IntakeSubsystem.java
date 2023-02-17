@@ -127,11 +127,8 @@ public class IntakeSubsystem extends SubsystemBase {
         case DEPLOY:
           return IntakeModes.INTAKE;
         case INTAKE:
-          return IntakeModes.RETRACT;
         case RETRACT:
-          return IntakeModes.OFF;
         case EJECT:
-          return IntakeModes.OFF;
         case OFF:
           return IntakeModes.OFF;
       }
