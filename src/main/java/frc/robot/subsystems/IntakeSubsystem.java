@@ -50,6 +50,7 @@ public class IntakeSubsystem extends SubsystemBase {
   private double intakeFilterOutput;
 
   private double previousTransitionTime;
+  private boolean modeLock;
 
   /** Creates a new DrivebaseSubsystem. */
   public IntakeSubsystem() {
@@ -68,6 +69,7 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeFilterOutput = 0;
 
     previousTransitionTime = 0;
+    modeLock = false;
 
     tab.addString("Current mode", () -> this.mode.toString());
   }
@@ -88,6 +90,14 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     this.mode = mode;
+  }
+
+  public void lockMode() {
+    modeLock = true;
+  }
+
+  public void unlockMode() {
+    modeLock = false;
   }
 
   public void deployPeriodic() {
@@ -121,7 +131,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public IntakeModes advanceMode(IntakeModes mode) {
 
-    if (Timer.getFPGATimestamp() - previousTransitionTime >= mode.transitionTime) {
+    if (Timer.getFPGATimestamp() - previousTransitionTime >= mode.transitionTime && !modeLock) {
 
       switch (mode) {
         case DEPLOY:
