@@ -218,7 +218,16 @@ public class RobotContainer {
                                     armSubsystem,
                                     Arm.Setpoints.ScoreMid.CAPPED_ANGLE,
                                     Arm.Setpoints.ScoreMid.EXTENSION)
-                                .alongWith(new OuttakeCommand(outtakeSubsystem, Modes.OFF)))));
+                                .alongWith(new OuttakeCommand(outtakeSubsystem, Modes.OFF))))
+                .andThen(
+                    new DriveToPlaceCommand(
+                            drivebaseSubsystem,
+                            visionSubsystem,
+                            manueverGenerator,
+                            new Pose2d(6.96, 6.43, Rotation2d.fromDegrees(0)))
+                        .alongWith(
+                            new ArmPositionCommand(
+                                armSubsystem, 0, Arm.Setpoints.Extensions.MIN_EXTENSION))));
 
     will.y()
         .onTrue(
