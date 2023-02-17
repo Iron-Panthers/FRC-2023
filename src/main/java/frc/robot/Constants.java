@@ -278,7 +278,7 @@ public final class Constants {
 
     public static final class TransitionTimes {
       public static final double DEPLOY_TIMING = 1.0; //FIXME need real value
-      public static final double INTAKE_TIMING = 10; //FIXME need real value
+      public static final double INTAKE_TIMING = 3; //FIXME need real value
       public static final double RETRACT_TIMING = 1.0; //FIXME need real value
       public static final double EJECT_TIMING = 1.5; //FIXME need real value
     }

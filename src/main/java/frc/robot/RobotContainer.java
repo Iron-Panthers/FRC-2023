@@ -25,6 +25,7 @@ import frc.robot.autonomous.commands.AutoTestSequence;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.DefaultDriveCommand;
+import frc.robot.commands.DefaultIntakeCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
 import frc.robot.commands.ForceOuttakeCommand;
@@ -206,14 +207,6 @@ public class RobotContainer {
             new DriveToPlaceCommand(
                 drivebaseSubsystem, new Pose2d(3.2, .5, Rotation2d.fromDegrees(170)), .2, .5));
 
-    jasonLayer.on(jason.x())
-        .whileTrue(
-            new IntakeCommand(
-                intakeSubsystem, IntakeModes.DEPLOY))
-        .onFalse(
-            new IntakeCommand(
-                intakeSubsystem, IntakeModes.RETRACT));
-
     jasonLayer
         .off(jason.leftTrigger())
         .whileTrue(new ForceOuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
@@ -264,6 +257,10 @@ public class RobotContainer {
             new ArmPositionCommand(
                 armSubsystem, Arm.Setpoints.ScoreHigh.ANGLE, Arm.Setpoints.ScoreHigh.EXTENSION))
         .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+    jasonLayer
+        .on(jason.x())
+        .whileTrue(
+            new DefaultIntakeCommand(intakeSubsystem));
   }
 
   /**

@@ -8,12 +8,13 @@ public class ForceIntakeCommand extends CommandBase{
     
     private IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 
-    private IntakeModes mode;
+    private IntakeModes mode, endMode;
 
-    public ForceIntakeCommand(IntakeSubsystem intakeSubsystem, IntakeModes mode) {
+    public ForceIntakeCommand(IntakeSubsystem intakeSubsystem, IntakeModes mode, IntakeModes endMode) {
 
         this.intakeSubsystem = intakeSubsystem;
         this.mode = mode;
+        this.endMode = endMode;
 
         addRequirements(intakeSubsystem);
 
@@ -28,6 +29,6 @@ public class ForceIntakeCommand extends CommandBase{
     @Override
     public void end(boolean interrupted) {
         intakeSubsystem.unlockMode();
-        intakeSubsystem.setMode(IntakeModes.OFF);
+        intakeSubsystem.setMode(endMode);
     }
 }
