@@ -15,6 +15,8 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import frc.robot.subsystems.IntakeSubsystem.IntakeModes;
+import frc.robot.subsystems.OuttakeSubsystem.OuttakeDetails;
+import java.util.Optional;
 
 @SuppressWarnings("java:S1118")
 /**
@@ -135,6 +137,84 @@ public final class Constants {
     }
   }
 
+  public static final class Arm {
+    public static final class Ports {
+      public static final int ARM_MOTOR_PORT = 14;
+      public static final int TELESCOPING_MOTOR_PORT = 16; // TODO: find CAN ID
+      public static final int ENCODER_PORT = 28;
+    }
+
+    public static final double GRAVITY_CONTROL_PERCENT = 0.07;
+
+    public static final double ANGULAR_OFFSET = 8;
+
+    public static final class Setpoints {
+      public static final class ScoreLow {
+        public static final int ANGLE = 40;
+        public static final double EXTENSION = Extensions.MAX_EXTENSION;
+      }
+
+      public static final class ScoreMid {
+        public static final int ANGLE = 90;
+        public static final double CAPPED_ANGLE = 40;
+        public static final double EXTENSION = 5d;
+      }
+
+      public static final class ScoreHigh {
+        public static final int ANGLE = 110;
+        public static final double EXTENSION = Extensions.MAX_EXTENSION;
+      }
+
+      public static final class GroundIntake {
+        public static final int ANGLE = 30;
+        public static final double EXTENSION = Extensions.MAX_EXTENSION;
+      }
+
+      public static final class ShelfIntake {
+        public static final int ANGLE = 90;
+        public static final double EXTENSION = Extensions.MAX_EXTENSION;
+      }
+
+      public static final class Angles {
+        public static final int STARTING_ANGLE = 0;
+        public static final int FORWARD_ANGLE = 90;
+        public static final int BACKWARD_ANGLE = -90;
+        public static final int TEST_ANGLE = 45;
+      }
+
+      public static final class Extensions {
+        public static final double MAX_EXTENSION = 10;
+        public static final double MIN_EXTENSION = 0;
+      }
+    }
+
+    public static final int TICKS = 2048;
+    public static final int TELESCOPING_ARM_GEAR_RATIO = 3;
+    public static final double SPOOL_CIRCUMFERENCE = 1.5 * Math.PI;
+
+    public static final class Thresholds {
+      /**
+       * These thresholds, unless otherwise specified in a doc comment, apply to the positive and
+       * negative sign of their angle in degrees
+       */
+      public static final class Angles {
+        public static final double BACKWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD =
+            -40; // FIXME: real value needed
+        public static final double FORWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD =
+            20; // FIXME: real value needed
+        public static final double UPPER_ANGLE_LIMIT = 100; // FIXME: real value needed
+      }
+
+      public static final class Extensions {
+        /**
+         * The amount of additional extension from min extension to treat as fully retracted for
+         * safety purposes
+         */
+        public static final double FULLY_RETRACTED_INCHES_THRESHOLD = 1;
+      }
+    }
+  }
+
   public static final class Vision {
     public static final double LIMELIGHT_CLUSTER_HEIGHT = 0.3048;
 
@@ -212,5 +292,81 @@ public final class Constants {
 
     public static final double ARM_HARDSTOP_CURRENT = 5; // FIRXME need real value
     
+  }
+
+  public static final class Outtake {
+    public static final class Ports {
+      public static final int OUTTAKE_MOTOR = 17; // Placeholder value
+      public static final int OUTTAKE_ENCODER = 0; // PLaceholder value
+    }
+
+    public static final int OPEN_ANGLE = 500;
+    public static final int CLAMP_ANGLE = 0;
+
+    public static final class OuttakeModes {
+      public static final OuttakeDetails HOLD =
+          new OuttakeDetails(0.1, Optional.empty(), Optional.empty());
+
+      public static final OuttakeDetails INTAKE =
+          new OuttakeDetails(0.7, Optional.of(new OuttakeDetails.StatorLimit(75)), Optional.of(2d));
+
+      public static final OuttakeDetails OUTTAKE =
+          new OuttakeDetails(-0.2, Optional.empty(), Optional.of(2d));
+
+      public static final OuttakeDetails OFF =
+          new OuttakeDetails(0.0, Optional.empty(), Optional.empty());
+    }
+
+    // Thinking of using these to plug into the stator limits above...?
+    // Better readability?
+    private static final class StatorCurrents {
+      // FIXME find real value using glass
+      public static final double OPENING_FINISH = 20;
+      public static final double ENDING_FINISH = 80;
+    }
+  }
+
+  public static final class SpindexerHopper {
+    
+    public static final int SPIN_MOTOR_PORT = 31; 
+    public static final double IDLE_SPEED = 0.3; 
+    public static final double ALIGN_SPEED = -0.3;
+
+    public static final class Timings {
+      public static final double IDLE_DURATION  = 0.9; 
+      public static final double ALIGN_DURATION  = 1;
+      public static final double CLEAR_DURATION  = 0.6;
+      public static final double FINAL_DURATION  = 0.8;
+    }
+
+  }
+
+  public static final class NetworkWatchdog {
+    /** The IP address to ping for testing bridging, on the second vlan. */
+    public static final String TEST_IP_ADDRESS = "10.50.26.19";
+
+    /**
+     * The number of ms (sleep delta using oshi system uptime) to wait before beginning to ping the
+     * test IP.
+     */
+    public static final int BOOT_SCAN_DELAY_MS = 20_000;
+
+    /** The number of seconds for ping to wait before giving up on reaching a device. */
+    public static final int PING_TIMEOUT_SECONDS = 2;
+
+    /** The number of ms to wait before retrying successful health checks. */
+    public static final int HEALTHY_CHECK_INTERVAL_MS = 5_000;
+
+    /**
+     * The number of ms to leave the switching pdh port off before turning it back on as part of
+     * rebooting the network switch.
+     */
+    public static final int REBOOT_DURATION_MS = 1_000;
+
+    /**
+     * The number of ms to wait before rerunning health checks after a failed check which triggered
+     * switch reboot.
+     */
+    public static final int SWITCH_POWERCYCLE_SCAN_DELAY_MS = 6_000;
   }
 }

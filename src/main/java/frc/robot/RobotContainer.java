@@ -20,18 +20,29 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.Arm;
 import frc.robot.autonomous.commands.AutoTestSequence;
+import frc.robot.commands.ArmManualCommand;
+import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
+import frc.robot.commands.ForceOuttakeCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
 import frc.robot.commands.IntakeCommand;
+import frc.robot.commands.OuttakeCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
+import frc.robot.commands.StartSpindexerHopperCommand;
 import frc.robot.commands.VibrateControllerCommand;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.IntakeSubsystem.IntakeModes;
+import frc.robot.subsystems.NetworkWatchdogSubsystem;
+import frc.robot.subsystems.OuttakeSubsystem;
+import frc.robot.subsystems.SpindexerHopperSubsystem;
+import frc.robot.subsystems.OuttakeSubsystem.Modes;
 import frc.util.ControllerUtil;
 import frc.util.Layer;
 import frc.util.MacUtil;
@@ -50,6 +61,14 @@ public class RobotContainer {
   private final DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem();
 
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+
+  private final NetworkWatchdogSubsystem networkWatchdogSubsystem = new NetworkWatchdogSubsystem();
+
+  private final ArmSubsystem armSubsystem = new ArmSubsystem();
+
+  private final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
+
+  private final SpindexerHopperSubsystem spindexerHopperSubsystem = new SpindexerHopperSubsystem();
 
   /** controller 1 */
   private final CommandXboxController jason = new CommandXboxController(1);
@@ -75,6 +94,12 @@ public class RobotContainer {
             () -> (-modifyAxis(will.getLeftX()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
             will.rightBumper()));
 
+    armSubsystem.setDefaultCommand(
+        new ArmManualCommand(
+            armSubsystem,
+            () -> ControllerUtil.deadband(-jason.getLeftY(), 0.2),
+            () -> ControllerUtil.deadband(jason.getRightY(), 0.2)));
+
     SmartDashboard.putBoolean("is comp bot", MacUtil.IS_COMP_BOT);
 
     // Configure the button bindings
@@ -84,9 +109,30 @@ public class RobotContainer {
     setupAutonomousCommands();
   }
 
+  /**
+   * Use this method to do things as the drivers gain control of the robot. We use it to vibrate the
+   * driver b controller to notice accidental swaps.
+   *
+   * <p>Please use this very, very sparingly. It doesn't exist by default for good reason.
+   */
   public void containerTeleopInit() {
     // runs when teleop happens
     CommandScheduler.getInstance().schedule(new VibrateControllerCommand(jason, 5, .5));
+  }
+
+  /**
+   * Use this method to do things as soon as the robot starts being used. We use it to stop doing
+   * things that could be harmful or undesirable during game play--rebooting the network switch is a
+   * good example. Subsystems need to be explicitly wired up to this method.
+   *
+   * <p>Depending on which mode the robot is enabled in, this will either be called before auto or
+   * before teleop, whichever is first.
+   *
+   * <p>Please use this very, very sparingly. It doesn't exist by default for good reason.
+   */
+  public void containerMatchStarting() {
+    // runs when the match starts
+    networkWatchdogSubsystem.matchStarting();
   }
 
   /**
@@ -104,6 +150,8 @@ public class RobotContainer {
           jason.getHID().setRumble(RumbleType.kLeftRumble, power);
           jason.getHID().setRumble(RumbleType.kRightRumble, power);
         });
+
+    jason.a().onTrue(new StartSpindexerHopperCommand(spindexerHopperSubsystem, Modes.IDLE));
 
     will.start().onTrue(new InstantCommand(drivebaseSubsystem::zeroGyroscope, drivebaseSubsystem));
     will.leftBumper().whileTrue(new DefenseModeCommand(drivebaseSubsystem));
@@ -165,6 +213,57 @@ public class RobotContainer {
         .onFalse(
             new IntakeCommand(
                 intakeSubsystem, IntakeModes.RETRACT));
+
+    jasonLayer
+        .off(jason.leftTrigger())
+        .whileTrue(new ForceOuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+    jasonLayer
+        .off(jason.rightTrigger())
+        .onTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+    jasonLayer
+        .off(jason.x())
+        .onTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF));
+    jasonLayer
+        .off(jason.a())
+        .onTrue(
+            new ArmPositionCommand(
+                armSubsystem,
+                Arm.Setpoints.GroundIntake.ANGLE,
+                Arm.Setpoints.GroundIntake.EXTENSION))
+        .whileTrue(new ForceOuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+    jasonLayer
+        .off(jason.b())
+        .onTrue(
+            new ArmPositionCommand(
+                armSubsystem, Arm.Setpoints.ShelfIntake.ANGLE, Arm.Setpoints.ShelfIntake.EXTENSION))
+        .whileTrue(new ForceOuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+    jasonLayer
+        .off(jason.y())
+        .onTrue(
+            new ArmPositionCommand(
+                armSubsystem,
+                Arm.Setpoints.Angles.STARTING_ANGLE,
+                Arm.Setpoints.Extensions.MIN_EXTENSION));
+
+    jasonLayer
+        .on(jason.a())
+        .whileTrue(
+            new ArmPositionCommand(
+                armSubsystem, Arm.Setpoints.ScoreLow.ANGLE, Arm.Setpoints.ScoreLow.EXTENSION))
+        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+    jasonLayer
+        .on(jason.b())
+        .whileTrue(
+            new ArmPositionCommand(
+                armSubsystem, Arm.Setpoints.ScoreMid.ANGLE, Arm.Setpoints.ScoreMid.EXTENSION))
+        .onFalse(new ArmPositionCommand(
+            armSubsystem, Arm.Setpoints.ScoreMid.CAPPED_ANGLE, Arm.Setpoints.ScoreMid.EXTENSION).alongWith(new OuttakeCommand(outtakeSubsystem, Modes.OFF)));
+    jasonLayer
+        .on(jason.y())
+        .whileTrue(
+            new ArmPositionCommand(
+                armSubsystem, Arm.Setpoints.ScoreHigh.ANGLE, Arm.Setpoints.ScoreHigh.EXTENSION))
+        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
   }
 
   /**
