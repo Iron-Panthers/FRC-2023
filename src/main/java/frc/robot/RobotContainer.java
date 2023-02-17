@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
@@ -194,12 +195,30 @@ public class RobotContainer {
     will.b()
         .onTrue(
             new DriveToPlaceCommand(
-                drivebaseSubsystem,
-                visionSubsystem,
-                manueverGenerator,
-                new Pose2d(2.5, 1, Rotation2d.fromDegrees(180)),
-                new Pose2d(1.8, .5, Rotation2d.fromDegrees(180)),
-                .05));
+                    drivebaseSubsystem,
+                    visionSubsystem,
+                    manueverGenerator,
+                    new Pose2d(2.5, 1, Rotation2d.fromDegrees(180)),
+                    new Pose2d(1.8, .5, Rotation2d.fromDegrees(180)),
+                    .05)
+                .alongWith(
+                    new WaitCommand(2)
+                        .andThen(
+                            new ArmPositionCommand(
+                                armSubsystem,
+                                Arm.Setpoints.ScoreMid.ANGLE,
+                                Arm.Setpoints.Extensions.MIN_EXTENSION)))
+                .andThen(
+                    new ArmPositionCommand(
+                            armSubsystem,
+                            Arm.Setpoints.ScoreMid.ANGLE,
+                            Arm.Setpoints.ScoreMid.EXTENSION)
+                        .andThen(
+                            new ArmPositionCommand(
+                                    armSubsystem,
+                                    Arm.Setpoints.ScoreMid.CAPPED_ANGLE,
+                                    Arm.Setpoints.ScoreMid.EXTENSION)
+                                .alongWith(new OuttakeCommand(outtakeSubsystem, Modes.OFF)))));
 
     will.y()
         .onTrue(
