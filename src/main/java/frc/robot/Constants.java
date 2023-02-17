@@ -154,7 +154,7 @@ public final class Constants {
                   ),
               new Rotation3d(
                   0,
-                  Math.toRadians(11.5), // angle up/down
+                  Math.toRadians(-11.5), // angle up/down
                   0));
     }
 
@@ -170,7 +170,7 @@ public final class Constants {
                   -0.2506218, // left/right
                   1.2319 // up/down
                   ),
-              new Rotation3d(0, Math.toRadians(-17), Math.PI));
+              new Rotation3d(0, Math.toRadians(17), Math.PI));
     }
   }
 
