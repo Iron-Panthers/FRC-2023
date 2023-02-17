@@ -151,7 +151,7 @@ public class RobotContainer {
           jason.getHID().setRumble(RumbleType.kRightRumble, power);
         });
 
-    jason.a().onTrue(new StartSpindexerHopperCommand(spindexerHopperSubsystem, Modes.IDLE));
+    jason.a().onTrue(new StartSpindexerHopperCommand(spindexerHopperSubsystem, SpindexerHopperSubsystem.Modes.IDLE));
 
     will.start().onTrue(new InstantCommand(drivebaseSubsystem::zeroGyroscope, drivebaseSubsystem));
     will.leftBumper().whileTrue(new DefenseModeCommand(drivebaseSubsystem));
