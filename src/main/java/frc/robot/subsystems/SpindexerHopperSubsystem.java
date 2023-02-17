@@ -9,14 +9,13 @@ import static frc.robot.Constants.SpindexerHopper;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
-
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class SpindexerHopperSubsystem extends SubsystemBase {
-  
+
   /** The modes of the SpindexerHopper subsystem */
   public enum Modes {
     IDLE(SpindexerHopper.Timings.IDLE_DURATION),
@@ -26,8 +25,8 @@ public class SpindexerHopperSubsystem extends SubsystemBase {
     OFF(0);
 
     public final double modeTransitionTime;
-    
-    Modes (double modeTransitionTime) {
+
+    Modes(double modeTransitionTime) {
       this.modeTransitionTime = modeTransitionTime;
     }
   }
@@ -47,20 +46,18 @@ public class SpindexerHopperSubsystem extends SubsystemBase {
    */
   private final ShuffleboardTab tab = Shuffleboard.getTab("SpindexHopper");
 
-
   /** Creates a new SpindexHopper. */
   public SpindexerHopperSubsystem() {
-  
+
     this.spinMotor = new TalonFX(SpindexerHopper.SPIN_MOTOR_PORT);
+    this.spinMotor.setInverted(true);
 
     spinMotor.setNeutralMode(NeutralMode.Brake);
 
     previousTimeOfTransition = 0;
 
     tab.addString("Current Mode", () -> mode.toString());
-
   }
-
 
   /**
    * gets the current mode of the SpindexerHopper subsystem state machine
@@ -71,23 +68,18 @@ public class SpindexerHopperSubsystem extends SubsystemBase {
     return mode;
   }
 
-  /**
-   * sets the current mode of the SpindexerHopper subsystem state machine
-   */
+  /** sets the current mode of the SpindexerHopper subsystem state machine */
   public void setMode(Modes mode) {
 
-    if(this.mode != mode) {
+    if (this.mode != mode) {
       this.previousTimeOfTransition = Timer.getFPGATimestamp();
       this.transitionTime = mode.modeTransitionTime;
     }
     this.mode = mode;
   }
-  
 
-  
   private void idlePeriodic() {
     spinMotor.set(ControlMode.PercentOutput, SpindexerHopper.IDLE_SPEED);
-
   }
 
   private void alignPeriodic() {
@@ -106,7 +98,6 @@ public class SpindexerHopperSubsystem extends SubsystemBase {
     spinMotor.set(ControlMode.PercentOutput, 0);
   }
 
-  
   /**
    * Based on the current Mode of the drivebase, perform the mode-specific logic such as writing
    * outputs (may vary per mode).
@@ -127,15 +118,14 @@ public class SpindexerHopperSubsystem extends SubsystemBase {
       case FINAL:
         finalPeriodic();
         break;
-      case OFF: 
+      case OFF:
         offPeriodic();
-        
     }
   }
 
   private Modes advanceMode(double currentTime, double previousTimeOfTransition, Modes mode) {
-    
-    if((currentTime - previousTimeOfTransition) >= transitionTime) {
+
+    if ((currentTime - previousTimeOfTransition) >= transitionTime) {
       switch (mode) {
         case IDLE:
           return Modes.ALIGN;
@@ -145,14 +135,12 @@ public class SpindexerHopperSubsystem extends SubsystemBase {
           return Modes.FINAL;
         case FINAL:
           return Modes.OFF;
-        case OFF:   
+        case OFF:
           return Modes.OFF;
       }
-
-     }
-     return mode;
+    }
+    return mode;
   }
-
 
   @Override
   public void periodic() {
@@ -160,6 +148,5 @@ public class SpindexerHopperSubsystem extends SubsystemBase {
     setMode(advanceMode(Timer.getFPGATimestamp(), previousTimeOfTransition, mode));
 
     applyMode(mode);
-    
   }
 }

@@ -14,7 +14,6 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import frc.robot.subsystems.IntakeSubsystem.IntakeModes;
 import frc.robot.subsystems.OuttakeSubsystem.OuttakeDetails;
 import java.util.Optional;
 
@@ -277,10 +276,10 @@ public final class Constants {
     }
 
     public static final class TransitionTimes {
-      public static final double DEPLOY_TIMING = 1.0; //FIXME need real value
-      public static final double INTAKE_TIMING = 3; //FIXME need real value
-      public static final double RETRACT_TIMING = 1.0; //FIXME need real value
-      public static final double EJECT_TIMING = 1.5; //FIXME need real value
+      public static final double DEPLOY_TIMING = 1.0; // FIXME need real value
+      public static final double INTAKE_TIMING = 3; // FIXME need real value
+      public static final double RETRACT_TIMING = 1.0; // FIXME need real value
+      public static final double EJECT_TIMING = 1.5; // FIXME need real value
     }
 
     public static final class Speeds {
@@ -291,7 +290,6 @@ public final class Constants {
     }
 
     public static final double ARM_HARDSTOP_CURRENT = 5; // FIRXME need real value
-    
   }
 
   public static final class Outtake {
@@ -327,18 +325,17 @@ public final class Constants {
   }
 
   public static final class SpindexerHopper {
-    
-    public static final int SPIN_MOTOR_PORT = 9; 
-    public static final double IDLE_SPEED = 0.3; 
-    public static final double ALIGN_SPEED = -0.3;
+
+    public static final int SPIN_MOTOR_PORT = 9;
+    public static final double IDLE_SPEED = 0.08;
+    public static final double ALIGN_SPEED = -0.08;
 
     public static final class Timings {
-      public static final double IDLE_DURATION  = 0.9; 
-      public static final double ALIGN_DURATION  = 1;
-      public static final double CLEAR_DURATION  = 0.6;
-      public static final double FINAL_DURATION  = 0.8;
+      public static final double IDLE_DURATION = 2;
+      public static final double ALIGN_DURATION = 2;
+      public static final double CLEAR_DURATION = 1.2;
+      public static final double FINAL_DURATION = 1.6;
     }
-
   }
 
   public static final class NetworkWatchdog {
