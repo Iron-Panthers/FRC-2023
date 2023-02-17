@@ -22,6 +22,7 @@ import frc.util.AsyncWorker;
 import frc.util.AsyncWorker.Result;
 import frc.util.Util;
 import frc.util.pathing.RubenManueverGenerator;
+import java.util.Optional;
 
 public class DriveToPlaceCommand extends CommandBase {
 
@@ -38,7 +39,7 @@ public class DriveToPlaceCommand extends CommandBase {
 
   AsyncWorker trajectGenerator = new AsyncWorker();
 
-  Result<PathPlannerTrajectory> trajectoryResult;
+  Result<Optional<PathPlannerTrajectory>> trajectoryResult;
 
   double generationTime;
   boolean hasObserved;
@@ -89,25 +90,23 @@ public class DriveToPlaceCommand extends CommandBase {
     return Rotation2d.fromRadians(angle);
   }
 
-  private Result<PathPlannerTrajectory> asyncPathGen(
+  private Result<Optional<PathPlannerTrajectory>> asyncPathGen(
       PathConstraints constraints, PathPoint initialPoint, PathPoint finalPoint) {
     return trajectGenerator.submit(
-        () -> PathPlanner.generatePath(constraints, initialPoint, finalPoint));
+        () -> Optional.of(PathPlanner.generatePath(constraints, initialPoint, finalPoint)));
   }
 
-  private Result<PathPlannerTrajectory> createObservationTrajectory() {
+  private Result<Optional<PathPlannerTrajectory>> createObservationTrajectory() {
     System.out.println("gen observation trajectory");
     hasObserved = true;
     var currentPose = drivebaseSubsystem.getPose();
 
     return trajectGenerator.submit(
         () ->
-            manueverGenerator
-                .computePath(currentPose, observationPose, new PathConstraints(5, 2))
-                .get());
+            manueverGenerator.computePath(currentPose, observationPose, new PathConstraints(5, 2)));
   }
 
-  private Result<PathPlannerTrajectory> createAdjustTrajectory() {
+  private Result<Optional<PathPlannerTrajectory>> createAdjustTrajectory() {
     System.out.println("gen adjust trajectory");
     var currentPose = drivebaseSubsystem.getPose();
     // not from in motion
@@ -129,7 +128,9 @@ public class DriveToPlaceCommand extends CommandBase {
   }
 
   private boolean finishedPath() {
-    var optTraject = trajectoryResult.get();
+    var optOptTraject = trajectoryResult.get();
+    if (!optOptTraject.isPresent()) return false;
+    var optTraject = optOptTraject.get();
     return optTraject.isPresent()
         && ((Timer.getFPGATimestamp() - generationTime)
             > (optTraject.get().getTotalTimeSeconds() + observationTime));
@@ -157,9 +158,14 @@ public class DriveToPlaceCommand extends CommandBase {
     // drive the trajectory when it is ready
     trajectoryResult.subscribe(
         trajectory -> {
+          if (trajectory.isEmpty() || trajectory.get().isEmpty()) {
+            System.out.println("trajectory is empty");
+            this.cancel();
+            return;
+          }
           System.out.println("received finished trajectory, driving");
           generationTime = Timer.getFPGATimestamp();
-          follower.follow(trajectory.get());
+          follower.follow(trajectory.get().get());
         });
   }
 
@@ -177,25 +183,28 @@ public class DriveToPlaceCommand extends CommandBase {
     // trigger trajectory following when the trajectory is ready
     trajectGenerator.heartbeat();
 
-    var optTrajectory = trajectoryResult.get();
-    if (optTrajectory.isPresent()) {
-      var trajectory = optTrajectory.get();
-      // print the distance to the final pose
-      var fP =
-          ((PathPlannerState)
-              trajectory
-                  // sample the final position using the time greater than total time behavior
-                  .sample(trajectory.getTotalTimeSeconds() + 1));
-      System.out.println(
-          String.format(
-              "xy err: %8f theta err: %8f trajectoryTime: %8f",
-              drivebaseSubsystem
-                  .getPose()
-                  .getTranslation()
-                  .getDistance(fP.poseMeters.getTranslation()),
-              Util.relativeAngularDifference(
-                  drivebaseSubsystem.getPose().getRotation(), fP.holonomicRotation),
-              trajectory.getTotalTimeSeconds()));
+    var optOptTrajectory = trajectoryResult.get();
+    if (optOptTrajectory.isPresent()) {
+      var optTrajectory = optOptTrajectory.get();
+      if (optTrajectory.isPresent()) {
+        var trajectory = optTrajectory.get();
+        // print the distance to the final pose
+        var fP =
+            ((PathPlannerState)
+                trajectory
+                    // sample the final position using the time greater than total time behavior
+                    .sample(trajectory.getTotalTimeSeconds() + 1));
+        System.out.println(
+            String.format(
+                "xy err: %8f theta err: %8f trajectoryTime: %8f",
+                drivebaseSubsystem
+                    .getPose()
+                    .getTranslation()
+                    .getDistance(fP.poseMeters.getTranslation()),
+                Util.relativeAngularDifference(
+                    drivebaseSubsystem.getPose().getRotation(), fP.holonomicRotation),
+                trajectory.getTotalTimeSeconds()));
+      }
     }
 
     if (finishedPath()) {
