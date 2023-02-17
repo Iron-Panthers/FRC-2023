@@ -149,7 +149,7 @@ public final class Constants {
               // up 17.422 inches
               new Translation3d(
                   0.1778, // front/back
-                  0.2506218, // right/left
+                  0.2506218, // left/right
                   0.4425188 // up/down
                   ),
               new Rotation3d(
@@ -162,12 +162,12 @@ public final class Constants {
       public static final String NAME = "backCam";
       public static final Transform3d ROBOT_TO_CAM =
           new Transform3d(
-              // 9.867 in to the left looking from behind the front of the robot
+              // 9.867 in to the right looking from behind the front of the robot
               // 48.5 inches up
               // two inches forward
               new Translation3d(
                   0.0508, // front/back
-                  -0.2506218, // right/left
+                  -0.2506218, // left/right
                   1.2319 // up/down
                   ),
               new Rotation3d(0, Math.toRadians(-17), Math.PI));
