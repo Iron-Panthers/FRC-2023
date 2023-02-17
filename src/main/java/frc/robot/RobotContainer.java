@@ -29,8 +29,8 @@ import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.VibrateControllerCommand;
 import frc.robot.subsystems.DrivebaseSubsystem;
-import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.NetworkWatchdogSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.util.ControllerUtil;
 import frc.util.Layer;
 import frc.util.MacUtil;
@@ -179,7 +179,9 @@ public class RobotContainer {
                 drivebaseSubsystem,
                 visionSubsystem,
                 manueverGenerator,
-                new Pose2d(1.8, .5, Rotation2d.fromDegrees(180))));
+                new Pose2d(2.5, 1, Rotation2d.fromDegrees(180)),
+                new Pose2d(1.8, .5, Rotation2d.fromDegrees(180)),
+                .05));
 
     will.y()
         .onTrue(
