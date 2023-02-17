@@ -6,7 +6,7 @@ import frc.robot.subsystems.IntakeSubsystem.IntakeModes;
 
 public class ForceIntakeCommand extends CommandBase{
     
-    private IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+    private IntakeSubsystem intakeSubsystem;
 
     private IntakeModes mode, endMode;
 

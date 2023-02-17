@@ -39,7 +39,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private TalonFX intakeMotor;
 
-  private final ShuffleboardTab tab = Shuffleboard.getTab("Intake");
+  private final ShuffleboardTab tab = Shuffleboard.getTab("Intake2");
 
   private LinearFilter armFilter;
   private LinearFilter intakeFilter;
@@ -71,7 +71,7 @@ public class IntakeSubsystem extends SubsystemBase {
     previousTransitionTime = 0;
     modeLock = false;
 
-    tab.addString("Current mode", () -> this.mode.toString());
+    tab.addString("Current mode for intake", () -> this.mode.toString());
   }
 
   /**

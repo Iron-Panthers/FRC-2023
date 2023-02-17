@@ -13,7 +13,5 @@ public class DefaultIntakeCommand extends SequentialCommandGroup {
         this.intakeSubsystem = intakeSubsystem;
 
         addCommands(new IntakeCommand(intakeSubsystem, IntakeModes.DEPLOY), new ForceIntakeCommand(intakeSubsystem, IntakeModes.INTAKE, IntakeModes.RETRACT));
-
     }
-
 }
