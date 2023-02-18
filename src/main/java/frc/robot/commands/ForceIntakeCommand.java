@@ -31,4 +31,9 @@ public class ForceIntakeCommand extends CommandBase{
         intakeSubsystem.unlockMode();
         intakeSubsystem.setMode(endMode);
     }
+
+    @Override
+    public boolean isFinished() {
+        return false;
+    }
 }

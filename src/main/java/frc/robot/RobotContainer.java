@@ -231,8 +231,8 @@ public class RobotContainer {
             new ArmPositionCommand(
                 armSubsystem, Arm.Setpoints.ShelfIntake.ANGLE, Arm.Setpoints.ShelfIntake.EXTENSION))
         .whileTrue(new ForceOuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
-    jasonLayer
-        .off(jason.y()).onTrue(new StartSpindexerHopperCommand(spindexerHopperSubsystem, SpindexerHopperSubsystem.Modes.IDLE));
+    //jasonLayer
+      //  .off(jason.y()).onTrue(new StartSpindexerHopperCommand(spindexerHopperSubsystem, SpindexerHopperSubsystem.Modes.IDLE));
         /*.onTrue(
             new ArmPositionCommand(
                 armSubsystem,
@@ -260,8 +260,8 @@ public class RobotContainer {
         .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));*/
     jasonLayer
         .on(jason.x())
-        .whileTrue(
-            new DefaultIntakeCommand(intakeSubsystem));
+        .onTrue(
+            new DefaultIntakeCommand(intakeSubsystem, spindexerHopperSubsystem, jason.x()));
     jasonLayer.on(jason.leftBumper()).onTrue(new StartSpindexerHopperCommand(spindexerHopperSubsystem, SpindexerHopperSubsystem.Modes.IDLE));
   }
 
