@@ -200,12 +200,13 @@ public class RobotContainer {
                     manueverGenerator,
                     new Pose2d(1.8, .5, Rotation2d.fromDegrees(180)))
                 .alongWith(
-                    new WaitCommand(2)
-                        .andThen(
-                            new ArmPositionCommand(
-                                armSubsystem,
-                                Arm.Setpoints.ScoreMid.ANGLE,
-                                Arm.Setpoints.Extensions.MIN_EXTENSION)))
+                    new ArmPositionCommand(armSubsystem, 0, Arm.Setpoints.Extensions.MIN_EXTENSION)
+                        .raceWith(new WaitCommand(.5)))
+                .andThen(
+                    new ArmPositionCommand(
+                        armSubsystem,
+                        Arm.Setpoints.ScoreMid.ANGLE,
+                        Arm.Setpoints.Extensions.MIN_EXTENSION))
                 .andThen(
                     new ArmPositionCommand(
                             armSubsystem,
@@ -228,7 +229,7 @@ public class RobotContainer {
                         .raceWith(new WaitCommand(.25)))
                 .andThen(
                     new ArmPositionCommand(armSubsystem, 0, Arm.Setpoints.Extensions.MIN_EXTENSION)
-                        .raceWith(new WaitCommand(.25)))
+                        .raceWith(new WaitCommand(.5)))
                 .andThen(
                     new DriveToPlaceCommand(
                         drivebaseSubsystem,
