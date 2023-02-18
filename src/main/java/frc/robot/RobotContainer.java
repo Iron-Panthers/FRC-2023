@@ -36,7 +36,6 @@ import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.VibrateControllerCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
-import frc.robot.subsystems.NetworkWatchdogSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem.Modes;
 import frc.robot.subsystems.VisionSubsystem;
@@ -62,7 +61,8 @@ public class RobotContainer {
 
   private final RubenManueverGenerator manueverGenerator = new RubenManueverGenerator();
 
-  private final NetworkWatchdogSubsystem networkWatchdogSubsystem = new NetworkWatchdogSubsystem();
+  //   private final NetworkWatchdogSubsystem networkWatchdogSubsystem = new
+  // NetworkWatchdogSubsystem();
 
   private final ArmSubsystem armSubsystem = new ArmSubsystem();
 
@@ -130,7 +130,7 @@ public class RobotContainer {
    */
   public void containerMatchStarting() {
     // runs when the match starts
-    networkWatchdogSubsystem.matchStarting();
+    // networkWatchdogSubsystem.matchStarting();
   }
 
   /**
@@ -198,9 +198,7 @@ public class RobotContainer {
                     drivebaseSubsystem,
                     visionSubsystem,
                     manueverGenerator,
-                    new Pose2d(2.5, 1, Rotation2d.fromDegrees(180)),
-                    new Pose2d(1.8, .5, Rotation2d.fromDegrees(180)),
-                    .05)
+                    new Pose2d(1.8, .5, Rotation2d.fromDegrees(180)))
                 .alongWith(
                     new WaitCommand(2)
                         .andThen(
