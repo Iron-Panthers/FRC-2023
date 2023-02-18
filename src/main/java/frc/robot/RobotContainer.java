@@ -198,7 +198,9 @@ public class RobotContainer {
                     drivebaseSubsystem,
                     visionSubsystem,
                     manueverGenerator,
-                    new Pose2d(1.8, .5, Rotation2d.fromDegrees(180)))
+                    new Pose2d(2.5, 1, Rotation2d.fromDegrees(180)),
+                    new Pose2d(1.8, .5, Rotation2d.fromDegrees(180)),
+                    .05)
                 .alongWith(
                     new ArmPositionCommand(armSubsystem, 0, Arm.Setpoints.Extensions.MIN_EXTENSION)
                         .raceWith(new WaitCommand(.5)))
