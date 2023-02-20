@@ -8,6 +8,7 @@ import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.LarsonAnimation;
 import com.ctre.phoenix.led.RainbowAnimation;
+import com.ctre.phoenix.led.SingleFadeAnimation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Lights;
 
@@ -34,10 +35,14 @@ public class RGBSubsystem extends SubsystemBase {
 
     // start the rainbow
 
-    showColor(Lights.Colors.YELLOW);
+    showPulseColor(Lights.Colors.PURPLE);
   }
 
-  public void showColor(RGBColor color) {
+  public void showPulseColor(RGBColor color) {
+    candle.animate(new SingleFadeAnimation(color.r, color.g, color.b, 0, .7, Lights.NUM_LEDS));
+  }
+
+  public void showBounceColor(RGBColor color) {
     candle.animate(
         new LarsonAnimation(
             color.r,
