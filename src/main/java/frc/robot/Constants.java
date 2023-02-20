@@ -271,7 +271,7 @@ public final class Constants {
 
   public static final class Outtake {
     public static final class Ports {
-      public static final int OUTTAKE_MOTOR = 17; // Placeholder value
+      public static final int OUTTAKE_MOTOR = 8; // Placeholder value
       public static final int OUTTAKE_ENCODER = 0; // PLaceholder value
     }
 
