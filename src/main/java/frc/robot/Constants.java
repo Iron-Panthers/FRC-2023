@@ -138,8 +138,8 @@ public final class Constants {
 
   public static final class Arm {
     public static final class Ports {
-      public static final int ARM_MOTOR_PORT = 14;
-      public static final int TELESCOPING_MOTOR_PORT = 16; // TODO: find CAN ID
+      public static final int ARM_MOTOR_PORT = 16;
+      public static final int TELESCOPING_MOTOR_PORT = 17; // TODO: find CAN ID
       public static final int ENCODER_PORT = 28;
     }
 
