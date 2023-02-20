@@ -35,7 +35,7 @@ public class RGBSubsystem extends SubsystemBase {
 
     // start the rainbow
 
-    showPulseColor(Lights.Colors.PURPLE);
+    showRainbow();
   }
 
   public void showPulseColor(RGBColor color) {
