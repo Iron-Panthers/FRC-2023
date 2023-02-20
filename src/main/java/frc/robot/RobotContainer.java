@@ -29,6 +29,7 @@ import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.VibrateControllerCommand;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.NetworkWatchdogSubsystem;
+import frc.robot.subsystems.RGBSubsystem;
 import frc.util.ControllerUtil;
 import frc.util.Layer;
 import frc.util.MacUtil;
@@ -47,6 +48,8 @@ public class RobotContainer {
   private final DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem();
 
   private final NetworkWatchdogSubsystem networkWatchdogSubsystem = new NetworkWatchdogSubsystem();
+
+  private final RGBSubsystem rgbSubsystem = new RGBSubsystem();
 
   /** controller 1 */
   private final CommandXboxController jason = new CommandXboxController(1);

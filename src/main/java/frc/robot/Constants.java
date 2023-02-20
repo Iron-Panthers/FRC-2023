@@ -217,4 +217,9 @@ public final class Constants {
      */
     public static final int SWITCH_POWERCYCLE_SCAN_DELAY_MS = 6_000;
   }
+
+  public static final class RGB {
+    public static final int CANDLE_ID = 34;
+    public static final int NUM_LEDS = 150;
+  }
 }
