@@ -145,7 +145,7 @@ public final class Constants {
 
     public static final double GRAVITY_CONTROL_PERCENT = 0.07;
 
-    public static final double ANGULAR_OFFSET = 8;
+    public static final double ANGULAR_OFFSET = -8.75;
 
     public static final class Setpoints {
       public static final class ScoreLow {
@@ -181,7 +181,7 @@ public final class Constants {
       }
 
       public static final class Extensions {
-        public static final double MAX_EXTENSION = 10;
+        public static final double MAX_EXTENSION = 18.5;
         public static final double MIN_EXTENSION = 0;
       }
     }
