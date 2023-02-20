@@ -138,14 +138,14 @@ public final class Constants {
 
   public static final class Arm {
     public static final class Ports {
-      public static final int ARM_MOTOR_PORT = 14;
-      public static final int TELESCOPING_MOTOR_PORT = 16; // TODO: find CAN ID
+      public static final int ARM_MOTOR_PORT = 16;
+      public static final int TELESCOPING_MOTOR_PORT = 17; // TODO: find CAN ID
       public static final int ENCODER_PORT = 28;
     }
 
     public static final double GRAVITY_CONTROL_PERCENT = 0.07;
 
-    public static final double ANGULAR_OFFSET = 8;
+    public static final double ANGULAR_OFFSET = -8.75;
 
     public static final class Setpoints {
       public static final class ScoreLow {
@@ -165,7 +165,7 @@ public final class Constants {
       }
 
       public static final class GroundIntake {
-        public static final int ANGLE = 30;
+        public static final int ANGLE = 40;
         public static final double EXTENSION = Extensions.MAX_EXTENSION;
       }
 
@@ -182,11 +182,14 @@ public final class Constants {
       }
 
       public static final class Extensions {
-        public static final double MAX_EXTENSION = 10;
+        public static final double MAX_EXTENSION = 18.5;
         public static final double MIN_EXTENSION = 0;
       }
     }
 
+    public static final double EXTENSION_STATORLIMIT = 80;
+
+    public static final double ZERO_RETRACTION_PERCENT = -0.4; // FIXME
     public static final int TICKS = 2048;
     public static final int TELESCOPING_ARM_GEAR_RATIO = 3;
     public static final double SPOOL_CIRCUMFERENCE = 1.5 * Math.PI;
