@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
 import frc.robot.autonomous.commands.AutoTestSequence;
+import frc.robot.autonomous.commands.BrandonAutoTestSequence;
 import frc.robot.autonomous.commands.IanDemoAutoSequence;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
@@ -284,7 +285,7 @@ public class RobotContainer {
                     armSubsystem,
                     Arm.Setpoints.ScoreMid.CAPPED_ANGLE,
                     Arm.Setpoints.ScoreMid.EXTENSION)
-                .alongWith(new OuttakeCommand(outtakeSubsystem, Modes.OFF)));
+                .alongWith(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF)));
     jasonLayer
         .on(jason.y())
         .whileTrue(
@@ -312,6 +313,10 @@ public class RobotContainer {
     autoSelector.addOption(
         "[NEW] IanAuto",
         new IanDemoAutoSequence(5, 3, drivebaseSubsystem, visionSubsystem, manueverGenerator));
+
+    autoSelector.addOption(
+        "Brandon Auto",
+        new BrandonAutoTestSequence(5, 3, drivebaseSubsystem, armSubsystem, outtakeSubsystem));
 
     Shuffleboard.getTab("DriverView")
         .add("auto selector", autoSelector)
