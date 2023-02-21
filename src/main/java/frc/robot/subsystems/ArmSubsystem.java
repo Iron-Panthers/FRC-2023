@@ -15,6 +15,9 @@ import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -30,7 +33,7 @@ public class ArmSubsystem extends SubsystemBase {
   // TO DO: ADD VOLTAGE LIMITERS!!!
 
   private final TalonFX angleMotor;
-  private final PIDController angleController;
+  private final ProfiledPIDController angleController;
   private final CANCoder angleEncoder;
   private double targetAngleDegrees; // measured in degrees
 
@@ -60,7 +63,7 @@ public class ArmSubsystem extends SubsystemBase {
     extensionMotor.setNeutralMode(NeutralMode.Brake);
 
     extensionMotor.configFactoryDefault();
-    extensionMotor.setInverted(true);
+    extensionMotor.setInverted(false);
     angleMotor.setInverted(true);
 
     extensionMotor.configForwardSoftLimitThreshold(
@@ -72,7 +75,7 @@ public class ArmSubsystem extends SubsystemBase {
     extensionMotor.configForwardSoftLimitEnable(true, 20);
     extensionMotor.configReverseSoftLimitEnable(true, 20);
 
-    angleController = new PIDController(0.007, 0, 0);
+    angleController = new ProfiledPIDController(0.016, 0, 0, new TrapezoidProfile.Constraints(360, 360));
     extensionController = new PIDController(0.48, 0, 0); // within 0.1 inches of accuracy
     angleController.setTolerance(5); // FIXME not sure if these are good values
     extensionController.setTolerance(0.2);
