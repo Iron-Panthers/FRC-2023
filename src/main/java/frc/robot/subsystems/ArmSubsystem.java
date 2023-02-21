@@ -33,7 +33,7 @@ public class ArmSubsystem extends SubsystemBase {
   // TO DO: ADD VOLTAGE LIMITERS!!!
 
   private final TalonFX angleMotor;
-  private final ProfiledPIDController angleController;
+  private final PIDController angleController;
   private final CANCoder angleEncoder;
   private double targetAngleDegrees; // measured in degrees
 
@@ -75,7 +75,7 @@ public class ArmSubsystem extends SubsystemBase {
     extensionMotor.configForwardSoftLimitEnable(true, 20);
     extensionMotor.configReverseSoftLimitEnable(true, 20);
 
-    angleController = new ProfiledPIDController(0.016, 0, 0, new TrapezoidProfile.Constraints(360, 360));
+    angleController = new PIDController(.019, 0, 0);
     extensionController = new PIDController(0.48, 0, 0); // within 0.1 inches of accuracy
     angleController.setTolerance(5); // FIXME not sure if these are good values
     extensionController.setTolerance(0.2);
@@ -119,7 +119,7 @@ public class ArmSubsystem extends SubsystemBase {
         this::currentOrTargetAnglePassesUnsafeRange);
     tab.addNumber("Arm Gravity Offset", this::computeArmGravityOffset);
     tab.addNumber("Angle Output", () -> angleOutput);
-    tab.addNumber("Angle Error", () -> Math.abs(targetAngleDegrees - getAngle()));
+    tab.addNumber("Angle Error", () -> targetAngleDegrees - getAngle());
     tab.addBoolean("At target", this::atTarget);
     tab.addString("Current Mode", () -> mode.toString());
     tab.addNumber("Stator current", () -> this.extensionMotor.getStatorCurrent());
@@ -280,7 +280,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     angleOutput = angleController.calculate(currentAngle, computeIntermediateAngleGoal());
     angleMotor.set(
-        ControlMode.PercentOutput, MathUtil.clamp(angleOutput + armGravityOffset, -.7, .7));
+        ControlMode.PercentOutput, MathUtil.clamp(angleOutput + armGravityOffset, -1, 1));
     extensionMotor.set(ControlMode.PercentOutput, MathUtil.clamp(extensionOutput, -.2, .2));
   }
 }
