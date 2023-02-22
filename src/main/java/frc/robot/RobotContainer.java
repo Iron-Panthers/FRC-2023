@@ -44,6 +44,7 @@ import frc.util.ControllerUtil;
 import frc.util.Layer;
 import frc.util.MacUtil;
 import frc.util.Util;
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -57,13 +58,14 @@ public class RobotContainer {
 
   private final DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem();
 
-  private final NetworkWatchdogSubsystem networkWatchdogSubsystem = new NetworkWatchdogSubsystem();
+  private final RGBSubsystem rgbSubsystem = new RGBSubsystem();
+
+  private final NetworkWatchdogSubsystem networkWatchdogSubsystem =
+      new NetworkWatchdogSubsystem(Optional.of(rgbSubsystem));
 
   private final ArmSubsystem armSubsystem = new ArmSubsystem();
 
   private final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
-
-  private final RGBSubsystem rgbSubsystem = new RGBSubsystem();
 
   /** controller 1 */
   private final CommandXboxController jason = new CommandXboxController(1);
