@@ -80,7 +80,7 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
               if (initialUptimeMS < NetworkWatchdog.BOOT_SCAN_DELAY_MS) {
                 rgbSubsystem.ifPresent(
                     r -> {
-                      r.showPulseColor(Lights.Colors.BLUE);
+                      r.showPulseColor(Lights.Colors.MINT);
                     });
                 sleep(NetworkWatchdog.BOOT_SCAN_DELAY_MS - initialUptimeMS);
               }
@@ -91,7 +91,7 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
                 if (canPing(NetworkWatchdog.TEST_IP_ADDRESS)) {
                   rgbSubsystem.ifPresent(
                       r -> {
-                        r.showBounceColor(Lights.Colors.BLUE);
+                        r.showBounceColor(Lights.Colors.MINT);
                       });
                   System.out.println(
                       "[network watchdog] Pinged "
