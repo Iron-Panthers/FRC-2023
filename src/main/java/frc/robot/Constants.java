@@ -336,11 +336,14 @@ public final class Constants {
 
   public static final class Lights {
     public static final int CANDLE_ID = 34;
-    public static final int NUM_LEDS = 150;
+    public static final int NUM_LEDS = 91
+    // 8 inside the candle
+    + 8;
 
     public static final class Colors {
       public static final RGBColor YELLOW = new RGBColor(255, 255, 0);
       public static final RGBColor PURPLE = new RGBColor(127, 0, 127);
+      public static final RGBColor RED = new RGBColor(255,0,0);
     }
   }
 }

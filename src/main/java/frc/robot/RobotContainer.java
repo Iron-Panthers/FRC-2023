@@ -259,6 +259,7 @@ public class RobotContainer {
     jason.povUp().onTrue(new SetLightsCommand(rgbSubsystem, Lights.Colors.PURPLE));
     jason.povDown().onTrue(new SetLightsCommand(rgbSubsystem, Lights.Colors.YELLOW));
     jason.povRight().onTrue(new InstantCommand(rgbSubsystem::showRainbow, rgbSubsystem));
+    jason.povLeft().onTrue(new InstantCommand(() -> rgbSubsystem.showBounceColor(Lights.Colors.RED), rgbSubsystem));
   }
 
   /**
