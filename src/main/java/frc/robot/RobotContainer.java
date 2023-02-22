@@ -39,7 +39,6 @@ import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.NetworkWatchdogSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
-import frc.robot.subsystems.OuttakeSubsystem.Modes;
 import frc.robot.subsystems.RGBSubsystem;
 import frc.util.ControllerUtil;
 import frc.util.Layer;
@@ -247,7 +246,7 @@ public class RobotContainer {
                     armSubsystem,
                     Arm.Setpoints.ScoreMid.CAPPED_ANGLE,
                     Arm.Setpoints.ScoreMid.EXTENSION)
-                .alongWith(new OuttakeCommand(outtakeSubsystem, Modes.OFF)));
+                .alongWith(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF)));
     jasonLayer
         .on(jason.y())
         .whileTrue(
