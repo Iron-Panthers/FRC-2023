@@ -60,17 +60,17 @@ public class ArmSubsystem extends SubsystemBase {
     extensionMotor.setNeutralMode(NeutralMode.Brake);
 
     extensionMotor.configFactoryDefault();
-    extensionMotor.setInverted(false);
+    extensionMotor.setInverted(true);
     angleMotor.setInverted(true);
 
-    extensionMotor.configForwardSoftLimitThreshold(
-        inchesLengthToTicks(Arm.Setpoints.Extensions.MAX_EXTENSION), 20); // this is the top limit
     extensionMotor.configReverseSoftLimitThreshold(
+        inchesLengthToTicks(Arm.Setpoints.Extensions.MAX_EXTENSION), 20); // this is the top
+    extensionMotor.configForwardSoftLimitThreshold(
         inchesLengthToTicks(Arm.Setpoints.Extensions.MIN_EXTENSION),
         20); // this is the bottom limit
 
-    extensionMotor.configForwardSoftLimitEnable(true, 20);
-    extensionMotor.configReverseSoftLimitEnable(true, 20);
+    extensionMotor.configForwardSoftLimitEnable(false, 20);
+    extensionMotor.configReverseSoftLimitEnable(false, 20);
 
     angleController = new PIDController(.019, 0, 0);
     extensionController = new PIDController(0.48, 0, 0); // within 0.1 inches of accuracy
@@ -277,6 +277,6 @@ public class ArmSubsystem extends SubsystemBase {
     angleOutput = angleController.calculate(currentAngle, computeIntermediateAngleGoal());
     angleMotor.set(
         ControlMode.PercentOutput, MathUtil.clamp(angleOutput + armGravityOffset, -1, 1));
-    extensionMotor.set(ControlMode.PercentOutput, MathUtil.clamp(extensionOutput, -.2, .2));
+    extensionMotor.set(ControlMode.PercentOutput, MathUtil.clamp(extensionOutput, -.5, .5));
   }
 }
