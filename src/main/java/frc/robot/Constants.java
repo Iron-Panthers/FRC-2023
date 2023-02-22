@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import frc.robot.subsystems.RGBSubsystem.RGBColor;
 
 @SuppressWarnings("java:S1118")
 /**
@@ -216,5 +217,15 @@ public final class Constants {
      * switch reboot.
      */
     public static final int SWITCH_POWERCYCLE_SCAN_DELAY_MS = 6_000;
+  }
+
+  public static final class Lights {
+    public static final int CANDLE_ID = 34;
+    public static final int NUM_LEDS = 150;
+
+    public static final class Colors {
+      public static final RGBColor YELLOW = new RGBColor(255, 255, 0);
+      public static final RGBColor PURPLE = new RGBColor(127, 0, 127);
+    }
   }
 }
