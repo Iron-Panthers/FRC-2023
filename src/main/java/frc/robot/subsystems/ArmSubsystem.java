@@ -15,9 +15,6 @@ import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.filter.LinearFilter;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -141,7 +138,6 @@ public class ArmSubsystem extends SubsystemBase {
     extensionMotor.configForwardSoftLimitEnable(false, 20);
     extensionMotor.configReverseSoftLimitEnable(false, 20);
     mode = Modes.ZERO;
-
   }
 
   /* methods for angle arm control */

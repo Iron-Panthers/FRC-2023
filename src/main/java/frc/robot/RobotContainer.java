@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
+import frc.robot.Constants.Lights;
 import frc.robot.autonomous.commands.AutoTestSequence;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
@@ -31,6 +32,7 @@ import frc.robot.commands.HaltDriveCommandsCommand;
 import frc.robot.commands.OuttakeCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
+import frc.robot.commands.SetLightsCommand;
 import frc.robot.commands.SetZeroModeCommand;
 import frc.robot.commands.VibrateControllerCommand;
 import frc.robot.subsystems.ArmSubsystem;
@@ -38,6 +40,7 @@ import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.NetworkWatchdogSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem.Modes;
+import frc.robot.subsystems.RGBSubsystem;
 import frc.util.ControllerUtil;
 import frc.util.Layer;
 import frc.util.MacUtil;
@@ -60,6 +63,8 @@ public class RobotContainer {
   private final ArmSubsystem armSubsystem = new ArmSubsystem();
 
   private final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
+
+  private final RGBSubsystem rgbSubsystem = new RGBSubsystem();
 
   /** controller 1 */
   private final CommandXboxController jason = new CommandXboxController(1);
@@ -237,8 +242,12 @@ public class RobotContainer {
         .whileTrue(
             new ArmPositionCommand(
                 armSubsystem, Arm.Setpoints.ScoreMid.ANGLE, Arm.Setpoints.ScoreMid.EXTENSION))
-        .onFalse(new ArmPositionCommand(
-            armSubsystem, Arm.Setpoints.ScoreMid.CAPPED_ANGLE, Arm.Setpoints.ScoreMid.EXTENSION).alongWith(new OuttakeCommand(outtakeSubsystem, Modes.OFF)));
+        .onFalse(
+            new ArmPositionCommand(
+                    armSubsystem,
+                    Arm.Setpoints.ScoreMid.CAPPED_ANGLE,
+                    Arm.Setpoints.ScoreMid.EXTENSION)
+                .alongWith(new OuttakeCommand(outtakeSubsystem, Modes.OFF)));
     jasonLayer
         .on(jason.y())
         .whileTrue(
@@ -246,6 +255,11 @@ public class RobotContainer {
                 armSubsystem, Arm.Setpoints.ScoreHigh.ANGLE, Arm.Setpoints.ScoreHigh.EXTENSION))
         .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
     jason.start().onTrue(new SetZeroModeCommand(armSubsystem));
+
+    // control the lights
+    jason.povUp().onTrue(new SetLightsCommand(rgbSubsystem, Lights.Colors.PURPLE));
+    jason.povDown().onTrue(new SetLightsCommand(rgbSubsystem, Lights.Colors.YELLOW));
+    jason.povRight().onTrue(new InstantCommand(rgbSubsystem::showRainbow, rgbSubsystem));
   }
 
   /**
