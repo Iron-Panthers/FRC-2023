@@ -11,6 +11,8 @@ import com.ctre.phoenix.led.RainbowAnimation;
 import com.ctre.phoenix.led.SingleFadeAnimation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Lights;
+import java.util.Collections;
+import java.util.PriorityQueue;
 
 public class RGBSubsystem extends SubsystemBase {
   public static class RGBColor {
@@ -25,7 +27,46 @@ public class RGBSubsystem extends SubsystemBase {
     }
   }
 
+  public static enum MessagePriority {
+    CRITICAL_NETWORK_FAILURE,
+    DRIVER_CONTROLLED_COLOR,
+    MISSING_PHOTONVISION_CLIENTS,
+  }
+
+  public static enum PatternTypes {
+    PULSE,
+    BOUNCE
+  }
+
+  public static class RGBMessage {
+    private final RGBColor color;
+    private final PatternTypes pattern;
+    private final MessagePriority priority;
+    private boolean isExpired = false;
+
+    private RGBMessage(RGBColor color, PatternTypes pattern, MessagePriority priority) {
+      this.color = color;
+      this.pattern = pattern;
+      this.priority = priority;
+    }
+
+    public void expire() {
+      isExpired = true;
+    }
+
+    public int compareTo(RGBMessage other) {
+      return priority.compareTo(other.priority);
+    }
+  }
+
   private final CANdle candle;
+
+  /**
+   * The priority queue of messages to display. Messages with higher priority are displayed first.
+   */
+  private final PriorityQueue<RGBMessage> messageQueue =
+      new PriorityQueue<>(Collections.reverseOrder());
+
   /** Creates a new RGBSubsystem. */
   public RGBSubsystem() {
     candle = new CANdle(Lights.CANDLE_ID);
@@ -38,11 +79,27 @@ public class RGBSubsystem extends SubsystemBase {
     showRainbow();
   }
 
-  public void showPulseColor(RGBColor color) {
+  /**
+   * Shows a message on the LEDs. Caller is responsible for expiring the message when it is no
+   * longer needed. Priority determines the order in which messages are displayed. Equal priority
+   * message order is undefined.
+   *
+   * @param color The color to display
+   * @param pattern The pattern to display it with
+   * @param priority The priority of the message
+   * @return The message object that was created, which can be used to expire the message
+   */
+  public RGBMessage showMessage(RGBColor color, PatternTypes pattern, MessagePriority priority) {
+    RGBMessage message = new RGBMessage(color, pattern, priority);
+    messageQueue.add(message);
+    return message;
+  }
+
+  private void showPulseColor(RGBColor color) {
     candle.animate(new SingleFadeAnimation(color.r, color.g, color.b, 0, .7, Lights.NUM_LEDS));
   }
 
-  public void showBounceColor(RGBColor color) {
+  private void showBounceColor(RGBColor color) {
     candle.animate(
         new LarsonAnimation(
             color.r,
@@ -55,12 +112,34 @@ public class RGBSubsystem extends SubsystemBase {
             7));
   }
 
-  public void showRainbow() {
+  private void showMessage(RGBMessage message) {
+    if (message.pattern == PatternTypes.PULSE) {
+      showPulseColor(message.color);
+    } else if (message.pattern == PatternTypes.BOUNCE) {
+      showBounceColor(message.color);
+    }
+  }
+
+  private void showRainbow() {
     candle.animate(new RainbowAnimation(.2, .5, Lights.NUM_LEDS));
   }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    boolean isMessageDisplayed = false;
+    while (!messageQueue.isEmpty()) {
+      RGBMessage message = messageQueue.peek();
+      if (message.isExpired) {
+        messageQueue.remove();
+        continue;
+      }
+
+      showMessage(message);
+      isMessageDisplayed = true;
+    }
+
+    if (!isMessageDisplayed) {
+      showRainbow();
+    }
   }
 }

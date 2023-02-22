@@ -27,6 +27,8 @@ import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
+import frc.robot.commands.ForceLightsColorCommand;
+import frc.robot.commands.ForceOuttakeCommand;
 import frc.robot.commands.ForceOuttakeSubsystemModeCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
@@ -262,14 +264,12 @@ public class RobotContainer {
     jason.start().onTrue(new SetZeroModeCommand(armSubsystem));
 
     // control the lights
-    jason.povUp().onTrue(new SetLightsCommand(rgbSubsystem, Lights.Colors.PURPLE));
-    jason.povDown().onTrue(new SetLightsCommand(rgbSubsystem, Lights.Colors.YELLOW));
-    jason.povRight().onTrue(new InstantCommand(rgbSubsystem::showRainbow, rgbSubsystem));
     jason
-        .povLeft()
-        .onTrue(
-            new InstantCommand(
-                () -> rgbSubsystem.showBounceColor(Lights.Colors.RED), rgbSubsystem));
+        .povUp()
+        .onTrue(new ForceLightsColorCommand(rgbSubsystem, Lights.Colors.PURPLE).withTimeout(10));
+    jason
+        .povDown()
+        .onTrue(new ForceLightsColorCommand(rgbSubsystem, Lights.Colors.YELLOW).withTimeout(10));
   }
 
   /**
