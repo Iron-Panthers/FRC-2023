@@ -140,7 +140,7 @@ public final class Constants {
   public static final class Arm {
     public static final class Ports {
       public static final int ARM_MOTOR_PORT = 16;
-      public static final int TELESCOPING_MOTOR_PORT = 17; // TODO: find CAN ID
+      public static final int TELESCOPING_MOTOR_PORT = 17;
       public static final int ENCODER_PORT = 28;
     }
 
@@ -276,7 +276,6 @@ public final class Constants {
   public static final class Outtake {
     public static final class Ports {
       public static final int OUTTAKE_MOTOR = 8; // Placeholder value
-      public static final int OUTTAKE_ENCODER = 0; // PLaceholder value
     }
 
     public static final int OPEN_ANGLE = 500;
