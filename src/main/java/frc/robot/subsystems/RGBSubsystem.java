@@ -27,13 +27,13 @@ public class RGBSubsystem extends SubsystemBase {
     }
   }
 
-  public static enum MessagePriority {
-    CRITICAL_NETWORK_FAILURE,
+  public enum MessagePriority {
+    CRITICAL_NETWORK_INFORMATION,
     DRIVER_CONTROLLED_COLOR,
     MISSING_PHOTONVISION_CLIENTS,
   }
 
-  public static enum PatternTypes {
+  public enum PatternTypes {
     PULSE,
     BOUNCE
   }
