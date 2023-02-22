@@ -73,7 +73,7 @@ public class ArmSubsystem extends SubsystemBase {
     extensionMotor.configReverseSoftLimitEnable(true, 20);
 
     angleController = new PIDController(.019, 0, 0);
-    extensionController = new PIDController(0.1, 0, 0); // within 0.1 inches of accuracy
+    extensionController = new PIDController(0.15, 0, 0); // within 0.1 inches of accuracy
     angleController.setTolerance(5); // FIXME not sure if these are good values
     extensionController.setTolerance(0.2);
 
