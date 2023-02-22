@@ -341,7 +341,7 @@ public final class Constants {
             + 8;
 
     public static final class Colors {
-      public static final RGBColor YELLOW = new RGBColor(127, 127, 0);
+      public static final RGBColor YELLOW = new RGBColor(255, 107, 0);
       public static final RGBColor PURPLE = new RGBColor(127, 0, 127);
       public static final RGBColor RED = new RGBColor(255, 0, 0);
     }
