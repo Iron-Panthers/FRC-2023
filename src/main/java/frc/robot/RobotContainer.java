@@ -29,10 +29,10 @@ import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
 import frc.robot.commands.ForceOuttakeSubsystemModeCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
-import frc.robot.commands.SetOuttakeModeCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.SetLightsCommand;
+import frc.robot.commands.SetOuttakeModeCommand;
 import frc.robot.commands.SetZeroModeCommand;
 import frc.robot.commands.VibrateControllerCommand;
 import frc.robot.subsystems.ArmSubsystem;
@@ -203,7 +203,8 @@ public class RobotContainer {
 
     jasonLayer
         .off(jason.leftTrigger())
-        .whileTrue(new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+        .whileTrue(
+            new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
     jasonLayer
         .off(jason.rightTrigger())
         .onTrue(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
@@ -217,13 +218,15 @@ public class RobotContainer {
                 armSubsystem,
                 Arm.Setpoints.GroundIntake.ANGLE,
                 Arm.Setpoints.GroundIntake.EXTENSION))
-        .whileTrue(new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+        .whileTrue(
+            new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
     jasonLayer
         .off(jason.b())
         .onTrue(
             new ArmPositionCommand(
                 armSubsystem, Arm.Setpoints.ShelfIntake.ANGLE, Arm.Setpoints.ShelfIntake.EXTENSION))
-        .whileTrue(new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+        .whileTrue(
+            new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
     jasonLayer
         .off(jason.y())
         .onTrue(
@@ -248,7 +251,8 @@ public class RobotContainer {
                     armSubsystem,
                     Arm.Setpoints.ScoreMid.CAPPED_ANGLE,
                     Arm.Setpoints.ScoreMid.EXTENSION)
-                .alongWith(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF)));
+                .alongWith(
+                    new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF)));
     jasonLayer
         .on(jason.y())
         .whileTrue(

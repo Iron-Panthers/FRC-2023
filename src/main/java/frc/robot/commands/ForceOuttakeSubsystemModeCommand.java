@@ -12,7 +12,8 @@ public class ForceOuttakeSubsystemModeCommand extends CommandBase {
   private final OuttakeSubsystem.Modes mode;
 
   /** Creates a new ForceIntakeCommand. */
-  public ForceOuttakeSubsystemModeCommand(OuttakeSubsystem outtakeSubsystem, OuttakeSubsystem.Modes mode) {
+  public ForceOuttakeSubsystemModeCommand(
+      OuttakeSubsystem outtakeSubsystem, OuttakeSubsystem.Modes mode) {
     this.outtakeSubsystem = outtakeSubsystem;
     this.mode = mode;
     addRequirements(outtakeSubsystem);
