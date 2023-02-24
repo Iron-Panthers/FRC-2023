@@ -11,7 +11,7 @@ import com.ctre.phoenix.led.RainbowAnimation;
 import com.ctre.phoenix.led.SingleFadeAnimation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Lights;
-import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.PriorityQueue;
 
@@ -29,9 +29,9 @@ public class RGBSubsystem extends SubsystemBase {
   }
 
   public enum MessagePriority {
-    CRITICAL_NETWORK_INFORMATION,
-    DRIVER_CONTROLLED_COLOR,
-    MISSING_PHOTONVISION_CLIENTS,
+    A_CRITICAL_NETWORK_INFORMATION,
+    B_DRIVER_CONTROLLED_COLOR,
+    C_MISSING_PHOTONVISION_CLIENTS,
   }
 
   private enum CurrentAnimationTypes {
@@ -54,7 +54,7 @@ public class RGBSubsystem extends SubsystemBase {
   private Optional<CurrentAnimationTypes> lastAppliedAnimation = Optional.empty();
   private Optional<RGBColor> lastAppliedColor = Optional.empty();
 
-  public static class RGBMessage {
+  public static class RGBMessage implements Comparable<RGBMessage> {
     private final RGBColor color;
     private final PatternTypes pattern;
     private final MessagePriority priority;
@@ -73,6 +73,20 @@ public class RGBSubsystem extends SubsystemBase {
     public int compareTo(RGBMessage other) {
       return priority.compareTo(other.priority);
     }
+
+    public boolean equals(Object other) {
+      if (other instanceof RGBMessage) {
+        return priority.equals(((RGBMessage) other).priority)
+            && isExpired == ((RGBMessage) other).isExpired
+            && color.equals(((RGBMessage) other).color)
+            && pattern.equals(((RGBMessage) other).pattern);
+      }
+      return false;
+    }
+
+    public int hashCode() {
+      return Objects.hash(color, pattern, priority, isExpired);
+    }
   }
 
   private final CANdle candle;
@@ -80,8 +94,7 @@ public class RGBSubsystem extends SubsystemBase {
   /**
    * The priority queue of messages to display. Messages with higher priority are displayed first.
    */
-  private final PriorityQueue<RGBMessage> messageQueue =
-      new PriorityQueue<>(Collections.reverseOrder());
+  private final PriorityQueue<RGBMessage> messageQueue = new PriorityQueue<>();
 
   /** Creates a new RGBSubsystem. */
   public RGBSubsystem() {

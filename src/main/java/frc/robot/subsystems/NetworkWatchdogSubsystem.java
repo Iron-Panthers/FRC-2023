@@ -81,7 +81,7 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
             optionalRGBSubsystem
                 .get()
                 .showMessage(
-                    color, PatternTypes.BOUNCE, MessagePriority.CRITICAL_NETWORK_INFORMATION));
+                    color, PatternTypes.BOUNCE, MessagePriority.A_CRITICAL_NETWORK_INFORMATION));
   }
 
   /** Creates a new NetworkWatchdogSubsystem. */
