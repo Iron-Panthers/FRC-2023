@@ -140,7 +140,7 @@ public final class Constants {
   public static final class Arm {
     public static final class Ports {
       public static final int ARM_MOTOR_PORT = 16;
-      public static final int TELESCOPING_MOTOR_PORT = 17; // TODO: find CAN ID
+      public static final int TELESCOPING_MOTOR_PORT = 17;
       public static final int ENCODER_PORT = 28;
     }
 
@@ -276,11 +276,7 @@ public final class Constants {
   public static final class Outtake {
     public static final class Ports {
       public static final int OUTTAKE_MOTOR = 8; // Placeholder value
-      public static final int OUTTAKE_ENCODER = 0; // PLaceholder value
     }
-
-    public static final int OPEN_ANGLE = 500;
-    public static final int CLAMP_ANGLE = 0;
 
     public static final class OuttakeModes {
       public static final OuttakeDetails HOLD =
@@ -294,14 +290,6 @@ public final class Constants {
 
       public static final OuttakeDetails OFF =
           new OuttakeDetails(0.0, Optional.empty(), Optional.empty());
-    }
-
-    // Thinking of using these to plug into the stator limits above...?
-    // Better readability?
-    private static final class StatorCurrents {
-      // FIXME find real value using glass
-      public static final double OPENING_FINISH = 20;
-      public static final double ENDING_FINISH = 80;
     }
   }
 
@@ -336,11 +324,18 @@ public final class Constants {
 
   public static final class Lights {
     public static final int CANDLE_ID = 34;
-    public static final int NUM_LEDS = 150;
+    public static final int NUM_LEDS =
+        91
+            // 8 inside the candle
+            + 8;
 
     public static final class Colors {
-      public static final RGBColor YELLOW = new RGBColor(255, 255, 0);
+      public static final RGBColor YELLOW = new RGBColor(255, 107, 0);
       public static final RGBColor PURPLE = new RGBColor(127, 0, 127);
+      public static final RGBColor RED = new RGBColor(255, 0, 0);
+      public static final RGBColor BLUE = new RGBColor(0, 0, 255);
+      public static final RGBColor PINK = new RGBColor(250, 35, 100);
+      public static final RGBColor MINT = new RGBColor(55, 255, 50);
     }
   }
 }
