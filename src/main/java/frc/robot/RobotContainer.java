@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
@@ -211,7 +210,7 @@ public class RobotContainer {
                     .05)
                 .alongWith(
                     new ArmPositionCommand(armSubsystem, 0, Arm.Setpoints.Extensions.MIN_EXTENSION)
-                        .raceWith(new WaitCommand(.5)))
+                        .withTimeout(.5))
                 .andThen(
                     new ArmPositionCommand(
                         armSubsystem,
@@ -227,19 +226,19 @@ public class RobotContainer {
                                     armSubsystem,
                                     Arm.Setpoints.ScoreMid.CAPPED_ANGLE,
                                     Arm.Setpoints.ScoreMid.EXTENSION)
-                                .alongWith(new OuttakeCommand(outtakeSubsystem, Modes.OFF))
-                                .raceWith(new WaitCommand(.25))))
+                                .alongWith(new SetOuttakeModeCommand(outtakeSubsystem, Modes.OFF))
+                                .withTimeout(.25)))
                 .andThen(
-                    new OuttakeCommand(outtakeSubsystem, Modes.OUTTAKE)
+                    new SetOuttakeModeCommand(outtakeSubsystem, Modes.OUTTAKE)
                         .alongWith(
                             new ArmPositionCommand(
                                 armSubsystem,
                                 Arm.Setpoints.ScoreMid.CAPPED_ANGLE,
                                 Arm.Setpoints.Extensions.MIN_EXTENSION))
-                        .raceWith(new WaitCommand(.25)))
+                        .withTimeout(.25))
                 .andThen(
                     new ArmPositionCommand(armSubsystem, 0, Arm.Setpoints.Extensions.MIN_EXTENSION)
-                        .raceWith(new WaitCommand(.5)))
+                        .withTimeout(.5))
                 .andThen(
                     new DriveToPlaceCommand(
                         drivebaseSubsystem,
