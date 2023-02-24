@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
 import frc.robot.Constants.Lights;
 import frc.robot.autonomous.commands.AutoTestSequence;
+import frc.robot.autonomous.commands.IanDemoAutoSequence;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.DefaultDriveCommand;
@@ -39,11 +40,14 @@ import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.NetworkWatchdogSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
+import frc.robot.subsystems.OuttakeSubsystem.Modes;
 import frc.robot.subsystems.RGBSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.util.ControllerUtil;
 import frc.util.Layer;
 import frc.util.MacUtil;
 import frc.util.Util;
+import frc.util.pathing.RubenManueverGenerator;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
@@ -56,12 +60,16 @@ import java.util.function.DoubleSupplier;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
-  private final DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem();
+  private final VisionSubsystem visionSubsystem = new VisionSubsystem();
+
+  private final DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem(visionSubsystem);
 
   private final RGBSubsystem rgbSubsystem = new RGBSubsystem();
 
   private final NetworkWatchdogSubsystem networkWatchdogSubsystem =
       new NetworkWatchdogSubsystem(Optional.of(rgbSubsystem));
+
+  private final RubenManueverGenerator manueverGenerator = new RubenManueverGenerator();
 
   private final ArmSubsystem armSubsystem = new ArmSubsystem();
 
@@ -129,7 +137,7 @@ public class RobotContainer {
    */
   public void containerMatchStarting() {
     // runs when the match starts
-    networkWatchdogSubsystem.matchStarting();
+    // networkWatchdogSubsystem.matchStarting();
   }
 
   /**
@@ -194,12 +202,57 @@ public class RobotContainer {
     will.b()
         .onTrue(
             new DriveToPlaceCommand(
-                drivebaseSubsystem, new Pose2d(3.5, 2.2, Rotation2d.fromDegrees(0)), .2, .5));
+                    drivebaseSubsystem,
+                    visionSubsystem,
+                    manueverGenerator,
+                    new Pose2d(2.5, 1, Rotation2d.fromDegrees(180)),
+                    new Pose2d(1.8, .5, Rotation2d.fromDegrees(180)),
+                    .05)
+                .alongWith(
+                    new ArmPositionCommand(armSubsystem, 0, Arm.Setpoints.Extensions.MIN_EXTENSION)
+                        .withTimeout(.5))
+                .andThen(
+                    new ArmPositionCommand(
+                        armSubsystem,
+                        Arm.Setpoints.ScoreMid.ANGLE,
+                        Arm.Setpoints.Extensions.MIN_EXTENSION))
+                .andThen(
+                    new ArmPositionCommand(
+                            armSubsystem,
+                            Arm.Setpoints.ScoreMid.ANGLE,
+                            Arm.Setpoints.ScoreMid.EXTENSION)
+                        .andThen(
+                            new ArmPositionCommand(
+                                    armSubsystem,
+                                    Arm.Setpoints.ScoreMid.CAPPED_ANGLE,
+                                    Arm.Setpoints.ScoreMid.EXTENSION)
+                                .alongWith(new SetOuttakeModeCommand(outtakeSubsystem, Modes.OFF))
+                                .withTimeout(.25)))
+                .andThen(
+                    new SetOuttakeModeCommand(outtakeSubsystem, Modes.OUTTAKE)
+                        .alongWith(
+                            new ArmPositionCommand(
+                                armSubsystem,
+                                Arm.Setpoints.ScoreMid.CAPPED_ANGLE,
+                                Arm.Setpoints.Extensions.MIN_EXTENSION))
+                        .withTimeout(.25))
+                .andThen(
+                    new ArmPositionCommand(armSubsystem, 0, Arm.Setpoints.Extensions.MIN_EXTENSION)
+                        .withTimeout(.5))
+                .andThen(
+                    new DriveToPlaceCommand(
+                        drivebaseSubsystem,
+                        visionSubsystem,
+                        manueverGenerator,
+                        new Pose2d(6.96, 6.43, Rotation2d.fromDegrees(0)))));
 
     will.y()
         .onTrue(
             new DriveToPlaceCommand(
-                drivebaseSubsystem, new Pose2d(3.2, .5, Rotation2d.fromDegrees(170)), .2, .5));
+                drivebaseSubsystem,
+                visionSubsystem,
+                manueverGenerator,
+                new Pose2d(1.8, 4.97, Rotation2d.fromDegrees(180))));
 
     jasonLayer
         .off(jason.leftTrigger())
@@ -285,6 +338,10 @@ public class RobotContainer {
             2, // m/s
             1, // m/s2
             drivebaseSubsystem));
+
+    autoSelector.addOption(
+        "[NEW] IanAuto",
+        new IanDemoAutoSequence(5, 3, drivebaseSubsystem, visionSubsystem, manueverGenerator));
 
     Shuffleboard.getTab("DriverView")
         .add("auto selector", autoSelector)
