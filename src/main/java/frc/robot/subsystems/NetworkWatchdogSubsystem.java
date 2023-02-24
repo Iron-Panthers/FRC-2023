@@ -82,7 +82,6 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
                 sleep(NetworkWatchdog.BOOT_SCAN_DELAY_MS - initialUptimeMS);
               }
 
-
               // to ensure we don't miss an interrupt, only sleep once per branch before coming back
               // to the while conditional
               while (!Thread.interrupted()) {
