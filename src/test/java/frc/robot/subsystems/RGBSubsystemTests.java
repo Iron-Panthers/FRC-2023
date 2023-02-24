@@ -149,4 +149,74 @@ public class RGBSubsystemTests {
     showedPulse(2);
     showedRainbow(1);
   }
+
+  @RobotTest
+  public void differentColorWithSamePatternIsDisplayed() {
+    var msg1 =
+        rgbSubsystem.showMessage(
+            Lights.Colors.MINT,
+            RGBSubsystem.PatternTypes.PULSE,
+            RGBSubsystem.MessagePriority.B_DRIVER_CONTROLLED_COLOR);
+
+    doPeriodic(1);
+    showedRainbow(0);
+    showedPulse(1);
+
+    doPeriodic(1);
+    showedRainbow(0);
+    showedPulse(1);
+
+    msg1.expire();
+    var msg2 =
+        rgbSubsystem.showMessage(
+            Lights.Colors.BLUE,
+            RGBSubsystem.PatternTypes.PULSE,
+            RGBSubsystem.MessagePriority.B_DRIVER_CONTROLLED_COLOR);
+    doPeriodic(1);
+    showedRainbow(0);
+    showedPulse(2);
+  }
+
+  @RobotTest
+  public void sameColorWithSamePatternIsNotRedisplayed() {
+    var msg1 =
+        rgbSubsystem.showMessage(
+            Lights.Colors.MINT,
+            RGBSubsystem.PatternTypes.PULSE,
+            RGBSubsystem.MessagePriority.B_DRIVER_CONTROLLED_COLOR);
+
+    doPeriodic(1);
+    showedRainbow(0);
+    showedPulse(1);
+
+    msg1.expire();
+    var msg2 =
+        rgbSubsystem.showMessage(
+            Lights.Colors.MINT,
+            RGBSubsystem.PatternTypes.PULSE,
+            RGBSubsystem.MessagePriority.B_DRIVER_CONTROLLED_COLOR);
+    doPeriodic(1);
+    showedRainbow(0);
+    showedPulse(1);
+
+    var msg3 =
+        rgbSubsystem.showMessage(
+            Lights.Colors.MINT,
+            RGBSubsystem.PatternTypes.PULSE,
+            RGBSubsystem.MessagePriority.A_CRITICAL_NETWORK_INFORMATION);
+
+    doPeriodic(1);
+    showedRainbow(0);
+    showedPulse(1);
+
+    msg3.expire();
+    doPeriodic(1);
+    showedRainbow(0);
+    showedPulse(1);
+
+    msg2.expire();
+    doPeriodic(1);
+    showedRainbow(1);
+    showedPulse(1);
+  }
 }

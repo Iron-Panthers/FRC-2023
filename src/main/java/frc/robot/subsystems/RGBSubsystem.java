@@ -54,6 +54,7 @@ public class RGBSubsystem extends SubsystemBase {
   private Optional<CurrentAnimationTypes> lastAppliedAnimation = Optional.empty();
   private Optional<RGBColor> lastAppliedColor = Optional.empty();
 
+  /** This class does not obey equals and compareTo contract to support priority ordering. */
   public static class RGBMessage implements Comparable<RGBMessage> {
     private final RGBColor color;
     private final PatternTypes pattern;
@@ -76,10 +77,11 @@ public class RGBSubsystem extends SubsystemBase {
 
     public boolean equals(Object other) {
       if (other instanceof RGBMessage) {
-        return priority.equals(((RGBMessage) other).priority)
-            && isExpired == ((RGBMessage) other).isExpired
-            && color.equals(((RGBMessage) other).color)
-            && pattern.equals(((RGBMessage) other).pattern);
+        var otherMessage = (RGBMessage) other;
+        return priority.equals(otherMessage.priority)
+            && isExpired == otherMessage.isExpired
+            && color.equals(otherMessage.color)
+            && pattern.equals(otherMessage.pattern);
       }
       return false;
     }
