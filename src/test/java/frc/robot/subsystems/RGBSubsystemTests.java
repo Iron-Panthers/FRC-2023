@@ -3,6 +3,8 @@ package frc.robot.subsystems;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ctre.phoenix.ErrorCode;
@@ -42,5 +44,17 @@ public class RGBSubsystemTests {
     // verify that the mock was injected correctly
     assertNotNull(candle);
     assertEquals(ErrorCode.OK, candle.animate(new RainbowAnimation()));
+  }
+
+  private void doPeriodic(int times) {
+    for (int i = 0; i < times; i++) {
+      rgbSubsystem.periodic();
+    }
+  }
+
+  @RobotTest
+  public void noMessagesDisplaysRainbow() {
+    doPeriodic(5);
+    verify(candle, times(1)).animate(any(RainbowAnimation.class));
   }
 }
