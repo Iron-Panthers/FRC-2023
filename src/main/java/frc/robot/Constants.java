@@ -14,8 +14,10 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import frc.robot.Constants.Drive.Dims;
 import frc.robot.subsystems.OuttakeSubsystem.OuttakeDetails;
 import frc.robot.subsystems.RGBSubsystem.RGBColor;
+import frc.util.pathing.FieldObstructionMap;
 import java.util.Optional;
 
 @SuppressWarnings("java:S1118")
@@ -57,6 +59,8 @@ public final class Constants {
       public static final double TRACKWIDTH_METERS =
           .5207; // 20.5 inches (source: cad) converted to meters
       public static final double WHEELBASE_METERS = TRACKWIDTH_METERS; // robot is square
+
+      public static final double BUMPER_WIDTH_METERS = .851;
     }
 
     /*
@@ -219,23 +223,38 @@ public final class Constants {
   }
 
   public static final class Vision {
-    public static final double LIMELIGHT_CLUSTER_HEIGHT = 0.3048;
 
     public static final class FrontCam {
       public static final String NAME = "frontCam";
-      /** Cam mounted facing forward, centered, at the back of the robot */
       public static final Transform3d ROBOT_TO_CAM =
           new Transform3d(
-              new Translation3d(-0.2248, 0, LIMELIGHT_CLUSTER_HEIGHT), new Rotation3d(0, 0, 0));
+              // 9.867 in to the right looking from behind the front of the robot
+              // 7 inch forward from center
+              // up 17.422 inches
+              new Translation3d(
+                  0.1778, // front/back
+                  0.2506218, // left/right
+                  0.4425188 // up/down
+                  ),
+              new Rotation3d(
+                  0,
+                  Math.toRadians(-11.5), // angle up/down
+                  0));
     }
 
     public static final class BackCam {
       public static final String NAME = "backCam";
-      /** Cam mounted facing backward, centered, at the back of the robot */
       public static final Transform3d ROBOT_TO_CAM =
           new Transform3d(
-              new Translation3d(-0.301, 0, LIMELIGHT_CLUSTER_HEIGHT),
-              new Rotation3d(0, 0, Math.PI));
+              // 9.867 in to the right looking from behind the front of the robot
+              // 48.5 inches up
+              // two inches forward
+              new Translation3d(
+                  0.0508, // front/back
+                  -0.2506218, // left/right
+                  1.2319 // up/down
+                  ),
+              new Rotation3d(0, Math.toRadians(17), Math.PI));
     }
   }
 
@@ -260,9 +279,9 @@ public final class Constants {
     public static final Matrix<N3, N1> VISION_MEASUREMENT_STANDARD_DEVIATIONS =
         Matrix.mat(Nat.N3(), Nat.N1())
             .fill(
-                2, // x
-                2, // y
-                2 * Math.PI // theta
+                .9, // x
+                .9, // y
+                .9 * Math.PI // theta
                 );
 
     public static final double CAMERA_CAPTURE_LATENCY_FUDGE_MS = 11;
@@ -271,6 +290,44 @@ public final class Constants {
     public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .05;
 
     public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 2;
+  }
+
+  public static final class Pathing {
+    /** The size in meters of a given cell for pathfinding */
+    public static final double CELL_SIZE_METERS = 0.1;
+
+    public static final int CELL_X_MAX =
+        (int) Math.ceil(FieldObstructionMap.FIELD_LENGTH / Pathing.CELL_SIZE_METERS);
+    public static final int CELL_Y_MAX =
+        (int) Math.ceil(FieldObstructionMap.FIELD_HEIGHT / Pathing.CELL_SIZE_METERS);
+
+    /**
+     * this variable is badly named, it refers to half the width decimated to the cell grid. coords
+     * that require going within this distance will be very expensive for pathfinding.
+     */
+    public static final int ROBOT_RADIUS_DANGER_CELLS =
+        // using floor is not a bug, we want to be able to drive up to the edge of the cell if
+        // needed. this might not work too hot for other robot sizes, but for our size down is much
+        // more reasonable than up for .1m cells
+        // adding one serves to reduce the risk of a spline clipping something
+        (int) Math.floor((Dims.BUMPER_WIDTH_METERS / 2) / Pathing.CELL_SIZE_METERS) + 1;
+
+    /**
+     * grid coords that require going within this distance of field elements will be unavailable for
+     * pathfinding. subtracting one serves to make this number accurate because we added one
+     * earlier.
+     */
+    public static final int ROBOT_RADIUS_COLLISION_CELLS = ROBOT_RADIUS_DANGER_CELLS - 2;
+
+    public static final double CRITICAL_POINT_DIVERGENCE_THRESHOLD = 6;
+
+    public static final int PATHFINDING_HEURISTIC_CONSTANT = 1;
+
+    public static final class Costs {
+      public static final int CARDINAL = 2;
+      public static final int DIAGONAL = 3;
+      public static final int DANGER_MULTIPLIER = 50;
+    }
   }
 
   public static final class Outtake {
