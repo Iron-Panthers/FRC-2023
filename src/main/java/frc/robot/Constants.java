@@ -278,9 +278,6 @@ public final class Constants {
       public static final int OUTTAKE_MOTOR = 8; // Placeholder value
     }
 
-    public static final int OPEN_ANGLE = 500;
-    public static final int CLAMP_ANGLE = 0;
-
     public static final class OuttakeModes {
       public static final OuttakeDetails HOLD =
           new OuttakeDetails(0.1, Optional.empty(), Optional.empty());
@@ -293,14 +290,6 @@ public final class Constants {
 
       public static final OuttakeDetails OFF =
           new OuttakeDetails(0.0, Optional.empty(), Optional.empty());
-    }
-
-    // Thinking of using these to plug into the stator limits above...?
-    // Better readability?
-    private static final class StatorCurrents {
-      // FIXME find real value using glass
-      public static final double OPENING_FINISH = 20;
-      public static final double ENDING_FINISH = 80;
     }
   }
 
