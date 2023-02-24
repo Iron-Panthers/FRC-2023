@@ -301,7 +301,7 @@ public final class Constants {
      * The number of ms (sleep delta using oshi system uptime) to wait before beginning to ping the
      * test IP.
      */
-    public static final int BOOT_SCAN_DELAY_MS = 20_000;
+    public static final int BOOT_SCAN_DELAY_MS = 80_000;
 
     /** The number of seconds for ping to wait before giving up on reaching a device. */
     public static final int PING_TIMEOUT_SECONDS = 2;
