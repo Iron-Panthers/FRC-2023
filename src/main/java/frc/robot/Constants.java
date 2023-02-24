@@ -14,7 +14,9 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import frc.robot.subsystems.OuttakeSubsystem.OuttakeDetails;
 import frc.robot.subsystems.RGBSubsystem.RGBColor;
+import java.util.Optional;
 
 @SuppressWarnings("java:S1118")
 /**
@@ -135,6 +137,87 @@ public final class Constants {
     }
   }
 
+  public static final class Arm {
+    public static final class Ports {
+      public static final int ARM_MOTOR_PORT = 16;
+      public static final int TELESCOPING_MOTOR_PORT = 17;
+      public static final int ENCODER_PORT = 28;
+    }
+
+    public static final double GRAVITY_CONTROL_PERCENT = 0.07;
+
+    public static final double ANGULAR_OFFSET = -8.75;
+
+    public static final class Setpoints {
+      public static final class ScoreLow {
+        public static final int ANGLE = 40;
+        public static final double EXTENSION = Extensions.MAX_EXTENSION;
+      }
+
+      public static final class ScoreMid {
+        public static final int ANGLE = 90;
+        public static final double CAPPED_ANGLE = 40;
+        public static final double EXTENSION = 5d;
+      }
+
+      public static final class ScoreHigh {
+        public static final int ANGLE = 110;
+        public static final double EXTENSION = Extensions.MAX_EXTENSION;
+      }
+
+      public static final class GroundIntake {
+        public static final int ANGLE = 40;
+        public static final double EXTENSION = Extensions.MAX_EXTENSION;
+      }
+
+      public static final class ShelfIntake {
+        public static final int ANGLE = 90;
+        public static final double EXTENSION = Extensions.MAX_EXTENSION;
+      }
+
+      public static final class Angles {
+        public static final int STARTING_ANGLE = 0;
+        public static final int FORWARD_ANGLE = 90;
+        public static final int BACKWARD_ANGLE = -90;
+        public static final int TEST_ANGLE = 45;
+      }
+
+      public static final class Extensions {
+        public static final double MAX_EXTENSION = 18.5;
+        public static final double MIN_EXTENSION = 0;
+      }
+    }
+
+    public static final double EXTENSION_STATORLIMIT = 80;
+
+    public static final double ZERO_RETRACTION_PERCENT = -0.4; // FIXME
+    public static final int TICKS = 2048;
+    public static final int TELESCOPING_ARM_GEAR_RATIO = 3;
+    public static final double SPOOL_CIRCUMFERENCE = 1.5 * Math.PI;
+
+    public static final class Thresholds {
+      /**
+       * These thresholds, unless otherwise specified in a doc comment, apply to the positive and
+       * negative sign of their angle in degrees
+       */
+      public static final class Angles {
+        public static final double BACKWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD =
+            -40; // FIXME: real value needed
+        public static final double FORWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD =
+            20; // FIXME: real value needed
+        public static final double UPPER_ANGLE_LIMIT = 100; // FIXME: real value needed
+      }
+
+      public static final class Extensions {
+        /**
+         * The amount of additional extension from min extension to treat as fully retracted for
+         * safety purposes
+         */
+        public static final double FULLY_RETRACTED_INCHES_THRESHOLD = 1;
+      }
+    }
+  }
+
   public static final class Vision {
     public static final double LIMELIGHT_CLUSTER_HEIGHT = 0.3048;
 
@@ -190,6 +273,26 @@ public final class Constants {
     public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 2;
   }
 
+  public static final class Outtake {
+    public static final class Ports {
+      public static final int OUTTAKE_MOTOR = 8; // Placeholder value
+    }
+
+    public static final class OuttakeModes {
+      public static final OuttakeDetails HOLD =
+          new OuttakeDetails(0.1, Optional.empty(), Optional.empty());
+
+      public static final OuttakeDetails INTAKE =
+          new OuttakeDetails(0.7, Optional.of(new OuttakeDetails.StatorLimit(75)), Optional.of(2d));
+
+      public static final OuttakeDetails OUTTAKE =
+          new OuttakeDetails(-0.2, Optional.empty(), Optional.of(2d));
+
+      public static final OuttakeDetails OFF =
+          new OuttakeDetails(0.0, Optional.empty(), Optional.empty());
+    }
+  }
+
   public static final class NetworkWatchdog {
     /** The IP address to ping for testing bridging, on the second vlan. */
     public static final String TEST_IP_ADDRESS = "10.50.26.19";
@@ -221,11 +324,18 @@ public final class Constants {
 
   public static final class Lights {
     public static final int CANDLE_ID = 34;
-    public static final int NUM_LEDS = 150;
+    public static final int NUM_LEDS =
+        91
+            // 8 inside the candle
+            + 8;
 
     public static final class Colors {
-      public static final RGBColor YELLOW = new RGBColor(255, 255, 0);
+      public static final RGBColor YELLOW = new RGBColor(255, 107, 0);
       public static final RGBColor PURPLE = new RGBColor(127, 0, 127);
+      public static final RGBColor RED = new RGBColor(255, 0, 0);
+      public static final RGBColor BLUE = new RGBColor(0, 0, 255);
+      public static final RGBColor PINK = new RGBColor(250, 35, 100);
+      public static final RGBColor MINT = new RGBColor(55, 255, 50);
     }
   }
 }
