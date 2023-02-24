@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -31,9 +32,14 @@ public class RGBSubsystemTests {
 
   @BeforeEach
   public void setup() {
+    // doing mocks like this is required because the CANdle constructor calls JNI
+    // methods that we can't mock, which touch sim stuff during testing that
+    // we don't want to touch
     mockCandle = Mockito.mockConstruction(CANdle.class);
     rgbSubsystem = new RGBSubsystem();
     candle = mockCandle.constructed().get(0);
+    // we aren't interested in tracking the setup invocations
+    clearInvocations(candle);
     when(candle.animate(any(Animation.class))).thenReturn(ErrorCode.OK);
   }
 
@@ -135,6 +141,7 @@ public class RGBSubsystemTests {
             Lights.Colors.MINT,
             RGBSubsystem.PatternTypes.BOUNCE,
             RGBSubsystem.MessagePriority.A_CRITICAL_NETWORK_INFORMATION);
+    doPeriodic(1);
 
     msg2.expire();
     doPeriodic(1);

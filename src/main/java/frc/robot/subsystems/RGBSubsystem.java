@@ -102,10 +102,6 @@ public class RGBSubsystem extends SubsystemBase {
     // turn off the LEDs when the can chain fails
     candle.configLOSBehavior(true);
     candle.configLEDType(LEDStripType.GRB);
-
-    // start the rainbow
-
-    showRainbow();
   }
 
   /**
