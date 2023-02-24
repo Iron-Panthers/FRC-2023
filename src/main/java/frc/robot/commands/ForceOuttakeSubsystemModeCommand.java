@@ -6,14 +6,14 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.OuttakeSubsystem;
-import frc.robot.subsystems.OuttakeSubsystem.Modes;
 
-public class OuttakeCommand extends CommandBase {
+public class ForceOuttakeSubsystemModeCommand extends CommandBase {
   private final OuttakeSubsystem outtakeSubsystem;
-  private final Modes mode;
+  private final OuttakeSubsystem.Modes mode;
 
-  /** Creates a new OuttakeCommand. */
-  public OuttakeCommand(OuttakeSubsystem outtakeSubsystem, Modes mode) {
+  /** Creates a new ForceIntakeCommand. */
+  public ForceOuttakeSubsystemModeCommand(
+      OuttakeSubsystem outtakeSubsystem, OuttakeSubsystem.Modes mode) {
     this.outtakeSubsystem = outtakeSubsystem;
     this.mode = mode;
     addRequirements(outtakeSubsystem);
@@ -26,16 +26,18 @@ public class OuttakeCommand extends CommandBase {
   @Override
   public void initialize() {
     outtakeSubsystem.setMode(mode);
+    outtakeSubsystem.lockMode();
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    outtakeSubsystem.unlockMode();
+  }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    // If we're in a stable state (Hold or Off), OR we have reached a specified end mode, we can end
-    return outtakeSubsystem.inStableState();
+    return false;
   }
 }

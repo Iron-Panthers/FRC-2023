@@ -27,12 +27,12 @@ import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
-import frc.robot.commands.ForceOuttakeCommand;
+import frc.robot.commands.ForceOuttakeSubsystemModeCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
-import frc.robot.commands.OuttakeCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.SetLightsCommand;
+import frc.robot.commands.SetOuttakeModeCommand;
 import frc.robot.commands.SetZeroModeCommand;
 import frc.robot.commands.VibrateControllerCommand;
 import frc.robot.subsystems.ArmSubsystem;
@@ -203,13 +203,14 @@ public class RobotContainer {
 
     jasonLayer
         .off(jason.leftTrigger())
-        .whileTrue(new ForceOuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+        .whileTrue(
+            new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
     jasonLayer
         .off(jason.rightTrigger())
-        .onTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+        .onTrue(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
     jasonLayer
         .off(jason.x())
-        .onTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF));
+        .onTrue(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF));
     jasonLayer
         .off(jason.a())
         .onTrue(
@@ -217,13 +218,15 @@ public class RobotContainer {
                 armSubsystem,
                 Arm.Setpoints.GroundIntake.ANGLE,
                 Arm.Setpoints.GroundIntake.EXTENSION))
-        .whileTrue(new ForceOuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+        .whileTrue(
+            new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
     jasonLayer
         .off(jason.b())
         .onTrue(
             new ArmPositionCommand(
                 armSubsystem, Arm.Setpoints.ShelfIntake.ANGLE, Arm.Setpoints.ShelfIntake.EXTENSION))
-        .whileTrue(new ForceOuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+        .whileTrue(
+            new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
     jasonLayer
         .off(jason.y())
         .onTrue(
@@ -237,7 +240,7 @@ public class RobotContainer {
         .whileTrue(
             new ArmPositionCommand(
                 armSubsystem, Arm.Setpoints.ScoreLow.ANGLE, Arm.Setpoints.ScoreLow.EXTENSION))
-        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+        .onFalse(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
     jasonLayer
         .on(jason.b())
         .whileTrue(
@@ -248,13 +251,14 @@ public class RobotContainer {
                     armSubsystem,
                     Arm.Setpoints.ScoreMid.CAPPED_ANGLE,
                     Arm.Setpoints.ScoreMid.EXTENSION)
-                .alongWith(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF)));
+                .alongWith(
+                    new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF)));
     jasonLayer
         .on(jason.y())
         .whileTrue(
             new ArmPositionCommand(
                 armSubsystem, Arm.Setpoints.ScoreHigh.ANGLE, Arm.Setpoints.ScoreHigh.EXTENSION))
-        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+        .onFalse(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
     jason.start().onTrue(new SetZeroModeCommand(armSubsystem));
 
     // control the lights
