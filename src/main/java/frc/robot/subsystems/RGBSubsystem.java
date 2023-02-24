@@ -12,6 +12,7 @@ import com.ctre.phoenix.led.SingleFadeAnimation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Lights;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.PriorityQueue;
 
 public class RGBSubsystem extends SubsystemBase {
@@ -33,10 +34,25 @@ public class RGBSubsystem extends SubsystemBase {
     MISSING_PHOTONVISION_CLIENTS,
   }
 
-  public enum PatternTypes {
-    PULSE,
-    BOUNCE
+  private enum CurrentAnimationTypes {
+    RAINBOW,
+    LARSON,
+    SINGLE_FADE,
   }
+
+  public enum PatternTypes {
+    PULSE(CurrentAnimationTypes.SINGLE_FADE),
+    BOUNCE(CurrentAnimationTypes.LARSON);
+
+    private final CurrentAnimationTypes type;
+
+    private PatternTypes(CurrentAnimationTypes type) {
+      this.type = type;
+    }
+  }
+
+  private Optional<CurrentAnimationTypes> lastAppliedAnimation = Optional.empty();
+  private Optional<RGBColor> lastAppliedColor = Optional.empty();
 
   public static class RGBMessage {
     private final RGBColor color;
@@ -97,6 +113,8 @@ public class RGBSubsystem extends SubsystemBase {
 
   private void showPulseColor(RGBColor color) {
     candle.animate(new SingleFadeAnimation(color.r, color.g, color.b, 0, .7, Lights.NUM_LEDS));
+    lastAppliedAnimation = Optional.of(CurrentAnimationTypes.SINGLE_FADE);
+    lastAppliedColor = Optional.of(color);
   }
 
   private void showBounceColor(RGBColor color) {
@@ -110,6 +128,8 @@ public class RGBSubsystem extends SubsystemBase {
             Lights.NUM_LEDS,
             LarsonAnimation.BounceMode.Front,
             7));
+    lastAppliedAnimation = Optional.of(CurrentAnimationTypes.LARSON);
+    lastAppliedColor = Optional.of(color);
   }
 
   private void showMessage(RGBMessage message) {
@@ -122,23 +142,34 @@ public class RGBSubsystem extends SubsystemBase {
 
   private void showRainbow() {
     candle.animate(new RainbowAnimation(.2, .5, Lights.NUM_LEDS));
+    lastAppliedAnimation = Optional.of(CurrentAnimationTypes.RAINBOW);
+    lastAppliedColor = Optional.empty();
   }
 
   @Override
   public void periodic() {
     boolean isMessageDisplayed = false;
-    while (!messageQueue.isEmpty()) {
+    while (!messageQueue.isEmpty() && !isMessageDisplayed) {
       RGBMessage message = messageQueue.peek();
       if (message.isExpired) {
         messageQueue.remove();
         continue;
       }
 
-      showMessage(message);
+      // if the message is the same as the last message, don't display it again
+      if (!(lastAppliedColor.isPresent()
+          && lastAppliedColor.get().equals(message.color)
+          && lastAppliedAnimation.isPresent()
+          && lastAppliedAnimation.get() == message.pattern.type)) {
+        showMessage(message);
+      }
+
       isMessageDisplayed = true;
     }
 
-    if (!isMessageDisplayed) {
+    if (!isMessageDisplayed
+        && !(lastAppliedAnimation.isPresent()
+            && lastAppliedAnimation.get() == CurrentAnimationTypes.RAINBOW)) {
       showRainbow();
     }
   }
