@@ -51,7 +51,7 @@ public class OuttakeSubsystem extends SubsystemBase {
       this.outtakeDetails = outtakeDetails;
     }
 
-    public boolean modeFinished(
+    private boolean modeFinished(
         double filterOutput, boolean modeLocked, double lastTransitionTime) {
       boolean exceededTimeLimit =
           outtakeDetails.minTimeSeconds.isEmpty()

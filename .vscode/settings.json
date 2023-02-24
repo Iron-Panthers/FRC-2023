@@ -47,6 +47,7 @@
     "drivebase",
     "Hardstop",
     "Holonomic",
+    "LEDS",
     "Mockito",
     "navx",
     "Odometry",

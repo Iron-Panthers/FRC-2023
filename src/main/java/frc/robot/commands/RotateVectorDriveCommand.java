@@ -16,7 +16,7 @@ import java.util.function.DoubleSupplier;
 /**
  * This command takes a drive stick, and the vector of the rotation stick to drive the robot. The
  * rotation stick is made into a vector - if its magnitude is sufficient, its angle is snapped onto
- * the 8 cardinal directions, and the robot is snapped to that angle.
+ * the 4 cardinal directions, and the robot is snapped to that angle.
  */
 public class RotateVectorDriveCommand extends CommandBase {
   private final DrivebaseSubsystem drivebaseSubsystem;
@@ -35,7 +35,8 @@ public class RotateVectorDriveCommand extends CommandBase {
 
   private double angle = 0;
 
-  private static final double[] angles = {0, 45, 90, 135, 180, 225, 270, 315};
+  // private static final double[] angles = {0, 45, 90, 135, 180, 225, 270, 315};
+  private static final double[] angles = {0, 90, 180, 270};
 
   /** Creates a new DefaultDriveCommand. */
   public RotateVectorDriveCommand(

@@ -16,6 +16,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import frc.robot.Constants.Drive.Dims;
 import frc.robot.subsystems.OuttakeSubsystem.OuttakeDetails;
+import frc.robot.subsystems.RGBSubsystem.RGBColor;
 import frc.util.pathing.FieldObstructionMap;
 import java.util.Optional;
 
@@ -142,14 +143,14 @@ public final class Constants {
 
   public static final class Arm {
     public static final class Ports {
-      public static final int ARM_MOTOR_PORT = 14;
-      public static final int TELESCOPING_MOTOR_PORT = 16; // TODO: find CAN ID
+      public static final int ARM_MOTOR_PORT = 16;
+      public static final int TELESCOPING_MOTOR_PORT = 17;
       public static final int ENCODER_PORT = 28;
     }
 
     public static final double GRAVITY_CONTROL_PERCENT = 0.07;
 
-    public static final double ANGULAR_OFFSET = 8;
+    public static final double ANGULAR_OFFSET = -8.75;
 
     public static final class Setpoints {
       public static final class ScoreLow {
@@ -169,7 +170,7 @@ public final class Constants {
       }
 
       public static final class GroundIntake {
-        public static final int ANGLE = 30;
+        public static final int ANGLE = 40;
         public static final double EXTENSION = Extensions.MAX_EXTENSION;
       }
 
@@ -186,11 +187,14 @@ public final class Constants {
       }
 
       public static final class Extensions {
-        public static final double MAX_EXTENSION = 10;
+        public static final double MAX_EXTENSION = 18.5;
         public static final double MIN_EXTENSION = 0;
       }
     }
 
+    public static final double EXTENSION_STATORLIMIT = 80;
+
+    public static final double ZERO_RETRACTION_PERCENT = -0.4; // FIXME
     public static final int TICKS = 2048;
     public static final int TELESCOPING_ARM_GEAR_RATIO = 3;
     public static final double SPOOL_CIRCUMFERENCE = 1.5 * Math.PI;
@@ -328,12 +332,8 @@ public final class Constants {
 
   public static final class Outtake {
     public static final class Ports {
-      public static final int OUTTAKE_MOTOR = 17; // Placeholder value
-      public static final int OUTTAKE_ENCODER = 0; // PLaceholder value
+      public static final int OUTTAKE_MOTOR = 8; // Placeholder value
     }
-
-    public static final int OPEN_ANGLE = 500;
-    public static final int CLAMP_ANGLE = 0;
 
     public static final class OuttakeModes {
       public static final OuttakeDetails HOLD =
@@ -347,14 +347,6 @@ public final class Constants {
 
       public static final OuttakeDetails OFF =
           new OuttakeDetails(0.0, Optional.empty(), Optional.empty());
-    }
-
-    // Thinking of using these to plug into the stator limits above...?
-    // Better readability?
-    private static final class StatorCurrents {
-      // FIXME find real value using glass
-      public static final double OPENING_FINISH = 20;
-      public static final double ENDING_FINISH = 80;
     }
   }
 
@@ -385,5 +377,22 @@ public final class Constants {
      * switch reboot.
      */
     public static final int SWITCH_POWERCYCLE_SCAN_DELAY_MS = 6_000;
+  }
+
+  public static final class Lights {
+    public static final int CANDLE_ID = 34;
+    public static final int NUM_LEDS =
+        91
+            // 8 inside the candle
+            + 8;
+
+    public static final class Colors {
+      public static final RGBColor YELLOW = new RGBColor(255, 107, 0);
+      public static final RGBColor PURPLE = new RGBColor(127, 0, 127);
+      public static final RGBColor RED = new RGBColor(255, 0, 0);
+      public static final RGBColor BLUE = new RGBColor(0, 0, 255);
+      public static final RGBColor PINK = new RGBColor(250, 35, 100);
+      public static final RGBColor MINT = new RGBColor(55, 255, 50);
+    }
   }
 }

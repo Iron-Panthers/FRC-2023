@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
+import frc.robot.Constants.Lights;
 import frc.robot.autonomous.commands.AutoTestSequence;
 import frc.robot.autonomous.commands.IanDemoAutoSequence;
 import frc.robot.commands.ArmManualCommand;
@@ -28,22 +29,27 @@ import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
-import frc.robot.commands.ForceOuttakeCommand;
+import frc.robot.commands.ForceOuttakeSubsystemModeCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
-import frc.robot.commands.OuttakeCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
+import frc.robot.commands.SetLightsCommand;
+import frc.robot.commands.SetOuttakeModeCommand;
+import frc.robot.commands.SetZeroModeCommand;
 import frc.robot.commands.VibrateControllerCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
+import frc.robot.subsystems.NetworkWatchdogSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem.Modes;
+import frc.robot.subsystems.RGBSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.util.ControllerUtil;
 import frc.util.Layer;
 import frc.util.MacUtil;
 import frc.util.Util;
 import frc.util.pathing.RubenManueverGenerator;
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -59,10 +65,12 @@ public class RobotContainer {
 
   private final DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem(visionSubsystem);
 
-  private final RubenManueverGenerator manueverGenerator = new RubenManueverGenerator();
+  private final RGBSubsystem rgbSubsystem = new RGBSubsystem();
 
-  //   private final NetworkWatchdogSubsystem networkWatchdogSubsystem = new
-  // NetworkWatchdogSubsystem();
+  private final NetworkWatchdogSubsystem networkWatchdogSubsystem =
+      new NetworkWatchdogSubsystem(Optional.of(rgbSubsystem));
+
+  private final RubenManueverGenerator manueverGenerator = new RubenManueverGenerator();
 
   private final ArmSubsystem armSubsystem = new ArmSubsystem();
 
@@ -249,13 +257,14 @@ public class RobotContainer {
 
     jasonLayer
         .off(jason.leftTrigger())
-        .whileTrue(new ForceOuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+        .whileTrue(
+            new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
     jasonLayer
         .off(jason.rightTrigger())
-        .onTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+        .onTrue(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
     jasonLayer
         .off(jason.x())
-        .onTrue(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF));
+        .onTrue(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF));
     jasonLayer
         .off(jason.a())
         .onTrue(
@@ -263,13 +272,15 @@ public class RobotContainer {
                 armSubsystem,
                 Arm.Setpoints.GroundIntake.ANGLE,
                 Arm.Setpoints.GroundIntake.EXTENSION))
-        .whileTrue(new ForceOuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+        .whileTrue(
+            new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
     jasonLayer
         .off(jason.b())
         .onTrue(
             new ArmPositionCommand(
                 armSubsystem, Arm.Setpoints.ShelfIntake.ANGLE, Arm.Setpoints.ShelfIntake.EXTENSION))
-        .whileTrue(new ForceOuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+        .whileTrue(
+            new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
     jasonLayer
         .off(jason.y())
         .onTrue(
@@ -283,7 +294,7 @@ public class RobotContainer {
         .whileTrue(
             new ArmPositionCommand(
                 armSubsystem, Arm.Setpoints.ScoreLow.ANGLE, Arm.Setpoints.ScoreLow.EXTENSION))
-        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+        .onFalse(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
     jasonLayer
         .on(jason.b())
         .whileTrue(
@@ -294,13 +305,25 @@ public class RobotContainer {
                     armSubsystem,
                     Arm.Setpoints.ScoreMid.CAPPED_ANGLE,
                     Arm.Setpoints.ScoreMid.EXTENSION)
-                .alongWith(new OuttakeCommand(outtakeSubsystem, Modes.OFF)));
+                .alongWith(
+                    new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF)));
     jasonLayer
         .on(jason.y())
         .whileTrue(
             new ArmPositionCommand(
                 armSubsystem, Arm.Setpoints.ScoreHigh.ANGLE, Arm.Setpoints.ScoreHigh.EXTENSION))
-        .onFalse(new OuttakeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+        .onFalse(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+    jason.start().onTrue(new SetZeroModeCommand(armSubsystem));
+
+    // control the lights
+    jason.povUp().onTrue(new SetLightsCommand(rgbSubsystem, Lights.Colors.PURPLE));
+    jason.povDown().onTrue(new SetLightsCommand(rgbSubsystem, Lights.Colors.YELLOW));
+    jason.povRight().onTrue(new InstantCommand(rgbSubsystem::showRainbow, rgbSubsystem));
+    jason
+        .povLeft()
+        .onTrue(
+            new InstantCommand(
+                () -> rgbSubsystem.showBounceColor(Lights.Colors.RED), rgbSubsystem));
   }
 
   /**

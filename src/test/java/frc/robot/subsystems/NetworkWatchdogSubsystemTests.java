@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.Optional;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 
@@ -50,7 +51,7 @@ public class NetworkWatchdogSubsystemTests {
   public void subsystemConstructs() {
     assertDoesNotThrow(
         () -> {
-          var subsystem = new NetworkWatchdogSubsystem();
+          var subsystem = new NetworkWatchdogSubsystem(Optional.empty());
           subsystem.matchStarting();
         });
   }
