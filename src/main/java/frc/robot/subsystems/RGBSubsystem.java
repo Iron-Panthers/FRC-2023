@@ -14,6 +14,7 @@ import frc.robot.Constants.Lights;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.PriorityQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class RGBSubsystem extends SubsystemBase {
   public static class RGBColor {
@@ -94,9 +95,18 @@ public class RGBSubsystem extends SubsystemBase {
   private final CANdle candle;
 
   /**
+   * The queue of messages that have been sent to the RGB subsystem, but not yet drained. Messages
+   * are drained into the drained queue during periodic. This serves to achieve thread safety, even
+   * when rgb messages are created from threads other than the main thread, without locking the main
+   * thread when reading the message queue.
+   */
+  private final ConcurrentLinkedQueue<RGBMessage> threadSafeMessageSink =
+      new ConcurrentLinkedQueue<>();
+
+  /**
    * The priority queue of messages to display. Messages with higher priority are displayed first.
    */
-  private final PriorityQueue<RGBMessage> messageQueue = new PriorityQueue<>();
+  private final PriorityQueue<RGBMessage> drainedMessageQueue = new PriorityQueue<>();
 
   /** Creates a new RGBSubsystem. */
   public RGBSubsystem() {
@@ -107,9 +117,10 @@ public class RGBSubsystem extends SubsystemBase {
   }
 
   /**
-   * Shows a message on the LEDs. Caller is responsible for expiring the message when it is no
-   * longer needed. Priority determines the order in which messages are displayed. Equal priority
-   * message order is undefined.
+   * Shows a message on the LEDs. Non blocking and thread safe. Caller is responsible for expiring
+   * the message when it is no longer needed. Priority determines the order in which messages are
+   * displayed. Equal priority message order is undefined. Message will not be processed until the
+   * next periodic if you are not on the main thread.
    *
    * @param color The color to display
    * @param pattern The pattern to display it with
@@ -118,7 +129,7 @@ public class RGBSubsystem extends SubsystemBase {
    */
   public RGBMessage showMessage(RGBColor color, PatternTypes pattern, MessagePriority priority) {
     RGBMessage message = new RGBMessage(color, pattern, priority);
-    messageQueue.add(message);
+    threadSafeMessageSink.offer(message);
     return message;
   }
 
@@ -159,11 +170,18 @@ public class RGBSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    { // drain the queue
+      RGBMessage message;
+      while ((message = threadSafeMessageSink.poll()) != null) {
+        drainedMessageQueue.add(message);
+      }
+    }
+
     boolean isMessageDisplayed = false;
-    while (!messageQueue.isEmpty() && !isMessageDisplayed) {
-      RGBMessage message = messageQueue.peek();
+    while (!drainedMessageQueue.isEmpty() && !isMessageDisplayed) {
+      RGBMessage message = drainedMessageQueue.peek();
       if (message.isExpired) {
-        messageQueue.remove();
+        drainedMessageQueue.remove();
         continue;
       }
 
