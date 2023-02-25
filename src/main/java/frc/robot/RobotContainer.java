@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
 import frc.robot.Constants.Lights;
 import frc.robot.autonomous.commands.AutoTestSequence;
+import frc.robot.autonomous.commands.OneCubePlusTwoConePlusBalance;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.DefaultDriveCommand;
@@ -286,6 +287,13 @@ public class RobotContainer {
         new AutoTestSequence(
             2, // m/s
             1, // m/s2
+            drivebaseSubsystem));
+
+    autoSelector.addOption(
+        "[NEW] One Cube Plus Two Cone Plus Balance", 
+        new OneCubePlusTwoConePlusBalance(
+            6, 
+            4, 
             drivebaseSubsystem));
 
     Shuffleboard.getTab("DriverView")

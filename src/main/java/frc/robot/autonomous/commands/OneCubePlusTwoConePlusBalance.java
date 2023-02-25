@@ -26,7 +26,7 @@ public class OneCubePlusTwoConePlusBalance extends SequentialCommandGroup {
       DrivebaseSubsystem drivebaseSubsystem) {
 
     ArrayList<PathPlannerTrajectory> paths =
-        new ArrayList<PathPlannerTrajectory>(
+        new ArrayList<>(
             PathPlanner.loadPathGroup(
                 "1 cube + 2 cone + balance",
                 maxVelocityMetersPerSecond,
