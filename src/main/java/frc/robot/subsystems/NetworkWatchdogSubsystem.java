@@ -77,11 +77,8 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
             () -> {
               final int initialUptimeMS =
                   (int) Math.floor(new SystemInfo().getOperatingSystem().getSystemUptime() * 1000d);
+              System.out.println("[network watchdog] System uptime: " + initialUptimeMS);
               if (initialUptimeMS < NetworkWatchdog.BOOT_SCAN_DELAY_MS) {
-                rgbSubsystem.ifPresent(
-                    r -> {
-                      r.showPulseColor(Lights.Colors.MINT);
-                    });
                 sleep(NetworkWatchdog.BOOT_SCAN_DELAY_MS - initialUptimeMS);
               }
 

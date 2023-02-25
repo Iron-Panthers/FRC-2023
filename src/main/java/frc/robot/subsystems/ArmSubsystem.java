@@ -73,7 +73,7 @@ public class ArmSubsystem extends SubsystemBase {
     extensionMotor.configReverseSoftLimitEnable(true, 20);
 
     angleController = new PIDController(.019, 0, 0);
-    extensionController = new PIDController(0.48, 0, 0); // within 0.1 inches of accuracy
+    extensionController = new PIDController(0.15, 0, 0); // within 0.1 inches of accuracy
     angleController.setTolerance(5); // FIXME not sure if these are good values
     extensionController.setTolerance(0.2);
 
@@ -110,6 +110,7 @@ public class ArmSubsystem extends SubsystemBase {
     tab.add("Telescoping Arm PID", extensionController);
     tab.addNumber("Current Extension", this::getCurrentExtensionInches);
     tab.addNumber("Target Extension", () -> targetExtensionInches);
+    tab.addNumber("extension error", () -> targetExtensionInches - getCurrentExtensionInches());
     tab.addNumber("Telescoping PID Output", () -> extensionOutput);
     tab.addBoolean(
         "Current or Target Angle within Unsafe Threshold",
