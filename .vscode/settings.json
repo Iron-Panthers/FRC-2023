@@ -39,21 +39,23 @@
   "cSpell.words": [
     "AHRS",
     "apriltag",
+    "cancoder",
     "Chebyshev",
     "CONTROLPOINT",
-    "cancoder",
     "Deadband",
     "deadbanded",
     "drivebase",
+    "fkirc",
+    "gradlew",
     "Hardstop",
     "Holonomic",
     "LEDS",
     "Mockito",
     "navx",
     "Odometry",
+    "oshi",
     "pathfinding",
     "pathing",
-    "oshi",
     "POWERCYCLE",
     "repath",
     "REPATHS",
@@ -61,6 +63,7 @@
     "Setpoints",
     "teleop",
     "teleoperated",
+    "temurin",
     "TRACKWIDTH"
   ]
 }
