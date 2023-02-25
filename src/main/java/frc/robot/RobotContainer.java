@@ -137,7 +137,7 @@ public class RobotContainer {
    */
   public void containerMatchStarting() {
     // runs when the match starts
-    // networkWatchdogSubsystem.matchStarting();
+    networkWatchdogSubsystem.matchStarting();
   }
 
   /**
