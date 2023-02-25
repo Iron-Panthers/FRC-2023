@@ -6,8 +6,10 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.Lights;
 import frc.robot.Constants.NetworkWatchdog;
 import java.io.IOException;
+import java.util.Optional;
 import oshi.SystemInfo;
 
 /**
@@ -18,6 +20,7 @@ import oshi.SystemInfo;
 public class NetworkWatchdogSubsystem extends SubsystemBase {
   private Thread networkWatchdogThread;
   private PowerDistribution pdh = new PowerDistribution();
+  private Optional<RGBSubsystem> rgbSubsystem;
 
   /**
    * Blocking method that tests if /bin/ping can reach the specified host. You should never call
@@ -65,13 +68,16 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
   }
 
   /** Creates a new NetworkWatchdogSubsystem. */
-  public NetworkWatchdogSubsystem() {
+  public NetworkWatchdogSubsystem(Optional<RGBSubsystem> rgbSubsystem) {
+    this.rgbSubsystem = rgbSubsystem;
+
     pdh.setSwitchableChannel(true);
     networkWatchdogThread =
         new Thread(
             () -> {
               final int initialUptimeMS =
                   (int) Math.floor(new SystemInfo().getOperatingSystem().getSystemUptime() * 1000d);
+              System.out.println("[network watchdog] System uptime: " + initialUptimeMS);
               if (initialUptimeMS < NetworkWatchdog.BOOT_SCAN_DELAY_MS) {
                 sleep(NetworkWatchdog.BOOT_SCAN_DELAY_MS - initialUptimeMS);
               }
@@ -80,12 +86,20 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
               // to the while conditional
               while (!Thread.interrupted()) {
                 if (canPing(NetworkWatchdog.TEST_IP_ADDRESS)) {
+                  rgbSubsystem.ifPresent(
+                      r -> {
+                        r.showBounceColor(Lights.Colors.MINT);
+                      });
                   System.out.println(
                       "[network watchdog] Pinged "
                           + NetworkWatchdog.TEST_IP_ADDRESS
                           + " successfully.");
                   sleep(NetworkWatchdog.HEALTHY_CHECK_INTERVAL_MS);
                 } else {
+                  rgbSubsystem.ifPresent(
+                      r -> {
+                        r.showBounceColor(Lights.Colors.PINK);
+                      });
                   System.out.println(
                       "[network watchdog] Failed to ping "
                           + NetworkWatchdog.TEST_IP_ADDRESS
@@ -113,5 +127,6 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
     System.out.println("[network watchdog] Network watchdog thread stopped.");
     // always reenable switchable channel after killing the thread
     pdh.setSwitchableChannel(true);
+    rgbSubsystem.ifPresent(RGBSubsystem::showRainbow);
   }
 }

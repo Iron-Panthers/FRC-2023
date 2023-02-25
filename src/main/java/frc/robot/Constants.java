@@ -14,6 +14,11 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import frc.robot.Constants.Drive.Dims;
+import frc.robot.subsystems.OuttakeSubsystem.OuttakeDetails;
+import frc.robot.subsystems.RGBSubsystem.RGBColor;
+import frc.util.pathing.FieldObstructionMap;
+import java.util.Optional;
 
 @SuppressWarnings("java:S1118")
 /**
@@ -54,6 +59,8 @@ public final class Constants {
       public static final double TRACKWIDTH_METERS =
           .5207; // 20.5 inches (source: cad) converted to meters
       public static final double WHEELBASE_METERS = TRACKWIDTH_METERS; // robot is square
+
+      public static final double BUMPER_WIDTH_METERS = .851;
     }
 
     /*
@@ -96,7 +103,7 @@ public final class Constants {
         public static final double STEER_OFFSET =
             IS_COMP_BOT
                 ? -Math.toRadians(8.07400 + 180) // comp bot offset
-                : -Math.toRadians(39.462890); // practice bot offset
+                : -Math.toRadians(309.99 + 180); // practice bot offset
       }
 
       public static final class FrontLeft { // Module 2
@@ -107,7 +114,7 @@ public final class Constants {
         public static final double STEER_OFFSET =
             IS_COMP_BOT
                 ? -Math.toRadians(274.562 + 180) // comp bot offset
-                : -Math.toRadians(222.7148); // practice bot offset
+                : -Math.toRadians(300.849 + 180); // practice bot offset
       }
 
       public static final class BackLeft { // Module 3
@@ -118,7 +125,7 @@ public final class Constants {
         public static final double STEER_OFFSET =
             IS_COMP_BOT
                 ? -Math.toRadians(225.082 + 180) // comp bot offset
-                : -Math.toRadians(129.63867); // practice bot offset
+                : -Math.toRadians(127.792 + 180); // practice bot offset
       }
 
       public static final class BackRight { // Module 4
@@ -129,29 +136,125 @@ public final class Constants {
         public static final double STEER_OFFSET =
             IS_COMP_BOT
                 ? -Math.toRadians(335.124 + 180) // comp bot offset
-                : -Math.toRadians(61.3476); // practice bot offset
+                : -Math.toRadians(62.138 + 180); // practice bot offset
+      }
+    }
+  }
+
+  public static final class Arm {
+    public static final class Ports {
+      public static final int ARM_MOTOR_PORT = 16;
+      public static final int TELESCOPING_MOTOR_PORT = 17;
+      public static final int ENCODER_PORT = 28;
+    }
+
+    public static final double GRAVITY_CONTROL_PERCENT = 0.07;
+
+    public static final double ANGULAR_OFFSET = -8.75;
+
+    public static final class Setpoints {
+      public static final class ScoreLow {
+        public static final int ANGLE = 40;
+        public static final double EXTENSION = Extensions.MAX_EXTENSION;
+      }
+
+      public static final class ScoreMid {
+        public static final int ANGLE = 90;
+        public static final double CAPPED_ANGLE = 40;
+        public static final double EXTENSION = 5d;
+      }
+
+      public static final class ScoreHigh {
+        public static final int ANGLE = 110;
+        public static final double EXTENSION = Extensions.MAX_EXTENSION;
+      }
+
+      public static final class GroundIntake {
+        public static final int ANGLE = 40;
+        public static final double EXTENSION = Extensions.MAX_EXTENSION;
+      }
+
+      public static final class ShelfIntake {
+        public static final int ANGLE = 90;
+        public static final double EXTENSION = Extensions.MAX_EXTENSION;
+      }
+
+      public static final class Angles {
+        public static final int STARTING_ANGLE = 0;
+        public static final int FORWARD_ANGLE = 90;
+        public static final int BACKWARD_ANGLE = -90;
+        public static final int TEST_ANGLE = 45;
+      }
+
+      public static final class Extensions {
+        public static final double MAX_EXTENSION = 18.5;
+        public static final double MIN_EXTENSION = 0;
+      }
+    }
+
+    public static final double EXTENSION_STATORLIMIT = 80;
+
+    public static final double ZERO_RETRACTION_PERCENT = -0.4; // FIXME
+    public static final int TICKS = 2048;
+    public static final int TELESCOPING_ARM_GEAR_RATIO = 3;
+    public static final double SPOOL_CIRCUMFERENCE = 1.5 * Math.PI;
+
+    public static final class Thresholds {
+      /**
+       * These thresholds, unless otherwise specified in a doc comment, apply to the positive and
+       * negative sign of their angle in degrees
+       */
+      public static final class Angles {
+        public static final double BACKWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD =
+            -40; // FIXME: real value needed
+        public static final double FORWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD =
+            20; // FIXME: real value needed
+        public static final double UPPER_ANGLE_LIMIT = 100; // FIXME: real value needed
+      }
+
+      public static final class Extensions {
+        /**
+         * The amount of additional extension from min extension to treat as fully retracted for
+         * safety purposes
+         */
+        public static final double FULLY_RETRACTED_INCHES_THRESHOLD = 1;
       }
     }
   }
 
   public static final class Vision {
-    public static final double LIMELIGHT_CLUSTER_HEIGHT = 0.3048;
 
     public static final class FrontCam {
       public static final String NAME = "frontCam";
-      /** Cam mounted facing forward, centered, at the back of the robot */
       public static final Transform3d ROBOT_TO_CAM =
           new Transform3d(
-              new Translation3d(-0.2248, 0, LIMELIGHT_CLUSTER_HEIGHT), new Rotation3d(0, 0, 0));
+              // 9.867 in to the right looking from behind the front of the robot
+              // 7 inch forward from center
+              // up 17.422 inches
+              new Translation3d(
+                  0.1778, // front/back
+                  0.2506218, // left/right
+                  0.4425188 // up/down
+                  ),
+              new Rotation3d(
+                  0,
+                  Math.toRadians(-11.5), // angle up/down
+                  0));
     }
 
     public static final class BackCam {
       public static final String NAME = "backCam";
-      /** Cam mounted facing backward, centered, at the back of the robot */
       public static final Transform3d ROBOT_TO_CAM =
           new Transform3d(
-              new Translation3d(-0.301, 0, LIMELIGHT_CLUSTER_HEIGHT),
-              new Rotation3d(0, 0, Math.PI));
+              // 9.867 in to the right looking from behind the front of the robot
+              // 48.5 inches up
+              // two inches forward
+              new Translation3d(
+                  0.0508, // front/back
+                  -0.2506218, // left/right
+                  1.2319 // up/down
+                  ),
+              new Rotation3d(0, Math.toRadians(17), Math.PI));
     }
   }
 
@@ -176,9 +279,9 @@ public final class Constants {
     public static final Matrix<N3, N1> VISION_MEASUREMENT_STANDARD_DEVIATIONS =
         Matrix.mat(Nat.N3(), Nat.N1())
             .fill(
-                2, // x
-                2, // y
-                2 * Math.PI // theta
+                .9, // x
+                .9, // y
+                .9 * Math.PI // theta
                 );
 
     public static final double CAMERA_CAPTURE_LATENCY_FUDGE_MS = 11;
@@ -189,6 +292,64 @@ public final class Constants {
     public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 2;
   }
 
+  public static final class Pathing {
+    /** The size in meters of a given cell for pathfinding */
+    public static final double CELL_SIZE_METERS = 0.1;
+
+    public static final int CELL_X_MAX =
+        (int) Math.ceil(FieldObstructionMap.FIELD_LENGTH / Pathing.CELL_SIZE_METERS);
+    public static final int CELL_Y_MAX =
+        (int) Math.ceil(FieldObstructionMap.FIELD_HEIGHT / Pathing.CELL_SIZE_METERS);
+
+    /**
+     * this variable is badly named, it refers to half the width decimated to the cell grid. coords
+     * that require going within this distance will be very expensive for pathfinding.
+     */
+    public static final int ROBOT_RADIUS_DANGER_CELLS =
+        // using floor is not a bug, we want to be able to drive up to the edge of the cell if
+        // needed. this might not work too hot for other robot sizes, but for our size down is much
+        // more reasonable than up for .1m cells
+        // adding one serves to reduce the risk of a spline clipping something
+        (int) Math.floor((Dims.BUMPER_WIDTH_METERS / 2) / Pathing.CELL_SIZE_METERS) + 1;
+
+    /**
+     * grid coords that require going within this distance of field elements will be unavailable for
+     * pathfinding. subtracting one serves to make this number accurate because we added one
+     * earlier.
+     */
+    public static final int ROBOT_RADIUS_COLLISION_CELLS = ROBOT_RADIUS_DANGER_CELLS - 2;
+
+    public static final double CRITICAL_POINT_DIVERGENCE_THRESHOLD = 6;
+
+    public static final int PATHFINDING_HEURISTIC_CONSTANT = 1;
+
+    public static final class Costs {
+      public static final int CARDINAL = 2;
+      public static final int DIAGONAL = 3;
+      public static final int DANGER_MULTIPLIER = 50;
+    }
+  }
+
+  public static final class Outtake {
+    public static final class Ports {
+      public static final int OUTTAKE_MOTOR = 8; // Placeholder value
+    }
+
+    public static final class OuttakeModes {
+      public static final OuttakeDetails HOLD =
+          new OuttakeDetails(0.1, Optional.empty(), Optional.empty());
+
+      public static final OuttakeDetails INTAKE =
+          new OuttakeDetails(0.7, Optional.of(new OuttakeDetails.StatorLimit(75)), Optional.of(2d));
+
+      public static final OuttakeDetails OUTTAKE =
+          new OuttakeDetails(-0.2, Optional.empty(), Optional.of(2d));
+
+      public static final OuttakeDetails OFF =
+          new OuttakeDetails(0.0, Optional.empty(), Optional.empty());
+    }
+  }
+
   public static final class NetworkWatchdog {
     /** The IP address to ping for testing bridging, on the second vlan. */
     public static final String TEST_IP_ADDRESS = "10.50.26.19";
@@ -197,7 +358,7 @@ public final class Constants {
      * The number of ms (sleep delta using oshi system uptime) to wait before beginning to ping the
      * test IP.
      */
-    public static final int BOOT_SCAN_DELAY_MS = 20_000;
+    public static final int BOOT_SCAN_DELAY_MS = 30_000;
 
     /** The number of seconds for ping to wait before giving up on reaching a device. */
     public static final int PING_TIMEOUT_SECONDS = 2;
@@ -216,5 +377,22 @@ public final class Constants {
      * switch reboot.
      */
     public static final int SWITCH_POWERCYCLE_SCAN_DELAY_MS = 6_000;
+  }
+
+  public static final class Lights {
+    public static final int CANDLE_ID = 34;
+    public static final int NUM_LEDS =
+        91
+            // 8 inside the candle
+            + 8;
+
+    public static final class Colors {
+      public static final RGBColor YELLOW = new RGBColor(255, 107, 0);
+      public static final RGBColor PURPLE = new RGBColor(127, 0, 127);
+      public static final RGBColor RED = new RGBColor(255, 0, 0);
+      public static final RGBColor BLUE = new RGBColor(0, 0, 255);
+      public static final RGBColor PINK = new RGBColor(250, 35, 100);
+      public static final RGBColor MINT = new RGBColor(55, 255, 50);
+    }
   }
 }
