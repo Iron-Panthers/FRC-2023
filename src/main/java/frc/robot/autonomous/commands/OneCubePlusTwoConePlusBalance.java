@@ -45,13 +45,14 @@ public class OneCubePlusTwoConePlusBalance extends SequentialCommandGroup {
         new FollowTrajectoryCommand(paths.get(4), false, drivebaseSubsystem));
   }
 
+  /** Extends arm to score mid position */
   private ParallelRaceGroup extendArm() {
     return new ArmPositionCommand(
             armSubsystem, Arm.Setpoints.ScoreMid.ANGLE, Arm.Setpoints.ScoreMid.EXTENSION)
         .raceWith(new WaitCommand(3));
   }
 
-  /** First moves arm up to the desired angle, drops the cone, and then brings the arm back down */
+  /** drops the cone, and then brings the arm back down */
   private SequentialCommandGroup scoreMid() {
     return new SequentialCommandGroup(
         new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF),
