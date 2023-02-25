@@ -10,7 +10,6 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
-import frc.robot.Constants.PoseEstimator;
 import frc.robot.autonomous.TrajectoryFollower;
 
 /**
@@ -43,25 +42,6 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
   private ChassisSpeeds finishTrajectory() {
     finished = true;
     return new ChassisSpeeds();
-  }
-
-  public static boolean poseWithinErrorMarginOfTrajectoryFinalGoal(
-      Pose2d currentPose, Trajectory trajectory) {
-    var finalState =
-        ((PathPlannerState)
-            trajectory
-                // sample the final position using the time greater than total time behavior
-                .sample(trajectory.getTotalTimeSeconds() + 1));
-    return (
-        // xy error
-        currentPose.getTranslation().getDistance(finalState.poseMeters.getTranslation())
-            <= PoseEstimator.DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS)
-        && (
-        // theta error
-        Math.abs(
-                Util.relativeAngularDifference(
-                    currentPose.getRotation(), finalState.holonomicRotation))
-            <= PoseEstimator.DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES);
   }
 
   @Override
