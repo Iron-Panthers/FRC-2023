@@ -104,6 +104,8 @@ public class OuttakeSubsystem extends SubsystemBase {
     tab.addNumber("Stator Current", this.outtake::getStatorCurrent);
     tab.addNumber("Filter Output", () -> this.filterOutput);
 
+    tab.addNumber("voltage", this.outtake::getMotorOutputVoltage);
+
     tab.addString("Current Mode", () -> mode.toString());
   }
 
