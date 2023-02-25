@@ -358,7 +358,7 @@ public final class Constants {
      * The number of ms (sleep delta using oshi system uptime) to wait before beginning to ping the
      * test IP.
      */
-    public static final int BOOT_SCAN_DELAY_MS = 30_000;
+    public static final int BOOT_SCAN_DELAY_MS = 50_000;
 
     /** The number of seconds for ping to wait before giving up on reaching a device. */
     public static final int PING_TIMEOUT_SECONDS = 2;
@@ -376,7 +376,7 @@ public final class Constants {
      * The number of ms to wait before rerunning health checks after a failed check which triggered
      * switch reboot.
      */
-    public static final int SWITCH_POWERCYCLE_SCAN_DELAY_MS = 6_000;
+    public static final int SWITCH_POWERCYCLE_SCAN_DELAY_MS = 25_000;
   }
 
   public static final class Lights {
