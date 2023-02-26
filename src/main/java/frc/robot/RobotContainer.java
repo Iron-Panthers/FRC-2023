@@ -321,6 +321,9 @@ public class RobotContainer {
     jason
         .povDown()
         .onTrue(new ForceLightsColorCommand(rgbSubsystem, Lights.Colors.YELLOW).withTimeout(10));
+
+    // clear arm commands
+    jason.rightStick().onTrue(new InstantCommand(() -> {}, armSubsystem));
   }
 
   /**

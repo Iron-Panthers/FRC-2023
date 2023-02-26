@@ -170,8 +170,8 @@ public final class Constants {
       }
 
       public static final class GroundIntake {
-        public static final double ANGLE = 27.4;
-        public static final double EXTENSION = 11.7;
+        public static final double ANGLE = -41.3;
+        public static final double EXTENSION = 18.5;
       }
 
       public static final class ShelfIntake {
@@ -206,7 +206,7 @@ public final class Constants {
        */
       public static final class Angles {
         public static final double BACKWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD =
-            -40; // FIXME: real value needed
+            -35; // FIXME: real value needed
         public static final double FORWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD =
             20; // FIXME: real value needed
         public static final double UPPER_ANGLE_LIMIT = 100; // FIXME: real value needed
