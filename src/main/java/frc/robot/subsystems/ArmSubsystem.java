@@ -139,6 +139,7 @@ public class ArmSubsystem extends SubsystemBase {
     extensionMotor.configForwardSoftLimitEnable(false, 20);
     extensionMotor.configReverseSoftLimitEnable(false, 20);
     mode = Modes.ZERO;
+    targetExtensionInches = Arm.Setpoints.Extensions.MIN_EXTENSION;
   }
 
   /* methods for angle arm control */
@@ -242,6 +243,7 @@ public class ArmSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    this.filterOutput = this.filter.calculate(this.extensionMotor.getStatorCurrent());
 
     switch (mode) {
       case DRIVETOPOS:
@@ -256,8 +258,7 @@ public class ArmSubsystem extends SubsystemBase {
   public void zeroPeriodic() {
     angleMotor.set(ControlMode.PercentOutput, computeArmGravityOffset());
     extensionMotor.set(ControlMode.PercentOutput, Arm.ZERO_RETRACTION_PERCENT);
-    this.filterOutput = this.filter.calculate(this.extensionMotor.getStatorCurrent());
-    if (filterOutput > Arm.EXTENSION_STATORLIMIT) { // FIXME 20 is not correct value
+    if (filterOutput > Arm.EXTENSION_STATORLIMIT) {
       extensionMotor.setSelectedSensorPosition(0);
       mode = Modes.DRIVETOPOS;
       extensionMotor.configForwardSoftLimitEnable(true, 20);
