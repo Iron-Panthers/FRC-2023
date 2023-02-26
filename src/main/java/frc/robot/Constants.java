@@ -187,8 +187,8 @@ public final class Constants {
       }
 
       public static final class Extensions {
-        public static final double MAX_EXTENSION = 18.5;
-        public static final double MIN_EXTENSION = 0.25;
+        public static final double MAX_EXTENSION = 20;
+        public static final double MIN_EXTENSION = 0.4;
       }
     }
 
