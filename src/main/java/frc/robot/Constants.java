@@ -159,9 +159,9 @@ public final class Constants {
       }
 
       public static final class ScoreMid {
-        public static final int ANGLE = 90;
-        public static final double CAPPED_ANGLE = 40;
-        public static final double EXTENSION = 5d;
+        public static final int ANGLE = 100;
+        public static final double CAPPED_ANGLE = 80;
+        public static final double EXTENSION = 5;
       }
 
       public static final class ScoreHigh {
@@ -188,7 +188,7 @@ public final class Constants {
 
       public static final class Extensions {
         public static final double MAX_EXTENSION = 18.5;
-        public static final double MIN_EXTENSION = 0;
+        public static final double MIN_EXTENSION = 0.25;
       }
     }
 
