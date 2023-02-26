@@ -51,7 +51,7 @@ public class ArmSubsystem extends SubsystemBase {
 
   public ArmSubsystem() {
 
-    filter = LinearFilter.movingAverage(30);
+    filter = LinearFilter.movingAverage(10);
 
     this.angleMotor = new TalonFX(Arm.Ports.ARM_MOTOR_PORT);
     extensionMotor = new TalonFX(Arm.Ports.TELESCOPING_MOTOR_PORT);
@@ -120,7 +120,8 @@ public class ArmSubsystem extends SubsystemBase {
     tab.addNumber("Angle Error", () -> targetAngleDegrees - getAngle());
     tab.addBoolean("At target", this::atTarget);
     tab.addString("Current Mode", () -> mode.toString());
-    tab.addNumber("Stator current", () -> this.extensionMotor.getStatorCurrent());
+    tab.addNumber("Stator current", this.extensionMotor::getStatorCurrent);
+    tab.addNumber("filtered stator current", () -> this.filterOutput);
   }
 
   public enum Modes {
