@@ -192,9 +192,9 @@ public final class Constants {
       }
     }
 
-    public static final double EXTENSION_STATORLIMIT = 40;
+    public static final double EXTENSION_STATORLIMIT = 35;
 
-    public static final double ZERO_RETRACTION_PERCENT = -0.15; // FIXME
+    public static final double ZERO_RETRACTION_PERCENT = -0.12; // FIXME
     public static final int TICKS = 2048;
     public static final int TELESCOPING_ARM_GEAR_RATIO = 3;
     public static final double SPOOL_CIRCUMFERENCE = 1.5 * Math.PI;

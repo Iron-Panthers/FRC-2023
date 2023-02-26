@@ -51,7 +51,7 @@ public class ArmSubsystem extends SubsystemBase {
 
   public ArmSubsystem() {
 
-    filter = LinearFilter.movingAverage(10);
+    filter = LinearFilter.movingAverage(35);
 
     this.angleMotor = new TalonFX(Arm.Ports.ARM_MOTOR_PORT);
     extensionMotor = new TalonFX(Arm.Ports.TELESCOPING_MOTOR_PORT);
