@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Arm;
+import frc.robot.Constants.Arm.Thresholds;
 import frc.util.Util;
 
 /** Add your docs here. */
@@ -75,9 +76,9 @@ public class ArmSubsystem extends SubsystemBase {
     extensionMotor.configReverseSoftLimitEnable(true, 20);
 
     angleController = new PIDController(.019, 0, 0);
-    extensionController = new PIDController(0.17, 0, 0); // within 0.1 inches of accuracy
-    angleController.setTolerance(5); // FIXME not sure if these are good values
-    extensionController.setTolerance(0.2);
+    extensionController = new PIDController(0.17, 0, 0);
+    angleController.setTolerance(Thresholds.Angles.EPSILON);
+    extensionController.setTolerance(Thresholds.Extensions.EPSILON);
 
     angleEncoder = new CANCoder(Arm.Ports.ENCODER_PORT);
 
@@ -242,8 +243,9 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   public boolean atTarget() {
-    return Util.epsilonEquals(getAngle(), targetAngleDegrees, 5)
-        && Util.epsilonEquals(getCurrentExtensionInches(), targetExtensionInches, 0.2);
+    return Util.epsilonEquals(getAngle(), targetAngleDegrees, Thresholds.Angles.EPSILON)
+        && Util.epsilonEquals(
+            getCurrentExtensionInches(), targetExtensionInches, Thresholds.Extensions.EPSILON);
     // && extensionController.atSetpoint()
     // && angleController.atSetpoint();
   }

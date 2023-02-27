@@ -187,7 +187,8 @@ public final class Constants {
             -35; // FIXME: real value needed
         public static final double FORWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD =
             20; // FIXME: real value needed
-        public static final double UPPER_ANGLE_LIMIT = 100; // FIXME: real value needed
+        public static final double UPPER_ANGLE_LIMIT = 115; // FIXME: real value needed
+        public static final double EPSILON = 5;
       }
 
       public static final class Extensions {
@@ -196,6 +197,8 @@ public final class Constants {
          * safety purposes
          */
         public static final double FULLY_RETRACTED_INCHES_THRESHOLD = 1;
+
+        public static final double EPSILON = .5;
       }
     }
   }
