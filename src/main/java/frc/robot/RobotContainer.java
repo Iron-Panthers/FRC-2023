@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
 import frc.robot.Constants.Lights;
+import frc.robot.Constants.ScoringSteps;
 import frc.robot.autonomous.commands.AutoTestSequence;
 import frc.robot.autonomous.commands.IanDemoAutoSequence;
 import frc.robot.commands.ArmManualCommand;
@@ -33,6 +34,7 @@ import frc.robot.commands.ForceOuttakeSubsystemModeCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
+import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.SetOuttakeModeCommand;
 import frc.robot.commands.SetZeroModeCommand;
 import frc.robot.commands.VibrateControllerCommand;
@@ -40,7 +42,6 @@ import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.NetworkWatchdogSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
-import frc.robot.subsystems.OuttakeSubsystem.Modes;
 import frc.robot.subsystems.RGBSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.util.ControllerUtil;
@@ -202,57 +203,12 @@ public class RobotContainer {
     will.b()
         .onTrue(
             new DriveToPlaceCommand(
-                    drivebaseSubsystem,
-                    visionSubsystem,
-                    manueverGenerator,
-                    new Pose2d(2.5, 1, Rotation2d.fromDegrees(180)),
-                    new Pose2d(1.8, .5, Rotation2d.fromDegrees(180)),
-                    .05)
-                .alongWith(
-                    new ArmPositionCommand(armSubsystem, 0, Arm.Setpoints.Extensions.MIN_EXTENSION)
-                        .withTimeout(.5))
-                .andThen(
-                    new ArmPositionCommand(
-                        armSubsystem,
-                        Arm.Setpoints.ScoreMid.ANGLE,
-                        Arm.Setpoints.Extensions.MIN_EXTENSION))
-                .andThen(
-                    new ArmPositionCommand(
-                            armSubsystem,
-                            Arm.Setpoints.ScoreMid.ANGLE,
-                            Arm.Setpoints.ScoreMid.EXTENSION)
-                        .andThen(
-                            new ArmPositionCommand(
-                                    armSubsystem,
-                                    Arm.Setpoints.ScoreMid.CAPPED_ANGLE,
-                                    Arm.Setpoints.ScoreMid.EXTENSION)
-                                .alongWith(new SetOuttakeModeCommand(outtakeSubsystem, Modes.OFF))
-                                .withTimeout(.25)))
-                .andThen(
-                    new SetOuttakeModeCommand(outtakeSubsystem, Modes.OUTTAKE)
-                        .alongWith(
-                            new ArmPositionCommand(
-                                armSubsystem,
-                                Arm.Setpoints.ScoreMid.CAPPED_ANGLE,
-                                Arm.Setpoints.Extensions.MIN_EXTENSION))
-                        .withTimeout(.25))
-                .andThen(
-                    new ArmPositionCommand(armSubsystem, 0, Arm.Setpoints.Extensions.MIN_EXTENSION)
-                        .withTimeout(.5))
-                .andThen(
-                    new DriveToPlaceCommand(
-                        drivebaseSubsystem,
-                        visionSubsystem,
-                        manueverGenerator,
-                        new Pose2d(6.96, 6.43, Rotation2d.fromDegrees(0)))));
-
-    will.y()
-        .onTrue(
-            new DriveToPlaceCommand(
                 drivebaseSubsystem,
                 visionSubsystem,
                 manueverGenerator,
-                new Pose2d(1.8, 4.97, Rotation2d.fromDegrees(180))));
+                new Pose2d(2.5, 1, Rotation2d.fromDegrees(180)),
+                new Pose2d(1.8, .5, Rotation2d.fromDegrees(180)),
+                .05));
 
     // outtake states
     jasonLayer
@@ -269,59 +225,33 @@ public class RobotContainer {
     // intake presets
     jasonLayer
         .off(jason.a())
-        .onTrue(
-            new ArmPositionCommand(
-                armSubsystem,
-                Arm.Setpoints.GroundIntake.ANGLE,
-                Arm.Setpoints.GroundIntake.EXTENSION))
+        .onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.GROUND_INTAKE))
         .whileTrue(
             new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
     jasonLayer
         .off(jason.b())
-        .onTrue(
-            new ArmPositionCommand(
-                armSubsystem, Arm.Setpoints.ShelfIntake.ANGLE, Arm.Setpoints.ShelfIntake.EXTENSION))
+        .onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.SHELF_INTAKE))
         .whileTrue(
             new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
 
     // reset
-    jasonLayer
-        .off(jason.y())
-        .onTrue(
-            new ArmPositionCommand(
-                armSubsystem,
-                Arm.Setpoints.Angles.STARTING_ANGLE,
-                Arm.Setpoints.Extensions.MIN_EXTENSION));
+    jasonLayer.off(jason.y()).onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED));
     jason.start().onTrue(new SetZeroModeCommand(armSubsystem));
 
     // clear arm commands
     jason.rightStick().onTrue(new InstantCommand(() -> {}, armSubsystem));
 
     // scoring
-    jasonLayer
-        .on(jason.a())
-        .whileTrue(
-            new ArmPositionCommand(
-                armSubsystem, Arm.Setpoints.ScoreLow.ANGLE, Arm.Setpoints.ScoreLow.EXTENSION))
-        .onFalse(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+    // jasonLayer
+    //     .on(jason.a())
+    // low
+
     jasonLayer
         .on(jason.b())
-        .whileTrue(
-            new ArmPositionCommand(
-                armSubsystem, Arm.Setpoints.ScoreMid.ANGLE, Arm.Setpoints.ScoreMid.EXTENSION))
-        .onFalse(
-            new ArmPositionCommand(
-                    armSubsystem,
-                    Arm.Setpoints.ScoreMid.CAPPED_ANGLE,
-                    Arm.Setpoints.ScoreMid.EXTENSION)
-                .alongWith(
-                    new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF)));
+        .onTrue(new ScoreCommand(outtakeSubsystem, armSubsystem, ScoringSteps.Cone.MID));
     jasonLayer
         .on(jason.y())
-        .whileTrue(
-            new ArmPositionCommand(
-                armSubsystem, Arm.Setpoints.ScoreHigh.ANGLE, Arm.Setpoints.ScoreHigh.EXTENSION))
-        .onFalse(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+        .onTrue(new ScoreCommand(outtakeSubsystem, armSubsystem, ScoringSteps.Cone.HIGH));
 
     // control the lights
     jason

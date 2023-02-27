@@ -87,7 +87,7 @@ public class ArmSubsystem extends SubsystemBase {
         SensorInitializationStrategy.BootToAbsolutePosition);
     angleEncoder.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
 
-    targetAngleDegrees = Arm.Setpoints.Angles.STARTING_ANGLE;
+    targetAngleDegrees = Arm.Setpoints.STOWED.angle();
 
     var config =
         new StatorCurrentLimitConfiguration(
@@ -265,7 +265,7 @@ public class ArmSubsystem extends SubsystemBase {
   public void zeroPeriodic() {
     angleMotor.set(ControlMode.PercentOutput, computeArmGravityOffset());
     extensionMotor.set(ControlMode.PercentOutput, Arm.ZERO_RETRACTION_PERCENT);
-    if (filterOutput > Arm.EXTENSION_STATORLIMIT) {
+    if (filterOutput > Arm.EXTENSION_STATOR_LIMIT) {
       extensionMotor.setSelectedSensorPosition(0);
       mode = Modes.DRIVETOPOS;
       extensionMotor.configForwardSoftLimitEnable(true, 20);

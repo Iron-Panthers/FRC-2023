@@ -8,13 +8,15 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ArmSubsystem.ArmState;
 import frc.robot.subsystems.OuttakeSubsystem;
+import java.util.List;
 import java.util.Optional;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class ScoreCommand extends SequentialCommandGroup {
-  record ScoreStep(Optional<ArmState> armState, Optional<OuttakeSubsystem.Modes> outtakeState) {
+  public static record ScoreStep(
+      Optional<ArmState> armState, Optional<OuttakeSubsystem.Modes> outtakeState) {
     public ScoreStep(ArmState armState, OuttakeSubsystem.Modes outtakeState) {
       this(Optional.of(armState), Optional.of(outtakeState));
     }
@@ -30,7 +32,7 @@ public class ScoreCommand extends SequentialCommandGroup {
 
   /** Creates a new ScoreCommand. */
   public ScoreCommand(
-      OuttakeSubsystem outtakeSubsystem, ArmSubsystem armSubsystem, ScoreStep[] scoreSteps) {
+      OuttakeSubsystem outtakeSubsystem, ArmSubsystem armSubsystem, List<ScoreStep> scoreSteps) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
 

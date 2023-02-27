@@ -15,9 +15,13 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import frc.robot.Constants.Drive.Dims;
+import frc.robot.commands.ScoreCommand.ScoreStep;
+import frc.robot.subsystems.ArmSubsystem.ArmState;
+import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem.OuttakeDetails;
 import frc.robot.subsystems.RGBSubsystem.RGBColor;
 import frc.util.pathing.FieldObstructionMap;
+import java.util.List;
 import java.util.Optional;
 
 @SuppressWarnings("java:S1118")
@@ -153,38 +157,12 @@ public final class Constants {
     public static final double ANGULAR_OFFSET = -8.75;
 
     public static final class Setpoints {
-      public static final class ScoreLow {
-        public static final int ANGLE = 40;
-        public static final double EXTENSION = Extensions.MAX_EXTENSION;
-      }
 
-      public static final class ScoreMid {
-        public static final int ANGLE = 100;
-        public static final double CAPPED_ANGLE = 80;
-        public static final double EXTENSION = 5;
-      }
+      public static final ArmState GROUND_INTAKE = new ArmState(-45, 19);
 
-      public static final class ScoreHigh {
-        public static final int ANGLE = 110;
-        public static final double EXTENSION = Extensions.MAX_EXTENSION;
-      }
+      public static final ArmState SHELF_INTAKE = new ArmState(90, 0);
 
-      public static final class GroundIntake {
-        public static final double ANGLE = -45;
-        public static final double EXTENSION = 19;
-      }
-
-      public static final class ShelfIntake {
-        public static final int ANGLE = 90;
-        public static final double EXTENSION = Extensions.MAX_EXTENSION;
-      }
-
-      public static final class Angles {
-        public static final int STARTING_ANGLE = 0;
-        public static final int FORWARD_ANGLE = 90;
-        public static final int BACKWARD_ANGLE = -90;
-        public static final int TEST_ANGLE = 45;
-      }
+      public static final ArmState STOWED = new ArmState(0, Arm.Setpoints.Extensions.MIN_EXTENSION);
 
       public static final class Extensions {
         public static final double MAX_EXTENSION = 20.7;
@@ -192,7 +170,7 @@ public final class Constants {
       }
     }
 
-    public static final double EXTENSION_STATORLIMIT = 42;
+    public static final double EXTENSION_STATOR_LIMIT = 42;
 
     public static final double ZERO_RETRACTION_PERCENT = -0.14;
     public static final int TICKS = 2048;
@@ -220,6 +198,30 @@ public final class Constants {
         public static final double FULLY_RETRACTED_INCHES_THRESHOLD = 1;
       }
     }
+  }
+
+  public static final class ScoringSteps {
+    public static final class Cone {
+      public static final List<ScoreStep> HIGH =
+          List.of(
+              new ScoreStep(new ArmState(110, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(110, Arm.Setpoints.Extensions.MAX_EXTENSION)),
+              new ScoreStep(new ArmState(85, Arm.Setpoints.Extensions.MAX_EXTENSION)),
+              new ScoreStep(
+                  new ArmState(85, Arm.Setpoints.Extensions.MIN_EXTENSION),
+                  OuttakeSubsystem.Modes.OUTTAKE));
+
+      public static final List<ScoreStep> MID =
+          List.of(
+              new ScoreStep(new ArmState(100, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(100, 5)),
+              new ScoreStep(new ArmState(80, 5)),
+              new ScoreStep(
+                  new ArmState(80, Arm.Setpoints.Extensions.MIN_EXTENSION),
+                  OuttakeSubsystem.Modes.OUTTAKE));
+    }
+
+    public static final class Cube {}
   }
 
   public static final class Vision {
