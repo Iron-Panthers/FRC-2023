@@ -228,7 +228,7 @@ public class RobotContainer {
         .onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.GROUND_INTAKE))
         .whileTrue(
             new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
-    will.povRight()
+    will.povDown()
         .onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.GROUND_INTAKE))
         .whileTrue(
             new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
@@ -241,6 +241,8 @@ public class RobotContainer {
 
     // reset
     jasonLayer.off(jason.y()).onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED));
+    will.povLeft().onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED));
+    will.povDownLeft().onTrue(new SetZeroModeCommand(armSubsystem));
     jason.start().onTrue(new SetZeroModeCommand(armSubsystem));
 
     // clear arm commands
@@ -256,8 +258,10 @@ public class RobotContainer {
         .onTrue(
             new ScoreCommand(
                 outtakeSubsystem, armSubsystem, ScoringSteps.Cone.MID, jasonLayer.on(jason.b())));
-    will.b()
-        .onTrue(new ScoreCommand(outtakeSubsystem, armSubsystem, ScoringSteps.Cone.MID, will.b()));
+    will.povRight()
+        .onTrue(
+            new ScoreCommand(
+                outtakeSubsystem, armSubsystem, ScoringSteps.Cone.MID, will.povRight()));
 
     jasonLayer
         .on(jason.y())
@@ -265,8 +269,9 @@ public class RobotContainer {
             new ScoreCommand(
                 outtakeSubsystem, armSubsystem, ScoringSteps.Cone.HIGH, jasonLayer.on(jason.y())));
 
-    will.y()
-        .onTrue(new ScoreCommand(outtakeSubsystem, armSubsystem, ScoringSteps.Cone.HIGH, will.y()));
+    will.povUp()
+        .onTrue(
+            new ScoreCommand(outtakeSubsystem, armSubsystem, ScoringSteps.Cone.HIGH, will.povUp()));
 
     // control the lights
     jason
