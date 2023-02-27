@@ -199,7 +199,7 @@ public class RobotContainer {
                 will::getRightX,
                 will.rightBumper()));
 
-    // inline command to generate path on the fly that drives to 5,5 at heading zero
+    // start driving to score
     will.b()
         .onTrue(
             new DriveToPlaceCommand(
@@ -228,6 +228,11 @@ public class RobotContainer {
         .onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.GROUND_INTAKE))
         .whileTrue(
             new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+    will.povRight()
+        .onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.GROUND_INTAKE))
+        .whileTrue(
+            new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+
     jasonLayer
         .off(jason.b())
         .onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.SHELF_INTAKE))
@@ -251,11 +256,17 @@ public class RobotContainer {
         .onTrue(
             new ScoreCommand(
                 outtakeSubsystem, armSubsystem, ScoringSteps.Cone.MID, jasonLayer.on(jason.b())));
+    will.b()
+        .onTrue(new ScoreCommand(outtakeSubsystem, armSubsystem, ScoringSteps.Cone.MID, will.b()));
+
     jasonLayer
         .on(jason.y())
         .onTrue(
             new ScoreCommand(
                 outtakeSubsystem, armSubsystem, ScoringSteps.Cone.HIGH, jasonLayer.on(jason.y())));
+
+    will.y()
+        .onTrue(new ScoreCommand(outtakeSubsystem, armSubsystem, ScoringSteps.Cone.HIGH, will.y()));
 
     // control the lights
     jason
