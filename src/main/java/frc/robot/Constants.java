@@ -170,8 +170,8 @@ public final class Constants {
       }
 
       public static final class GroundIntake {
-        public static final double ANGLE = -41.3;
-        public static final double EXTENSION = 18.5;
+        public static final double ANGLE = -45;
+        public static final double EXTENSION = 19;
       }
 
       public static final class ShelfIntake {

@@ -254,6 +254,7 @@ public class RobotContainer {
                 manueverGenerator,
                 new Pose2d(1.8, 4.97, Rotation2d.fromDegrees(180))));
 
+    // outtake states
     jasonLayer
         .off(jason.leftTrigger())
         .whileTrue(
@@ -264,6 +265,8 @@ public class RobotContainer {
     jasonLayer
         .off(jason.x())
         .onTrue(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF));
+
+    // intake presets
     jasonLayer
         .off(jason.a())
         .onTrue(
@@ -280,6 +283,8 @@ public class RobotContainer {
                 armSubsystem, Arm.Setpoints.ShelfIntake.ANGLE, Arm.Setpoints.ShelfIntake.EXTENSION))
         .whileTrue(
             new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+
+    // reset
     jasonLayer
         .off(jason.y())
         .onTrue(
@@ -287,7 +292,12 @@ public class RobotContainer {
                 armSubsystem,
                 Arm.Setpoints.Angles.STARTING_ANGLE,
                 Arm.Setpoints.Extensions.MIN_EXTENSION));
+    jason.start().onTrue(new SetZeroModeCommand(armSubsystem));
 
+    // clear arm commands
+    jason.rightStick().onTrue(new InstantCommand(() -> {}, armSubsystem));
+
+    // scoring
     jasonLayer
         .on(jason.a())
         .whileTrue(
@@ -312,7 +322,6 @@ public class RobotContainer {
             new ArmPositionCommand(
                 armSubsystem, Arm.Setpoints.ScoreHigh.ANGLE, Arm.Setpoints.ScoreHigh.EXTENSION))
         .onFalse(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
-    jason.start().onTrue(new SetZeroModeCommand(armSubsystem));
 
     // control the lights
     jason
@@ -321,9 +330,6 @@ public class RobotContainer {
     jason
         .povDown()
         .onTrue(new ForceLightsColorCommand(rgbSubsystem, Lights.Colors.YELLOW).withTimeout(10));
-
-    // clear arm commands
-    jason.rightStick().onTrue(new InstantCommand(() -> {}, armSubsystem));
   }
 
   /**
