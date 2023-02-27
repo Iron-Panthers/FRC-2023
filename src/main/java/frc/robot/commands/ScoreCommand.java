@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -57,26 +58,54 @@ public class ScoreCommand extends SequentialCommandGroup {
     }
   }
 
-  /** Creates a new ScoreCommand. */
+  private Command createStep(ScoreStep scoreStep) {
+    var armState = scoreStep.armState();
+    var outtakeState = scoreStep.outtakeState();
+    if (armState.isPresent() && outtakeState.isPresent()) {
+      return new ArmPositionCommand(armSubsystem, armState.get())
+          .deadlineWith(new SetOuttakeModeCommand(outtakeSubsystem, outtakeState.get()));
+    } else if (armState.isPresent()) {
+      return new ArmPositionCommand(armSubsystem, armState.get());
+    } else if (outtakeState.isPresent()) {
+      return new SetOuttakeModeCommand(outtakeSubsystem, outtakeState.get());
+    } else {
+      throw new IllegalArgumentException("ScoreStep must have at least one state");
+    }
+  }
+
+  private final ArmSubsystem armSubsystem;
+  private final OuttakeSubsystem outtakeSubsystem;
+
+  public ScoreCommand(
+      OuttakeSubsystem outtakeSubsystem,
+      ArmSubsystem armSubsystem,
+      List<ScoreStep> scoreSteps,
+      Trigger trigger) {
+    this(outtakeSubsystem, armSubsystem, scoreSteps, Optional.of(trigger));
+  }
+
   public ScoreCommand(
       OuttakeSubsystem outtakeSubsystem, ArmSubsystem armSubsystem, List<ScoreStep> scoreSteps) {
+    this(outtakeSubsystem, armSubsystem, scoreSteps, Optional.empty());
+  }
+
+  /** Creates a new ScoreCommand. */
+  public ScoreCommand(
+      OuttakeSubsystem outtakeSubsystem,
+      ArmSubsystem armSubsystem,
+      List<ScoreStep> scoreSteps,
+      Optional<Trigger> trigger) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
 
+    this.outtakeSubsystem = outtakeSubsystem;
+    this.armSubsystem = armSubsystem;
+
     for (ScoreStep scoreStep : scoreSteps) {
-      var armState = scoreStep.armState();
-      var outtakeState = scoreStep.outtakeState();
-      if (armState.isPresent() && outtakeState.isPresent()) {
-        addCommands(
-            new ArmPositionCommand(armSubsystem, armState.get())
-                .deadlineWith(new SetOuttakeModeCommand(outtakeSubsystem, outtakeState.get())));
-      } else if (armState.isPresent()) {
-        addCommands(new ArmPositionCommand(armSubsystem, armState.get()));
-      } else if (outtakeState.isPresent()) {
-        addCommands(new SetOuttakeModeCommand(outtakeSubsystem, outtakeState.get()));
-      } else {
-        throw new IllegalArgumentException("ScoreStep must have at least one state");
-      }
+      addCommands(
+          trigger.isPresent() && scoreStep.isPausePoint()
+              ? createStep(scoreStep).alongWith(new AwaitTriggerTransition(trigger.get()))
+              : createStep(scoreStep));
     }
   }
 }
