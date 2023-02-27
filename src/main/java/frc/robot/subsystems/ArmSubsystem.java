@@ -73,7 +73,7 @@ public class ArmSubsystem extends SubsystemBase {
     extensionMotor.configReverseSoftLimitEnable(true, 20);
 
     angleController = new PIDController(.019, 0, 0);
-    extensionController = new PIDController(0.15, 0, 0); // within 0.1 inches of accuracy
+    extensionController = new PIDController(0.17, 0, 0); // within 0.1 inches of accuracy
     angleController.setTolerance(5); // FIXME not sure if these are good values
     extensionController.setTolerance(0.2);
 
@@ -280,6 +280,6 @@ public class ArmSubsystem extends SubsystemBase {
     angleOutput = angleController.calculate(currentAngle, computeIntermediateAngleGoal());
     angleMotor.set(
         ControlMode.PercentOutput, MathUtil.clamp(angleOutput + armGravityOffset, -.7, .7));
-    extensionMotor.set(ControlMode.PercentOutput, MathUtil.clamp(extensionOutput, -.3, .3));
+    extensionMotor.set(ControlMode.PercentOutput, MathUtil.clamp(extensionOutput, -.5, .5));
   }
 }
