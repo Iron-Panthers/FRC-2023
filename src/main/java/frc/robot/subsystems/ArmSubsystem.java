@@ -49,6 +49,8 @@ public class ArmSubsystem extends SubsystemBase {
 
   private double filterOutput;
 
+  public static record ArmState(double angle, double extension) {}
+
   public ArmSubsystem() {
 
     filter = LinearFilter.movingAverage(35);
@@ -190,6 +192,10 @@ public class ArmSubsystem extends SubsystemBase {
   public void setTargetPosition(double targetAngleDegrees, double targetExtensionInches) {
     setTargetAngleDegrees(targetAngleDegrees);
     setTargetExtensionInches(targetExtensionInches);
+  }
+
+  public void setTargetPosition(ArmState targetState) {
+    setTargetPosition(targetState.angle, targetState.extension);
   }
 
   /* safety methods */
