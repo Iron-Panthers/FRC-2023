@@ -218,8 +218,8 @@ public final class Constants {
       public static final List<ScoreStep> MID =
           List.of(
               new ScoreStep(new ArmState(100, Arm.Setpoints.Extensions.MIN_EXTENSION)),
-              new ScoreStep(new ArmState(100, 5)).canWaitHere(),
-              new ScoreStep(new ArmState(80, 5)),
+              new ScoreStep(new ArmState(100, 4.8)).canWaitHere(),
+              new ScoreStep(new ArmState(75, 4.8)),
               new ScoreStep(
                   new ArmState(80, Arm.Setpoints.Extensions.MIN_EXTENSION),
                   OuttakeSubsystem.Modes.OUTTAKE));
