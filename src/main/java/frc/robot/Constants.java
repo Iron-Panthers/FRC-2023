@@ -187,7 +187,7 @@ public final class Constants {
             -35; // FIXME: real value needed
         public static final double FORWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD =
             20; // FIXME: real value needed
-        public static final double UPPER_ANGLE_LIMIT = 115; // FIXME: real value needed
+        public static final double UPPER_ANGLE_LIMIT = 120;
         public static final double EPSILON = 5;
       }
 
@@ -207,8 +207,8 @@ public final class Constants {
     public static final class Cone {
       public static final List<ScoreStep> HIGH =
           List.of(
-              new ScoreStep(new ArmState(110, Arm.Setpoints.Extensions.MIN_EXTENSION)),
-              new ScoreStep(new ArmState(110, Arm.Setpoints.Extensions.MAX_EXTENSION))
+              new ScoreStep(new ArmState(115, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(115, Arm.Setpoints.Extensions.MAX_EXTENSION))
                   .canWaitHere(),
               new ScoreStep(new ArmState(87, Arm.Setpoints.Extensions.MAX_EXTENSION)),
               new ScoreStep(
