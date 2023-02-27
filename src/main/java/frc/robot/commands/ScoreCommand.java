@@ -4,7 +4,9 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ArmSubsystem.ArmState;
 import frc.robot.subsystems.OuttakeSubsystem;
@@ -16,17 +18,42 @@ import java.util.Optional;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class ScoreCommand extends SequentialCommandGroup {
   public static record ScoreStep(
-      Optional<ArmState> armState, Optional<OuttakeSubsystem.Modes> outtakeState) {
+      Optional<ArmState> armState,
+      Optional<OuttakeSubsystem.Modes> outtakeState,
+      boolean isPausePoint) {
     public ScoreStep(ArmState armState, OuttakeSubsystem.Modes outtakeState) {
-      this(Optional.of(armState), Optional.of(outtakeState));
+      this(Optional.of(armState), Optional.of(outtakeState), false);
     }
 
     public ScoreStep(ArmState armState) {
-      this(Optional.of(armState), Optional.empty());
+      this(Optional.of(armState), Optional.empty(), false);
     }
 
     public ScoreStep(OuttakeSubsystem.Modes outtakeState) {
-      this(Optional.empty(), Optional.of(outtakeState));
+      this(Optional.empty(), Optional.of(outtakeState), false);
+    }
+
+    public ScoreStep canWaitHere() {
+      return new ScoreStep(armState, outtakeState, true);
+    }
+  }
+
+  private static class AwaitTriggerTransition extends CommandBase {
+    private final Trigger trigger;
+    private boolean initialState;
+
+    public AwaitTriggerTransition(Trigger trigger) {
+      this.trigger = trigger;
+    }
+
+    @Override
+    public void initialize() {
+      initialState = trigger.getAsBoolean();
+    }
+
+    @Override
+    public boolean isFinished() {
+      return initialState != trigger.getAsBoolean();
     }
   }
 

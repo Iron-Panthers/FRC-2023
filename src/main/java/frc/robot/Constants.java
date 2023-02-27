@@ -208,7 +208,8 @@ public final class Constants {
       public static final List<ScoreStep> HIGH =
           List.of(
               new ScoreStep(new ArmState(110, Arm.Setpoints.Extensions.MIN_EXTENSION)),
-              new ScoreStep(new ArmState(110, Arm.Setpoints.Extensions.MAX_EXTENSION)),
+              new ScoreStep(new ArmState(110, Arm.Setpoints.Extensions.MAX_EXTENSION))
+                  .canWaitHere(),
               new ScoreStep(new ArmState(85, Arm.Setpoints.Extensions.MAX_EXTENSION)),
               new ScoreStep(
                   new ArmState(85, Arm.Setpoints.Extensions.MIN_EXTENSION),
@@ -217,7 +218,7 @@ public final class Constants {
       public static final List<ScoreStep> MID =
           List.of(
               new ScoreStep(new ArmState(100, Arm.Setpoints.Extensions.MIN_EXTENSION)),
-              new ScoreStep(new ArmState(100, 5)),
+              new ScoreStep(new ArmState(100, 5)).canWaitHere(),
               new ScoreStep(new ArmState(80, 5)),
               new ScoreStep(
                   new ArmState(80, Arm.Setpoints.Extensions.MIN_EXTENSION),
