@@ -5,7 +5,7 @@ public class DisplayFieldArray {
     OBSTRUCTION("##"),
     EMPTY("  "),
     DANGER("//"),
-    PATH("▀▄"),
+    PATH("::"),
     START("SS"),
     END("EE"),
     REDUNDANT_CRITICAL_POINT("XX"),
