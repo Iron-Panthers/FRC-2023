@@ -101,4 +101,66 @@ public class LayerTests {
         buttonALayerOff,
         "buttonALayerOff should be false even though the button is pressed, because the button and layer haven't been released");
   }
+
+  @UtilTest
+  public void pressingLayerSwitchAndButtonAtSameTimeTriggersLayerOnButton() {
+    buttonAVal = true;
+    switchVal = true;
+    eventLoop.poll();
+    assertTrue(
+        buttonALayerOn,
+        "buttonALayerOn should be true because the layer is on and the button is pressed");
+  }
+
+  @UtilTest
+  public void releasingLayerSwitchAndButtonAllowsOffLayerToBePressedAgain() {
+    switchVal = true;
+    eventLoop.poll();
+    buttonAVal = true;
+    eventLoop.poll();
+    switchVal = false;
+    eventLoop.poll();
+    assertFalse(buttonALayerOn, "buttonALayerOn should be false because the layer is off");
+    assertFalse(
+        buttonALayerOff,
+        "buttonALayerOff should be false even though the button is pressed, because the button and layer haven't been released");
+    buttonAVal = false;
+    eventLoop.poll();
+    assertFalse(
+        buttonALayerOff, "buttonALayerOff should be false because the button isn't pressed");
+
+    buttonAVal = true;
+    eventLoop.poll();
+    assertTrue(
+        buttonALayerOff,
+        "buttonALayerOff should be true because the button is pressed and the layer is off");
+  }
+
+  @UtilTest
+  public void layerOffRemainsOffForAsLongAsButtonIsNotReleasedAfterLayerOn() {
+    switchVal = true;
+    buttonAVal = true;
+    eventLoop.poll();
+    switchVal = false;
+    eventLoop.poll();
+    assertFalse(
+        buttonALayerOff,
+        "buttonALayerOff should be false because the button hasn't been released since layer usage");
+    eventLoop.poll();
+    assertFalse(
+        buttonALayerOff,
+        "buttonALayerOff should be false because the button hasn't been released since layer usage");
+    eventLoop.poll();
+    assertFalse(
+        buttonALayerOff,
+        "buttonALayerOff should be false because the button hasn't been released since layer usage");
+    buttonAVal = false;
+    eventLoop.poll();
+    assertFalse(buttonALayerOff, "buttonALayerOff should be false because the button is released");
+    buttonAVal = true;
+    eventLoop.poll();
+    assertTrue(
+        buttonALayerOff,
+        "buttonALayerOff should be true because the button is pressed and the layer is off");
+  }
 }
