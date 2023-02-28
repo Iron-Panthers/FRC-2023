@@ -251,13 +251,13 @@ public class RobotContainer {
         .on(jason.b())
         .onTrue(
             new ScoreCommand(
-                outtakeSubsystem, armSubsystem, ScoringSteps.Cone.MID, jasonLayer.on(jason.b())));
+                outtakeSubsystem, armSubsystem, ScoringSteps.Cone.MID, jason.leftBumper()));
 
     jasonLayer
         .on(jason.y())
         .onTrue(
             new ScoreCommand(
-                outtakeSubsystem, armSubsystem, ScoringSteps.Cone.HIGH, jasonLayer.on(jason.y())));
+                outtakeSubsystem, armSubsystem, ScoringSteps.Cone.HIGH, jason.leftBumper()));
 
     // control the lights
     jason
