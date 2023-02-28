@@ -51,7 +51,7 @@ public class OuttakeSubsystem extends SubsystemBase {
       this.outtakeDetails = outtakeDetails;
     }
 
-    public boolean modeFinished(
+    private boolean modeFinished(
         double filterOutput, boolean modeLocked, double lastTransitionTime) {
       boolean exceededTimeLimit =
           outtakeDetails.minTimeSeconds.isEmpty()
@@ -103,6 +103,8 @@ public class OuttakeSubsystem extends SubsystemBase {
 
     tab.addNumber("Stator Current", this.outtake::getStatorCurrent);
     tab.addNumber("Filter Output", () -> this.filterOutput);
+
+    tab.addNumber("voltage", this.outtake::getMotorOutputVoltage);
 
     tab.addString("Current Mode", () -> mode.toString());
   }
