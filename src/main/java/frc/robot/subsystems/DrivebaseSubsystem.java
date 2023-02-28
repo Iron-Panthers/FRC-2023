@@ -78,7 +78,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
   /** The SwerveDriveOdometry class allows us to estimate the robot's "pose" over time. */
   private final SwerveDrivePoseEstimator swervePoseEstimator;
 
-  private final VisionSubsystem visionSubsystem = new VisionSubsystem();
+  private final VisionSubsystem visionSubsystem;
 
   /**
    * Keeps track of the current estimated pose (x,y,theta) of the robot, as estimated by odometry.
@@ -144,7 +144,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
   }
 
   /** Creates a new DrivebaseSubsystem. */
-  public DrivebaseSubsystem() {
+  public DrivebaseSubsystem(VisionSubsystem visionSubsystem) {
+    this.visionSubsystem = visionSubsystem;
+
     final SwerveModule frontRightModule =
         createModule(
             "Front Right Module #1",
