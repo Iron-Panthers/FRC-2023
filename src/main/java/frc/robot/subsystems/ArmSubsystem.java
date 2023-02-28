@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Arm;
+import frc.robot.Constants.Arm.Thresholds;
 import frc.util.Util;
 
 /** Add your docs here. */
@@ -49,9 +50,11 @@ public class ArmSubsystem extends SubsystemBase {
 
   private double filterOutput;
 
+  public static record ArmState(double angle, double extension) {}
+
   public ArmSubsystem() {
 
-    filter = LinearFilter.movingAverage(30);
+    filter = LinearFilter.movingAverage(35);
 
     this.angleMotor = new TalonFX(Arm.Ports.ARM_MOTOR_PORT);
     extensionMotor = new TalonFX(Arm.Ports.TELESCOPING_MOTOR_PORT);
@@ -73,9 +76,9 @@ public class ArmSubsystem extends SubsystemBase {
     extensionMotor.configReverseSoftLimitEnable(true, 20);
 
     angleController = new PIDController(.019, 0, 0);
-    extensionController = new PIDController(0.15, 0, 0); // within 0.1 inches of accuracy
-    angleController.setTolerance(5); // FIXME not sure if these are good values
-    extensionController.setTolerance(0.2);
+    extensionController = new PIDController(0.17, 0, 0);
+    angleController.setTolerance(Thresholds.Angles.EPSILON);
+    extensionController.setTolerance(Thresholds.Extensions.EPSILON);
 
     angleEncoder = new CANCoder(Arm.Ports.ENCODER_PORT);
 
@@ -85,7 +88,7 @@ public class ArmSubsystem extends SubsystemBase {
         SensorInitializationStrategy.BootToAbsolutePosition);
     angleEncoder.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
 
-    targetAngleDegrees = Arm.Setpoints.Angles.STARTING_ANGLE;
+    targetAngleDegrees = Arm.Setpoints.STOWED.angle();
 
     var config =
         new StatorCurrentLimitConfiguration(
@@ -120,7 +123,8 @@ public class ArmSubsystem extends SubsystemBase {
     tab.addNumber("Angle Error", () -> targetAngleDegrees - getAngle());
     tab.addBoolean("At target", this::atTarget);
     tab.addString("Current Mode", () -> mode.toString());
-    tab.addNumber("Stator current", () -> this.extensionMotor.getStatorCurrent());
+    tab.addNumber("Stator current", this.extensionMotor::getStatorCurrent);
+    tab.addNumber("filtered stator current", () -> this.filterOutput);
   }
 
   public enum Modes {
@@ -139,6 +143,7 @@ public class ArmSubsystem extends SubsystemBase {
     extensionMotor.configForwardSoftLimitEnable(false, 20);
     extensionMotor.configReverseSoftLimitEnable(false, 20);
     mode = Modes.ZERO;
+    targetExtensionInches = Arm.Setpoints.Extensions.MIN_EXTENSION;
   }
 
   /* methods for angle arm control */
@@ -190,6 +195,10 @@ public class ArmSubsystem extends SubsystemBase {
     setTargetExtensionInches(targetExtensionInches);
   }
 
+  public void setTargetPosition(ArmState targetState) {
+    setTargetPosition(targetState.angle, targetState.extension);
+  }
+
   /* safety methods */
   private boolean withinAngleRange(double angle) {
     return angle < Arm.Thresholds.Angles.FORWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD
@@ -234,14 +243,16 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   public boolean atTarget() {
-    return Util.epsilonEquals(getAngle(), targetAngleDegrees, 5)
-        && Util.epsilonEquals(getCurrentExtensionInches(), targetExtensionInches, 0.2);
+    return Util.epsilonEquals(getAngle(), targetAngleDegrees, Thresholds.Angles.EPSILON)
+        && Util.epsilonEquals(
+            getCurrentExtensionInches(), targetExtensionInches, Thresholds.Extensions.EPSILON);
     // && extensionController.atSetpoint()
     // && angleController.atSetpoint();
   }
 
   @Override
   public void periodic() {
+    this.filterOutput = this.filter.calculate(this.extensionMotor.getStatorCurrent());
 
     switch (mode) {
       case DRIVETOPOS:
@@ -256,8 +267,7 @@ public class ArmSubsystem extends SubsystemBase {
   public void zeroPeriodic() {
     angleMotor.set(ControlMode.PercentOutput, computeArmGravityOffset());
     extensionMotor.set(ControlMode.PercentOutput, Arm.ZERO_RETRACTION_PERCENT);
-    this.filterOutput = this.filter.calculate(this.extensionMotor.getStatorCurrent());
-    if (filterOutput > Arm.EXTENSION_STATORLIMIT) { // FIXME 20 is not correct value
+    if (filterOutput > Arm.EXTENSION_STATOR_LIMIT) {
       extensionMotor.setSelectedSensorPosition(0);
       mode = Modes.DRIVETOPOS;
       extensionMotor.configForwardSoftLimitEnable(true, 20);
@@ -277,7 +287,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     angleOutput = angleController.calculate(currentAngle, computeIntermediateAngleGoal());
     angleMotor.set(
-        ControlMode.PercentOutput, MathUtil.clamp(angleOutput + armGravityOffset, -1, 1));
+        ControlMode.PercentOutput, MathUtil.clamp(angleOutput + armGravityOffset, -.7, .7));
     extensionMotor.set(ControlMode.PercentOutput, MathUtil.clamp(extensionOutput, -.5, .5));
   }
 }
