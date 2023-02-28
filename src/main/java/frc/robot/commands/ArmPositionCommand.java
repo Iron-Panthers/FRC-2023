@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ArmSubsystem.ArmState;
 
 public class ArmPositionCommand extends CommandBase {
   private ArmSubsystem subsystem;
@@ -18,6 +19,10 @@ public class ArmPositionCommand extends CommandBase {
     this.targetExtension = targetExtension;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(subsystem);
+  }
+
+  public ArmPositionCommand(ArmSubsystem subsystem, ArmState armState) {
+    this(subsystem, armState.angle(), armState.extension());
   }
 
   // Called when the command is initially scheduled.
