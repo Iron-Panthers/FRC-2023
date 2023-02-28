@@ -23,8 +23,8 @@ import frc.robot.Constants.Arm;
 import frc.robot.Constants.Lights;
 import frc.robot.Constants.ScoringSteps;
 import frc.robot.autonomous.commands.AutoTestSequence;
-import frc.robot.autonomous.commands.OneCubePlusTwoConePlusBalance;
 import frc.robot.autonomous.commands.IanDemoAutoSequence;
+import frc.robot.autonomous.commands.OneCubePlusTwoConePlusBalance;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.DefaultDriveCommand;
@@ -286,11 +286,8 @@ public class RobotContainer {
             drivebaseSubsystem));
 
     autoSelector.addOption(
-        "[NEW] One Cube Plus Two Cone Plus Balance", 
-        new OneCubePlusTwoConePlusBalance(
-            6, 
-            4, 
-            drivebaseSubsystem));
+        "[NEW] One Cube Plus Two Cone Plus Balance",
+        new OneCubePlusTwoConePlusBalance(6, 4, drivebaseSubsystem));
 
     autoSelector.addOption(
         "[NEW] IanAuto",
