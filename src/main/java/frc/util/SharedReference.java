@@ -78,12 +78,12 @@ public class SharedReference<T> {
   }
 
   /**
-   * Subscribe to the data.
+   * Subscribe to the data until the function returns true.
    *
    * @param function the function to call when the data is updated
    * @return a subscription object that can be used to destroy the subscription
    */
-  public Subscription subscribe(Function<T, Boolean> function) {
+  public Subscription subscribeUntil(Function<T, Boolean> function) {
     return new Subscription(function);
   }
 }
