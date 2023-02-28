@@ -75,7 +75,8 @@ public class Layer {
   }
 
   /**
-   * Combines a {@link Trigger} with the layer root provided that the layer switch is activated.
+   * Combines a {@link Trigger} with the layer switch to form a virtual trigger that is only true
+   * when the layer switch is true and the trigger is true.
    *
    * @param trigger the {@link Trigger} that is used in tandem with the layer for the virtual
    *     Trigger
@@ -87,8 +88,8 @@ public class Layer {
   }
 
   /**
-   * Combines a {@link BooleanSupplier} with the layer root provided that the layer switch is
-   * activated.
+   * Combines a {@link BooleanSupplier} with the layer switch to form a virtual trigger that is only
+   * true when the layer switch is true and the trigger is true.
    *
    * @param Trigger the {@link BooleanSupplier} that is used in tandem with the layer for the
    *     virtual Trigger
@@ -100,7 +101,10 @@ public class Layer {
   }
 
   /**
-   * Combines a {@link Trigger} with the layer root provided that the layer switch is not activated.
+   * Combines a {@link Trigger} with the layer switch to form a virtual trigger that is only true
+   * when the layer switch is false and the trigger is true. Additionally, the virtual trigger will
+   * be false if the layer switch was released but the trigger was still pressed, until the trigger
+   * is released.
    *
    * @param trigger the {@link Trigger} that is used in tandem with the layer for the virtual
    *     Trigger
@@ -134,8 +138,10 @@ public class Layer {
   }
 
   /**
-   * Combines a {@link BooleanSupplier} with the layer root provided that the layer switch is not
-   * activated.
+   * Combines a {@link BooleanSupplier} with the layer switch to form a virtual trigger that is only
+   * true when the layer switch is false and the trigger is true. Additionally, the virtual trigger
+   * will be false if the layer switch was released but the trigger was still pressed, until the
+   * trigger is released.
    *
    * @param Trigger the {@link BooleanSupplier} that is used in tandem with the layer for the
    *     virtual Trigger
