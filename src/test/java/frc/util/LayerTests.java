@@ -163,4 +163,62 @@ public class LayerTests {
         buttonALayerOff,
         "buttonALayerOff should be true because the button is pressed and the layer is off");
   }
+
+  @UtilTest
+  public void pressingLayerOffButtonRepeatedlyWorks() {
+    for (int i = 0; i < 3; i++) {
+      buttonAVal = true;
+      eventLoop.poll();
+      assertTrue(buttonALayerOff, "buttonALayerOff should be true because the button is pressed");
+      assertFalse(buttonALayerOn, "buttonALayerOn should be false because the layer is off");
+      buttonAVal = false;
+      eventLoop.poll();
+      assertFalse(
+          buttonALayerOff, "buttonALayerOff should be false because the button is released");
+      assertFalse(
+          buttonALayerOn,
+          "buttonALayerOn should be false because the layer is off and button is released");
+    }
+  }
+
+  @UtilTest
+  public void pressingLayerOnButtonRepeatedlyWorks() {
+    switchVal = true;
+    eventLoop.poll();
+    for (int i = 0; i < 3; i++) {
+      buttonAVal = true;
+      eventLoop.poll();
+      assertFalse(buttonALayerOff, "buttonALayerOff should be false because the layer is on");
+      assertTrue(buttonALayerOn, "buttonALayerOn should be true because the button is pressed");
+      buttonAVal = false;
+      eventLoop.poll();
+      assertFalse(
+          buttonALayerOff,
+          "buttonALayerOff should be false because the layer is on and button is released");
+      assertFalse(
+          buttonALayerOn,
+          "buttonALayerOn should be false because the layer is on and button is released");
+    }
+  }
+
+  @UtilTest
+  public void
+      releasingAndRepressingLayerSwitchWhileHoldingTriggerReTriggersLayerOnButDoesNotTriggerLayerOff() {
+    buttonAVal = true;
+    eventLoop.poll();
+    assertTrue(buttonALayerOff, "buttonALayerOff should be true because the button is pressed");
+    assertFalse(buttonALayerOn, "buttonALayerOn should be false because the layer is off");
+    for (int i = 0; i < 3; i++) {
+      switchVal = true;
+      eventLoop.poll();
+      assertFalse(buttonALayerOff, "buttonALayerOff should be false because the layer is on");
+      assertTrue(buttonALayerOn, "buttonALayerOn should be true because the button is pressed");
+      switchVal = false;
+      eventLoop.poll();
+      assertFalse(buttonALayerOn, "buttonALayerOn should be false because the layer is off");
+      assertFalse(
+          buttonALayerOff,
+          "buttonALayerOff should be false because the button is still pressed and the layer is off");
+    }
+  }
 }
