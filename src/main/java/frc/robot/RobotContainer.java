@@ -19,20 +19,37 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.Arm;
+import frc.robot.Constants.Lights;
+import frc.robot.Constants.ScoringSteps;
 import frc.robot.autonomous.commands.AutoTestSequence;
+import frc.robot.autonomous.commands.IanDemoAutoSequence;
+import frc.robot.commands.ArmManualCommand;
+import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
+import frc.robot.commands.ForceLightsColorCommand;
+import frc.robot.commands.ForceOuttakeSubsystemModeCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
+import frc.robot.commands.ScoreCommand;
+import frc.robot.commands.SetOuttakeModeCommand;
+import frc.robot.commands.SetZeroModeCommand;
 import frc.robot.commands.VibrateControllerCommand;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.NetworkWatchdogSubsystem;
+import frc.robot.subsystems.OuttakeSubsystem;
+import frc.robot.subsystems.RGBSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.util.ControllerUtil;
 import frc.util.Layer;
 import frc.util.MacUtil;
 import frc.util.Util;
+import frc.util.pathing.RubenManueverGenerator;
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -44,9 +61,20 @@ import java.util.function.DoubleSupplier;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
-  private final DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem();
+  private final VisionSubsystem visionSubsystem = new VisionSubsystem();
 
-  private final NetworkWatchdogSubsystem networkWatchdogSubsystem = new NetworkWatchdogSubsystem();
+  private final DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem(visionSubsystem);
+
+  private final RGBSubsystem rgbSubsystem = new RGBSubsystem();
+
+  private final NetworkWatchdogSubsystem networkWatchdogSubsystem =
+      new NetworkWatchdogSubsystem(Optional.of(rgbSubsystem));
+
+  private final RubenManueverGenerator manueverGenerator = new RubenManueverGenerator();
+
+  private final ArmSubsystem armSubsystem = new ArmSubsystem();
+
+  private final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
 
   /** controller 1 */
   private final CommandXboxController jason = new CommandXboxController(1);
@@ -71,6 +99,12 @@ public class RobotContainer {
             () -> (-modifyAxis(will.getLeftY()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
             () -> (-modifyAxis(will.getLeftX()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
             will.rightBumper()));
+
+    armSubsystem.setDefaultCommand(
+        new ArmManualCommand(
+            armSubsystem,
+            () -> ControllerUtil.deadband(-jason.getLeftY(), 0.2),
+            () -> ControllerUtil.deadband(jason.getRightY(), 0.2)));
 
     SmartDashboard.putBoolean("is comp bot", MacUtil.IS_COMP_BOT);
 
@@ -165,16 +199,73 @@ public class RobotContainer {
                 will::getRightX,
                 will.rightBumper()));
 
-    // inline command to generate path on the fly that drives to 5,5 at heading zero
+    // start driving to score
     will.b()
         .onTrue(
             new DriveToPlaceCommand(
-                drivebaseSubsystem, new Pose2d(3.5, 2.2, Rotation2d.fromDegrees(0)), .2, .5));
+                drivebaseSubsystem,
+                visionSubsystem,
+                manueverGenerator,
+                new Pose2d(2.5, 1, Rotation2d.fromDegrees(180)),
+                new Pose2d(1.8, .5, Rotation2d.fromDegrees(180)),
+                .05));
 
-    will.y()
+    // outtake states
+    jasonLayer
+        .off(jason.leftTrigger())
+        .whileTrue(
+            new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+    jasonLayer
+        .off(jason.rightTrigger())
+        .onTrue(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
+    jasonLayer
+        .off(jason.x())
+        .onTrue(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF));
+
+    // intake presets
+    jasonLayer
+        .off(jason.a())
+        .onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.GROUND_INTAKE))
+        .whileTrue(
+            new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+
+    jasonLayer
+        .off(jason.b())
+        .onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.SHELF_INTAKE))
+        .whileTrue(
+            new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+
+    // reset
+    jasonLayer.off(jason.y()).onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED));
+    jason.start().onTrue(new SetZeroModeCommand(armSubsystem));
+
+    // clear arm commands
+    jason.rightStick().onTrue(new InstantCommand(() -> {}, armSubsystem));
+
+    // scoring
+    // jasonLayer
+    //     .on(jason.a())
+    // low
+
+    jasonLayer
+        .on(jason.b())
         .onTrue(
-            new DriveToPlaceCommand(
-                drivebaseSubsystem, new Pose2d(3.2, .5, Rotation2d.fromDegrees(170)), .2, .5));
+            new ScoreCommand(
+                outtakeSubsystem, armSubsystem, ScoringSteps.Cone.MID, jasonLayer.on(jason.b())));
+
+    jasonLayer
+        .on(jason.y())
+        .onTrue(
+            new ScoreCommand(
+                outtakeSubsystem, armSubsystem, ScoringSteps.Cone.HIGH, jasonLayer.on(jason.y())));
+
+    // control the lights
+    jason
+        .povUp()
+        .onTrue(new ForceLightsColorCommand(rgbSubsystem, Lights.Colors.PURPLE).withTimeout(10));
+    jason
+        .povDown()
+        .onTrue(new ForceLightsColorCommand(rgbSubsystem, Lights.Colors.YELLOW).withTimeout(10));
   }
 
   /**
@@ -192,6 +283,10 @@ public class RobotContainer {
             2, // m/s
             1, // m/s2
             drivebaseSubsystem));
+
+    autoSelector.addOption(
+        "[NEW] IanAuto",
+        new IanDemoAutoSequence(5, 3, drivebaseSubsystem, visionSubsystem, manueverGenerator));
 
     Shuffleboard.getTab("DriverView")
         .add("auto selector", autoSelector)

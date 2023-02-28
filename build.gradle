@@ -1,11 +1,12 @@
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2023.2.1"
+    id "edu.wpi.first.GradleRIO" version "2023.4.2"
     id "com.diffplug.spotless" version "6.13.0"
+    id "me.champeau.jmh" version "0.6.8"
 }
 
-sourceCompatibility = JavaVersion.VERSION_11
-targetCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
 
@@ -74,7 +75,27 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
 
     testImplementation "org.mockito:mockito-core:3.+"
+    testImplementation "org.mockito:mockito-inline:3.+"
     testImplementation 'org.mockito:mockito-junit-jupiter:4.3.1'
+
+    // profiling!
+    testImplementation 'org.openjdk.jmh:jmh-core:1.19'
+    testImplementation 'org.openjdk.jmh:jmh-generator-annprocess:1.19'
+
+    // snapshot testing!
+    testImplementation 'io.github.origin-energy:java-snapshot-testing-junit5:4.+'
+
+    // java-snapshot-testing json serialization
+    testImplementation 'io.github.origin-energy:java-snapshot-testing-plugin-jackson:4.+'
+    testImplementation 'com.fasterxml.jackson.core:jackson-core:2.11.3'
+    testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.11.3'
+
+    // java-snapshot-testing optional support
+    testRuntimeOnly 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.11.3'
+    testRuntimeOnly 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.3'
+
+    // logger!
+    testImplementation 'org.slf4j:slf4j-simple:2.0.6'
 }
 
 // Simulation configuration (e.g. environment variables).
@@ -102,6 +123,17 @@ test {
         showStandardStreams = true;
         exceptionFormat = 'full' // show expected and actual for failed tests
     }
+}
+
+jmh {
+    warmupIterations = 2
+    iterations = 5
+    fork = 1
+}
+
+tasks.create("bmPathfinding") {
+    jmh.includes.add("GraphPathfinderBenchmarks.findOptimalPath")
+    finalizedBy("jmh")
 }
 
 // Configure jar and deploy tasks
