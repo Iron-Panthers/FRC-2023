@@ -26,6 +26,18 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
   private PowerDistribution pdh = new PowerDistribution();
   private Optional<RGBSubsystem> optionalRGBSubsystem;
 
+  public static class IPv4 {
+    public final String address;
+
+    public IPv4(int a, int b, int c, int d) {
+      address = String.format("%d.%d.%d.%d", a, b, c, d);
+    }
+
+    public static IPv4 internal(int d) {
+      return new IPv4(10, 50, 26, d);
+    }
+  }
+
   /**
    * Blocking method that tests if /bin/ping can reach the specified host. You should never call
    * this on the main thread.
@@ -33,7 +45,7 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
    * @param host the host to ping
    * @return true if the host is reachable, false otherwise
    */
-  public static boolean canPing(final String host) {
+  public static boolean canPing(final IPv4 host) {
     try {
       Process process =
           new ProcessBuilder(
@@ -42,7 +54,7 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
                   "1",
                   "-W",
                   String.valueOf(NetworkWatchdog.PING_TIMEOUT_SECONDS),
-                  host)
+                  host.address)
               .redirectErrorStream(true)
               .start();
 
@@ -84,6 +96,36 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
                     color, PatternTypes.BOUNCE, MessagePriority.A_CRITICAL_NETWORK_INFORMATION));
   }
 
+  private boolean canPingAny() {
+    boolean didPing = false;
+    for (IPv4 ip : NetworkWatchdog.TEST_IP_ADDRESSES) {
+      if (canPing(ip)) {
+        didPing = true;
+        System.out.println("[network watchdog] Pinged " + ip.address + " successfully.");
+        break;
+      }
+      System.out.println("[network watchdog] Failed to ping " + ip.address);
+    }
+    return didPing;
+  }
+
+  private void rebootSwitch() {
+    System.out.println("[network watchdog] Rebooting switch");
+    showColor(Lights.Colors.PINK);
+    pdh.setSwitchableChannel(false);
+    sleep(NetworkWatchdog.REBOOT_DURATION_MS);
+    pdh.setSwitchableChannel(true);
+    System.out.println("[network watchdog] Finished rebooting switch");
+  }
+
+  private boolean pingAttemptStep() {
+    if (!canPingAny()) return false;
+    System.out.println("[network watchdog] Network is up.");
+    showColor(Lights.Colors.MINT);
+    sleep(NetworkWatchdog.HEALTHY_CHECK_INTERVAL_MS);
+    return true;
+  }
+
   /** Creates a new NetworkWatchdogSubsystem. */
   public NetworkWatchdogSubsystem(Optional<RGBSubsystem> optionalRGBSubsystem) {
     this.optionalRGBSubsystem = optionalRGBSubsystem;
@@ -102,24 +144,24 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
               // to ensure we don't miss an interrupt, only sleep once per branch before coming back
               // to the while conditional
               while (!Thread.interrupted()) {
-                if (canPing(NetworkWatchdog.TEST_IP_ADDRESS)) {
-                  showColor(Lights.Colors.MINT);
-                  System.out.println(
-                      "[network watchdog] Pinged "
-                          + NetworkWatchdog.TEST_IP_ADDRESS
-                          + " successfully.");
-                  sleep(NetworkWatchdog.HEALTHY_CHECK_INTERVAL_MS);
-                } else {
-                  showColor(Lights.Colors.PINK);
-                  System.out.println(
-                      "[network watchdog] Failed to ping "
-                          + NetworkWatchdog.TEST_IP_ADDRESS
-                          + ", rebooting switch.");
-                  pdh.setSwitchableChannel(false);
-                  sleep(NetworkWatchdog.REBOOT_DURATION_MS);
-                  pdh.setSwitchableChannel(true);
-                  System.out.println("[network watchdog] Switch rebooted. Waiting.");
-                  sleep(NetworkWatchdog.SWITCH_POWERCYCLE_SCAN_DELAY_MS);
+                if (pingAttemptStep()) continue;
+
+                // the network is down if we get here
+                while (true) {
+                  System.out.println("[network watchdog] Network is down.");
+                  rebootSwitch();
+                  System.out.println("[network watchdog] Scanning until duration expires.");
+                  final long startTime = System.currentTimeMillis();
+                  boolean didPing = false;
+                  while (System.currentTimeMillis() - startTime
+                      < NetworkWatchdog.SWITCH_POWERCYCLE_SCAN_DELAY_MS) {
+                    if (pingAttemptStep()) {
+                      didPing = true;
+                      break;
+                    }
+                  }
+                  if (didPing) break;
+                  // repeat the cycle
                 }
               }
             });
