@@ -15,9 +15,11 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import frc.robot.Constants.Drive.Dims;
+import frc.robot.subsystems.NetworkWatchdogSubsystem.IPv4;
 import frc.robot.subsystems.OuttakeSubsystem.OuttakeDetails;
 import frc.robot.subsystems.RGBSubsystem.RGBColor;
 import frc.util.pathing.FieldObstructionMap;
+import java.util.List;
 import java.util.Optional;
 
 @SuppressWarnings("java:S1118")
@@ -351,8 +353,9 @@ public final class Constants {
   }
 
   public static final class NetworkWatchdog {
-    /** The IP address to ping for testing bridging, on the second vlan. */
-    public static final String TEST_IP_ADDRESS = "10.50.26.19";
+    /** The IP addresses to ping for testing bridging, on the second vlan. */
+    public static final List<IPv4> TEST_IP_ADDRESSES =
+        List.of(IPv4.internal(17), IPv4.internal(18), IPv4.internal(19));
 
     /**
      * The number of ms (sleep delta using oshi system uptime) to wait before beginning to ping the
