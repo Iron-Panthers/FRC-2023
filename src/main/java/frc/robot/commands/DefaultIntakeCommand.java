@@ -17,7 +17,7 @@ public class DefaultIntakeCommand extends SequentialCommandGroup {
             new IntakeCommand(intakeSubsystem, IntakeModes.DEPLOY), 
             new ForceIntakeCommand(intakeSubsystem, IntakeModes.INTAKE, IntakeModes.OFF)
                 .until(() -> !buttonPressed.getAsBoolean()),
-            new WaitCommand(0.1),
+            new WaitCommand(0.4),
             new IntakeCommand(intakeSubsystem, IntakeModes.RETRACT),
             new StartSpindexerHopperCommand(spindexerSubsystem, Modes.IDLE)
         );
