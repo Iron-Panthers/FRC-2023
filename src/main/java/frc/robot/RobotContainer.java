@@ -210,6 +210,14 @@ public class RobotContainer {
                 new Pose2d(1.8, .5, Rotation2d.fromDegrees(180)),
                 .05));
 
+    will.y()
+        .onTrue(
+            new DriveToPlaceCommand(
+                drivebaseSubsystem,
+                visionSubsystem,
+                manueverGenerator,
+                new Pose2d(15.5595, 7.3965, Rotation2d.fromDegrees(0))));
+
     // outtake states
     jasonLayer
         .off(jason.leftTrigger())
