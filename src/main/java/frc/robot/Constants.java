@@ -284,9 +284,9 @@ public final class Constants {
 
     public static final class Speeds {
       public static final double DEPLOY_SPEED = 0.2;
-      public static final double INTAKE_SPEED = 0.9;
+      public static final double INTAKE_SPEED = 1.0;
       public static final double RETRACT_SPEED = -0.3;
-      public static final double EJECT_SPEED = -0.9;
+      public static final double EJECT_SPEED = -1.0;
     }
 
     public static final double ARM_HARDSTOP_CURRENT = 5; // FIRXME need real value
