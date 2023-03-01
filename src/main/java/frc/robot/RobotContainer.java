@@ -206,9 +206,7 @@ public class RobotContainer {
                 drivebaseSubsystem,
                 visionSubsystem,
                 manueverGenerator,
-                new Pose2d(2.5, 1, Rotation2d.fromDegrees(180)),
-                new Pose2d(1.8, .5, Rotation2d.fromDegrees(180)),
-                .05));
+                new Pose2d(1.8, .53, Rotation2d.fromDegrees(180))));
 
     will.y()
         .onTrue(
@@ -216,7 +214,9 @@ public class RobotContainer {
                 drivebaseSubsystem,
                 visionSubsystem,
                 manueverGenerator,
-                new Pose2d(15.5595, 7.3965, Rotation2d.fromDegrees(0))));
+                new Pose2d(15, 7.3965, Rotation2d.fromDegrees(0)),
+                new Pose2d(15.5595, 7.3965, Rotation2d.fromDegrees(0)),
+                0));
 
     // outtake states
     jasonLayer
