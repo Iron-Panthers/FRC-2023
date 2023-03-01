@@ -49,6 +49,6 @@ public class OneCubePlusTwoConePlusBalance extends SequentialCommandGroup {
     return new SequentialCommandGroup(
         new ArmPositionCommand(armSubsystem, Constants.Arm.Setpoints.GROUND_INTAKE),
         new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)
-            .raceWith(new WaitCommand(5)));
+            .raceWith(new WaitCommand(4)));
   }
 }
