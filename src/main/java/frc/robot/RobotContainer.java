@@ -287,7 +287,8 @@ public class RobotContainer {
 
     autoSelector.addOption(
         "[NEW] One Cube Plus Two Cone Plus Balance",
-        new OneCubePlusTwoConePlusBalance(4, 1, drivebaseSubsystem));
+        new OneCubePlusTwoConePlusBalance(
+            4, 1, drivebaseSubsystem, armSubsystem, outtakeSubsystem));
 
     autoSelector.addOption(
         "[NEW] IanAuto",

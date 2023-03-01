@@ -2,6 +2,7 @@ package frc.robot.autonomous.commands;
 
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
@@ -22,7 +23,12 @@ public class OneCubePlusTwoConePlusBalance extends SequentialCommandGroup {
   public OneCubePlusTwoConePlusBalance(
       double maxVelocityMetersPerSecond,
       double maxAccelerationMetersPerSecondSq,
-      DrivebaseSubsystem drivebaseSubsystem) {
+      DrivebaseSubsystem drivebaseSubsystem,
+      ArmSubsystem armSubsystem,
+      OuttakeSubsystem outtakeSubsystem) {
+
+    this.armSubsystem = armSubsystem;
+    this.outtakeSubsystem = outtakeSubsystem;
 
     ArrayList<PathPlannerTrajectory> paths =
         new ArrayList<>(
@@ -32,7 +38,7 @@ public class OneCubePlusTwoConePlusBalance extends SequentialCommandGroup {
                 maxAccelerationMetersPerSecondSq));
 
     addCommands(
-        new ScoreCommand(outtakeSubsystem, armSubsystem, Constants.ScoringSteps.Cone.HIGH),
+        // new ScoreCommand(outtakeSubsystem, armSubsystem, Constants.ScoringSteps.Cone.HIGH),
         new FollowTrajectoryCommand(paths.get(0), true, drivebaseSubsystem),
         intake(),
         new FollowTrajectoryCommand(paths.get(1), false, drivebaseSubsystem),
@@ -44,11 +50,11 @@ public class OneCubePlusTwoConePlusBalance extends SequentialCommandGroup {
         new FollowTrajectoryCommand(paths.get(4), false, drivebaseSubsystem));
   }
 
-  private SequentialCommandGroup intake() {
-    // Add more commands in the future...maybe to retract arm?
-    return new SequentialCommandGroup(
-        new ArmPositionCommand(armSubsystem, Constants.Arm.Setpoints.GROUND_INTAKE),
-        new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)
-            .raceWith(new WaitCommand(4)));
+  private ParallelRaceGroup intake() {
+    return (new ArmPositionCommand(armSubsystem, Constants.Arm.Setpoints.GROUND_INTAKE)
+            .alongWith(
+                new ForceOuttakeSubsystemModeCommand(
+                    outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)))
+        .raceWith(new WaitCommand(4));
   }
 }
