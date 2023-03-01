@@ -17,6 +17,7 @@ import edu.wpi.first.math.numbers.N3;
 import frc.robot.Constants.Drive.Dims;
 import frc.robot.commands.ScoreCommand.ScoreStep;
 import frc.robot.subsystems.ArmSubsystem.ArmState;
+import frc.robot.subsystems.NetworkWatchdogSubsystem.IPv4;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem.OuttakeDetails;
 import frc.robot.subsystems.RGBSubsystem.RGBColor;
@@ -357,14 +358,15 @@ public final class Constants {
   }
 
   public static final class NetworkWatchdog {
-    /** The IP address to ping for testing bridging, on the second vlan. */
-    public static final String TEST_IP_ADDRESS = "10.50.26.19";
+    /** The IP addresses to ping for testing bridging, on the second vlan. */
+    public static final List<IPv4> TEST_IP_ADDRESSES =
+        List.of(IPv4.internal(17), IPv4.internal(18), IPv4.internal(19));
 
     /**
      * The number of ms (sleep delta using oshi system uptime) to wait before beginning to ping the
      * test IP.
      */
-    public static final int BOOT_SCAN_DELAY_MS = 30_000;
+    public static final int BOOT_SCAN_DELAY_MS = 50_000;
 
     /** The number of seconds for ping to wait before giving up on reaching a device. */
     public static final int PING_TIMEOUT_SECONDS = 2;
@@ -382,7 +384,7 @@ public final class Constants {
      * The number of ms to wait before rerunning health checks after a failed check which triggered
      * switch reboot.
      */
-    public static final int SWITCH_POWERCYCLE_SCAN_DELAY_MS = 6_000;
+    public static final int SWITCH_POWERCYCLE_SCAN_DELAY_MS = 25_000;
   }
 
   public static final class Lights {
