@@ -8,13 +8,18 @@ import java.util.List;
 public class NodeSelectorUtility {
   public enum NodeType {
     CONE,
-    CUBE,
+    CUBE;
+
+    // returns a unique number representing the node height combo
+    public int atHeight(Height height) {
+      return this.ordinal() * 3 + height.ordinal();
+    }
   }
 
   public enum Height {
     HIGH,
     MID,
-    LOW,
+    LOW;
   }
 
   public static record NodeStack(int number, Pose2d position, NodeType type) {}
@@ -68,7 +73,7 @@ public class NodeSelectorUtility {
   public static record NodeSelection(NodeStack nodeStack, Height height) {
     @Override
     public String toString() {
-      // format should be "3 high" or "5 middle"
+      // format should be "3 high" or "5 mid" or "9 low"
       return String.format("%d %s", nodeStack.number(), height.name().toLowerCase());
     }
 

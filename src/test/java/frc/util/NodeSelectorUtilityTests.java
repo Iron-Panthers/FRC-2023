@@ -1,8 +1,12 @@
 package frc.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
 import frc.UtilTest;
+import frc.util.NodeSelectorUtility.Height;
+import frc.util.NodeSelectorUtility.NodeType;
+import java.util.List;
 
 public class NodeSelectorUtilityTests {
 
@@ -60,5 +64,18 @@ public class NodeSelectorUtilityTests {
 
     var selection1HighAgain = selection9High.shift(-12);
     assertEquals("1 high", selection1HighAgain.toString());
+  }
+
+  @UtilTest
+  public void enumValuesAreUniqueAndIncrementing() {
+    assertIterableEquals(
+        List.of(0, 1, 2, 3, 4, 5),
+        List.of(
+            NodeType.CONE.atHeight(Height.HIGH),
+            NodeType.CONE.atHeight(Height.MID),
+            NodeType.CONE.atHeight(Height.LOW),
+            NodeType.CUBE.atHeight(Height.HIGH),
+            NodeType.CUBE.atHeight(Height.MID),
+            NodeType.CUBE.atHeight(Height.LOW)));
   }
 }
