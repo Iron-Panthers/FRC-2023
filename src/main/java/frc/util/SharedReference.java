@@ -21,14 +21,6 @@ public class SharedReference<T> {
       subscriptions.add(this);
     }
 
-    private Subscription(Consumer<T> consumer) {
-      this(
-          (T currentData) -> {
-            consumer.accept(currentData);
-            return true;
-          });
-    }
-
     /**
      * Call the consumer with the current value.
      *
@@ -83,7 +75,11 @@ public class SharedReference<T> {
    * @return a subscription object that can be used to destroy the subscription
    */
   public Subscription subscribe(Consumer<T> consumer) {
-    return new Subscription(consumer);
+    return new Subscription(
+        u -> {
+          consumer.accept(u);
+          return true;
+        });
   }
 
   /**
