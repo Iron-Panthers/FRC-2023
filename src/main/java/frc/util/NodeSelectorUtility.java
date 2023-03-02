@@ -1,5 +1,6 @@
 package frc.util;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import java.util.List;
@@ -11,13 +12,10 @@ public class NodeSelectorUtility {
   }
 
   public enum Height {
-    HYBRID,
-    MIDDLE,
     HIGH,
+    MID,
+    LOW,
   }
-
-  public static final int WIDTH = 9;
-  public static final int HEIGHT = 3;
 
   public static record NodeStack(int number, Pose2d position, NodeType type) {}
 
@@ -73,5 +71,11 @@ public class NodeSelectorUtility {
       // format should be "3 high" or "5 middle"
       return String.format("%d %s", nodeStack.number(), height.name().toLowerCase());
     }
+  }
+
+  public static NodeSelection shift(NodeSelection selection, int shift) {
+    int index = selection.nodeStack().number() - 1;
+    int newIndex = MathUtil.clamp(index + shift, 0, nodeStacks.size() - 1);
+    return new NodeSelection(nodeStacks.get(newIndex), selection.height());
   }
 }
