@@ -273,6 +273,12 @@ public class RobotContainer {
                   RGBSubsystem.MessagePriority.B_DRIVER_CONTROLLED_COLOR);
           currentNodeSelection.subscribeOnce(msg::expire);
         });
+
+    // show the current node selection
+    Shuffleboard.getTab("DriverView")
+        .addString("Node Selection", () -> currentNodeSelection.get().toString())
+        .withPosition(0, 1)
+        .withSize(2, 1);
   }
 
   /**

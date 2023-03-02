@@ -67,5 +67,11 @@ public class NodeSelectorUtility {
 
   public static final NodeStack defaultNodeStack = nodeStacks.get(0);
 
-  public static record NodeSelection(NodeStack nodeStack, Height height) {}
+  public static record NodeSelection(NodeStack nodeStack, Height height) {
+    @Override
+    public String toString() {
+      // format should be "3 high" or "5 middle"
+      return String.format("%d %s", nodeStack.number(), height.name().toLowerCase());
+    }
+  }
 }
