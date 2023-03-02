@@ -5,7 +5,10 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-/** A class to facilitate a shared reference to data. */
+/**
+ * A class to facilitate a shared reference to data. This class is NOT THREAD SAFE AND WILL BLOW UP
+ * IN YOUR FACE IF YOU PRETEND IT IS.
+ */
 public class SharedReference<T> {
   /**
    * A class that stores a function to call when data is updated. It only exposes a method to
@@ -18,7 +21,6 @@ public class SharedReference<T> {
 
     private Subscription(Function<T, Boolean> function) {
       this.function = function;
-      subscriptions.add(this);
     }
 
     /**
@@ -45,6 +47,10 @@ public class SharedReference<T> {
     this.data = data;
   }
 
+  private void updateSubscriptions() {
+    subscriptions.removeIf(sub -> !sub.update(data));
+  }
+
   /**
    * Get the data. Data will never be null. You shouldn't store the data--this call is free, and
    * storing it would prevent reactivity. Only store it if subsequent operations wouldn't make sense
@@ -58,14 +64,28 @@ public class SharedReference<T> {
 
   /**
    * Set the data. Subscriptions will be called immediately from the thread that called this method.
-   * Data cannot be null.
+   * Data cannot be null. Setting the data inside a subscription will throw a {@link
+   * IllegalStateException}.
    *
    * @param data the data to set
    */
   public void set(T data) {
     if (data == null) throw new IllegalArgumentException("Data cannot be null");
     this.data = data;
-    subscriptions.removeIf((Subscription subscription) -> !subscription.update(data));
+    updateSubscriptions();
+  }
+
+  /**
+   * Subscribe to the data until the function returns true. All other subscriptions call this method
+   * internally.
+   *
+   * @param function the function to call when the data is updated
+   * @return a subscription object that can be used to destroy the subscription
+   */
+  public Subscription subscribeUntil(Function<T, Boolean> function) {
+    var sub = new Subscription(function);
+    subscriptions.add(sub);
+    return sub;
   }
 
   /**
@@ -75,21 +95,11 @@ public class SharedReference<T> {
    * @return a subscription object that can be used to destroy the subscription
    */
   public Subscription subscribe(Consumer<T> consumer) {
-    return new Subscription(
+    return subscribeUntil(
         u -> {
           consumer.accept(u);
           return true;
         });
-  }
-
-  /**
-   * Subscribe to the data until the function returns true.
-   *
-   * @param function the function to call when the data is updated
-   * @return a subscription object that can be used to destroy the subscription
-   */
-  public Subscription subscribeUntil(Function<T, Boolean> function) {
-    return new Subscription(function);
   }
 
   /**

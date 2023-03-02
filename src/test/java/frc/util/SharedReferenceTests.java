@@ -2,10 +2,12 @@ package frc.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import frc.UtilTest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class SharedReferenceTests {
   @UtilTest
@@ -94,5 +96,37 @@ public class SharedReferenceTests {
     reference.set(5);
     assertIterableEquals(List.of(1), values);
     assertEquals(5, reference.get());
+  }
+
+  @UtilTest
+  public void creatingASubscriptionDoesNotCallIt() {
+    SharedReference<Integer> reference = new SharedReference<>(0);
+    reference.subscribe(
+        new Consumer<Integer>() {
+          @Override
+          public void accept(Integer value) {
+            fail("Subscription should not be called when it is created");
+          }
+        });
+  }
+
+  @UtilTest
+  public void creatingSubscriptionWithinSubscriptionDoesNotTriggerNewSubscription() {
+    SharedReference<Integer> reference = new SharedReference<>(0);
+    reference.subscribe(
+        new Consumer<Integer>() {
+          @Override
+          public void accept(Integer value) {
+            reference.subscribe(
+                new Consumer<Integer>() {
+                  @Override
+                  public void accept(Integer value) {
+                    fail(
+                        "new subscription should not be called when it is created within subscription");
+                  }
+                });
+          }
+        });
+    reference.set(1);
   }
 }
