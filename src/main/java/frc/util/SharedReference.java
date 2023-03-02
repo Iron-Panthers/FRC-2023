@@ -54,15 +54,24 @@ public class SharedReference<T> {
   }
 
   /**
-   * Get the data.
+   * Get the data. Data will never be null. You shouldn't store the data--this call is free, and
+   * storing it would prevent reactivity. Only store it if subsequent operations wouldn't make sense
+   * if the data changed.
    *
-   * @return
+   * @return the data. Copies are not made, so the reference should not be modified.
    */
   public T get() {
     return data;
   }
 
+  /**
+   * Set the data. Subscriptions will be called immediately from the thread that called this method.
+   * Data cannot be null.
+   *
+   * @param data the data to set
+   */
   public void set(T data) {
+    if (data == null) throw new IllegalArgumentException("Data cannot be null");
     this.data = data;
     subscriptions.removeIf((Subscription subscription) -> !subscription.update(data));
   }
