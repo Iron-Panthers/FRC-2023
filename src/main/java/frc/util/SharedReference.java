@@ -2,6 +2,8 @@ package frc.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -47,8 +49,24 @@ public class SharedReference<T> {
     this.data = data;
   }
 
+  private Optional<ListIterator<Subscription>> subscriptionUpdateIterator = Optional.empty();
+
   private void updateSubscriptions() {
-    subscriptions.removeIf(sub -> !sub.update(data));
+    if (subscriptionUpdateIterator.isPresent()) {
+      throw new IllegalStateException(
+          "You are not allowed to call set from within a subscription.");
+    }
+
+    subscriptionUpdateIterator = Optional.of(subscriptions.listIterator());
+
+    while (subscriptionUpdateIterator.get().hasNext()) {
+      var subscription = subscriptionUpdateIterator.get().next();
+      if (!subscription.update(data)) {
+        subscriptionUpdateIterator.get().remove();
+      }
+    }
+
+    subscriptionUpdateIterator = Optional.empty();
   }
 
   /**
@@ -84,7 +102,11 @@ public class SharedReference<T> {
    */
   public Subscription subscribeUntil(Function<T, Boolean> function) {
     var sub = new Subscription(function);
-    subscriptions.add(sub);
+    if (subscriptionUpdateIterator.isPresent()) {
+      subscriptionUpdateIterator.get().add(sub);
+    } else {
+      subscriptions.add(sub);
+    }
     return sub;
   }
 
