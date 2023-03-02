@@ -21,7 +21,6 @@ import frc.robot.Constants.Arm;
 import frc.robot.Constants.Lights;
 import frc.robot.Constants.ScoringSteps;
 import frc.robot.autonomous.commands.AutoTestSequence;
-import frc.robot.autonomous.commands.IanDemoAutoSequence;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.DefaultDriveCommand;
@@ -296,10 +295,6 @@ public class RobotContainer {
             2, // m/s
             1, // m/s2
             drivebaseSubsystem));
-
-    autoSelector.addOption(
-        "[NEW] IanAuto",
-        new IanDemoAutoSequence(5, 3, drivebaseSubsystem, visionSubsystem, manueverGenerator));
 
     Shuffleboard.getTab("DriverView")
         .add("auto selector", autoSelector)
