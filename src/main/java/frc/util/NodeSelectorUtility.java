@@ -24,27 +24,47 @@ public class NodeSelectorUtility {
 
   private static final double X_POSITION = 1.8;
 
+  private static final double Y_FUDGE = 0d;
+
   // one is on the substation, counting up to the other side
   public static final List<NodeStack> nodeStacks =
       List.of(
           new NodeStack(
-              1, new Pose2d(X_POSITION, 4.99, Rotation2d.fromDegrees(180)), NodeType.CONE),
+              1,
+              new Pose2d(X_POSITION, 4.99 + Y_FUDGE, Rotation2d.fromDegrees(180)),
+              NodeType.CONE),
           new NodeStack(
-              2, new Pose2d(X_POSITION, 4.43, Rotation2d.fromDegrees(180)), NodeType.CUBE),
+              2,
+              new Pose2d(X_POSITION, 4.43 + Y_FUDGE, Rotation2d.fromDegrees(180)),
+              NodeType.CUBE),
           new NodeStack(
-              3, new Pose2d(X_POSITION, 3.87, Rotation2d.fromDegrees(180)), NodeType.CONE),
+              3,
+              new Pose2d(X_POSITION, 3.87 + Y_FUDGE, Rotation2d.fromDegrees(180)),
+              NodeType.CONE),
           new NodeStack(
-              4, new Pose2d(X_POSITION, 3.31, Rotation2d.fromDegrees(180)), NodeType.CONE),
+              4,
+              new Pose2d(X_POSITION, 3.31 + Y_FUDGE, Rotation2d.fromDegrees(180)),
+              NodeType.CONE),
           new NodeStack(
-              5, new Pose2d(X_POSITION, 2.76, Rotation2d.fromDegrees(180)), NodeType.CUBE),
+              5,
+              new Pose2d(X_POSITION, 2.76 + Y_FUDGE, Rotation2d.fromDegrees(180)),
+              NodeType.CUBE),
           new NodeStack(
-              6, new Pose2d(X_POSITION, 2.20, Rotation2d.fromDegrees(180)), NodeType.CONE),
+              6,
+              new Pose2d(X_POSITION, 2.20 + Y_FUDGE, Rotation2d.fromDegrees(180)),
+              NodeType.CONE),
           new NodeStack(
-              7, new Pose2d(X_POSITION, 1.61, Rotation2d.fromDegrees(180)), NodeType.CONE),
+              7,
+              new Pose2d(X_POSITION, 1.61 + Y_FUDGE, Rotation2d.fromDegrees(180)),
+              NodeType.CONE),
           new NodeStack(
-              8, new Pose2d(X_POSITION, 1.08, Rotation2d.fromDegrees(180)), NodeType.CUBE),
+              8,
+              new Pose2d(X_POSITION, 1.08 + Y_FUDGE, Rotation2d.fromDegrees(180)),
+              NodeType.CUBE),
           new NodeStack(
-              9, new Pose2d(X_POSITION, 0.25, Rotation2d.fromDegrees(180)), NodeType.CONE));
+              9,
+              new Pose2d(X_POSITION, 0.25 + Y_FUDGE, Rotation2d.fromDegrees(180)),
+              NodeType.CONE));
 
   public static final NodeStack defaultNodeStack = nodeStacks.get(0);
 
