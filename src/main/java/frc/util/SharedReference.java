@@ -40,7 +40,7 @@ public class SharedReference<T> {
       return function.apply(data);
     }
 
-    /** Destroy the subscription. */
+    /** Destroy the subscription. A destroyed subscription will not run again. */
     public void destroy() {
       destroyed = true;
     }
@@ -94,5 +94,26 @@ public class SharedReference<T> {
    */
   public Subscription subscribeUntil(Function<T, Boolean> function) {
     return new Subscription(function);
+  }
+
+  /**
+   * Subscribe to only the next update of the data.
+   *
+   * @param consumer the consumer to call when the data is updated
+   * @return a subscription object that can be used to destroy the subscription
+   */
+  public Subscription subscribeOnce(Consumer<T> consumer) {
+    return subscribeUntil(
+        new Function<T, Boolean>() {
+          private boolean called = false;
+
+          @Override
+          public Boolean apply(T t) {
+            if (called) return true;
+            called = true;
+            consumer.accept(t);
+            return false;
+          }
+        });
   }
 }
