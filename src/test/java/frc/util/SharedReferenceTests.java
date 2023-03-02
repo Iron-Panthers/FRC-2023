@@ -2,6 +2,7 @@ package frc.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import frc.UtilTest;
@@ -149,5 +150,15 @@ public class SharedReferenceTests {
 
     assertEquals(List.of(1, 2), valuesA);
     assertEquals(List.of(2), valuesB);
+  }
+
+  @UtilTest
+  public void callingSetInsideSubscriptionThrowsError() {
+    SharedReference<Integer> reference = new SharedReference<>(0);
+    reference.subscribe(
+        v -> {
+          assertThrows(IllegalStateException.class, () -> reference.set(1));
+        });
+    reference.set(1);
   }
 }

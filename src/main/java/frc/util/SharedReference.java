@@ -79,7 +79,8 @@ public class SharedReference<T> {
   /**
    * Set the data. Subscriptions will be called immediately from the thread that called this method.
    * Data cannot be null. Setting the data inside a subscription will throw a {@link
-   * IllegalStateException}.
+   * IllegalStateException}. Setting the data to the same value <i><b>will call
+   * subscriptions.</b></i>
    *
    * @param data the data to set
    */
