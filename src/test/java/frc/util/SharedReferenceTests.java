@@ -129,4 +129,25 @@ public class SharedReferenceTests {
         });
     reference.set(1);
   }
+
+  @UtilTest
+  public void creatingSubscriptionWithinSubscriptionTriggersOnNextUpdate() {
+    SharedReference<Integer> reference = new SharedReference<>(0);
+    List<Integer> valuesA = new ArrayList<>();
+    List<Integer> valuesB = new ArrayList<>();
+    reference.subscribe(valuesA::add);
+    reference.subscribeOnce(v -> reference.subscribe(valuesB::add));
+
+    assertIterableEquals(List.of(), valuesA);
+    assertIterableEquals(List.of(), valuesB);
+
+    reference.set(1);
+    assertEquals(List.of(1), valuesA);
+    assertEquals(List.of(), valuesB);
+
+    reference.set(2);
+
+    assertEquals(List.of(1, 2), valuesA);
+    assertEquals(List.of(2), valuesB);
+  }
 }
