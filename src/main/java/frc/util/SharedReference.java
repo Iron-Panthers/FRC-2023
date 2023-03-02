@@ -3,10 +3,12 @@ package frc.util;
 import java.util.ArrayDeque;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
- * A class to facilitate a shared reference to data. This class is NOT THREAD SAFE AND WILL BLOW UP
- * IN YOUR FACE IF YOU PRETEND IT IS.
+ * A class to facilitate a shared reference to data. It is best to use it with records, so the
+ * reference will be set instead of mutated. This class is NOT THREAD SAFE AND WILL BLOW UP IN YOUR
+ * FACE IF YOU PRETEND IT IS.
  */
 public class SharedReference<T> {
   /**
@@ -88,6 +90,17 @@ public class SharedReference<T> {
     if (data == null) throw new IllegalArgumentException("Data cannot be null");
     this.data = data;
     updateSubscriptions();
+  }
+
+  /**
+   * Apply a unary operator to the data. Subscriptions will be called immediately from the thread
+   * that called this method. Equivalent to calling {@link #set} with the result of {@link
+   * UnaryOperator#apply} on {@link #get}.
+   *
+   * @param function the function to apply
+   */
+  public void apply(UnaryOperator<T> function) {
+    set(function.apply(data));
   }
 
   /**

@@ -260,6 +260,9 @@ public class RobotContainer {
             new ScoreCommand(
                 outtakeSubsystem, armSubsystem, ScoringSteps.Cone.HIGH, jasonLayer.on(jason.y())));
 
+    jason.povRight().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(1))));
+    jason.povLeft().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(-1))));
+
     // control the lights
     currentNodeSelection.subscribe(
         nodeSelection -> {
