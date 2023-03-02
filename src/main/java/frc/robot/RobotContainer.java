@@ -29,7 +29,6 @@ import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
-import frc.robot.commands.ForceLightsColorCommand;
 import frc.robot.commands.ForceOuttakeSubsystemModeCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
@@ -267,12 +266,17 @@ public class RobotContainer {
                 outtakeSubsystem, armSubsystem, ScoringSteps.Cone.HIGH, jasonLayer.on(jason.y())));
 
     // control the lights
-    jason
-        .povUp()
-        .onTrue(new ForceLightsColorCommand(rgbSubsystem, Lights.Colors.PURPLE).withTimeout(10));
-    jason
-        .povDown()
-        .onTrue(new ForceLightsColorCommand(rgbSubsystem, Lights.Colors.YELLOW).withTimeout(10));
+    currentNodeSelection.subscribe(
+        nodeSelection -> {
+          var msg =
+              rgbSubsystem.showMessage(
+                  nodeSelection.nodeStack().type() == NodeSelectorUtility.NodeType.CUBE
+                      ? Lights.Colors.PURPLE
+                      : Lights.Colors.YELLOW,
+                  RGBSubsystem.PatternTypes.PULSE,
+                  RGBSubsystem.MessagePriority.B_DRIVER_CONTROLLED_COLOR);
+          currentNodeSelection.subscribeOnce(msg::expire);
+        });
   }
 
   /**

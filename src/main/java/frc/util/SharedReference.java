@@ -122,6 +122,16 @@ public class SharedReference<T> {
   }
 
   /**
+   * Subscribe to the data.
+   *
+   * @param runnable the runnable to call when the data is updated
+   * @return a subscription object that can be used to destroy the subscription
+   */
+  public Subscription subscribe(Runnable runnable) {
+    return subscribe(runnable);
+  }
+
+  /**
    * Subscribe to only the next update of the data.
    *
    * @param consumer the consumer to call when the data is updated
@@ -140,5 +150,15 @@ public class SharedReference<T> {
             return false;
           }
         });
+  }
+
+  /**
+   * Subscribe to only the next update of the data.
+   *
+   * @param runnable the runnable to call when the data is updated
+   * @return a subscription object that can be used to destroy the subscription
+   */
+  public Subscription subscribeOnce(Runnable runnable) {
+    return subscribeOnce(runnable);
   }
 }

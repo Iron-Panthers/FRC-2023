@@ -8,7 +8,6 @@ public class NodeSelectorUtility {
   public enum NodeType {
     CONE,
     CUBE,
-    ANY,
   }
 
   public enum Height {
