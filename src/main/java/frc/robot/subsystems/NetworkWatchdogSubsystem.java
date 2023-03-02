@@ -69,6 +69,19 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
     return false;
   }
 
+  private Optional<RGBMessage> lastMessage = Optional.empty();
+
+  private void showColor(RGBColor color) {
+    if (!optionalRGBSubsystem.isPresent()) return;
+    lastMessage.ifPresent(RGBMessage::expire);
+    lastMessage =
+        Optional.of(
+            optionalRGBSubsystem
+                .get()
+                .showMessage(
+                    color, PatternTypes.BOUNCE, MessagePriority.A_CRITICAL_NETWORK_INFORMATION));
+  }
+
   /**
    * Sleep that handles interrupts and uses an int. Don't do this please?
    *
@@ -83,30 +96,17 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
     }
   }
 
-  private Optional<RGBMessage> lastMessage = Optional.empty();
-
-  private void showColor(RGBColor color) {
-    if (!optionalRGBSubsystem.isPresent()) return;
-    lastMessage.ifPresent(RGBMessage::expire);
-    lastMessage =
-        Optional.of(
-            optionalRGBSubsystem
-                .get()
-                .showMessage(
-                    color, PatternTypes.BOUNCE, MessagePriority.A_CRITICAL_NETWORK_INFORMATION));
-  }
-
   private boolean canPingAny() {
-    boolean didPing = false;
     for (IPv4 ip : NetworkWatchdog.TEST_IP_ADDRESSES) {
+      // fail fast if the thread is interrupted
+      if (Thread.currentThread().isInterrupted()) return false;
       if (canPing(ip)) {
-        didPing = true;
         System.out.println("[network watchdog] Pinged " + ip.address + " successfully.");
-        break;
+        return true;
       }
       System.out.println("[network watchdog] Failed to ping " + ip.address);
     }
-    return didPing;
+    return false;
   }
 
   private void rebootSwitch() {
@@ -141,20 +141,19 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
                 sleep(NetworkWatchdog.BOOT_SCAN_DELAY_MS - initialUptimeMS);
               }
 
-              // to ensure we don't miss an interrupt, only sleep once per branch before coming back
-              // to the while conditional
-              while (!Thread.interrupted()) {
+              while (!Thread.currentThread().isInterrupted()) {
                 if (pingAttemptStep()) continue;
 
                 // the network is down if we get here
-                while (true) {
+                while (!Thread.currentThread().isInterrupted()) {
                   System.out.println("[network watchdog] Network is down.");
                   rebootSwitch();
                   System.out.println("[network watchdog] Scanning until duration expires.");
                   final long startTime = System.currentTimeMillis();
                   boolean didPing = false;
-                  while (System.currentTimeMillis() - startTime
-                      < NetworkWatchdog.SWITCH_POWERCYCLE_SCAN_DELAY_MS) {
+                  while ((!Thread.currentThread().isInterrupted())
+                      && (System.currentTimeMillis() - startTime
+                          < NetworkWatchdog.SWITCH_POWERCYCLE_SCAN_DELAY_MS)) {
                     if (pingAttemptStep()) {
                       didPing = true;
                       break;
