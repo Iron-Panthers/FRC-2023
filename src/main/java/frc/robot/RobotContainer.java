@@ -47,6 +47,10 @@ import frc.robot.subsystems.VisionSubsystem;
 import frc.util.ControllerUtil;
 import frc.util.Layer;
 import frc.util.MacUtil;
+import frc.util.NodeSelectorUtility;
+import frc.util.NodeSelectorUtility.Height;
+import frc.util.NodeSelectorUtility.NodeSelection;
+import frc.util.SharedReference;
 import frc.util.Util;
 import frc.util.pathing.RubenManueverGenerator;
 import java.util.Optional;
@@ -75,6 +79,9 @@ public class RobotContainer {
   private final ArmSubsystem armSubsystem = new ArmSubsystem();
 
   private final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
+
+  private final SharedReference<NodeSelection> currentNodeSelection =
+      new SharedReference<>(new NodeSelection(NodeSelectorUtility.defaultNodeStack, Height.HIGH));
 
   /** controller 1 */
   private final CommandXboxController jason = new CommandXboxController(1);

@@ -45,4 +45,8 @@ public class NodeSelectorUtility {
               8, new Pose2d(X_POSITION, 1.08, Rotation2d.fromDegrees(180)), NodeType.CUBE),
           new NodeStack(
               9, new Pose2d(X_POSITION, 0.25, Rotation2d.fromDegrees(180)), NodeType.CONE));
+
+  public static final NodeStack defaultNodeStack = nodeStacks.get(0);
+
+  public static record NodeSelection(NodeStack nodeStack, Height height) {}
 }
