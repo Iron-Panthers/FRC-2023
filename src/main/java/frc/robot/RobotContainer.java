@@ -6,8 +6,6 @@ package frc.robot;
 
 import static frc.robot.Constants.Drive;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
@@ -212,9 +210,7 @@ public class RobotContainer {
                 drivebaseSubsystem,
                 visionSubsystem,
                 manueverGenerator,
-                new Pose2d(2.5, 1, Rotation2d.fromDegrees(180)),
-                new Pose2d(1.8, .5, Rotation2d.fromDegrees(180)),
-                .05));
+                () -> currentNodeSelection.get().nodeStack().position()));
 
     // outtake states
     jasonLayer
