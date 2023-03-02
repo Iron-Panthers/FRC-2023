@@ -71,6 +71,14 @@ public class NodeSelectorUtility {
       // format should be "3 high" or "5 middle"
       return String.format("%d %s", nodeStack.number(), height.name().toLowerCase());
     }
+
+    public NodeSelection shift(int steps) {
+      return NodeSelectorUtility.shift(this, steps);
+    }
+
+    public NodeSelection withHeight(Height height) {
+      return new NodeSelection(nodeStack, height);
+    }
   }
 
   public static NodeSelection shift(NodeSelection selection, int shift) {
