@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
 import frc.robot.Constants.Drive;
-import frc.robot.Constants.Lights;
 import frc.robot.autonomous.commands.AutoTestSequence;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
@@ -293,17 +292,17 @@ public class RobotContainer {
     jason.povLeft().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(-1))));
 
     // control the lights
-    currentNodeSelection.subscribe(
-        nodeSelection -> {
-          var msg =
-              rgbSubsystem.showMessage(
-                  nodeSelection.nodeStack().type() == NodeSelectorUtility.NodeType.CUBE
-                      ? Lights.Colors.PURPLE
-                      : Lights.Colors.YELLOW,
-                  RGBSubsystem.PatternTypes.PULSE,
-                  RGBSubsystem.MessagePriority.B_DRIVER_CONTROLLED_COLOR);
-          currentNodeSelection.subscribeOnce(msg::expire);
-        });
+    // currentNodeSelection.subscribe(
+    //     nodeSelection -> {
+    //       var msg =
+    //           rgbSubsystem.showMessage(
+    //               nodeSelection.nodeStack().type() == NodeSelectorUtility.NodeType.CUBE
+    //                   ? Lights.Colors.PURPLE
+    //                   : Lights.Colors.YELLOW,
+    //               RGBSubsystem.PatternTypes.PULSE,
+    //               RGBSubsystem.MessagePriority.B_DRIVER_CONTROLLED_COLOR);
+    //       currentNodeSelection.subscribeOnce(msg::expire);
+    //     });
 
     // show the current node selection
     Shuffleboard.getTab("DriverView")
