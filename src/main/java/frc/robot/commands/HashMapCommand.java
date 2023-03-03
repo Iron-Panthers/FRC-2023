@@ -29,7 +29,7 @@ public class HashMapCommand<T> extends CommandBase {
     this.keySupplier = keySupplier;
 
     CommandScheduler.getInstance()
-        .registerComposedCommands((Command[]) (commandMap.values().toArray()));
+        .registerComposedCommands(commandMap.values().toArray(new Command[commandMap.size()]));
 
     m_requirements.addAll(
         commandMap.values().stream()

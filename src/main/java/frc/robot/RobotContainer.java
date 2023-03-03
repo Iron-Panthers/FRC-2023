@@ -283,13 +283,14 @@ public class RobotContainer {
 
     for (var type : NodeSelectorUtility.NodeType.values()) {
       for (var height : NodeSelectorUtility.Height.values()) {
-        scoreCommandMap.put(
-            type.atHeight(height),
-            new ScoreCommand(
-                outtakeSubsystem,
-                armSubsystem,
-                Constants.SCORE_STEP_MAP.get(type.atHeight(height)),
-                jason.leftBumper()));
+        if (Constants.SCORE_STEP_MAP.containsKey(type.atHeight(height)))
+          scoreCommandMap.put(
+              type.atHeight(height),
+              new ScoreCommand(
+                  outtakeSubsystem,
+                  armSubsystem,
+                  Constants.SCORE_STEP_MAP.get(type.atHeight(height)),
+                  jason.leftBumper()));
       }
     }
 
