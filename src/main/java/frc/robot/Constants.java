@@ -97,41 +97,41 @@ public final class Constants {
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
-                ? -Math.toRadians(8.07400 + 180) // comp bot offset
-                : -Math.toRadians(39.462890); // practice bot offset
-      }
+            ? -Math.toRadians(187.998) // comp bot offset
+            : -Math.toRadians(129.375 + 180); // practice bot offset
+  }
 
-      public static final class FrontLeft { // Module 2
-        public static final int DRIVE_MOTOR = 11;
-        public static final int STEER_MOTOR = 10;
-        public static final int STEER_ENCODER = 25;
+  public static final class FrontLeft { // Module 2
+    public static final int DRIVE_MOTOR = 11;
+    public static final int STEER_MOTOR = 10;
+    public static final int STEER_ENCODER = 25;
 
-        public static final double STEER_OFFSET =
-            IS_COMP_BOT
-                ? -Math.toRadians(274.562 + 180) // comp bot offset
-                : -Math.toRadians(222.7148); // practice bot offset
-      }
+    public static final double STEER_OFFSET =
+        IS_COMP_BOT
+            ? -Math.toRadians(94.2180) // comp bot offset
+            : -Math.toRadians(129.375 + 180); // practice bot offset
+  }
 
-      public static final class BackLeft { // Module 3
-        public static final int DRIVE_MOTOR = 13;
-        public static final int STEER_MOTOR = 12;
-        public static final int STEER_ENCODER = 26;
+  public static final class BackLeft { // Module 3
+    public static final int DRIVE_MOTOR = 13;
+    public static final int STEER_MOTOR = 12;
+    public static final int STEER_ENCODER = 26;
 
-        public static final double STEER_OFFSET =
-            IS_COMP_BOT
-                ? -Math.toRadians(225.082 + 180) // comp bot offset
-                : -Math.toRadians(129.63867); // practice bot offset
-      }
+    public static final double STEER_OFFSET =
+        IS_COMP_BOT
+            ? -Math.toRadians(44.2080) // comp bot offset
+            : -Math.toRadians(307.793 + 180); // practice bot offset
+  }
 
-      public static final class BackRight { // Module 4
-        public static final int DRIVE_MOTOR = 2;
-        public static final int STEER_MOTOR = 1;
-        public static final int STEER_ENCODER = 27;
+  public static final class BackRight { // Module 4
+    public static final int DRIVE_MOTOR = 2;
+    public static final int STEER_MOTOR = 1;
+    public static final int STEER_ENCODER = 27;
 
-        public static final double STEER_OFFSET =
-            IS_COMP_BOT
-                ? -Math.toRadians(335.124 + 180) // comp bot offset
-                : -Math.toRadians(61.3476); // practice bot offset
+    public static final double STEER_OFFSET =
+        IS_COMP_BOT
+            ? -Math.toRadians(155.566) // comp bot offset
+            : -Math.toRadians(241.963 + 180); // practice bot offset
       }
     }
   }
@@ -327,8 +327,8 @@ public final class Constants {
   public static final class SpindexerHopper {
 
     public static final int SPIN_MOTOR_PORT = 9;
-    public static final double IDLE_SPEED = 0.08;
-    public static final double ALIGN_SPEED = -0.08;
+    public static final double IDLE_SPEED = 0.2;
+    public static final double ALIGN_SPEED = -0.2;
 
     public static final class Timings {
       public static final double IDLE_DURATION = 2;
