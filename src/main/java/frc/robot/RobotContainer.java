@@ -161,6 +161,7 @@ public class RobotContainer {
     will.leftBumper().whileTrue(new DefenseModeCommand(drivebaseSubsystem));
 
     will.leftStick().onTrue(new HaltDriveCommandsCommand(drivebaseSubsystem));
+    jason.leftStick().onTrue(new InstantCommand(() -> {}, armSubsystem));
 
     DoubleSupplier rotation =
         exponential(
@@ -206,9 +207,15 @@ public class RobotContainer {
                 drivebaseSubsystem,
                 visionSubsystem,
                 manueverGenerator,
-                new Pose2d(2.5, 1, Rotation2d.fromDegrees(180)),
-                new Pose2d(1.8, .5, Rotation2d.fromDegrees(180)),
-                .05));
+                new Pose2d(1.7, .53, Rotation2d.fromDegrees(180))));
+
+    will.y()
+        .onTrue(
+            new DriveToPlaceCommand(
+                drivebaseSubsystem,
+                visionSubsystem,
+                manueverGenerator,
+                new Pose2d(15.5595, 7.3965, Rotation2d.fromDegrees(0))));
 
     // outtake states
     jasonLayer
@@ -239,9 +246,6 @@ public class RobotContainer {
     jasonLayer.off(jason.y()).onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED));
     jason.start().onTrue(new SetZeroModeCommand(armSubsystem));
 
-    // clear arm commands
-    jason.rightStick().onTrue(new InstantCommand(() -> {}, armSubsystem));
-
     // scoring
     // jasonLayer
     //     .on(jason.a())
@@ -251,13 +255,13 @@ public class RobotContainer {
         .on(jason.b())
         .onTrue(
             new ScoreCommand(
-                outtakeSubsystem, armSubsystem, ScoringSteps.Cone.MID, jasonLayer.on(jason.b())));
+                outtakeSubsystem, armSubsystem, ScoringSteps.Cone.MID, jason.leftBumper()));
 
     jasonLayer
         .on(jason.y())
         .onTrue(
             new ScoreCommand(
-                outtakeSubsystem, armSubsystem, ScoringSteps.Cone.HIGH, jasonLayer.on(jason.y())));
+                outtakeSubsystem, armSubsystem, ScoringSteps.Cone.HIGH, jason.leftBumper()));
 
     // control the lights
     jason
