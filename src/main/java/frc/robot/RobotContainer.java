@@ -29,6 +29,7 @@ import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
 import frc.robot.commands.ForceOuttakeSubsystemModeCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
+import frc.robot.commands.HashMapCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.ScoreCommand;
@@ -50,6 +51,7 @@ import frc.util.NodeSelectorUtility.NodeSelection;
 import frc.util.SharedReference;
 import frc.util.Util;
 import frc.util.pathing.RubenManueverGenerator;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
@@ -277,16 +279,25 @@ public class RobotContainer {
                     currentNodeSelection.apply(n -> n.withHeight(NodeSelectorUtility.Height.HIGH)),
                 armSubsystem));
 
-    jasonLayer
-        .on(jason.x())
-        .onTrue(
+    var scoreCommandMap = new HashMap<NodeSelectorUtility.ScoreTypeIdentifier, Command>();
+
+    for (var type : NodeSelectorUtility.NodeType.values()) {
+      for (var height : NodeSelectorUtility.Height.values()) {
+        scoreCommandMap.put(
+            type.atHeight(height),
             new ScoreCommand(
                 outtakeSubsystem,
                 armSubsystem,
-                () ->
-                    Constants.SCORE_STEP_MAP.get(
-                        currentNodeSelection.get().getScoreTypeIdentifier()),
+                Constants.SCORE_STEP_MAP.get(type.atHeight(height)),
                 jason.leftBumper()));
+      }
+    }
+
+    jasonLayer
+        .on(jason.x())
+        .onTrue(
+            new HashMapCommand<>(
+                scoreCommandMap, () -> currentNodeSelection.get().getScoreTypeIdentifier()));
 
     jason.povRight().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(1))));
     jason.povLeft().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(-1))));
