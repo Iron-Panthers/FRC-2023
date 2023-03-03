@@ -1,6 +1,5 @@
 package frc.util;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import java.util.List;
@@ -94,7 +93,8 @@ public class NodeSelectorUtility {
 
   public static NodeSelection shift(NodeSelection selection, int shift) {
     int index = selection.nodeStack().number() - 1;
-    int newIndex = MathUtil.clamp(index + shift, 0, nodeStacks.size() - 1);
+    int newIndex = ((index + shift) % nodeStacks.size() + nodeStacks.size()) % nodeStacks.size();
+
     return new NodeSelection(nodeStacks.get(newIndex), selection.height());
   }
 }

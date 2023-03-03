@@ -38,6 +38,7 @@ public class NodeSelectorUtilityTests {
     var selection1High =
         new NodeSelectorUtility.NodeSelection(
             NodeSelectorUtility.defaultNodeStack, NodeSelectorUtility.Height.HIGH);
+    assertEquals("1 high", selection1High.toString());
 
     var selection2High = selection1High.shift(1);
     assertEquals("2 high", selection2High.toString());
@@ -53,7 +54,7 @@ public class NodeSelectorUtilityTests {
   }
 
   @UtilTest
-  public void nodeSelectionShiftHasClamping() {
+  public void nodeSelectionShiftHasWrapping() {
     var selection1High =
         new NodeSelectorUtility.NodeSelection(
             NodeSelectorUtility.defaultNodeStack, NodeSelectorUtility.Height.HIGH);
@@ -61,11 +62,11 @@ public class NodeSelectorUtilityTests {
     var selection9High = selection1High.shift(8);
     assertEquals("9 high", selection9High.toString());
 
-    var selection9HighAgain = selection9High.shift(1);
-    assertEquals("9 high", selection9HighAgain.toString());
-
-    var selection1HighAgain = selection9High.shift(-12);
+    var selection1HighAgain = selection9High.shift(1);
     assertEquals("1 high", selection1HighAgain.toString());
+
+    var selection7High = selection1HighAgain.shift(-12);
+    assertEquals("7 high", selection7High.toString());
   }
 
   @UtilTest
