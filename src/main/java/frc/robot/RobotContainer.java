@@ -163,6 +163,7 @@ public class RobotContainer {
     will.leftBumper().whileTrue(new DefenseModeCommand(drivebaseSubsystem));
 
     will.leftStick().onTrue(new HaltDriveCommandsCommand(drivebaseSubsystem));
+    jason.leftStick().onTrue(new InstantCommand(() -> {}, armSubsystem));
 
     DoubleSupplier rotation =
         exponential(
@@ -210,6 +211,14 @@ public class RobotContainer {
                 manueverGenerator,
                 () -> currentNodeSelection.get().nodeStack().position()));
 
+    will.y()
+        .onTrue(
+            new DriveToPlaceCommand(
+                drivebaseSubsystem,
+                visionSubsystem,
+                manueverGenerator,
+                new Pose2d(15.5595, 7.3965, Rotation2d.fromDegrees(0))));
+
     // outtake states
     jasonLayer
         .off(jason.leftTrigger())
@@ -238,9 +247,6 @@ public class RobotContainer {
     // reset
     jasonLayer.off(jason.y()).onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED));
     jason.start().onTrue(new SetZeroModeCommand(armSubsystem));
-
-    // clear arm commands
-    jason.rightStick().onTrue(new InstantCommand(() -> {}, armSubsystem));
 
     // scoring
     // jasonLayer
