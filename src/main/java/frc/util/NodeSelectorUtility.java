@@ -6,13 +6,15 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import java.util.List;
 
 public class NodeSelectorUtility {
+  public static record ScoreTypeIdentifier(int id) {}
+
   public enum NodeType {
     CONE,
     CUBE;
 
     // returns a unique number representing the node height combo
-    public int atHeight(Height height) {
-      return this.ordinal() * 3 + height.ordinal();
+    public ScoreTypeIdentifier atHeight(Height height) {
+      return new ScoreTypeIdentifier(this.ordinal() * 3 + height.ordinal());
     }
   }
 
@@ -83,6 +85,10 @@ public class NodeSelectorUtility {
 
     public NodeSelection withHeight(Height height) {
       return new NodeSelection(nodeStack, height);
+    }
+
+    public ScoreTypeIdentifier getScoreTypeIdentifier() {
+      return nodeStack.type().atHeight(height);
     }
   }
 

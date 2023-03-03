@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
 import frc.robot.Constants.Lights;
-import frc.robot.Constants.ScoringSteps;
 import frc.robot.autonomous.commands.AutoTestSequence;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
@@ -249,16 +248,37 @@ public class RobotContainer {
     // low
 
     jasonLayer
+        .on(jason.a())
+        .onTrue(
+            new InstantCommand(
+                () ->
+                    currentNodeSelection.apply(n -> n.withHeight(NodeSelectorUtility.Height.LOW))));
+
+    jasonLayer
         .on(jason.b())
         .onTrue(
-            new ScoreCommand(
-                outtakeSubsystem, armSubsystem, ScoringSteps.Cone.MID, jasonLayer.on(jason.b())));
+            new InstantCommand(
+                () -> currentNodeSelection.apply(n -> n.withHeight(NodeSelectorUtility.Height.MID)),
+                armSubsystem));
 
     jasonLayer
         .on(jason.y())
         .onTrue(
+            new InstantCommand(
+                () ->
+                    currentNodeSelection.apply(n -> n.withHeight(NodeSelectorUtility.Height.HIGH)),
+                armSubsystem));
+
+    jasonLayer
+        .on(jason.x())
+        .onTrue(
             new ScoreCommand(
-                outtakeSubsystem, armSubsystem, ScoringSteps.Cone.HIGH, jasonLayer.on(jason.y())));
+                outtakeSubsystem,
+                armSubsystem,
+                () ->
+                    Constants.SCORE_STEP_MAP.get(
+                        currentNodeSelection.get().getScoreTypeIdentifier()),
+                jason.leftBumper()));
 
     jason.povRight().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(1))));
     jason.povLeft().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(-1))));

@@ -13,6 +13,7 @@ import frc.robot.subsystems.ArmSubsystem.ArmState;
 import frc.robot.subsystems.OuttakeSubsystem;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
@@ -79,27 +80,31 @@ public class ScoreCommand extends SequentialCommandGroup {
   public ScoreCommand(
       OuttakeSubsystem outtakeSubsystem,
       ArmSubsystem armSubsystem,
-      List<ScoreStep> scoreSteps,
+      Supplier<List<ScoreStep>> scoreStepsSupplier,
       Trigger trigger) {
-    this(outtakeSubsystem, armSubsystem, scoreSteps, Optional.of(trigger));
+    this(outtakeSubsystem, armSubsystem, scoreStepsSupplier, Optional.of(trigger));
   }
 
   public ScoreCommand(
-      OuttakeSubsystem outtakeSubsystem, ArmSubsystem armSubsystem, List<ScoreStep> scoreSteps) {
-    this(outtakeSubsystem, armSubsystem, scoreSteps, Optional.empty());
+      OuttakeSubsystem outtakeSubsystem,
+      ArmSubsystem armSubsystem,
+      Supplier<List<ScoreStep>> scoreStepsSupplier) {
+    this(outtakeSubsystem, armSubsystem, scoreStepsSupplier, Optional.empty());
   }
 
   /** Creates a new ScoreCommand. */
   public ScoreCommand(
       OuttakeSubsystem outtakeSubsystem,
       ArmSubsystem armSubsystem,
-      List<ScoreStep> scoreSteps,
+      Supplier<List<ScoreStep>> scoreStepsSupplier,
       Optional<Trigger> trigger) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
 
     this.outtakeSubsystem = outtakeSubsystem;
     this.armSubsystem = armSubsystem;
+
+    var scoreSteps = scoreStepsSupplier.get();
 
     for (ScoreStep scoreStep : scoreSteps) {
       addCommands(
