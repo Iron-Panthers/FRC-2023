@@ -41,6 +41,7 @@ import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.NetworkWatchdogSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.RGBSubsystem;
+import frc.robot.subsystems.RGBSubsystem.RGBMessage;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.util.ControllerUtil;
 import frc.util.Layer;
@@ -304,17 +305,20 @@ public class RobotContainer {
     jason.povLeft().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(-1))));
 
     // control the lights
-    // currentNodeSelection.subscribe(
-    //     nodeSelection -> {
-    //       var msg =
-    //           rgbSubsystem.showMessage(
-    //               nodeSelection.nodeStack().type() == NodeSelectorUtility.NodeType.CUBE
-    //                   ? Lights.Colors.PURPLE
-    //                   : Lights.Colors.YELLOW,
-    //               RGBSubsystem.PatternTypes.PULSE,
-    //               RGBSubsystem.MessagePriority.B_DRIVER_CONTROLLED_COLOR);
-    //       currentNodeSelection.subscribeOnce(msg::expire);
-    //     });
+    RGBMessage[] rgbMessage = new RGBMessage[1];
+    currentNodeSelection.subscribe(
+        nodeSelection -> {
+          if (rgbMessage[0] != null) {
+            rgbMessage[0].expire();
+          }
+          rgbMessage[0] =
+              rgbSubsystem.showMessage(
+                  nodeSelection.nodeStack().type() == NodeSelectorUtility.NodeType.CUBE
+                      ? Constants.Lights.Colors.PURPLE
+                      : Constants.Lights.Colors.YELLOW,
+                  RGBSubsystem.PatternTypes.PULSE,
+                  RGBSubsystem.MessagePriority.B_DRIVER_CONTROLLED_COLOR);
+        });
 
     // show the current node selection
     Shuffleboard.getTab("DriverView")
