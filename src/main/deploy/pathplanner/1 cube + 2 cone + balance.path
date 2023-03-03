@@ -16,8 +16,11 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
+        "names": [
+          "zeroArm",
+          "scoreCubeHigh"
+        ],
+        "executionBehavior": "sequential",
         "waitBehavior": "none",
         "waitTime": 0
       }
@@ -66,8 +69,11 @@
       "isLocked": false,
       "isStopPoint": true,
       "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
+        "names": [
+          "zeroArm",
+          "scoreConeHigh"
+        ],
+        "executionBehavior": "sequential",
         "waitBehavior": "none",
         "waitTime": 0
       }
@@ -141,8 +147,11 @@
       "isLocked": false,
       "isStopPoint": true,
       "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
+        "names": [
+          "zeroArm",
+          "scoreConeHigh"
+        ],
+        "executionBehavior": "sequential",
         "waitBehavior": "none",
         "waitTime": 0
       }
@@ -163,7 +172,9 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [],
+        "names": [
+          "balance"
+        ],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
@@ -173,5 +184,30 @@
   "maxVelocity": 6.0,
   "maxAcceleration": 4.0,
   "isReversed": null,
-  "markers": []
+  "markers": [
+    {
+      "position": 0.55,
+      "names": [
+        "intake"
+      ]
+    },
+    {
+      "position": 2.8363636363636484,
+      "names": [
+        "intake"
+      ]
+    },
+    {
+      "position": 1.3090909090909149,
+      "names": [
+        "stow"
+      ]
+    },
+    {
+      "position": 4.2,
+      "names": [
+        "stow"
+      ]
+    }
+  ]
 }
