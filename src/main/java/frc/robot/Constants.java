@@ -21,8 +21,12 @@ import frc.robot.subsystems.NetworkWatchdogSubsystem.IPv4;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem.OuttakeDetails;
 import frc.robot.subsystems.RGBSubsystem.RGBColor;
+import frc.util.NodeSelectorUtility.Height;
+import frc.util.NodeSelectorUtility.NodeType;
+import frc.util.NodeSelectorUtility.ScoreTypeIdentifier;
 import frc.util.pathing.FieldObstructionMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @SuppressWarnings("java:S1118")
@@ -204,30 +208,26 @@ public final class Constants {
     }
   }
 
-  public static final class ScoringSteps {
-    public static final class Cone {
-      public static final List<ScoreStep> HIGH =
-          List.of(
-              new ScoreStep(new ArmState(115, Arm.Setpoints.Extensions.MIN_EXTENSION)),
-              new ScoreStep(new ArmState(115, Arm.Setpoints.Extensions.MAX_EXTENSION))
-                  .canWaitHere(),
-              new ScoreStep(new ArmState(87, Arm.Setpoints.Extensions.MAX_EXTENSION)),
-              new ScoreStep(
-                  new ArmState(87, Arm.Setpoints.Extensions.MIN_EXTENSION),
-                  OuttakeSubsystem.Modes.OUTTAKE));
-
-      public static final List<ScoreStep> MID =
-          List.of(
-              new ScoreStep(new ArmState(100, Arm.Setpoints.Extensions.MIN_EXTENSION)),
-              new ScoreStep(new ArmState(100, 4.8)).canWaitHere(),
-              new ScoreStep(new ArmState(75, 4.8)),
-              new ScoreStep(
-                  new ArmState(80, Arm.Setpoints.Extensions.MIN_EXTENSION),
-                  OuttakeSubsystem.Modes.OUTTAKE));
-    }
-
-    public static final class Cube {}
-  }
+  public static final Map<ScoreTypeIdentifier, List<ScoreStep>> SCORE_STEP_MAP =
+      Map.of(
+          NodeType.CONE.atHeight(Height.HIGH),
+              List.of(
+                  new ScoreStep(new ArmState(115, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+                  new ScoreStep(new ArmState(115, Arm.Setpoints.Extensions.MAX_EXTENSION))
+                      .canWaitHere(),
+                  new ScoreStep(new ArmState(87, Arm.Setpoints.Extensions.MAX_EXTENSION))
+                      .canWaitHere(),
+                  new ScoreStep(
+                      new ArmState(87, Arm.Setpoints.Extensions.MIN_EXTENSION),
+                      OuttakeSubsystem.Modes.OUTTAKE)),
+          NodeType.CONE.atHeight(Height.MID),
+              List.of(
+                  new ScoreStep(new ArmState(100, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+                  new ScoreStep(new ArmState(100, 4.8)).canWaitHere(),
+                  new ScoreStep(new ArmState(75, 4.8)).canWaitHere(),
+                  new ScoreStep(
+                      new ArmState(80, Arm.Setpoints.Extensions.MIN_EXTENSION),
+                      OuttakeSubsystem.Modes.OUTTAKE)));
 
   public static final class Vision {
 

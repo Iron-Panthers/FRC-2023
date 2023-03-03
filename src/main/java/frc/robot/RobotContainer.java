@@ -20,18 +20,16 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
-import frc.robot.Constants.Lights;
-import frc.robot.Constants.ScoringSteps;
+import frc.robot.Constants.Drive;
 import frc.robot.autonomous.commands.AutoTestSequence;
-import frc.robot.autonomous.commands.IanDemoAutoSequence;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
-import frc.robot.commands.ForceLightsColorCommand;
 import frc.robot.commands.ForceOuttakeSubsystemModeCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
+import frc.robot.commands.HashMapCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.ScoreCommand;
@@ -47,8 +45,13 @@ import frc.robot.subsystems.VisionSubsystem;
 import frc.util.ControllerUtil;
 import frc.util.Layer;
 import frc.util.MacUtil;
+import frc.util.NodeSelectorUtility;
+import frc.util.NodeSelectorUtility.Height;
+import frc.util.NodeSelectorUtility.NodeSelection;
+import frc.util.SharedReference;
 import frc.util.Util;
 import frc.util.pathing.RubenManueverGenerator;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
@@ -75,6 +78,9 @@ public class RobotContainer {
   private final ArmSubsystem armSubsystem = new ArmSubsystem();
 
   private final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
+
+  private final SharedReference<NodeSelection> currentNodeSelection =
+      new SharedReference<>(new NodeSelection(NodeSelectorUtility.defaultNodeStack, Height.HIGH));
 
   /** controller 1 */
   private final CommandXboxController jason = new CommandXboxController(1);
@@ -161,6 +167,7 @@ public class RobotContainer {
     will.leftBumper().whileTrue(new DefenseModeCommand(drivebaseSubsystem));
 
     will.leftStick().onTrue(new HaltDriveCommandsCommand(drivebaseSubsystem));
+    jason.leftStick().onTrue(new InstantCommand(() -> {}, armSubsystem));
 
     DoubleSupplier rotation =
         exponential(
@@ -206,9 +213,15 @@ public class RobotContainer {
                 drivebaseSubsystem,
                 visionSubsystem,
                 manueverGenerator,
-                new Pose2d(2.5, 1, Rotation2d.fromDegrees(180)),
-                new Pose2d(1.8, .5, Rotation2d.fromDegrees(180)),
-                .05));
+                () -> currentNodeSelection.get().nodeStack().position()));
+
+    will.y()
+        .onTrue(
+            new DriveToPlaceCommand(
+                drivebaseSubsystem,
+                visionSubsystem,
+                manueverGenerator,
+                () -> new Pose2d(15.5595, 7.3965, Rotation2d.fromDegrees(0))));
 
     // outtake states
     jasonLayer
@@ -239,33 +252,70 @@ public class RobotContainer {
     jasonLayer.off(jason.y()).onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED));
     jason.start().onTrue(new SetZeroModeCommand(armSubsystem));
 
-    // clear arm commands
-    jason.rightStick().onTrue(new InstantCommand(() -> {}, armSubsystem));
-
     // scoring
     // jasonLayer
     //     .on(jason.a())
     // low
 
     jasonLayer
+        .on(jason.a())
+        .onTrue(
+            new InstantCommand(
+                () ->
+                    currentNodeSelection.apply(n -> n.withHeight(NodeSelectorUtility.Height.LOW))));
+
+    jasonLayer
         .on(jason.b())
         .onTrue(
-            new ScoreCommand(
-                outtakeSubsystem, armSubsystem, ScoringSteps.Cone.MID, jasonLayer.on(jason.b())));
+            new InstantCommand(
+                () -> currentNodeSelection.apply(n -> n.withHeight(NodeSelectorUtility.Height.MID)),
+                armSubsystem));
 
     jasonLayer
         .on(jason.y())
         .onTrue(
-            new ScoreCommand(
-                outtakeSubsystem, armSubsystem, ScoringSteps.Cone.HIGH, jasonLayer.on(jason.y())));
+            new InstantCommand(
+                () ->
+                    currentNodeSelection.apply(n -> n.withHeight(NodeSelectorUtility.Height.HIGH)),
+                armSubsystem));
+
+    var scoreCommandMap = new HashMap<NodeSelectorUtility.ScoreTypeIdentifier, Command>();
+
+    for (var scoreType : Constants.SCORE_STEP_MAP.keySet())
+      scoreCommandMap.put(
+          scoreType,
+          new ScoreCommand(
+              outtakeSubsystem,
+              armSubsystem,
+              Constants.SCORE_STEP_MAP.get(scoreType),
+              jason.leftBumper()));
+
+    jasonLayer
+        .on(jason.x())
+        .onTrue(
+            new HashMapCommand<>(
+                scoreCommandMap, () -> currentNodeSelection.get().getScoreTypeIdentifier()));
+
+    jason.povRight().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(1))));
+    jason.povLeft().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(-1))));
 
     // control the lights
-    jason
-        .povUp()
-        .onTrue(new ForceLightsColorCommand(rgbSubsystem, Lights.Colors.PURPLE).withTimeout(10));
-    jason
-        .povDown()
-        .onTrue(new ForceLightsColorCommand(rgbSubsystem, Lights.Colors.YELLOW).withTimeout(10));
+    currentNodeSelection.subscribe(
+        nodeSelection ->
+            currentNodeSelection.subscribeOnce(
+                rgbSubsystem.showMessage(
+                        nodeSelection.nodeStack().type() == NodeSelectorUtility.NodeType.CUBE
+                            ? Constants.Lights.Colors.PURPLE
+                            : Constants.Lights.Colors.YELLOW,
+                        RGBSubsystem.PatternTypes.PULSE,
+                        RGBSubsystem.MessagePriority.B_DRIVER_CONTROLLED_COLOR)
+                    ::expire));
+
+    // show the current node selection
+    Shuffleboard.getTab("DriverView")
+        .addString("Node Selection", () -> currentNodeSelection.get().toString())
+        .withPosition(0, 1)
+        .withSize(2, 1);
   }
 
   /**
@@ -283,10 +333,6 @@ public class RobotContainer {
             2, // m/s
             1, // m/s2
             drivebaseSubsystem));
-
-    autoSelector.addOption(
-        "[NEW] IanAuto",
-        new IanDemoAutoSequence(5, 3, drivebaseSubsystem, visionSubsystem, manueverGenerator));
 
     Shuffleboard.getTab("DriverView")
         .add("auto selector", autoSelector)
