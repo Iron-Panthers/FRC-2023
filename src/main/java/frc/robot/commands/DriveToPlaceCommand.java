@@ -23,6 +23,7 @@ import frc.util.AsyncWorker.Result;
 import frc.util.Util;
 import frc.util.pathing.RubenManueverGenerator;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class DriveToPlaceCommand extends CommandBase {
 
@@ -30,8 +31,8 @@ public class DriveToPlaceCommand extends CommandBase {
   private final VisionSubsystem visionSubsystem;
   private final RubenManueverGenerator manueverGenerator;
 
-  private final Pose2d observationPose;
-  private final Pose2d finalPose;
+  private final Supplier<Pose2d> observationPose;
+  private final Supplier<Pose2d> finalPose;
 
   private final AdvancedSwerveTrajectoryFollower follower;
 
@@ -49,8 +50,8 @@ public class DriveToPlaceCommand extends CommandBase {
       DrivebaseSubsystem drivebaseSubsystem,
       VisionSubsystem visionSubsystem,
       RubenManueverGenerator manueverGenerator,
-      Pose2d observationPose,
-      Pose2d finalPose,
+      Supplier<Pose2d> observationPose,
+      Supplier<Pose2d> finalPose,
       double observationTime) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drivebaseSubsystem = drivebaseSubsystem;
@@ -76,7 +77,7 @@ public class DriveToPlaceCommand extends CommandBase {
       DrivebaseSubsystem drivebaseSubsystem,
       VisionSubsystem visionSubsystem,
       RubenManueverGenerator manueverGenerator,
-      Pose2d finalPose) {
+      Supplier<Pose2d> finalPose) {
     this(drivebaseSubsystem, visionSubsystem, manueverGenerator, finalPose, finalPose, 0.1);
   }
 
@@ -103,7 +104,8 @@ public class DriveToPlaceCommand extends CommandBase {
 
     return trajectGenerator.submit(
         () ->
-            manueverGenerator.computePath(currentPose, observationPose, new PathConstraints(5, 2)));
+            manueverGenerator.computePath(
+                currentPose, observationPose.get(), new PathConstraints(5, 2)));
   }
 
   private Result<Optional<PathPlannerTrajectory>> createAdjustTrajectory() {
@@ -113,16 +115,16 @@ public class DriveToPlaceCommand extends CommandBase {
     var initialPoint =
         new PathPoint(
             currentPose.getTranslation(),
-            straightLineAngle(currentPose.getTranslation(), finalPose.getTranslation()),
+            straightLineAngle(currentPose.getTranslation(), finalPose.get().getTranslation()),
             // holonomic rotation should start at our current rotation
             currentPose.getRotation());
 
     var finalPoint =
         new PathPoint(
             // drive into the final position
-            finalPose.getTranslation(),
-            straightLineAngle(finalPose.getTranslation(), currentPose.getTranslation()),
-            finalPose.getRotation());
+            finalPose.get().getTranslation(),
+            straightLineAngle(finalPose.get().getTranslation(), currentPose.getTranslation()),
+            finalPose.get().getRotation());
 
     return asyncPathGen(new PathConstraints(5, 3), initialPoint, finalPoint);
   }
@@ -139,11 +141,13 @@ public class DriveToPlaceCommand extends CommandBase {
   private boolean poseWithinErrorMarginOfFinal(Pose2d currentPose) {
     return (
         // xy error
-        currentPose.getTranslation().getDistance(finalPose.getTranslation())
+        currentPose.getTranslation().getDistance(finalPose.get().getTranslation())
             <= PoseEstimator.DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS)
         && (
         // theta error
-        Math.abs(Util.relativeAngularDifference(currentPose.getRotation(), finalPose.getRotation()))
+        Math.abs(
+                Util.relativeAngularDifference(
+                    currentPose.getRotation(), finalPose.get().getRotation()))
             <= PoseEstimator.DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES);
   }
 
