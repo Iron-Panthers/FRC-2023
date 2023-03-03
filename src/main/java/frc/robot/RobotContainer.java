@@ -282,18 +282,14 @@ public class RobotContainer {
 
     var scoreCommandMap = new HashMap<NodeSelectorUtility.ScoreTypeIdentifier, Command>();
 
-    for (var type : NodeSelectorUtility.NodeType.values()) {
-      for (var height : NodeSelectorUtility.Height.values()) {
-        if (Constants.SCORE_STEP_MAP.containsKey(type.atHeight(height)))
-          scoreCommandMap.put(
-              type.atHeight(height),
-              new ScoreCommand(
-                  outtakeSubsystem,
-                  armSubsystem,
-                  Constants.SCORE_STEP_MAP.get(type.atHeight(height)),
-                  jason.leftBumper()));
-      }
-    }
+    for (var scoreType : Constants.SCORE_STEP_MAP.keySet())
+      scoreCommandMap.put(
+          scoreType,
+          new ScoreCommand(
+              outtakeSubsystem,
+              armSubsystem,
+              Constants.SCORE_STEP_MAP.get(scoreType),
+              jason.leftBumper()));
 
     jasonLayer
         .on(jason.x())
