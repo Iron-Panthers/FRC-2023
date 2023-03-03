@@ -6,7 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import frc.UtilTest;
 import frc.util.NodeSelectorUtility.Height;
 import frc.util.NodeSelectorUtility.NodeType;
+import frc.util.NodeSelectorUtility.ScoreTypeIdentifier;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class NodeSelectorUtilityTests {
 
@@ -69,7 +71,9 @@ public class NodeSelectorUtilityTests {
   @UtilTest
   public void enumValuesAreUniqueAndIncrementing() {
     assertIterableEquals(
-        List.of(0, 1, 2, 3, 4, 5),
+        List.of(0, 1, 2, 3, 4, 5).stream()
+            .map(ScoreTypeIdentifier::new)
+            .collect(Collectors.toList()),
         List.of(
             NodeType.CONE.atHeight(Height.HIGH),
             NodeType.CONE.atHeight(Height.MID),
