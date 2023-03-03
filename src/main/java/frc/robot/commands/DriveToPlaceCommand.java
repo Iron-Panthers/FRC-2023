@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.PoseEstimator;
 import frc.robot.subsystems.DrivebaseSubsystem;
-import frc.robot.subsystems.VisionSubsystem;
 import frc.util.AdvancedSwerveTrajectoryFollower;
 import frc.util.AsyncWorker;
 import frc.util.AsyncWorker.Result;
@@ -28,7 +27,6 @@ import java.util.function.Supplier;
 public class DriveToPlaceCommand extends CommandBase {
 
   private final DrivebaseSubsystem drivebaseSubsystem;
-  private final VisionSubsystem visionSubsystem;
   private final RubenManueverGenerator manueverGenerator;
 
   private final Supplier<Pose2d> observationPose;
@@ -48,14 +46,12 @@ public class DriveToPlaceCommand extends CommandBase {
   /** Creates a new DriveToPlaceCommand. */
   public DriveToPlaceCommand(
       DrivebaseSubsystem drivebaseSubsystem,
-      VisionSubsystem visionSubsystem,
       RubenManueverGenerator manueverGenerator,
       Supplier<Pose2d> observationPose,
       Supplier<Pose2d> finalPose,
       double observationTime) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drivebaseSubsystem = drivebaseSubsystem;
-    this.visionSubsystem = visionSubsystem;
     this.manueverGenerator = manueverGenerator;
     this.observationPose = observationPose;
     this.finalPose = finalPose;
@@ -75,10 +71,9 @@ public class DriveToPlaceCommand extends CommandBase {
    */
   public DriveToPlaceCommand(
       DrivebaseSubsystem drivebaseSubsystem,
-      VisionSubsystem visionSubsystem,
       RubenManueverGenerator manueverGenerator,
       Supplier<Pose2d> finalPose) {
-    this(drivebaseSubsystem, visionSubsystem, manueverGenerator, finalPose, finalPose, 0.1);
+    this(drivebaseSubsystem, manueverGenerator, finalPose, finalPose, 0.1);
   }
 
   private Rotation2d straightLineAngle(Translation2d start, Translation2d end) {

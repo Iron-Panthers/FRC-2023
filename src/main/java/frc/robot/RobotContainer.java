@@ -213,7 +213,6 @@ public class RobotContainer {
         .onTrue(
             new DriveToPlaceCommand(
                 drivebaseSubsystem,
-                visionSubsystem,
                 manueverGenerator,
                 () -> currentNodeSelection.get().nodeStack().position()));
 
@@ -221,7 +220,6 @@ public class RobotContainer {
         .onTrue(
             new DriveToPlaceCommand(
                 drivebaseSubsystem,
-                visionSubsystem,
                 manueverGenerator,
                 () -> new Pose2d(15.5595, 7.3965, Rotation2d.fromDegrees(0))));
 
