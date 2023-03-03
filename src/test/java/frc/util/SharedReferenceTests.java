@@ -1,8 +1,10 @@
 package frc.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import frc.UtilTest;
@@ -160,5 +162,80 @@ public class SharedReferenceTests {
           assertThrows(IllegalStateException.class, () -> reference.set(1));
         });
     reference.set(1);
+  }
+
+  private static class ExpiringData {
+    private boolean isExpired = false;
+    public final int value;
+
+    public ExpiringData(int value) {
+      this.value = value;
+    }
+
+    public void expire() {
+      isExpired = true;
+    }
+  }
+
+  @UtilTest
+  public void subscribeOnceWithinSubscriptionCleansUpObject() {
+    SharedReference<Integer> reference = new SharedReference<>(0);
+    List<Integer> values = new ArrayList<>();
+    List<ExpiringData> dataList = new ArrayList<>();
+
+    reference.subscribe(
+        v -> {
+          ExpiringData data = new ExpiringData(v);
+          dataList.add(data);
+          reference.subscribeOnce(v2 -> data.expire());
+          values.add(v);
+        });
+
+    assertIterableEquals(List.of(), dataList, "No data should be created as a reaction yet");
+    assertIterableEquals(
+        List.of(), values, "No values should have been given to subscriptions yet");
+
+    reference.set(1);
+    assertEquals(1, dataList.size(), "One data object should have been created");
+    assertIterableEquals(List.of(1), values, "One value should have been given to subscription");
+    assertFalse(dataList.get(0).isExpired, "Data object should not have expired yet");
+
+    reference.set(2);
+    assertEquals(2, dataList.size(), "Two data objects should have been created");
+    assertIterableEquals(
+        List.of(1, 2), values, "Two values should have been given to subscription");
+    assertTrue(dataList.get(0).isExpired, "First data object should have expired");
+    assertFalse(dataList.get(1).isExpired, "Second data object should not have expired yet");
+  }
+
+  @UtilTest
+  public void subscribeOnceWithinSubscriptionUsingRunnableCleansUpObject() {
+    SharedReference<Integer> reference = new SharedReference<>(0);
+    List<Integer> values = new ArrayList<>();
+    List<ExpiringData> dataList = new ArrayList<>();
+
+    reference.subscribe(
+        v -> {
+          ExpiringData data = new ExpiringData(v);
+          dataList.add(data);
+          reference.subscribeOnce(data::expire);
+          values.add(v);
+        });
+
+    assertIterableEquals(List.of(), dataList, "No data should be created as a reaction yet");
+    assertIterableEquals(
+        List.of(), values, "No values should have been given to subscriptions yet");
+
+    reference.set(1);
+    assertEquals(1, dataList.size(), "One data object should have been created");
+    assertIterableEquals(List.of(1), values, "One value should have been given to subscription");
+    assertFalse(dataList.get(0).isExpired, "Data object should not have expired yet");
+
+    reference.set(2);
+    assertEquals(2, dataList.size(), "Two data objects should have been created");
+    assertIterableEquals(
+        List.of(1, 2), values, "Two values should have been given to subscription");
+    assertTrue(dataList.get(0).isExpired, "First data object should have expired");
+    assertFalse(dataList.get(1).isExpired, "Second data object should not have expired yet");
   }
 }

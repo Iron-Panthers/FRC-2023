@@ -141,7 +141,7 @@ public class SharedReference<T> {
    * @return a subscription object that can be used to destroy the subscription
    */
   public Subscription subscribe(Runnable runnable) {
-    return subscribe(runnable);
+    return subscribe(v -> runnable.run());
   }
 
   /**
@@ -172,6 +172,6 @@ public class SharedReference<T> {
    * @return a subscription object that can be used to destroy the subscription
    */
   public Subscription subscribeOnce(Runnable runnable) {
-    return subscribeOnce(runnable);
+    return subscribeOnce(v -> runnable.run());
   }
 }
