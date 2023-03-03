@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Optional;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 
@@ -49,6 +50,8 @@ public class NetworkWatchdogSubsystemTests {
   }
 
   @RobotTest
+  @Disabled(
+      "spams the console, not a very useful test. need to switch to using loggers instead of printing")
   public void subsystemConstructs() {
     assertDoesNotThrow(
         () -> {
