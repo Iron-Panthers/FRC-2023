@@ -211,9 +211,9 @@ public final class Constants {
               new ScoreStep(new ArmState(115, Arm.Setpoints.Extensions.MIN_EXTENSION)),
               new ScoreStep(new ArmState(115, Arm.Setpoints.Extensions.MAX_EXTENSION))
                   .canWaitHere(),
-              new ScoreStep(new ArmState(87, Arm.Setpoints.Extensions.MAX_EXTENSION)),
+              new ScoreStep(new ArmState(92, Arm.Setpoints.Extensions.MAX_EXTENSION)),
               new ScoreStep(
-                  new ArmState(87, Arm.Setpoints.Extensions.MIN_EXTENSION),
+                  new ArmState(92, Arm.Setpoints.Extensions.MIN_EXTENSION),
                   OuttakeSubsystem.Modes.OUTTAKE));
 
       public static final List<ScoreStep> MID =
