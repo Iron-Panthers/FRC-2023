@@ -450,6 +450,7 @@ public class RubenManueverGenerator {
 
     System.out.println("start: " + new GridCoord(start.get().getTranslation()));
     System.out.println("projected: " + startCoord);
+    System.out.println("chassis speeds: " + chassisSpeeds.get());
     var t1 = Timer.getFPGATimestamp();
     var path = findFullPath(startCoord, endCoord);
     System.out.println("path solve time: " + (Timer.getFPGATimestamp() - t1));
