@@ -31,7 +31,7 @@ public class ForceLightsColorCommand extends CommandBase {
             rgbSubsystem.showMessage(
                 color,
                 RGBSubsystem.PatternTypes.PULSE,
-                RGBSubsystem.MessagePriority.B_DRIVER_CONTROLLED_COLOR));
+                RGBSubsystem.MessagePriority.C_DRIVER_CONTROLLED_COLOR));
   }
 
   // Called every time the scheduler runs while the command is scheduled.
