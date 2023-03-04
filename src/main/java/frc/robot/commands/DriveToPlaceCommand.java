@@ -13,8 +13,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.PoseEstimator;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.util.AdvancedSwerveTrajectoryFollower;
@@ -44,6 +46,8 @@ public class DriveToPlaceCommand extends CommandBase {
   private final DoubleSupplier translationYSupplier;
   private final BooleanSupplier isRobotRelativeSupplier;
 
+  private final Optional<GenericHID> failureRumbleDevice;
+
   AsyncWorker trajectGenerator = new AsyncWorker();
 
   Result<Optional<PathPlannerTrajectory>> trajectoryResult;
@@ -61,7 +65,8 @@ public class DriveToPlaceCommand extends CommandBase {
       double observationTime,
       DoubleSupplier translationXSupplier,
       DoubleSupplier translationYSupplier,
-      BooleanSupplier isRobotRelativeRelativeSupplier) {
+      BooleanSupplier isRobotRelativeRelativeSupplier,
+      Optional<GenericHID> failureRumbleDevice) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drivebaseSubsystem = drivebaseSubsystem;
     this.manueverGenerator = manueverGenerator;
@@ -72,6 +77,8 @@ public class DriveToPlaceCommand extends CommandBase {
     this.translationXSupplier = translationXSupplier;
     this.translationYSupplier = translationYSupplier;
     this.isRobotRelativeSupplier = isRobotRelativeRelativeSupplier;
+
+    this.failureRumbleDevice = failureRumbleDevice;
 
     follower = drivebaseSubsystem.getFollower();
 
@@ -91,7 +98,8 @@ public class DriveToPlaceCommand extends CommandBase {
       Supplier<Pose2d> finalPose,
       DoubleSupplier translationXSupplier,
       DoubleSupplier translationYSupplier,
-      BooleanSupplier isRobotRelativeRelativeSupplier) {
+      BooleanSupplier isRobotRelativeRelativeSupplier,
+      Optional<GenericHID> failureRumbleDevice) {
     this(
         drivebaseSubsystem,
         manueverGenerator,
@@ -100,7 +108,8 @@ public class DriveToPlaceCommand extends CommandBase {
         0.1,
         translationXSupplier,
         translationYSupplier,
-        isRobotRelativeRelativeSupplier);
+        isRobotRelativeRelativeSupplier,
+        failureRumbleDevice);
   }
 
   // Called when the command is initially scheduled.
@@ -211,6 +220,10 @@ public class DriveToPlaceCommand extends CommandBase {
           if (trajectory.isEmpty() || trajectory.get().isEmpty()) {
             System.out.println("trajectory is empty");
             this.cancel();
+            if (failureRumbleDevice.isPresent()) {
+              CommandScheduler.getInstance()
+                  .schedule(new VibrateHIDCommand(failureRumbleDevice.get(), .5, .5));
+            }
             return;
           }
           System.out.println("received finished trajectory, driving");

@@ -35,7 +35,7 @@ import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.SetOuttakeModeCommand;
 import frc.robot.commands.SetZeroModeCommand;
-import frc.robot.commands.VibrateControllerCommand;
+import frc.robot.commands.VibrateHIDCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.NetworkWatchdogSubsystem;
@@ -132,7 +132,7 @@ public class RobotContainer {
    */
   public void containerTeleopInit() {
     // runs when teleop happens
-    CommandScheduler.getInstance().schedule(new VibrateControllerCommand(jason, 5, .5));
+    CommandScheduler.getInstance().schedule(new VibrateHIDCommand(jason.getHID(), 5, .5));
   }
 
   /**
@@ -217,7 +217,8 @@ public class RobotContainer {
                 () -> currentNodeSelection.get().nodeStack().position(),
                 translationXSupplier,
                 translationYSupplier,
-                will.rightBumper()));
+                will.rightBumper(),
+                Optional.of(will.getHID())));
 
     will.y()
         .onTrue(
@@ -227,7 +228,8 @@ public class RobotContainer {
                 () -> new Pose2d(15.5595, 7.3965, Rotation2d.fromDegrees(0)),
                 translationXSupplier,
                 translationYSupplier,
-                will.rightBumper()));
+                will.rightBumper(),
+                Optional.of(will.getHID())));
 
     // outtake states
     jasonLayer
