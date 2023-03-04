@@ -214,14 +214,20 @@ public class RobotContainer {
             new DriveToPlaceCommand(
                 drivebaseSubsystem,
                 manueverGenerator,
-                () -> currentNodeSelection.get().nodeStack().position()));
+                () -> currentNodeSelection.get().nodeStack().position(),
+                translationXSupplier,
+                translationYSupplier,
+                will.rightBumper()));
 
     will.y()
         .onTrue(
             new DriveToPlaceCommand(
                 drivebaseSubsystem,
                 manueverGenerator,
-                () -> new Pose2d(15.5595, 7.3965, Rotation2d.fromDegrees(0))));
+                () -> new Pose2d(15.5595, 7.3965, Rotation2d.fromDegrees(0)),
+                translationXSupplier,
+                translationYSupplier,
+                will.rightBumper()));
 
     // outtake states
     jasonLayer

@@ -12,6 +12,7 @@ import com.pathplanner.lib.PathPoint;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.PoseEstimator;
@@ -22,6 +23,8 @@ import frc.util.AsyncWorker.Result;
 import frc.util.Util;
 import frc.util.pathing.RubenManueverGenerator;
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -37,12 +40,17 @@ public class DriveToPlaceCommand extends CommandBase {
 
   private final double observationTime;
 
+  private final DoubleSupplier translationXSupplier;
+  private final DoubleSupplier translationYSupplier;
+  private final BooleanSupplier isRobotRelativeSupplier;
+
   AsyncWorker trajectGenerator = new AsyncWorker();
 
   Result<Optional<PathPlannerTrajectory>> trajectoryResult;
 
   double generationTime;
   boolean hasObserved;
+  boolean hasStartedDrivingPath;
 
   /** Creates a new DriveToPlaceCommand. */
   public DriveToPlaceCommand(
@@ -50,13 +58,20 @@ public class DriveToPlaceCommand extends CommandBase {
       RubenManueverGenerator manueverGenerator,
       Supplier<Pose2d> observationPose,
       Supplier<Pose2d> finalPose,
-      double observationTime) {
+      double observationTime,
+      DoubleSupplier translationXSupplier,
+      DoubleSupplier translationYSupplier,
+      BooleanSupplier isRobotRelativeRelativeSupplier) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drivebaseSubsystem = drivebaseSubsystem;
     this.manueverGenerator = manueverGenerator;
     this.observationPose = observationPose;
     this.finalPose = finalPose;
     this.observationTime = observationTime;
+
+    this.translationXSupplier = translationXSupplier;
+    this.translationYSupplier = translationYSupplier;
+    this.isRobotRelativeSupplier = isRobotRelativeRelativeSupplier;
 
     follower = drivebaseSubsystem.getFollower();
 
@@ -73,8 +88,29 @@ public class DriveToPlaceCommand extends CommandBase {
   public DriveToPlaceCommand(
       DrivebaseSubsystem drivebaseSubsystem,
       RubenManueverGenerator manueverGenerator,
-      Supplier<Pose2d> finalPose) {
-    this(drivebaseSubsystem, manueverGenerator, finalPose, finalPose, 0.1);
+      Supplier<Pose2d> finalPose,
+      DoubleSupplier translationXSupplier,
+      DoubleSupplier translationYSupplier,
+      BooleanSupplier isRobotRelativeRelativeSupplier) {
+    this(
+        drivebaseSubsystem,
+        manueverGenerator,
+        finalPose,
+        finalPose,
+        0.1,
+        translationXSupplier,
+        translationYSupplier,
+        isRobotRelativeRelativeSupplier);
+  }
+
+  // Called when the command is initially scheduled.
+  @Override
+  public void initialize() {
+    hasObserved = false;
+    hasStartedDrivingPath = false;
+    // generation time will always be set before it is read as a product of only being read when
+    // there is a trajectory and being written when one is generated
+    startGeneratingNextTrajectory();
   }
 
   private Rotation2d straightLineAngle(Translation2d start, Translation2d end) {
@@ -168,6 +204,7 @@ public class DriveToPlaceCommand extends CommandBase {
           System.out.println("received finished trajectory, driving");
           generationTime = Timer.getFPGATimestamp();
           follower.follow(trajectory.get().get());
+          hasStartedDrivingPath = true;
         });
   }
 
@@ -187,19 +224,24 @@ public class DriveToPlaceCommand extends CommandBase {
             trajectory.getTotalTimeSeconds()));
   }
 
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {
-    hasObserved = false;
-    startGeneratingNextTrajectory();
-  }
-
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
     // trigger trajectory following when the trajectory is ready
     trajectGenerator.heartbeat();
+
+    // if we haven't driven a trajectory yet, let the driver keep driving
+    // check after heartbeat to avoid doing both
+    if (!hasStartedDrivingPath) {
+      double x = translationXSupplier.getAsDouble();
+      double y = translationYSupplier.getAsDouble();
+
+      drivebaseSubsystem.drive(
+          isRobotRelativeSupplier.getAsBoolean()
+              ? new ChassisSpeeds(x, y, 0)
+              : ChassisSpeeds.fromFieldRelativeSpeeds(
+                  x, y, 0, drivebaseSubsystem.getDriverGyroscopeRotation()));
+    }
 
     trajectoryResult
         .get()
@@ -222,6 +264,7 @@ public class DriveToPlaceCommand extends CommandBase {
   public void end(boolean interrupted) {
     follower.cancel();
     System.out.println("canceling future thread");
+    // we null the result out for gc
     trajectoryResult = null;
     trajectGenerator.purge();
   }
