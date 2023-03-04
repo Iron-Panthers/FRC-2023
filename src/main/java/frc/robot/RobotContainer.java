@@ -218,6 +218,7 @@ public class RobotContainer {
                 translationXSupplier,
                 translationYSupplier,
                 will.rightBumper(),
+                Optional.of(rgbSubsystem),
                 Optional.of(will.getHID())));
 
     will.y()
@@ -229,6 +230,7 @@ public class RobotContainer {
                 translationXSupplier,
                 translationYSupplier,
                 will.rightBumper(),
+                Optional.of(rgbSubsystem),
                 Optional.of(will.getHID())));
 
     // outtake states
@@ -316,7 +318,7 @@ public class RobotContainer {
                             ? Constants.Lights.Colors.PURPLE
                             : Constants.Lights.Colors.YELLOW,
                         RGBSubsystem.PatternTypes.PULSE,
-                        RGBSubsystem.MessagePriority.B_DRIVER_CONTROLLED_COLOR)
+                        RGBSubsystem.MessagePriority.C_DRIVER_CONTROLLED_COLOR)
                     ::expire));
 
     // show the current node selection

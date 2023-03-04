@@ -17,8 +17,16 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.Constants.Lights;
 import frc.robot.Constants.PoseEstimator;
 import frc.robot.subsystems.DrivebaseSubsystem;
+import frc.robot.subsystems.RGBSubsystem;
+import frc.robot.subsystems.RGBSubsystem.MessagePriority;
+import frc.robot.subsystems.RGBSubsystem.PatternTypes;
+import frc.robot.subsystems.RGBSubsystem.RGBColor;
+import frc.robot.subsystems.RGBSubsystem.RGBMessage;
 import frc.util.AdvancedSwerveTrajectoryFollower;
 import frc.util.AsyncWorker;
 import frc.util.AsyncWorker.Result;
@@ -46,6 +54,7 @@ public class DriveToPlaceCommand extends CommandBase {
   private final DoubleSupplier translationYSupplier;
   private final BooleanSupplier isRobotRelativeSupplier;
 
+  private final Optional<RGBSubsystem> rgbSubsystem;
   private final Optional<GenericHID> failureRumbleDevice;
 
   AsyncWorker trajectGenerator = new AsyncWorker();
@@ -66,6 +75,7 @@ public class DriveToPlaceCommand extends CommandBase {
       DoubleSupplier translationXSupplier,
       DoubleSupplier translationYSupplier,
       BooleanSupplier isRobotRelativeRelativeSupplier,
+      Optional<RGBSubsystem> rgbSubsystem,
       Optional<GenericHID> failureRumbleDevice) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drivebaseSubsystem = drivebaseSubsystem;
@@ -78,6 +88,7 @@ public class DriveToPlaceCommand extends CommandBase {
     this.translationYSupplier = translationYSupplier;
     this.isRobotRelativeSupplier = isRobotRelativeRelativeSupplier;
 
+    this.rgbSubsystem = rgbSubsystem;
     this.failureRumbleDevice = failureRumbleDevice;
 
     follower = drivebaseSubsystem.getFollower();
@@ -99,6 +110,7 @@ public class DriveToPlaceCommand extends CommandBase {
       DoubleSupplier translationXSupplier,
       DoubleSupplier translationYSupplier,
       BooleanSupplier isRobotRelativeRelativeSupplier,
+      Optional<RGBSubsystem> rgbSubsystem,
       Optional<GenericHID> failureRumbleDevice) {
     this(
         drivebaseSubsystem,
@@ -109,7 +121,21 @@ public class DriveToPlaceCommand extends CommandBase {
         translationXSupplier,
         translationYSupplier,
         isRobotRelativeRelativeSupplier,
+        rgbSubsystem,
         failureRumbleDevice);
+  }
+
+  private Optional<RGBMessage> lastMsg = Optional.empty();
+
+  private void showColor(RGBColor color, double duration) {
+    if (rgbSubsystem.isEmpty()) return;
+    lastMsg.ifPresent(RGBMessage::expire);
+
+    var msg =
+        rgbSubsystem.get().showMessage(color, PatternTypes.PULSE, MessagePriority.B_PATHING_STATUS);
+    CommandScheduler.getInstance()
+        .schedule(new WaitCommand(duration).andThen(new InstantCommand(msg::expire)));
+    lastMsg = Optional.of(msg);
   }
 
   // Called when the command is initially scheduled.
@@ -120,6 +146,7 @@ public class DriveToPlaceCommand extends CommandBase {
     // generation time will always be set before it is read as a product of only being read when
     // there is a trajectory and being written when one is generated
     startGeneratingNextTrajectory();
+    showColor(Lights.Colors.TEAL, .4);
   }
 
   private Rotation2d straightLineAngle(Translation2d start, Translation2d end) {
@@ -224,6 +251,7 @@ public class DriveToPlaceCommand extends CommandBase {
               CommandScheduler.getInstance()
                   .schedule(new VibrateHIDCommand(failureRumbleDevice.get(), .5, .5));
             }
+            showColor(Lights.Colors.RED, .4);
             return;
           }
           System.out.println("received finished trajectory, driving");
@@ -270,6 +298,7 @@ public class DriveToPlaceCommand extends CommandBase {
     if (finishedPath()) {
       if (poseSatisfied()) {
         this.cancel();
+        showColor(Lights.Colors.MINT, .4);
       } else {
         System.out.println("creating new trajectory");
         startGeneratingNextTrajectory();
@@ -284,6 +313,7 @@ public class DriveToPlaceCommand extends CommandBase {
     System.out.println("canceling future thread");
     // we null the result out for gc
     trajectoryResult = null;
+    lastMsg = Optional.empty();
     trajectGenerator.purge();
   }
 
