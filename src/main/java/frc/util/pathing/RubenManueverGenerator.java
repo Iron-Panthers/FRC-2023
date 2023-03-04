@@ -431,21 +431,23 @@ public class RubenManueverGenerator {
       Supplier<ChassisSpeeds> chassisSpeeds,
       Pose2d end,
       PathConstraints constraints) {
-    // convert the start and end point to grid coordinates
-    GridCoord startCoord =
-        // check if we are moving fast enough to matter
+
+    Pose2d projectedStart = // check if we are moving fast enough to matter
         Util.getVelocity(chassisSpeeds.get()) > Pathing.RESPECT_CURRENT_VELOCITY_THRESHOLD_MS
-            // project the current position using the current velocity, angle, and anticipated
-            // pathing time
-            ? new GridCoord(
+            ? new Pose2d(
                 start
                     .get()
                     .getTranslation()
                     .plus(
                         Util.getTranslationVelocity(chassisSpeeds.get(), start.get().getRotation())
-                            .times(Pathing.ANTICIPATED_PATH_SOLVE_TIME_SECONDS)))
-            : new GridCoord(start.get().getTranslation());
+                            .times(Pathing.ANTICIPATED_PATH_SOLVE_TIME_SECONDS)),
+                start.get().getRotation())
+            : start.get();
+
+    // convert the start and end point to grid coordinates
+    GridCoord startCoord = new GridCoord(projectedStart.getTranslation());
     GridCoord endCoord = new GridCoord(end.getTranslation());
+
     System.out.println("start: " + new GridCoord(start.get().getTranslation()));
     System.out.println("projected: " + startCoord);
     var t1 = Timer.getFPGATimestamp();
@@ -457,7 +459,7 @@ public class RubenManueverGenerator {
     System.out.println("'real' start: " + new GridCoord(start.get().getTranslation()));
     var pathPoints =
         computePathPointsFromCriticalPoints(
-            neededCriticalPoints, start.get(), chassisSpeeds.get(), end);
+            neededCriticalPoints, projectedStart, chassisSpeeds.get(), end);
 
     PathPlannerTrajectory trajectory = PathPlanner.generatePath(constraints, pathPoints);
 

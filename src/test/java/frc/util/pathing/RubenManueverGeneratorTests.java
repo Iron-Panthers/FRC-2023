@@ -443,4 +443,35 @@ public class RubenManueverGeneratorTests {
             new Pose2d(end.toTranslation2d(), new Rotation2d()));
     assertEquals(2, pathPoints.size(), "should only have start and end");
   }
+
+  @UtilTest
+  public void computePathMatchesSnapshot() {
+    var start = new Pose2d(new GridCoord(78, 75).toTranslation2d(), new Rotation2d());
+    var chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(-1, -1, 0, new Rotation2d());
+    var end = new Pose2d(new GridCoord(18, 16).toTranslation2d(), new Rotation2d());
+
+    var rubenManueverGenerator = new RubenManueverGenerator();
+
+    var path =
+        rubenManueverGenerator
+            .computePath(() -> start, () -> chassisSpeeds, end, new PathConstraints(3, 1))
+            .get();
+
+    var fieldSquares = placeObstructions();
+
+    for (var states : path.getStates()) {
+      var coord = new GridCoord(states.poseMeters.getTranslation());
+      fieldSquares[coord.x][coord.y] = FieldSquare.SPLINE;
+    }
+
+    var startGridCoord = new GridCoord(start.getTranslation());
+    var endGridCoord = new GridCoord(end.getTranslation());
+    fieldSquares[startGridCoord.x][startGridCoord.y] = FieldSquare.START;
+    fieldSquares[endGridCoord.x][endGridCoord.y] = FieldSquare.END;
+
+    StringBuilder sb = new StringBuilder();
+    DisplayFieldArray.renderField(sb, fieldSquares);
+
+    expect.toMatchSnapshot(sb.toString());
+  }
 }
