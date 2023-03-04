@@ -137,7 +137,10 @@ public class DriveToPlaceCommand extends CommandBase {
     return trajectGenerator.submit(
         () ->
             manueverGenerator.computePath(
-                currentPose, observationPose.get(), new PathConstraints(5, 2)));
+                currentPose,
+                drivebaseSubsystem.getChassisSpeeds(),
+                observationPose.get(),
+                new PathConstraints(5, 2)));
   }
 
   private Result<Optional<PathPlannerTrajectory>> createAdjustTrajectory() {

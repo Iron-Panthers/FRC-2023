@@ -7,9 +7,11 @@ import com.pathplanner.lib.PathPoint;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.Constants.Pathing;
 import frc.robot.Constants.Pathing.Costs;
 import frc.util.Graph;
+import frc.util.Util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -383,17 +385,19 @@ public class RubenManueverGenerator {
   }
 
   public static List<PathPoint> computePathPointsFromCriticalPoints(
-      List<GridCoord> criticalPoints, Pose2d start, Pose2d end) {
+      List<GridCoord> criticalPoints, Pose2d start, ChassisSpeeds chassisSpeeds, Pose2d end) {
     List<PathPoint> pathPoints = new ArrayList<>();
 
     pathPoints.add(
-        new PathPoint(
-            // the position of the point
-            start.getTranslation(),
-            // the heading of the spline, pointing towards the next point
-            straightLineAngle(start.getTranslation(), criticalPoints.get(1).toTranslation2d()),
-            // the rotation of the robot
-            start.getRotation()));
+        Util.getVelocity(chassisSpeeds) > Pathing.RESPECT_CURRENT_VELOCITY_THRESHOLD_MS
+            ? PathPoint.fromCurrentHolonomicState(start, chassisSpeeds)
+            : new PathPoint(
+                // the position of the point
+                start.getTranslation(),
+                // the heading of the spline, pointing towards the next point
+                straightLineAngle(start.getTranslation(), criticalPoints.get(1).toTranslation2d()),
+                // the rotation of the robot
+                start.getRotation()));
 
     for (int i = 1; i < criticalPoints.size() - 1; i++) {
       GridCoord prev = criticalPoints.get(i - 1);
@@ -421,7 +425,7 @@ public class RubenManueverGenerator {
   }
 
   public Optional<PathPlannerTrajectory> computePath(
-      Pose2d start, Pose2d end, PathConstraints constraints) {
+      Pose2d start, ChassisSpeeds chassisSpeeds, Pose2d end, PathConstraints constraints) {
     // convert the start and end points to grid coordinates
     GridCoord startCoord = new GridCoord(start.getTranslation());
     GridCoord endCoord = new GridCoord(end.getTranslation());
@@ -430,7 +434,8 @@ public class RubenManueverGenerator {
     if (path.isEmpty()) return Optional.empty();
     var criticalPoints = findCriticalPoints(path.get());
     var neededCriticalPoints = simplifyCriticalPoints(criticalPoints);
-    var pathPoints = computePathPointsFromCriticalPoints(neededCriticalPoints, start, end);
+    var pathPoints =
+        computePathPointsFromCriticalPoints(neededCriticalPoints, start, chassisSpeeds, end);
 
     PathPlannerTrajectory trajectory = PathPlanner.generatePath(constraints, pathPoints);
 

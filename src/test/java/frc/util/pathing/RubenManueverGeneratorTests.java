@@ -17,6 +17,7 @@ import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.UtilParamTest;
 import frc.UtilTest;
 import frc.robot.Constants.Pathing;
@@ -350,6 +351,7 @@ public class RubenManueverGeneratorTests {
         RubenManueverGenerator.computePathPointsFromCriticalPoints(
             neededCriticalPoints,
             new Pose2d(start.toTranslation2d(), new Rotation2d()),
+            new ChassisSpeeds(),
             new Pose2d(end.toTranslation2d(), new Rotation2d()));
 
     for (var coord : path.get()) {

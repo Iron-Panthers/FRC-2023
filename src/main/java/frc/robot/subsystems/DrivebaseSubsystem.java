@@ -219,6 +219,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
     return kinematics;
   }
 
+  public ChassisSpeeds getChassisSpeeds() {
+    return chassisSpeeds;
+  }
+
   private SwerveModulePosition[] getSwerveModulePositions() {
     return new SwerveModulePosition[] {
       swerveModules[0].getPosition(),

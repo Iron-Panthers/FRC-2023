@@ -5,6 +5,7 @@
 package frc.util;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 public class Util {
   private Util() {}
@@ -83,5 +84,11 @@ public class Util {
 
   public static double vectorMagnitude(double x, double y) {
     return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+  }
+
+  public static double getVelocity(ChassisSpeeds chassisSpeeds) {
+    return Math.sqrt(
+        Math.pow(chassisSpeeds.vxMetersPerSecond, 2)
+            + Math.pow(chassisSpeeds.vyMetersPerSecond, 2));
   }
 }
