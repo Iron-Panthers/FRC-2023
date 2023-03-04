@@ -4,12 +4,11 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -17,6 +16,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import frc.robot.Constants.PoseEstimator;
 import frc.robot.Constants.Vision;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,18 +25,23 @@ import org.photonvision.RobotPoseEstimator;
 import org.photonvision.RobotPoseEstimator.PoseStrategy;
 
 public class VisionSubsystem {
+  /** If shuffleboard should be used--important for unit testing. */
+  private static boolean useShuffleboard = true;
+
   class VisionSource {
-    PhotonCamera camera;
-    Transform3d robotToCam;
+    public final PhotonCamera camera;
+    public final Transform3d robotToCam;
 
     public VisionSource(PhotonCamera camera, Transform3d robotToCam) {
       this.camera = camera;
       this.robotToCam = robotToCam;
-      cameraStatusList.addBoolean(this.camera.getName(), this.camera::isConnected);
+      if (useShuffleboard)
+        cameraStatusList.addBoolean(this.camera.getName(), this.camera::isConnected);
+      visionSources.add(this);
     }
 
     Pair<PhotonCamera, Transform3d> getAsPair() {
-      return new Pair<PhotonCamera, Transform3d>(camera, robotToCam);
+      return new Pair<>(camera, robotToCam);
     }
   }
 
@@ -46,42 +51,45 @@ public class VisionSubsystem {
           .withPosition(11, 0)
           .withSize(2, 3);
 
-  private final VisionSource frontCam =
-      new VisionSource(new PhotonCamera(Vision.FrontCam.NAME), Vision.FrontCam.ROBOT_TO_CAM);
-  private final VisionSource backCam =
-      new VisionSource(new PhotonCamera(Vision.BackCam.NAME), Vision.BackCam.ROBOT_TO_CAM);
+  private final List<VisionSource> visionSources = new ArrayList<>();
+
+  private AprilTagFieldLayout fieldLayout;
 
   RobotPoseEstimator poseEstimator;
-
-  static final double TEST_SPACE_WIDTH = 2.5;
-  static final double TEST_SPACE_LENGTH = 5;
 
   private double lastDetection = 0;
 
   /** Creates a new VisionSubsystem. */
   public VisionSubsystem() {
-    // Set up a test arena of two apriltags at the center of each driver station set
-    final AprilTag tag00 =
-        new AprilTag(0, new Pose3d(new Pose2d(5, 2.387, Rotation2d.fromDegrees(180))));
-    final AprilTag tag01 =
-        new AprilTag(01, new Pose3d(new Pose2d(5, 0, Rotation2d.fromDegrees(180))));
-    ArrayList<AprilTag> atList = new ArrayList<AprilTag>();
-    atList.add(tag00);
-    atList.add(tag01);
 
-    // TODO - once 2023 happens, replace this with just loading the 2023 field arrangement
-    AprilTagFieldLayout atfl = new AprilTagFieldLayout(atList, TEST_SPACE_LENGTH, TEST_SPACE_WIDTH);
+    visionSources.add(
+        new VisionSource(new PhotonCamera(Vision.FrontCam.NAME), Vision.FrontCam.ROBOT_TO_CAM));
+    visionSources.add(
+        new VisionSource(new PhotonCamera(Vision.BackCam.NAME), Vision.BackCam.ROBOT_TO_CAM));
+
+    // loading the 2023 field arrangement
+    try {
+      fieldLayout =
+          AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
+    } catch (IOException e) {
+      System.err.println("Failed to load field layout.");
+      e.printStackTrace();
+      return;
+    }
 
     // Create a list of cameras to use for pose estimation
-    List<Pair<PhotonCamera, Transform3d>> cameras = new ArrayList<>();
-    cameras.add(frontCam.getAsPair());
-    cameras.add(backCam.getAsPair());
+    var cameraList = new ArrayList<Pair<PhotonCamera, Transform3d>>();
+    for (var source : visionSources) {
+      cameraList.add(source.getAsPair());
+    }
 
-    poseEstimator = new RobotPoseEstimator(atfl, PoseStrategy.CLOSEST_TO_REFERENCE_POSE, cameras);
+    poseEstimator =
+        new RobotPoseEstimator(fieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE, cameraList);
 
-    cameraStatusList.addString(
-        "time since apriltag detection",
-        () -> String.format("%3.0f seconds", Timer.getFPGATimestamp() - lastDetection));
+    if (useShuffleboard)
+      cameraStatusList.addString(
+          "time since apriltag detection",
+          () -> String.format("%3.0f seconds", Timer.getFPGATimestamp() - lastDetection));
   }
 
   /**
@@ -91,6 +99,10 @@ public class VisionSubsystem {
    *     ground
    */
   public Optional<Pair<Pose2d, Double>> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
+    if (fieldLayout == null) {
+      return Optional.empty();
+    }
+
     poseEstimator.setReferencePose(prevEstimatedRobotPose);
 
     double currentTime = Timer.getFPGATimestamp();
