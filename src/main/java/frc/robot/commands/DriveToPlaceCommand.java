@@ -123,6 +123,16 @@ public class DriveToPlaceCommand extends CommandBase {
     return Rotation2d.fromRadians(angle);
   }
 
+  private ChassisSpeeds produceChassisSpeeds() {
+    double x = translationXSupplier.getAsDouble();
+    double y = translationYSupplier.getAsDouble();
+
+    return isRobotRelativeSupplier.getAsBoolean()
+        ? new ChassisSpeeds(x, y, 0)
+        : ChassisSpeeds.fromFieldRelativeSpeeds(
+            x, y, 0, drivebaseSubsystem.getDriverGyroscopeRotation());
+  }
+
   private Result<Optional<PathPlannerTrajectory>> asyncPathGen(
       PathConstraints constraints, PathPoint initialPoint, PathPoint finalPoint) {
     return trajectGenerator.submit(
@@ -137,7 +147,7 @@ public class DriveToPlaceCommand extends CommandBase {
         () ->
             manueverGenerator.computePath(
                 drivebaseSubsystem.getPose(),
-                drivebaseSubsystem.getChassisSpeeds(),
+                produceChassisSpeeds(),
                 observationPose.get(),
                 new PathConstraints(5, 2)));
   }
@@ -235,14 +245,7 @@ public class DriveToPlaceCommand extends CommandBase {
     // if we haven't driven a trajectory yet, let the driver keep driving
     // check after heartbeat to avoid doing both
     if (!hasStartedDrivingPath) {
-      double x = translationXSupplier.getAsDouble();
-      double y = translationYSupplier.getAsDouble();
-
-      drivebaseSubsystem.drive(
-          isRobotRelativeSupplier.getAsBoolean()
-              ? new ChassisSpeeds(x, y, 0)
-              : ChassisSpeeds.fromFieldRelativeSpeeds(
-                  x, y, 0, drivebaseSubsystem.getDriverGyroscopeRotation()));
+      drivebaseSubsystem.drive(produceChassisSpeeds());
     }
 
     // trajectoryResult
