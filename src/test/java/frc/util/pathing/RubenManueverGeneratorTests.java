@@ -454,7 +454,7 @@ public class RubenManueverGeneratorTests {
 
     var path =
         rubenManueverGenerator
-            .computePath(() -> start, () -> chassisSpeeds, end, new PathConstraints(3, 1))
+            .computePath(start, chassisSpeeds, end, new PathConstraints(3, 1))
             .get();
 
     var fieldSquares = placeObstructions();
