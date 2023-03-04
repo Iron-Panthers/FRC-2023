@@ -1,7 +1,9 @@
 package frc.util.pathing;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -407,5 +409,38 @@ public class RubenManueverGeneratorTests {
                 "%s -> %s len: %s",
                 start.toString(), end.toString(), path.map(List::size).orElse(-1)))
         .toMatchSnapshot(sb.toString());
+  }
+
+  @UtilTest
+  public void stepsShouldNotIntroduceMoreThanTwoPointsIntoStraightLinePath() {
+    var start = new GridCoord(50, 50);
+    var end = new GridCoord(50, 55);
+
+    RubenManueverGenerator rubenManueverGenerator = new RubenManueverGenerator();
+
+    var fullPath = rubenManueverGenerator.findFullPath(start, end);
+    assertIterableEquals(
+        List.of(
+            new GridCoord(50, 50),
+            new GridCoord(50, 51),
+            new GridCoord(50, 52),
+            new GridCoord(50, 53),
+            new GridCoord(50, 54),
+            new GridCoord(50, 55)),
+        fullPath.get());
+
+    var criticalPoints = RubenManueverGenerator.findCriticalPoints(fullPath.get());
+    assertIterableEquals(List.of(new GridCoord(50, 50), new GridCoord(50, 55)), criticalPoints);
+
+    var simplifiedCriticalPoints = rubenManueverGenerator.simplifyCriticalPoints(criticalPoints);
+    assertIterableEquals(List.of(new GridCoord(50, 50), new GridCoord(50, 55)), criticalPoints);
+
+    var pathPoints =
+        RubenManueverGenerator.computePathPointsFromCriticalPoints(
+            simplifiedCriticalPoints,
+            new Pose2d(start.toTranslation2d(), new Rotation2d()),
+            new ChassisSpeeds(),
+            new Pose2d(end.toTranslation2d(), new Rotation2d()));
+    assertEquals(2, pathPoints.size(), "should only have start and end");
   }
 }
