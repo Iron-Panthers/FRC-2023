@@ -15,6 +15,7 @@ import frc.util.Util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class RubenManueverGenerator {
   public final Graph<GridCoord> adjacencyGraph = new Graph<>();
@@ -425,9 +426,12 @@ public class RubenManueverGenerator {
   }
 
   public Optional<PathPlannerTrajectory> computePath(
-      Pose2d start, ChassisSpeeds chassisSpeeds, Pose2d end, PathConstraints constraints) {
+      Supplier<Pose2d> start,
+      Supplier<ChassisSpeeds> chassisSpeeds,
+      Pose2d end,
+      PathConstraints constraints) {
     // convert the start and end points to grid coordinates
-    GridCoord startCoord = new GridCoord(start.getTranslation());
+    GridCoord startCoord = new GridCoord(start.get().getTranslation());
     GridCoord endCoord = new GridCoord(end.getTranslation());
 
     var path = findFullPath(startCoord, endCoord);
@@ -435,7 +439,8 @@ public class RubenManueverGenerator {
     var criticalPoints = findCriticalPoints(path.get());
     var neededCriticalPoints = simplifyCriticalPoints(criticalPoints);
     var pathPoints =
-        computePathPointsFromCriticalPoints(neededCriticalPoints, start, chassisSpeeds, end);
+        computePathPointsFromCriticalPoints(
+            neededCriticalPoints, start.get(), chassisSpeeds.get(), end);
 
     PathPlannerTrajectory trajectory = PathPlanner.generatePath(constraints, pathPoints);
 

@@ -132,13 +132,12 @@ public class DriveToPlaceCommand extends CommandBase {
   private Result<Optional<PathPlannerTrajectory>> createObservationTrajectory() {
     System.out.println("gen observation trajectory");
     hasObserved = true;
-    var currentPose = drivebaseSubsystem.getPose();
 
     return trajectGenerator.submit(
         () ->
             manueverGenerator.computePath(
-                currentPose,
-                drivebaseSubsystem.getChassisSpeeds(),
+                drivebaseSubsystem::getPose,
+                drivebaseSubsystem::getChassisSpeeds,
                 observationPose.get(),
                 new PathConstraints(5, 2)));
   }
