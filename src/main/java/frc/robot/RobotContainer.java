@@ -35,7 +35,7 @@ import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.SetOuttakeModeCommand;
 import frc.robot.commands.SetZeroModeCommand;
-import frc.robot.commands.VibrateControllerCommand;
+import frc.robot.commands.VibrateHIDCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.NetworkWatchdogSubsystem;
@@ -92,6 +92,12 @@ public class RobotContainer {
   /** the sendable chooser to select which auto to run. */
   private final SendableChooser<Command> autoSelector = new SendableChooser<>();
 
+  /* drive joystick "y" is passed to x because controller is inverted */
+  private final DoubleSupplier translationXSupplier =
+      () -> (-modifyAxis(will.getLeftY()) * Drive.MAX_VELOCITY_METERS_PER_SECOND);
+  private final DoubleSupplier translationYSupplier =
+      () -> (-modifyAxis(will.getLeftX()) * Drive.MAX_VELOCITY_METERS_PER_SECOND);
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Set up the default command for the drivetrain.
@@ -101,10 +107,7 @@ public class RobotContainer {
     // Right stick X axis -> rotation
     drivebaseSubsystem.setDefaultCommand(
         new DefaultDriveCommand(
-            drivebaseSubsystem,
-            () -> (-modifyAxis(will.getLeftY()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
-            () -> (-modifyAxis(will.getLeftX()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
-            will.rightBumper()));
+            drivebaseSubsystem, translationXSupplier, translationYSupplier, will.rightBumper()));
 
     armSubsystem.setDefaultCommand(
         new ArmManualCommand(
@@ -129,7 +132,7 @@ public class RobotContainer {
    */
   public void containerTeleopInit() {
     // runs when teleop happens
-    CommandScheduler.getInstance().schedule(new VibrateControllerCommand(jason, 5, .5));
+    CommandScheduler.getInstance().schedule(new VibrateHIDCommand(jason.getHID(), 5, .5));
   }
 
   /**
@@ -187,9 +190,8 @@ public class RobotContainer {
         .whileTrue(
             new RotateVelocityDriveCommand(
                 drivebaseSubsystem,
-                /* drive joystick "y" is passed to x because controller is inverted */
-                () -> (-modifyAxis(will.getLeftY()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
-                () -> (-modifyAxis(will.getLeftX()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
+                translationXSupplier,
+                translationYSupplier,
                 rotationVelocity,
                 will.rightBumper()));
 
@@ -200,8 +202,8 @@ public class RobotContainer {
         .onTrue(
             new RotateVectorDriveCommand(
                 drivebaseSubsystem,
-                () -> (-modifyAxis(will.getLeftY()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
-                () -> (-modifyAxis(will.getLeftX()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
+                translationXSupplier,
+                translationYSupplier,
                 will::getRightY,
                 will::getRightX,
                 will.rightBumper()));
@@ -211,17 +213,25 @@ public class RobotContainer {
         .onTrue(
             new DriveToPlaceCommand(
                 drivebaseSubsystem,
-                visionSubsystem,
                 manueverGenerator,
-                () -> currentNodeSelection.get().nodeStack().position()));
+                () -> currentNodeSelection.get().nodeStack().position(),
+                translationXSupplier,
+                translationYSupplier,
+                will.rightBumper(),
+                Optional.of(rgbSubsystem),
+                Optional.of(will.getHID())));
 
     will.y()
         .onTrue(
             new DriveToPlaceCommand(
                 drivebaseSubsystem,
-                visionSubsystem,
                 manueverGenerator,
-                () -> new Pose2d(15.5595, 7.3965, Rotation2d.fromDegrees(0))));
+                () -> new Pose2d(15.5595, 7.3965, Rotation2d.fromDegrees(0)),
+                translationXSupplier,
+                translationYSupplier,
+                will.rightBumper(),
+                Optional.of(rgbSubsystem),
+                Optional.of(will.getHID())));
 
     // outtake states
     jasonLayer
@@ -308,7 +318,7 @@ public class RobotContainer {
                             ? Constants.Lights.Colors.PURPLE
                             : Constants.Lights.Colors.YELLOW,
                         RGBSubsystem.PatternTypes.PULSE,
-                        RGBSubsystem.MessagePriority.B_DRIVER_CONTROLLED_COLOR)
+                        RGBSubsystem.MessagePriority.C_DRIVER_CONTROLLED_COLOR)
                     ::expire));
 
     // show the current node selection
