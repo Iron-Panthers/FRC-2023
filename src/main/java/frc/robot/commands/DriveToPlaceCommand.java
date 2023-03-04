@@ -126,12 +126,14 @@ public class DriveToPlaceCommand extends CommandBase {
   }
 
   private boolean finishedPath() {
-    var optOptTraject = trajectoryResult.get();
-    if (!optOptTraject.isPresent()) return false;
-    var optTraject = optOptTraject.get();
-    return optTraject.isPresent()
-        && ((Timer.getFPGATimestamp() - generationTime)
-            > (optTraject.get().getTotalTimeSeconds() + observationTime));
+    return trajectoryResult
+        .get()
+        .flatMap(Function.identity())
+        .map(
+            trajectory ->
+                (Timer.getFPGATimestamp() - generationTime)
+                    > (trajectory.getTotalTimeSeconds() + observationTime))
+        .orElse(false);
   }
 
   private boolean poseWithinErrorMarginOfFinal(Pose2d currentPose) {
