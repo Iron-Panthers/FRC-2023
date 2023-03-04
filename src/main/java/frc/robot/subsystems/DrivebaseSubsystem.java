@@ -83,10 +83,12 @@ public class DrivebaseSubsystem extends SubsystemBase {
   /**
    * Keeps track of the current estimated pose (x,y,theta) of the robot, as estimated by odometry.
    */
-  private Pose2d robotPose = new Pose2d();
+  @SuppressWarnings("java:S3077") // because the object is immutable, volatile is sufficient
+  private volatile Pose2d robotPose = new Pose2d();
 
   /** The current ChassisSpeeds goal for the drivetrain */
-  private ChassisSpeeds chassisSpeeds = new ChassisSpeeds(); // defaults to zeros
+  @SuppressWarnings("java:S3077") // because the object is immutable, volatile is sufficient
+  private volatile ChassisSpeeds chassisSpeeds = new ChassisSpeeds(); // defaults to zeros
 
   /** The modes of the drivebase subsystem */
   public enum Modes {
