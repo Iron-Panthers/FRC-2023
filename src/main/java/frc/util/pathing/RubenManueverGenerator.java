@@ -441,12 +441,9 @@ public class RubenManueverGenerator {
                 start
                     .get()
                     .getTranslation()
-                    .minus(
-                        new Translation2d(
-                            chassisSpeeds.get().vxMetersPerSecond
-                                * Pathing.ANTICIPATED_PATH_SOLVE_TIME_SECONDS,
-                            chassisSpeeds.get().vyMetersPerSecond
-                                * Pathing.ANTICIPATED_PATH_SOLVE_TIME_SECONDS)))
+                    .plus(
+                        Util.getTranslationVelocity(chassisSpeeds.get(), start.get().getRotation())
+                            .times(Pathing.ANTICIPATED_PATH_SOLVE_TIME_SECONDS)))
             : new GridCoord(start.get().getTranslation());
     GridCoord endCoord = new GridCoord(end.getTranslation());
     System.out.println("start: " + new GridCoord(start.get().getTranslation()));
