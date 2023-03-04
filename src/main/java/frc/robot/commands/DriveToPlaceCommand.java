@@ -22,6 +22,7 @@ import frc.util.AsyncWorker.Result;
 import frc.util.Util;
 import frc.util.pathing.RubenManueverGenerator;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class DriveToPlaceCommand extends CommandBase {
@@ -168,6 +169,22 @@ public class DriveToPlaceCommand extends CommandBase {
         });
   }
 
+  private static void trajectoryHealthDebugPrint(
+      PathPlannerTrajectory trajectory, Pose2d currentPose) {
+    // print distance to final pose
+    var fP =
+        ((PathPlannerState)
+            trajectory
+                // sample the final position using the time greater than total time behavior
+                .sample(trajectory.getTotalTimeSeconds() + 1));
+    System.out.println(
+        String.format(
+            "xy err: %8f theta err: %8f trajectoryTime: %8f",
+            currentPose.getTranslation().getDistance(fP.poseMeters.getTranslation()),
+            Util.relativeAngularDifference(currentPose.getRotation(), fP.holonomicRotation),
+            trajectory.getTotalTimeSeconds()));
+  }
+
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
@@ -182,29 +199,11 @@ public class DriveToPlaceCommand extends CommandBase {
     // trigger trajectory following when the trajectory is ready
     trajectGenerator.heartbeat();
 
-    var optOptTrajectory = trajectoryResult.get();
-    if (optOptTrajectory.isPresent()) {
-      var optTrajectory = optOptTrajectory.get();
-      if (optTrajectory.isPresent()) {
-        var trajectory = optTrajectory.get();
-        // print the distance to the final pose
-        var fP =
-            ((PathPlannerState)
-                trajectory
-                    // sample the final position using the time greater than total time behavior
-                    .sample(trajectory.getTotalTimeSeconds() + 1));
-        System.out.println(
-            String.format(
-                "xy err: %8f theta err: %8f trajectoryTime: %8f",
-                drivebaseSubsystem
-                    .getPose()
-                    .getTranslation()
-                    .getDistance(fP.poseMeters.getTranslation()),
-                Util.relativeAngularDifference(
-                    drivebaseSubsystem.getPose().getRotation(), fP.holonomicRotation),
-                trajectory.getTotalTimeSeconds()));
-      }
-    }
+    trajectoryResult
+        .get()
+        .flatMap(Function.identity())
+        .ifPresent(
+            trajectory -> trajectoryHealthDebugPrint(trajectory, drivebaseSubsystem.getPose()));
 
     if (finishedPath()) {
       if (poseSatisfied()) {
