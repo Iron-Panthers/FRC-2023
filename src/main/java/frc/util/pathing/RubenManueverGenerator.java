@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.Pathing;
 import frc.robot.Constants.Pathing.Costs;
 import frc.util.Graph;
@@ -430,19 +431,41 @@ public class RubenManueverGenerator {
       Supplier<ChassisSpeeds> chassisSpeeds,
       Pose2d end,
       PathConstraints constraints) {
-    // convert the start and end points to grid coordinates
-    GridCoord startCoord = new GridCoord(start.get().getTranslation());
+    // convert the start and end point to grid coordinates
+    GridCoord startCoord =
+        // check if we are moving fast enough to matter
+        Util.getVelocity(chassisSpeeds.get()) > Pathing.RESPECT_CURRENT_VELOCITY_THRESHOLD_MS
+            // project the current position using the current velocity, angle, and anticipated
+            // pathing time
+            ? new GridCoord(
+                start
+                    .get()
+                    .getTranslation()
+                    .minus(
+                        new Translation2d(
+                            chassisSpeeds.get().vxMetersPerSecond
+                                * Pathing.ANTICIPATED_PATH_SOLVE_TIME_SECONDS,
+                            chassisSpeeds.get().vyMetersPerSecond
+                                * Pathing.ANTICIPATED_PATH_SOLVE_TIME_SECONDS)))
+            : new GridCoord(start.get().getTranslation());
     GridCoord endCoord = new GridCoord(end.getTranslation());
-
+    System.out.println("start: " + new GridCoord(start.get().getTranslation()));
+    System.out.println("projected: " + startCoord);
+    var t1 = Timer.getFPGATimestamp();
     var path = findFullPath(startCoord, endCoord);
+    System.out.println("path solve time: " + (Timer.getFPGATimestamp() - t1));
     if (path.isEmpty()) return Optional.empty();
     var criticalPoints = findCriticalPoints(path.get());
     var neededCriticalPoints = simplifyCriticalPoints(criticalPoints);
+    System.out.println("'real' start: " + new GridCoord(start.get().getTranslation()));
     var pathPoints =
         computePathPointsFromCriticalPoints(
             neededCriticalPoints, start.get(), chassisSpeeds.get(), end);
 
     PathPlannerTrajectory trajectory = PathPlanner.generatePath(constraints, pathPoints);
+
+    System.out.println("ultra 'real' start: " + new GridCoord(start.get().getTranslation()));
+    System.out.println("work time: " + (Timer.getFPGATimestamp() - t1));
 
     return Optional.of(trajectory);
   }

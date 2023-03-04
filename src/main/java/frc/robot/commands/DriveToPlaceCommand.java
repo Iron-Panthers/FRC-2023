@@ -245,11 +245,11 @@ public class DriveToPlaceCommand extends CommandBase {
                   x, y, 0, drivebaseSubsystem.getDriverGyroscopeRotation()));
     }
 
-    trajectoryResult
-        .get()
-        .flatMap(Function.identity())
-        .ifPresent(
-            trajectory -> trajectoryHealthDebugPrint(trajectory, drivebaseSubsystem.getPose()));
+    // trajectoryResult
+    //     .get()
+    //     .flatMap(Function.identity())
+    //     .ifPresent(
+    //         trajectory -> trajectoryHealthDebugPrint(trajectory, drivebaseSubsystem.getPose()));
 
     if (finishedPath()) {
       if (poseSatisfied()) {
