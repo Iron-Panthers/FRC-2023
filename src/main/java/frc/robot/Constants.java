@@ -157,6 +157,11 @@ public final class Constants {
       public static final int ENCODER_PORT = 28;
     }
 
+    public static final class ExtensionGains {
+      public static final double BASE_P = .15;
+      public static final double MAX_ADDITIONAL_P = .25;
+    }
+
     public static final double GRAVITY_CONTROL_PERCENT = 0.07;
 
     public static final double ANGULAR_OFFSET = 54.22;
@@ -170,8 +175,8 @@ public final class Constants {
       public static final ArmState STOWED = new ArmState(0, Arm.Setpoints.Extensions.MIN_EXTENSION);
 
       public static final class Extensions {
-        public static final double MAX_EXTENSION = 20.4;
-        public static final double MIN_EXTENSION = 0;
+        public static final double MAX_EXTENSION = 20.3;
+        public static final double MIN_EXTENSION = 0.5;
       }
     }
 
