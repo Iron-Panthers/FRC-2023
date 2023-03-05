@@ -159,7 +159,7 @@ public final class Constants {
 
     public static final class ExtensionGains {
       public static final double BASE_P = .15;
-      public static final double MAX_ADDITIONAL_P = .15;
+      public static final double MAX_ADDITIONAL_P = .05;
     }
 
     public static final double GRAVITY_CONTROL_PERCENT = 0.07;
@@ -176,7 +176,7 @@ public final class Constants {
 
       public static final class Extensions {
         public static final double MAX_EXTENSION = 20.3;
-        public static final double MIN_EXTENSION = 0.5;
+        public static final double MIN_EXTENSION = 0.75;
       }
     }
 
