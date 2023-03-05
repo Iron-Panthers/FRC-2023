@@ -61,6 +61,7 @@ public class VisionSubsystem {
               visionSource.robotToCamera());
       estimator.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
       cameraStatusList.addBoolean(visionSource.name(), camera::isConnected);
+      estimators.add(estimator);
     }
 
     if (useShuffleboard)
