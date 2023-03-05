@@ -170,7 +170,7 @@ public final class Constants {
       public static final ArmState STOWED = new ArmState(0, Arm.Setpoints.Extensions.MIN_EXTENSION);
 
       public static final class Extensions {
-        public static final double MAX_EXTENSION = 19.5;
+        public static final double MAX_EXTENSION = 20.4;
         public static final double MIN_EXTENSION = 0;
       }
     }
