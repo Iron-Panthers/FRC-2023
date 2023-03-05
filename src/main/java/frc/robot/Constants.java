@@ -159,7 +159,7 @@ public final class Constants {
 
     public static final double GRAVITY_CONTROL_PERCENT = 0.07;
 
-    public static final double ANGULAR_OFFSET = -8.75;
+    public static final double ANGULAR_OFFSET = 54.22;
 
     public static final class Setpoints {
 
