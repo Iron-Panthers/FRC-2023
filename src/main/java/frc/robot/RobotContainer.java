@@ -30,6 +30,7 @@ import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
 import frc.robot.commands.ForceIntakeCommand;
 import frc.robot.commands.ForceOuttakeCommand;
+import frc.robot.commands.ForceSpindexerCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.OuttakeCommand;
@@ -263,7 +264,10 @@ public class RobotContainer {
         .onTrue(
             new DefaultIntakeCommand(intakeSubsystem, spindexerHopperSubsystem, jason.x()));
     jasonLayer.on(jason.leftBumper()).onTrue(new StartSpindexerHopperCommand(spindexerHopperSubsystem, SpindexerHopperSubsystem.Modes.IDLE));
-  }
+    jason.povLeft().whileTrue(new ForceSpindexerCommand(spindexerHopperSubsystem, SpindexerHopperSubsystem.Modes.CLEAR, SpindexerHopperSubsystem.Modes.OFF));
+    jason.povRight().whileTrue(new ForceSpindexerCommand(spindexerHopperSubsystem, SpindexerHopperSubsystem.Modes.ALIGN, SpindexerHopperSubsystem.Modes.OFF));
+    jason.povUp().whileTrue(new ForceSpindexerCommand(spindexerHopperSubsystem, SpindexerHopperSubsystem.Modes.IDLE, SpindexerHopperSubsystem.Modes.OFF));
+}
 
   /**
    * Adds all autonomous routines to the autoSelector, and places the autoSelector on Shuffleboard.

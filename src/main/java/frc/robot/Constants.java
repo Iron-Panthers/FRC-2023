@@ -284,9 +284,9 @@ public final class Constants {
 
     public static final class Speeds {
       public static final double DEPLOY_SPEED = 0.2;
-      public static final double INTAKE_SPEED = 1.0;
+      public static final double INTAKE_SPEED = 0.85;
       public static final double RETRACT_SPEED = -0.3;
-      public static final double EJECT_SPEED = -1.0;
+      public static final double EJECT_SPEED = -0.85;
     }
 
     public static final double ARM_HARDSTOP_CURRENT = 5; // FIRXME need real value
@@ -327,14 +327,15 @@ public final class Constants {
   public static final class SpindexerHopper {
 
     public static final int SPIN_MOTOR_PORT = 9;
-    public static final double IDLE_SPEED = 0.2;
-    public static final double ALIGN_SPEED = -0.2;
+    public static final double PULL_SPEED = 0.15;
+    public static final double IDLE_SPEED = 0.1;
+    public static final double ALIGN_SPEED = -0.1;
 
     public static final class Timings {
-      public static final double IDLE_DURATION = 2;
-      public static final double ALIGN_DURATION = 2;
-      public static final double CLEAR_DURATION = 1.2;
-      public static final double FINAL_DURATION = 1.6;
+      public static final double IDLE_DURATION = 1.2;
+      public static final double ALIGN_DURATION = 1.2;
+      public static final double CLEAR_DURATION = 0.8;
+      public static final double FINAL_DURATION = 0.8;
     }
   }
 

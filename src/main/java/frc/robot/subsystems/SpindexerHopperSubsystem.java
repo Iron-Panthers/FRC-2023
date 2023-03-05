@@ -40,6 +40,8 @@ public class SpindexerHopperSubsystem extends SubsystemBase {
 
   private double transitionTime;
 
+  private boolean modeLock;
+
   /**
    * The Shuffleboard tab which all things related to the drivebase can be put for easy access and
    * organization
@@ -50,11 +52,12 @@ public class SpindexerHopperSubsystem extends SubsystemBase {
   public SpindexerHopperSubsystem() {
 
     this.spinMotor = new TalonFX(SpindexerHopper.SPIN_MOTOR_PORT);
-    this.spinMotor.setInverted(true);
+    this.spinMotor.setInverted(false);
 
     spinMotor.setNeutralMode(NeutralMode.Brake);
 
     previousTimeOfTransition = 0;
+    modeLock = false;
 
     tab.addString("Current Mode", () -> mode.toString());
   }
@@ -78,8 +81,16 @@ public class SpindexerHopperSubsystem extends SubsystemBase {
     this.mode = mode;
   }
 
+  public void lockMode() {
+    modeLock = true;
+  }
+
+  public void unlockMode() {
+    modeLock = false;
+  }
+
   private void idlePeriodic() {
-    spinMotor.set(ControlMode.PercentOutput, SpindexerHopper.IDLE_SPEED);
+    spinMotor.set(ControlMode.PercentOutput, SpindexerHopper.PULL_SPEED);
   }
 
   private void alignPeriodic() {
@@ -125,7 +136,7 @@ public class SpindexerHopperSubsystem extends SubsystemBase {
 
   private Modes advanceMode(double currentTime, double previousTimeOfTransition, Modes mode) {
 
-    if ((currentTime - previousTimeOfTransition) >= transitionTime) {
+    if ((currentTime - previousTimeOfTransition) >= transitionTime && !modeLock) {
       switch (mode) {
         case IDLE:
           return Modes.ALIGN;
