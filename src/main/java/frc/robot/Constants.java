@@ -327,9 +327,9 @@ public final class Constants {
   public static final class SpindexerHopper {
 
     public static final int SPIN_MOTOR_PORT = 9;
-    public static final double PULL_SPEED = 0.15;
-    public static final double IDLE_SPEED = 0.1;
-    public static final double ALIGN_SPEED = -0.1;
+    public static final double PULL_SPEED = 0.5;
+    public static final double IDLE_SPEED = 0.5;
+    public static final double ALIGN_SPEED = -0.5;
 
     public static final class Timings {
       public static final double IDLE_DURATION = 1.2;
