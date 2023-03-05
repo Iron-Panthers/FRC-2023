@@ -356,7 +356,7 @@ public final class Constants {
           new OuttakeDetails(0.1, Optional.empty(), Optional.empty());
 
       public static final OuttakeDetails INTAKE =
-          new OuttakeDetails(1, Optional.of(new OuttakeDetails.StatorLimit(75)), Optional.of(2d));
+          new OuttakeDetails(1, Optional.of(new OuttakeDetails.StatorLimit(110)), Optional.of(2d));
 
       public static final OuttakeDetails OUTTAKE =
           new OuttakeDetails(-0.2, Optional.empty(), Optional.of(2d));
