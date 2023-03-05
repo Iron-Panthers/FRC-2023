@@ -79,19 +79,16 @@ public class VisionSubsystem {
 
     List<VisionMeasurement> estimations = new ArrayList<>();
 
-    boolean foundTag = false;
-
     for (PhotonPoseEstimator estimator : estimators) {
       estimator.setReferencePose(prevEstimatedRobotPose);
       var optEstimation = estimator.update();
       if (optEstimation.isEmpty()) continue;
-      foundTag = true;
       var estimation = optEstimation.get();
       estimations.add(
           new VisionMeasurement(estimation, PoseEstimator.VISION_MEASUREMENT_STANDARD_DEVIATIONS));
     }
 
-    if (foundTag) {
+    if (!estimations.isEmpty()) {
       lastDetection = Timer.getFPGATimestamp();
     }
 
