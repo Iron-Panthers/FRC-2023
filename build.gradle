@@ -1,13 +1,12 @@
-import edu.wpi.first.gradlerio.deploy.roborio.RoboRIO
-
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2022.4.1"
-    id "com.diffplug.spotless" version "6.2.0"
+    id "edu.wpi.first.GradleRIO" version "2023.4.2"
+    id "com.diffplug.spotless" version "6.13.0"
+    id "me.champeau.jmh" version "0.6.8"
 }
 
-sourceCompatibility = JavaVersion.VERSION_11
-targetCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
 
@@ -49,7 +48,7 @@ wpi.java.debugJni = false
 def includeDesktopSupport = false
 
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
-// Also defines JUnit 4.
+// Also defines JUnit 5.
 dependencies {
     implementation wpi.java.deps.wpilib()
     implementation wpi.java.vendor.java()
@@ -71,12 +70,32 @@ dependencies {
     nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
     simulationRelease wpi.sim.enableRelease()
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-    testImplementation "org.junit.jupiter:junit-jupiter-params:5.8.1"
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
 
     testImplementation "org.mockito:mockito-core:3.+"
+    testImplementation "org.mockito:mockito-inline:3.+"
     testImplementation 'org.mockito:mockito-junit-jupiter:4.3.1'
+
+    // profiling!
+    testImplementation 'org.openjdk.jmh:jmh-core:1.19'
+    testImplementation 'org.openjdk.jmh:jmh-generator-annprocess:1.19'
+
+    // snapshot testing!
+    testImplementation 'io.github.origin-energy:java-snapshot-testing-junit5:4.+'
+
+    // java-snapshot-testing json serialization
+    testImplementation 'io.github.origin-energy:java-snapshot-testing-plugin-jackson:4.+'
+    testImplementation 'com.fasterxml.jackson.core:jackson-core:2.11.3'
+    testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.11.3'
+
+    // java-snapshot-testing optional support
+    testRuntimeOnly 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.11.3'
+    testRuntimeOnly 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.3'
+
+    // logger!
+    testImplementation 'org.slf4j:slf4j-simple:2.0.6'
 }
 
 // Simulation configuration (e.g. environment variables).
@@ -98,10 +117,23 @@ test {
 
     systemProperty 'java.util.logging.config.file', "${project.projectDir}/src/test/resources/logging-test.properties"
 
+    systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
+
     testLogging {
         showStandardStreams = true;
         exceptionFormat = 'full' // show expected and actual for failed tests
     }
+}
+
+jmh {
+    warmupIterations = 2
+    iterations = 5
+    fork = 1
+}
+
+tasks.create("bmPathfinding") {
+    jmh.includes.add("GraphPathfinderBenchmarks.findOptimalPath")
+    finalizedBy("jmh")
 }
 
 // Configure jar and deploy tasks
@@ -151,7 +183,7 @@ spotless {
         fileTree(".github") {
             include "**/*.yml"
         }
-        prettier("2.5.1")
+        // prettier("2.5.1")
     }
     format 'misc', {
         target fileTree('.') {
@@ -162,4 +194,9 @@ spotless {
         indentWithSpaces(2)
         endWithNewline()
     }
+}
+
+// Configure string concat to always inline compile
+tasks.withType(JavaCompile) {
+    options.compilerArgs.add '-XDstringConcat=inline'
 }

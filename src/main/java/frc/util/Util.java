@@ -5,6 +5,8 @@
 package frc.util;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 public class Util {
   private Util() {}
@@ -47,6 +49,10 @@ public class Util {
     return relativeAngularDifference(currentAngle.getDegrees(), newAngle);
   }
 
+  public static double relativeAngularDifference(Rotation2d currentAngle, Rotation2d newAngle) {
+    return relativeAngularDifference(currentAngle.getDegrees(), newAngle.getDegrees());
+  }
+
   /**
    * turn x and y of a vector to a [0, 360] angle
    *
@@ -79,5 +85,42 @@ public class Util {
 
   public static double vectorMagnitude(double x, double y) {
     return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+  }
+
+  public static double getVelocity(ChassisSpeeds chassisSpeeds) {
+    return Math.sqrt(
+        Math.pow(chassisSpeeds.vxMetersPerSecond, 2)
+            + Math.pow(chassisSpeeds.vyMetersPerSecond, 2));
+  }
+
+  /**
+   * Solve for the translation velocity of a robot given its frame relative chassis speeds and
+   * heading. Does the opposite of {@link ChassisSpeeds#fromFieldRelativeSpeeds}.
+   *
+   * @param chassisSpeeds
+   * @param robotAngle
+   * @return
+   */
+  public static Translation2d getTranslationVelocity(
+      ChassisSpeeds chassisSpeeds, Rotation2d robotAngle) {
+    // the from field relative speeds impl
+    /*
+    public static ChassisSpeeds fromFieldRelativeSpeeds(
+        double vxMetersPerSecond,
+        double vyMetersPerSecond,
+        double omegaRadiansPerSecond,
+        Rotation2d robotAngle) {
+      return new ChassisSpeeds(
+          vxMetersPerSecond * robotAngle.getCos() + vyMetersPerSecond * robotAngle.getSin(),
+          -vxMetersPerSecond * robotAngle.getSin() + vyMetersPerSecond * robotAngle.getCos(),
+          omegaRadiansPerSecond);
+    }
+    */
+
+    return new Translation2d(
+        chassisSpeeds.vxMetersPerSecond * robotAngle.getCos()
+            - chassisSpeeds.vyMetersPerSecond * robotAngle.getSin(),
+        chassisSpeeds.vxMetersPerSecond * robotAngle.getSin()
+            + chassisSpeeds.vyMetersPerSecond * robotAngle.getCos());
   }
 }

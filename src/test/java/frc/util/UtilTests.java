@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.UtilParamTest;
 import frc.UtilTest;
 import java.util.stream.Stream;
@@ -132,5 +135,29 @@ public class UtilTests {
         Util.normalizeDegrees(degrees),
         1e-9,
         String.format("%s normalized to %s", degrees, normalized));
+  }
+
+  public static Stream<Arguments> getTranslationVelocityProvider() {
+    return Stream.of(
+        Arguments.of(new Translation2d(3, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(0)),
+        Arguments.of(new Translation2d(5, Rotation2d.fromDegrees(30)), Rotation2d.fromDegrees(0)),
+        Arguments.of(new Translation2d(5, Rotation2d.fromDegrees(235)), Rotation2d.fromDegrees(0)),
+        Arguments.of(new Translation2d(5, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(30)),
+        Arguments.of(new Translation2d(5, Rotation2d.fromDegrees(20)), Rotation2d.fromDegrees(235)),
+        Arguments.of(
+            new Translation2d(-2.5, Rotation2d.fromDegrees(300)), Rotation2d.fromDegrees(60))
+        // hold this brace here lol
+        );
+  }
+
+  @UtilParamTest
+  @MethodSource("getTranslationVelocityProvider")
+  public void getTranslationVelocityCorrect(Translation2d translation, Rotation2d robotAngle) {
+    var chassisSpeeds =
+        ChassisSpeeds.fromFieldRelativeSpeeds(
+            translation.getX(), translation.getY(), 0, robotAngle);
+    var translationVelocity = Util.getTranslationVelocity(chassisSpeeds, robotAngle);
+    assertEquals(
+        translation, translationVelocity, String.format("translation velocity is %s", translation));
   }
 }

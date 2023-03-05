@@ -30,16 +30,26 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
   public AdvancedSwerveTrajectoryFollower(
       PIDController xController, PIDController yController, ProfiledPIDController angleController) {
     this.xController = xController;
+    // var tab = Shuffleboard.getTab("tuneFollower");
+    // tab.add(xController);
+    // tab.add(yController);
+    // tab.addDouble("xError", xController::getPositionError);
+    // tab.addDouble("yError", yController::getPositionError);
     this.yController = yController;
     this.angleController = angleController;
+  }
+
+  private ChassisSpeeds finishTrajectory() {
+    finished = true;
+    return new ChassisSpeeds();
   }
 
   @Override
   protected ChassisSpeeds calculateDriveSignal(
       Pose2d currentPose, Trajectory trajectory, double time, double dt) {
     if (time > trajectory.getTotalTimeSeconds()) {
-      finished = true;
-      return new ChassisSpeeds();
+      // If the robot is past the end of the trajectory, stop
+      return finishTrajectory();
     }
 
     // there is still time left!
