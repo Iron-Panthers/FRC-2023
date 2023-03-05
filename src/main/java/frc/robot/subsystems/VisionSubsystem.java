@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import frc.robot.Constants.PoseEstimator;
 import frc.robot.Constants.Vision;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -83,7 +84,8 @@ public class VisionSubsystem {
       var optEstimation = estimator.update();
       if (optEstimation.isEmpty()) continue;
       var estimation = optEstimation.get();
-      estimations.add(new VisionMeasurement(estimation, null));
+      estimations.add(
+          new VisionMeasurement(estimation, PoseEstimator.VISION_MEASUREMENT_STANDARD_DEVIATIONS));
     }
 
     return estimations;
