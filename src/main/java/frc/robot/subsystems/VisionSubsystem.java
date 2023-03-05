@@ -60,7 +60,7 @@ public class VisionSubsystem {
               camera,
               visionSource.robotToCamera());
       estimator.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
-      estimators.add(estimator);
+      cameraStatusList.addBoolean(visionSource.name(), camera::isConnected);
     }
 
     if (useShuffleboard)
@@ -79,13 +79,20 @@ public class VisionSubsystem {
 
     List<VisionMeasurement> estimations = new ArrayList<>();
 
+    boolean foundTag = false;
+
     for (PhotonPoseEstimator estimator : estimators) {
       estimator.setReferencePose(prevEstimatedRobotPose);
       var optEstimation = estimator.update();
       if (optEstimation.isEmpty()) continue;
+      foundTag = true;
       var estimation = optEstimation.get();
       estimations.add(
           new VisionMeasurement(estimation, PoseEstimator.VISION_MEASUREMENT_STANDARD_DEVIATIONS));
+    }
+
+    if (foundTag) {
+      lastDetection = Timer.getFPGATimestamp();
     }
 
     return estimations;
