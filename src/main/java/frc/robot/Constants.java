@@ -159,7 +159,7 @@ public final class Constants {
 
     public static final class ExtensionGains {
       public static final double BASE_P = .15;
-      public static final double MAX_ADDITIONAL_P = .25;
+      public static final double MAX_ADDITIONAL_P = .15;
     }
 
     public static final double GRAVITY_CONTROL_PERCENT = 0.07;
@@ -180,7 +180,7 @@ public final class Constants {
       }
     }
 
-    public static final double EXTENSION_STATOR_LIMIT = 42;
+    public static final double EXTENSION_STATOR_LIMIT = 60;
 
     public static final double ZERO_RETRACTION_PERCENT = -0.14;
     public static final int TICKS = 2048;
