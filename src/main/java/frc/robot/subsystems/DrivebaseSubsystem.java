@@ -31,8 +31,10 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.PoseEstimator;
+import frc.robot.subsystems.VisionSubsystem.VisionMeasurement;
 import frc.util.AdvancedSwerveTrajectoryFollower;
 import frc.util.Util;
+import java.util.List;
 import java.util.Optional;
 
 public class DrivebaseSubsystem extends SubsystemBase {
@@ -331,13 +333,14 @@ public class DrivebaseSubsystem extends SubsystemBase {
     this.robotPose =
         swervePoseEstimator.update(getConsistentGyroscopeRotation(), getSwerveModulePositions());
 
-    Optional<Pair<Pose2d, Double>> cameraPose = visionSubsystem.getEstimatedGlobalPose(robotPose);
+    List<VisionMeasurement> visionMeasurements = visionSubsystem.getEstimatedGlobalPose(robotPose);
 
-    if (!cameraPose.isPresent()) return;
-
-    var cameraPoseSome = cameraPose.get();
-
-    swervePoseEstimator.addVisionMeasurement(cameraPoseSome.getFirst(), cameraPoseSome.getSecond());
+    for (VisionMeasurement measurement : visionMeasurements) {
+      swervePoseEstimator.addVisionMeasurement(
+          measurement.estimation().estimatedPose.toPose2d(),
+          measurement.estimation().timestampSeconds,
+          measurement.confidence());
+    }
 
     // System.out.println(
     //     "Vision measurement "

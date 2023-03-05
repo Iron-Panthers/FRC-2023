@@ -230,39 +230,37 @@ public final class Constants {
                       OuttakeSubsystem.Modes.OUTTAKE)));
 
   public static final class Vision {
+    public static record VisionSource(String name, Transform3d robotToCamera) {}
 
-    public static final class FrontCam {
-      public static final String NAME = "frontCam";
-      public static final Transform3d ROBOT_TO_CAM =
-          new Transform3d(
-              // 9.867 in to the right looking from behind the front of the robot
-              // 7 inch forward from center
-              // up 17.422 inches
-              new Translation3d(
-                  0.1778, // front/back
-                  0.2506218, // left/right
-                  0.4425188 // up/down
-                  ),
-              new Rotation3d(
-                  0,
-                  Math.toRadians(-11.5), // angle up/down
-                  0));
-    }
-
-    public static final class BackCam {
-      public static final String NAME = "backCam";
-      public static final Transform3d ROBOT_TO_CAM =
-          new Transform3d(
-              // 9.867 in to the right looking from behind the front of the robot
-              // 48.5 inches up
-              // two inches forward
-              new Translation3d(
-                  0.0508, // front/back
-                  -0.2506218, // left/right
-                  1.2319 // up/down
-                  ),
-              new Rotation3d(0, Math.toRadians(17), Math.PI));
-    }
+    public static final List<VisionSource> VISION_SOURCES =
+        List.of(
+            new VisionSource(
+                "frontCam",
+                new Transform3d(
+                    // 9.867 in to the right looking from behind the front of the robot
+                    // 7 inch forward from center
+                    // up 17.422 inches
+                    new Translation3d(
+                        0.1778, // front/back
+                        0.2506218, // left/right
+                        0.4425188 // up/down
+                        ),
+                    new Rotation3d(
+                        0,
+                        Math.toRadians(-11.5), // angle up/down
+                        0))),
+            new VisionSource(
+                "backCam",
+                new Transform3d(
+                    // 9.867 in to the right looking from behind the front of the robot
+                    // 48.5 inches up
+                    // two inches forward
+                    new Translation3d(
+                        0.0508, // front/back
+                        -0.2506218, // left/right
+                        1.2319 // up/down
+                        ),
+                    new Rotation3d(0, Math.toRadians(17), Math.PI))));
   }
 
   public static final class PoseEstimator {
