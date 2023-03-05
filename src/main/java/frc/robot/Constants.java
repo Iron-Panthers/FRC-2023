@@ -180,7 +180,7 @@ public final class Constants {
       }
     }
 
-    public static final double EXTENSION_STATOR_LIMIT = 60;
+    public static final double EXTENSION_STATOR_LIMIT = 42;
 
     public static final double ZERO_RETRACTION_PERCENT = -0.14;
     public static final int TICKS = 2048;
