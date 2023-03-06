@@ -413,19 +413,21 @@ public class DrivebaseSubsystem extends SubsystemBase {
     // get the current combined pitch and roll of the robot as a magnitude and Rotation2d
     // x direction
     double roll = navx.getRoll();
+    double absRoll = Math.abs(roll);
     // y direction
     double pitch = navx.getPitch();
+    double absPitch = Math.abs(pitch);
 
-    if (Math.max(pitch, roll) < AutoBalance.CONTROL_ANGLE_DEGREES) {
+    if (Math.max(absRoll, absPitch) < AutoBalance.CONTROL_ANGLE_DEGREES) {
       defensePeriodic();
       return;
     }
 
     // use bang bang to generate chassis speeds that will balance the robot
     chassisSpeeds =
-        roll > pitch
-            ? new ChassisSpeeds(Math.copySign(roll, AutoBalance.SPEED_METERS_PER_SECOND), 0, 0)
-            : new ChassisSpeeds(0, Math.copySign(pitch, AutoBalance.SPEED_METERS_PER_SECOND), 0);
+        absRoll > absPitch
+            ? new ChassisSpeeds(Math.copySign(AutoBalance.SPEED_METERS_PER_SECOND, roll), 0, 0)
+            : new ChassisSpeeds(0, Math.copySign(AutoBalance.SPEED_METERS_PER_SECOND, pitch), 0);
 
     drivePeriodic();
   }
