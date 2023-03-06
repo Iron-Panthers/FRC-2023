@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -92,6 +93,8 @@ public class RobotContainer {
 
   /** the sendable chooser to select which auto to run. */
   private final SendableChooser<Command> autoSelector = new SendableChooser<>();
+
+  private final ShuffleboardTab driverView = Shuffleboard.getTab("DriverView");
 
   /* drive joystick "y" is passed to x because controller is inverted */
   private final DoubleSupplier translationXSupplier =
@@ -323,7 +326,7 @@ public class RobotContainer {
                     ::expire));
 
     // show the current node selection
-    Shuffleboard.getTab("DriverView")
+    driverView
         .addString("Node Selection", () -> currentNodeSelection.get().toString())
         .withPosition(0, 1)
         .withSize(2, 1);
@@ -333,10 +336,7 @@ public class RobotContainer {
    * Adds all autonomous routines to the autoSelector, and places the autoSelector on Shuffleboard.
    */
   private void setupAutonomousCommands() {
-    Shuffleboard.getTab("DriverView")
-        .addString("NOTES", () -> "...win?")
-        .withSize(3, 1)
-        .withPosition(0, 0);
+    driverView.addString("NOTES", () -> "...win?").withSize(3, 1).withPosition(0, 0);
 
     autoSelector.setDefaultOption(
         "Near Substation Mobility",
@@ -365,10 +365,7 @@ public class RobotContainer {
             1, // m/s2
             drivebaseSubsystem));
 
-    Shuffleboard.getTab("DriverView")
-        .add("auto selector", autoSelector)
-        .withSize(4, 1)
-        .withPosition(7, 0);
+    driverView.add("auto selector", autoSelector).withSize(4, 1).withPosition(7, 0);
   }
 
   /**
