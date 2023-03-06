@@ -289,12 +289,26 @@ public final class Constants {
     public static final Matrix<N3, N1> VISION_MEASUREMENT_STANDARD_DEVIATIONS =
         Matrix.mat(Nat.N3(), Nat.N1())
             .fill(
-                .9, // x
-                .9, // y
-                .9 * Math.PI // theta
+                // if these numbers are less than one, multiplying will do bad things
+                1, // x
+                1, // y
+                1 * Math.PI // theta
                 );
 
-    public static final double CAMERA_CAPTURE_LATENCY_FUDGE_MS = 11;
+    /** The distance at which tag distance is factored into deviation */
+    public static final double NOISY_DISTANCE_METERS = 2.5;
+
+    /**
+     * The number to multiply by the smallest of the distance minus the above constant, clamped
+     * above 1 to be the numerator of the fraction.
+     */
+    public static final double DISTANCE_WEIGHT = 7;
+
+    /**
+     * The number to multiply by the number of tags beyond the first to get the denominator of the
+     * deviations matrix.
+     */
+    public static final double TAG_PRESENCE_WEIGHT = 10;
 
     /** about one inch */
     public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .05;

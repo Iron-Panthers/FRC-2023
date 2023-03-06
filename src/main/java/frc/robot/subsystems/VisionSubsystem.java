@@ -85,8 +85,28 @@ public class VisionSubsystem {
       var optEstimation = estimator.update();
       if (optEstimation.isEmpty()) continue;
       var estimation = optEstimation.get();
+      double smallestDistance = Double.POSITIVE_INFINITY;
+      for (var target : estimation.targetsUsed) {
+        var t3d = target.getBestCameraToTarget();
+        var distance =
+            Math.sqrt(Math.pow(t3d.getX(), 2) + Math.pow(t3d.getY(), 2) + Math.pow(t3d.getZ(), 2));
+        if (distance < smallestDistance) smallestDistance = distance;
+      }
+      double confidenceMultiplier =
+          Math.max(
+              1,
+              (Math.max(0, smallestDistance - PoseEstimator.NOISY_DISTANCE_METERS)
+                      * PoseEstimator.DISTANCE_WEIGHT)
+                  / (1
+                      + ((estimation.targetsUsed.size() - 1) * PoseEstimator.TAG_PRESENCE_WEIGHT)));
+      System.out.println(
+          String.format(
+              "with %d tags at smallest distance %f, confidence multiplier %f",
+              estimation.targetsUsed.size(), smallestDistance, confidenceMultiplier));
       estimations.add(
-          new VisionMeasurement(estimation, PoseEstimator.VISION_MEASUREMENT_STANDARD_DEVIATIONS));
+          new VisionMeasurement(
+              estimation,
+              PoseEstimator.VISION_MEASUREMENT_STANDARD_DEVIATIONS.times(confidenceMultiplier)));
     }
 
     if (!estimations.isEmpty()) {
