@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
 import frc.robot.Constants.Drive;
 import frc.robot.autonomous.commands.AutoTestSequence;
+import frc.robot.autonomous.commands.MobilityAuto;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.DefaultDriveCommand;
@@ -338,7 +339,27 @@ public class RobotContainer {
         .withPosition(0, 0);
 
     autoSelector.setDefaultOption(
-        "[NEW] AutoTest",
+        "Near Substation Mobility",
+        new MobilityAuto(
+            manueverGenerator,
+            drivebaseSubsystem,
+            outtakeSubsystem,
+            armSubsystem,
+            rgbSubsystem,
+            new Pose2d(4.88, 6.05, Rotation2d.fromDegrees(0))));
+
+    autoSelector.addOption(
+        "Far Substation Mobility",
+        new MobilityAuto(
+            manueverGenerator,
+            drivebaseSubsystem,
+            outtakeSubsystem,
+            armSubsystem,
+            rgbSubsystem,
+            new Pose2d(6, .6, Rotation2d.fromDegrees(0))));
+
+    autoSelector.addOption(
+        "AutoTest",
         new AutoTestSequence(
             2, // m/s
             1, // m/s2
