@@ -235,39 +235,37 @@ public final class Constants {
                       OuttakeSubsystem.Modes.OUTTAKE)));
 
   public static final class Vision {
+    public static record VisionSource(String name, Transform3d robotToCamera) {}
 
-    public static final class FrontCam {
-      public static final String NAME = "frontCam";
-      public static final Transform3d ROBOT_TO_CAM =
-          new Transform3d(
-              // 9.867 in to the right looking from behind the front of the robot
-              // 7 inch forward from center
-              // up 17.422 inches
-              new Translation3d(
-                  0.1778, // front/back
-                  0.2506218, // left/right
-                  0.4425188 // up/down
-                  ),
-              new Rotation3d(
-                  0,
-                  Math.toRadians(-11.5), // angle up/down
-                  0));
-    }
-
-    public static final class BackCam {
-      public static final String NAME = "backCam";
-      public static final Transform3d ROBOT_TO_CAM =
-          new Transform3d(
-              // 9.867 in to the right looking from behind the front of the robot
-              // 48.5 inches up
-              // two inches forward
-              new Translation3d(
-                  0.0508, // front/back
-                  -0.2506218, // left/right
-                  1.2319 // up/down
-                  ),
-              new Rotation3d(0, Math.toRadians(17), Math.PI));
-    }
+    public static final List<VisionSource> VISION_SOURCES =
+        List.of(
+            new VisionSource(
+                "frontCam",
+                new Transform3d(
+                    // 9.867 in to the right looking from behind the front of the robot
+                    // 7 inch forward from center
+                    // up 17.422 inches
+                    new Translation3d(
+                        0.1778, // front/back
+                        0.2506218, // left/right
+                        0.4425188 // up/down
+                        ),
+                    new Rotation3d(
+                        0,
+                        Math.toRadians(-11.5), // angle up/down
+                        0))),
+            new VisionSource(
+                "backCam",
+                new Transform3d(
+                    // 9.867 in to the right looking from behind the front of the robot
+                    // 48.5 inches up
+                    // two inches forward
+                    new Translation3d(
+                        0.0508, // front/back
+                        -0.2506218, // left/right
+                        1.2319 // up/down
+                        ),
+                    new Rotation3d(0, Math.toRadians(17), Math.PI))));
   }
 
   public static final class PoseEstimator {
@@ -291,12 +289,32 @@ public final class Constants {
     public static final Matrix<N3, N1> VISION_MEASUREMENT_STANDARD_DEVIATIONS =
         Matrix.mat(Nat.N3(), Nat.N1())
             .fill(
-                .9, // x
-                .9, // y
-                .9 * Math.PI // theta
+                // if these numbers are less than one, multiplying will do bad things
+                1, // x
+                1, // y
+                1 * Math.PI // theta
                 );
 
-    public static final double CAMERA_CAPTURE_LATENCY_FUDGE_MS = 11;
+    /** The distance at which tag distance is factored into deviation */
+    public static final double NOISY_DISTANCE_METERS = 2.5;
+
+    /**
+     * The number to multiply by the smallest of the distance minus the above constant, clamped
+     * above 1 to be the numerator of the fraction.
+     */
+    public static final double DISTANCE_WEIGHT = 7;
+
+    /**
+     * The number to multiply by the number of tags beyond the first to get the denominator of the
+     * deviations matrix.
+     */
+    public static final double TAG_PRESENCE_WEIGHT = 10;
+
+    /** The amount to shift the pose ambiguity by before multiplying it. */
+    public static final double POSE_AMBIGUITY_SHIFTER = .2;
+
+    /** The amount to multiply the pose ambiguity by if there is only one tag. */
+    public static final double POSE_AMBIGUITY_MULTIPLIER = 4;
 
     /** about one inch */
     public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .05;
