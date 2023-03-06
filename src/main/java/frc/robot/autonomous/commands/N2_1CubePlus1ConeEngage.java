@@ -13,6 +13,7 @@ import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.FollowTrajectoryCommand;
 import frc.robot.commands.ForceOuttakeSubsystemModeCommand;
 import frc.robot.commands.ScoreCommand;
+import frc.robot.commands.SetZeroModeCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
@@ -36,12 +37,14 @@ public class N2_1CubePlus1ConeEngage extends SequentialCommandGroup {
         // score the cube (later)
         new FollowTrajectoryCommand(path1, true, drivebaseSubsystem)
             .deadlineWith(
-                new ArmPositionCommand(armSubsystem, Arm.Setpoints.GROUND_INTAKE)
-                    .raceWith(
-                        new ForceOuttakeSubsystemModeCommand(
-                            outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE))
-                    .withTimeout(3)
-                    .andThen(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))),
+                new SetZeroModeCommand(armSubsystem)
+                    .andThen(
+                        new ArmPositionCommand(armSubsystem, Arm.Setpoints.GROUND_INTAKE)
+                            .raceWith(
+                                new ForceOuttakeSubsystemModeCommand(
+                                        outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)
+                                    .withTimeout(4.5))
+                            .andThen(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)))),
         new ScoreCommand(
             outtakeSubsystem,
             armSubsystem,
