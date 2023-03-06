@@ -11,7 +11,6 @@ import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -327,6 +326,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
     mode = Modes.DEFENSE;
   }
 
+  public void setBalanceMode() {
+    mode = Modes.BALANCE;
+  }
+
   /**
    * Updates the robot pose estimation for newly written module states. Should be called on every
    * periodic
@@ -411,8 +414,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     // Rotation2d angle = Rotation2d.fromDegrees(Math.atan2(pitch, roll));
 
     // use bang bang to generate chassis speeds that will balance the robot
-    chassisSpeeds =
-        new ChassisSpeeds(pitch, roll, 0)
+    chassisSpeeds = new ChassisSpeeds(pitch, roll, 0);
   }
 
   /**
