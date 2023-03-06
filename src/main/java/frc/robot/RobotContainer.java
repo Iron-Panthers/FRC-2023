@@ -8,20 +8,25 @@ import static frc.robot.Constants.Drive;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
 import frc.robot.Constants.Drive;
 import frc.robot.autonomous.commands.AutoTestSequence;
+import frc.robot.autonomous.commands.MobilityAuto;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.DefaultDriveCommand;
@@ -52,6 +57,7 @@ import frc.util.SharedReference;
 import frc.util.Util;
 import frc.util.pathing.RubenManueverGenerator;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
@@ -91,6 +97,10 @@ public class RobotContainer {
 
   /** the sendable chooser to select which auto to run. */
   private final SendableChooser<Command> autoSelector = new SendableChooser<>();
+
+  private GenericEntry autoDelay;
+
+  private final ShuffleboardTab driverView = Shuffleboard.getTab("DriverView");
 
   /* drive joystick "y" is passed to x because controller is inverted */
   private final DoubleSupplier translationXSupplier =
@@ -322,7 +332,7 @@ public class RobotContainer {
                     ::expire));
 
     // show the current node selection
-    Shuffleboard.getTab("DriverView")
+    driverView
         .addString("Node Selection", () -> currentNodeSelection.get().toString())
         .withPosition(0, 1)
         .withSize(2, 1);
@@ -332,22 +342,45 @@ public class RobotContainer {
    * Adds all autonomous routines to the autoSelector, and places the autoSelector on Shuffleboard.
    */
   private void setupAutonomousCommands() {
-    Shuffleboard.getTab("DriverView")
-        .addString("NOTES", () -> "...win?")
-        .withSize(3, 1)
-        .withPosition(0, 0);
+    driverView.addString("NOTES", () -> "...win?").withSize(3, 1).withPosition(0, 0);
 
     autoSelector.setDefaultOption(
-        "[NEW] AutoTest",
+        "Near Substation Mobility",
+        new MobilityAuto(
+            manueverGenerator,
+            drivebaseSubsystem,
+            outtakeSubsystem,
+            armSubsystem,
+            rgbSubsystem,
+            new Pose2d(4.88, 6.05, Rotation2d.fromDegrees(0))));
+
+    autoSelector.addOption(
+        "Far Substation Mobility",
+        new MobilityAuto(
+            manueverGenerator,
+            drivebaseSubsystem,
+            outtakeSubsystem,
+            armSubsystem,
+            rgbSubsystem,
+            new Pose2d(6, .6, Rotation2d.fromDegrees(0))));
+
+    autoSelector.addOption(
+        "AutoTest",
         new AutoTestSequence(
             2, // m/s
             1, // m/s2
             drivebaseSubsystem));
 
-    Shuffleboard.getTab("DriverView")
-        .add("auto selector", autoSelector)
-        .withSize(4, 1)
-        .withPosition(7, 0);
+    driverView.add("auto selector", autoSelector).withSize(4, 1).withPosition(7, 0);
+
+    autoDelay =
+        driverView
+            .add("auto delay", 0)
+            .withWidget(BuiltInWidgets.kNumberSlider)
+            .withProperties(Map.of("min", 0, "max", 15, "block increment", .1))
+            .withSize(4, 1)
+            .withPosition(7, 1)
+            .getEntry();
   }
 
   /**
@@ -356,11 +389,10 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // return new WaitCommand(
-    //         /** auto start delay */
-    //         7)
-    //     .andThen(autoSelector.getSelected());
-    return autoSelector.getSelected();
+    double delay = autoDelay.getDouble(0);
+    return delay == 0
+        ? autoSelector.getSelected()
+        : new WaitCommand(delay).andThen(autoSelector.getSelected());
   }
 
   /**
