@@ -11,6 +11,7 @@ import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -95,6 +96,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     DRIVE,
     DRIVE_ANGLE,
     DEFENSE,
+    BALANCE
   }
 
   /** The current mode */
@@ -401,6 +403,18 @@ public class DrivebaseSubsystem extends SubsystemBase {
     // No need to call odometry periodic
   }
 
+  private void balancePeriodic() {
+    // get the current combined pitch and roll of the robot as a magnitude and Rotation2d
+    double pitch = navx.getPitch();
+    double roll = navx.getRoll();
+    // double magnitude = Math.sqrt(pitch * pitch + roll * roll);
+    // Rotation2d angle = Rotation2d.fromDegrees(Math.atan2(pitch, roll));
+
+    // use bang bang to generate chassis speeds that will balance the robot
+    chassisSpeeds =
+        new ChassisSpeeds(pitch, roll, 0)
+  }
+
   /**
    * Based on the current Mode of the drivebase, perform the mode-specific logic such as writing
    * outputs (may vary per mode).
@@ -409,15 +423,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
    */
   public void updateModules(Modes mode) {
     switch (mode) {
-      case DRIVE:
-        drivePeriodic();
-        break;
-      case DRIVE_ANGLE:
-        driveAnglePeriodic();
-        break;
-      case DEFENSE:
-        defensePeriodic();
-        break;
+      case DRIVE -> drivePeriodic();
+      case DRIVE_ANGLE -> driveAnglePeriodic();
+      case DEFENSE -> defensePeriodic();
+      case BALANCE -> balancePeriodic();
     }
   }
 
