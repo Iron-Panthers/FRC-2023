@@ -28,6 +28,7 @@ import frc.robot.Constants.Drive;
 import frc.robot.autonomous.commands.AutoTestSequence;
 import frc.robot.autonomous.commands.MobilityAuto;
 import frc.robot.autonomous.commands.N2Engage;
+import frc.robot.autonomous.commands.N2MobilityEngage;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.BalanceCommand;
@@ -369,6 +370,8 @@ public class RobotContainer {
             new Pose2d(6, .6, Rotation2d.fromDegrees(0))));
 
     autoSelector.addOption("N2 Engage", new N2Engage(5, 3.5, drivebaseSubsystem));
+
+    autoSelector.addOption("N2 Mobility Engage", new N2MobilityEngage(7, 3.5, drivebaseSubsystem));
 
     autoSelector.addOption(
         "AutoTest",
