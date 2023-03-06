@@ -8,37 +8,41 @@ import static frc.robot.Constants.Drive;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
-import frc.robot.Constants.Lights;
-import frc.robot.Constants.ScoringSteps;
+import frc.robot.Constants.Drive;
 import frc.robot.autonomous.commands.AutoTestSequence;
-import frc.robot.autonomous.commands.IanDemoAutoSequence;
+import frc.robot.autonomous.commands.MobilityAuto;
 import frc.robot.autonomous.commands.OneCubePlusTwoConePlusBalance;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
-import frc.robot.commands.ForceLightsColorCommand;
 import frc.robot.commands.ForceOuttakeSubsystemModeCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
+import frc.robot.commands.HashMapCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.SetOuttakeModeCommand;
 import frc.robot.commands.SetZeroModeCommand;
-import frc.robot.commands.VibrateControllerCommand;
+import frc.robot.commands.VibrateHIDCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.NetworkWatchdogSubsystem;
@@ -48,8 +52,14 @@ import frc.robot.subsystems.VisionSubsystem;
 import frc.util.ControllerUtil;
 import frc.util.Layer;
 import frc.util.MacUtil;
+import frc.util.NodeSelectorUtility;
+import frc.util.NodeSelectorUtility.Height;
+import frc.util.NodeSelectorUtility.NodeSelection;
+import frc.util.SharedReference;
 import frc.util.Util;
 import frc.util.pathing.RubenManueverGenerator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
@@ -77,6 +87,9 @@ public class RobotContainer {
 
   private final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
 
+  private final SharedReference<NodeSelection> currentNodeSelection =
+      new SharedReference<>(new NodeSelection(NodeSelectorUtility.defaultNodeStack, Height.HIGH));
+
   /** controller 1 */
   private final CommandXboxController jason = new CommandXboxController(1);
   /** controller 1 climb layer */
@@ -87,6 +100,16 @@ public class RobotContainer {
   /** the sendable chooser to select which auto to run. */
   private final SendableChooser<Command> autoSelector = new SendableChooser<>();
 
+  private GenericEntry autoDelay;
+
+  private final ShuffleboardTab driverView = Shuffleboard.getTab("DriverView");
+
+  /* drive joystick "y" is passed to x because controller is inverted */
+  private final DoubleSupplier translationXSupplier =
+      () -> (-modifyAxis(will.getLeftY()) * Drive.MAX_VELOCITY_METERS_PER_SECOND);
+  private final DoubleSupplier translationYSupplier =
+      () -> (-modifyAxis(will.getLeftX()) * Drive.MAX_VELOCITY_METERS_PER_SECOND);
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Set up the default command for the drivetrain.
@@ -96,10 +119,7 @@ public class RobotContainer {
     // Right stick X axis -> rotation
     drivebaseSubsystem.setDefaultCommand(
         new DefaultDriveCommand(
-            drivebaseSubsystem,
-            () -> (-modifyAxis(will.getLeftY()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
-            () -> (-modifyAxis(will.getLeftX()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
-            will.rightBumper()));
+            drivebaseSubsystem, translationXSupplier, translationYSupplier, will.rightBumper()));
 
     armSubsystem.setDefaultCommand(
         new ArmManualCommand(
@@ -124,7 +144,7 @@ public class RobotContainer {
    */
   public void containerTeleopInit() {
     // runs when teleop happens
-    CommandScheduler.getInstance().schedule(new VibrateControllerCommand(jason, 5, .5));
+    CommandScheduler.getInstance().schedule(new VibrateHIDCommand(jason.getHID(), 5, .5));
   }
 
   /**
@@ -162,6 +182,7 @@ public class RobotContainer {
     will.leftBumper().whileTrue(new DefenseModeCommand(drivebaseSubsystem));
 
     will.leftStick().onTrue(new HaltDriveCommandsCommand(drivebaseSubsystem));
+    jason.leftStick().onTrue(new InstantCommand(() -> {}, armSubsystem));
 
     DoubleSupplier rotation =
         exponential(
@@ -181,9 +202,8 @@ public class RobotContainer {
         .whileTrue(
             new RotateVelocityDriveCommand(
                 drivebaseSubsystem,
-                /* drive joystick "y" is passed to x because controller is inverted */
-                () -> (-modifyAxis(will.getLeftY()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
-                () -> (-modifyAxis(will.getLeftX()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
+                translationXSupplier,
+                translationYSupplier,
                 rotationVelocity,
                 will.rightBumper()));
 
@@ -194,8 +214,8 @@ public class RobotContainer {
         .onTrue(
             new RotateVectorDriveCommand(
                 drivebaseSubsystem,
-                () -> (-modifyAxis(will.getLeftY()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
-                () -> (-modifyAxis(will.getLeftX()) * Drive.MAX_VELOCITY_METERS_PER_SECOND),
+                translationXSupplier,
+                translationYSupplier,
                 will::getRightY,
                 will::getRightX,
                 will.rightBumper()));
@@ -205,11 +225,34 @@ public class RobotContainer {
         .onTrue(
             new DriveToPlaceCommand(
                 drivebaseSubsystem,
-                visionSubsystem,
                 manueverGenerator,
-                new Pose2d(2.5, 1, Rotation2d.fromDegrees(180)),
-                new Pose2d(1.8, .5, Rotation2d.fromDegrees(180)),
-                .05));
+                () -> currentNodeSelection.get().nodeStack().position(),
+                translationXSupplier,
+                translationYSupplier,
+                will.rightBumper(),
+                Optional.of(rgbSubsystem),
+                Optional.of(will.getHID())));
+
+    will.y()
+        .onTrue(
+            new DriveToPlaceCommand(
+                drivebaseSubsystem,
+                manueverGenerator,
+                () -> new Pose2d(15.5595, 7.3965, Rotation2d.fromDegrees(0)),
+                translationXSupplier,
+                translationYSupplier,
+                will.rightBumper(),
+                Optional.of(rgbSubsystem),
+                Optional.of(will.getHID())));
+
+    will.x()
+        .whileTrue(
+            new FunctionalCommand(
+                drivebaseSubsystem::setBalanceMode,
+                () -> {},
+                interrupted -> {},
+                () -> false,
+                drivebaseSubsystem));
 
     // outtake states
     jasonLayer
@@ -240,46 +283,100 @@ public class RobotContainer {
     jasonLayer.off(jason.y()).onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED));
     jason.start().onTrue(new SetZeroModeCommand(armSubsystem));
 
-    // clear arm commands
-    jason.rightStick().onTrue(new InstantCommand(() -> {}, armSubsystem));
-
     // scoring
     // jasonLayer
     //     .on(jason.a())
     // low
 
     jasonLayer
+        .on(jason.a())
+        .onTrue(
+            new InstantCommand(
+                () ->
+                    currentNodeSelection.apply(n -> n.withHeight(NodeSelectorUtility.Height.LOW))));
+
+    jasonLayer
         .on(jason.b())
         .onTrue(
-            new ScoreCommand(
-                outtakeSubsystem, armSubsystem, ScoringSteps.Cone.MID, jasonLayer.on(jason.b())));
+            new InstantCommand(
+                () -> currentNodeSelection.apply(n -> n.withHeight(NodeSelectorUtility.Height.MID)),
+                armSubsystem));
 
     jasonLayer
         .on(jason.y())
         .onTrue(
-            new ScoreCommand(
-                outtakeSubsystem, armSubsystem, ScoringSteps.Cone.HIGH, jasonLayer.on(jason.y())));
+            new InstantCommand(
+                () ->
+                    currentNodeSelection.apply(n -> n.withHeight(NodeSelectorUtility.Height.HIGH)),
+                armSubsystem));
+
+    var scoreCommandMap = new HashMap<NodeSelectorUtility.ScoreTypeIdentifier, Command>();
+
+    for (var scoreType : Constants.SCORE_STEP_MAP.keySet())
+      scoreCommandMap.put(
+          scoreType,
+          new ScoreCommand(
+              outtakeSubsystem,
+              armSubsystem,
+              Constants.SCORE_STEP_MAP.get(scoreType),
+              jason.leftBumper()));
+
+    jasonLayer
+        .on(jason.x())
+        .onTrue(
+            new HashMapCommand<>(
+                scoreCommandMap, () -> currentNodeSelection.get().getScoreTypeIdentifier()));
+
+    jason.povRight().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(1))));
+    jason.povLeft().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(-1))));
 
     // control the lights
-    jason
-        .povUp()
-        .onTrue(new ForceLightsColorCommand(rgbSubsystem, Lights.Colors.PURPLE).withTimeout(10));
-    jason
-        .povDown()
-        .onTrue(new ForceLightsColorCommand(rgbSubsystem, Lights.Colors.YELLOW).withTimeout(10));
+    currentNodeSelection.subscribe(
+        nodeSelection ->
+            currentNodeSelection.subscribeOnce(
+                rgbSubsystem.showMessage(
+                        nodeSelection.nodeStack().type() == NodeSelectorUtility.NodeType.CUBE
+                            ? Constants.Lights.Colors.PURPLE
+                            : Constants.Lights.Colors.YELLOW,
+                        RGBSubsystem.PatternTypes.PULSE,
+                        RGBSubsystem.MessagePriority.C_DRIVER_CONTROLLED_COLOR)
+                    ::expire));
+
+    // show the current node selection
+    driverView
+        .addString("Node Selection", () -> currentNodeSelection.get().toString())
+        .withPosition(0, 1)
+        .withSize(2, 1);
   }
 
   /**
    * Adds all autonomous routines to the autoSelector, and places the autoSelector on Shuffleboard.
    */
   private void setupAutonomousCommands() {
-    Shuffleboard.getTab("DriverView")
-        .addString("NOTES", () -> "...win?")
-        .withSize(3, 1)
-        .withPosition(0, 0);
+    driverView.addString("NOTES", () -> "...win?").withSize(3, 1).withPosition(0, 0);
 
     autoSelector.setDefaultOption(
-        "[NEW] AutoTest",
+        "Near Substation Mobility",
+        new MobilityAuto(
+            manueverGenerator,
+            drivebaseSubsystem,
+            outtakeSubsystem,
+            armSubsystem,
+            rgbSubsystem,
+            new Pose2d(4.88, 6.05, Rotation2d.fromDegrees(0))));
+
+    autoSelector.addOption(
+        "Far Substation Mobility",
+        new MobilityAuto(
+            manueverGenerator,
+            drivebaseSubsystem,
+            outtakeSubsystem,
+            armSubsystem,
+            rgbSubsystem,
+            new Pose2d(6, .6, Rotation2d.fromDegrees(0))));
+
+    autoSelector.addOption(
+        "AutoTest",
         new AutoTestSequence(
             2, // m/s
             1, // m/s2
@@ -290,14 +387,16 @@ public class RobotContainer {
         new OneCubePlusTwoConePlusBalance(
             4, 1, drivebaseSubsystem, armSubsystem, outtakeSubsystem));
 
-    autoSelector.addOption(
-        "[NEW] IanAuto",
-        new IanDemoAutoSequence(5, 3, drivebaseSubsystem, visionSubsystem, manueverGenerator));
+    driverView.add("auto selector", autoSelector).withSize(4, 1).withPosition(7, 0);
 
-    Shuffleboard.getTab("DriverView")
-        .add("auto selector", autoSelector)
-        .withSize(4, 1)
-        .withPosition(7, 0);
+    autoDelay =
+        driverView
+            .add("auto delay", 0)
+            .withWidget(BuiltInWidgets.kNumberSlider)
+            .withProperties(Map.of("min", 0, "max", 15, "block increment", .1))
+            .withSize(4, 1)
+            .withPosition(7, 1)
+            .getEntry();
   }
 
   /**
@@ -306,11 +405,10 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // return new WaitCommand(
-    //         /** auto start delay */
-    //         7)
-    //     .andThen(autoSelector.getSelected());
-    return autoSelector.getSelected();
+    double delay = autoDelay.getDouble(0);
+    return delay == 0
+        ? autoSelector.getSelected()
+        : new WaitCommand(delay).andThen(autoSelector.getSelected());
   }
 
   /**

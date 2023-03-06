@@ -76,7 +76,7 @@ public class ArmSubsystem extends SubsystemBase {
     extensionMotor.configReverseSoftLimitEnable(true, 20);
 
     angleController = new PIDController(.019, 0, 0);
-    extensionController = new PIDController(0.17, 0, 0);
+    extensionController = new PIDController(Arm.ExtensionGains.BASE_P, 0, 0);
     angleController.setTolerance(Thresholds.Angles.EPSILON);
     extensionController.setTolerance(Thresholds.Extensions.EPSILON);
 
@@ -111,6 +111,7 @@ public class ArmSubsystem extends SubsystemBase {
     tab.addDouble("Desired Angle", () -> targetAngleDegrees);
     tab.add("Angle Arm PID", angleController);
     tab.add("Telescoping Arm PID", extensionController);
+    tab.addNumber("current telescope PID P term", () -> extensionController.getP());
     tab.addNumber("Current Extension", this::getCurrentExtensionInches);
     tab.addNumber("Target Extension", () -> targetExtensionInches);
     tab.addNumber("extension error", () -> targetExtensionInches - getCurrentExtensionInches());
@@ -253,6 +254,14 @@ public class ArmSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     this.filterOutput = this.filter.calculate(this.extensionMotor.getStatorCurrent());
+
+    extensionController.setP(
+        Arm.ExtensionGains.BASE_P
+            + Arm.ExtensionGains.MAX_ADDITIONAL_P
+                * Math.pow(
+                    MathUtil.clamp(
+                        getCurrentExtensionInches() / Arm.Setpoints.Extensions.MAX_EXTENSION, 0, 1),
+                    3));
 
     switch (mode) {
       case DRIVETOPOS:
