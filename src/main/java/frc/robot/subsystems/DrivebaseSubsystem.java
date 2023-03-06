@@ -202,13 +202,13 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     zeroGyroscope();
 
-    SmartDashboard.putData(this.field);
-
     // tab.addNumber("target angle", () -> targetAngle);
     // tab.addNumber("current angle", () -> getGyroscopeRotation().getDegrees());
     // tab.addNumber(
     //     "angular difference",
     //     () -> -Util.relativeAngularDifference(targetAngle, getGyroscopeRotation().getDegrees()));
+
+    Shuffleboard.getTab("DriverView").add(field).withPosition(0, 2).withSize(8, 4);
   }
 
   /** Return the current pose estimation of the robot */
