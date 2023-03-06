@@ -5,6 +5,7 @@
 package frc.robot.autonomous.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.DriveToPlaceCommand;
 import frc.robot.commands.SetOuttakeModeCommand;
@@ -38,6 +39,7 @@ public class MobilityAuto extends SequentialCommandGroup {
                 Optional.of(rgbSubsystem),
                 Optional.empty())
             .alongWith(new SetZeroModeCommand(armSubsystem))
-            .alongWith(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.HOLD)));
+            .alongWith(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.HOLD))
+            .andThen(new InstantCommand(drivebaseSubsystem::zeroGyroscope, drivebaseSubsystem)));
   }
 }
