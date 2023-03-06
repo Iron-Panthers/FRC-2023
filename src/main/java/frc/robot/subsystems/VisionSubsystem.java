@@ -110,13 +110,14 @@ public class VisionSubsystem {
                       * poseAmbiguityFactor)
                   / (1
                       + ((estimation.targetsUsed.size() - 1) * PoseEstimator.TAG_PRESENCE_WEIGHT)));
-      System.out.println(
-          String.format(
-              "with %d tags at smallest distance %f and pose ambiguity factor %f, confidence multiplier %f",
-              estimation.targetsUsed.size(),
-              smallestDistance,
-              poseAmbiguityFactor,
-              confidenceMultiplier));
+      // System.out.println(
+      //     String.format(
+      //         "with %d tags at smallest distance %f and pose ambiguity factor %f, confidence
+      // multiplier %f",
+      //         estimation.targetsUsed.size(),
+      //         smallestDistance,
+      //         poseAmbiguityFactor,
+      //         confidenceMultiplier));
       estimations.add(
           new VisionMeasurement(
               estimation,
