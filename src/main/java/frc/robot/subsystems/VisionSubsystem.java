@@ -92,17 +92,31 @@ public class VisionSubsystem {
             Math.sqrt(Math.pow(t3d.getX(), 2) + Math.pow(t3d.getY(), 2) + Math.pow(t3d.getZ(), 2));
         if (distance < smallestDistance) smallestDistance = distance;
       }
+      double poseAmbiguityFactor =
+          estimation.targetsUsed.size() != 1
+              ? 1
+              : Math.max(
+                  1,
+                  (estimation.targetsUsed.get(0).getPoseAmbiguity()
+                          + PoseEstimator.POSE_AMBIGUITY_SHIFTER)
+                      * PoseEstimator.POSE_AMBIGUITY_MULTIPLIER);
       double confidenceMultiplier =
           Math.max(
               1,
-              (Math.max(0, smallestDistance - PoseEstimator.NOISY_DISTANCE_METERS)
-                      * PoseEstimator.DISTANCE_WEIGHT)
+              (Math.max(
+                          1,
+                          Math.max(0, smallestDistance - PoseEstimator.NOISY_DISTANCE_METERS)
+                              * PoseEstimator.DISTANCE_WEIGHT)
+                      * poseAmbiguityFactor)
                   / (1
                       + ((estimation.targetsUsed.size() - 1) * PoseEstimator.TAG_PRESENCE_WEIGHT)));
       System.out.println(
           String.format(
-              "with %d tags at smallest distance %f, confidence multiplier %f",
-              estimation.targetsUsed.size(), smallestDistance, confidenceMultiplier));
+              "with %d tags at smallest distance %f and pose ambiguity factor %f, confidence multiplier %f",
+              estimation.targetsUsed.size(),
+              smallestDistance,
+              poseAmbiguityFactor,
+              confidenceMultiplier));
       estimations.add(
           new VisionMeasurement(
               estimation,

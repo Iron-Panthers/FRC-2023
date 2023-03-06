@@ -310,6 +310,12 @@ public final class Constants {
      */
     public static final double TAG_PRESENCE_WEIGHT = 10;
 
+    /** The amount to shift the pose ambiguity by before multiplying it. */
+    public static final double POSE_AMBIGUITY_SHIFTER = .2;
+
+    /** The amount to multiply the pose ambiguity by if there is only one tag. */
+    public static final double POSE_AMBIGUITY_MULTIPLIER = 4;
+
     /** about one inch */
     public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .05;
 
