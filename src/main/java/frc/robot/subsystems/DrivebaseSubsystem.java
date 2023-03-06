@@ -209,6 +209,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
     //     "angular difference",
     //     () -> -Util.relativeAngularDifference(targetAngle, getGyroscopeRotation().getDegrees()));
 
+    tab.addDouble("pitch", navx::getPitch);
+    tab.addDouble("roll", navx::getRoll);
+
     Shuffleboard.getTab("DriverView").add(field).withPosition(0, 2).withSize(8, 4);
   }
 
@@ -408,13 +411,23 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
   private void balancePeriodic() {
     // get the current combined pitch and roll of the robot as a magnitude and Rotation2d
-    double pitch = navx.getPitch();
+    // x direction
     double roll = navx.getRoll();
-    // double magnitude = Math.sqrt(pitch * pitch + roll * roll);
-    // Rotation2d angle = Rotation2d.fromDegrees(Math.atan2(pitch, roll));
+    // y direction
+    double pitch = navx.getPitch();
+
+    if (Math.max(pitch, roll) < AutoBalance.CONTROL_ANGLE_DEGREES) {
+      defensePeriodic();
+      return;
+    }
 
     // use bang bang to generate chassis speeds that will balance the robot
-    chassisSpeeds = new ChassisSpeeds(pitch, roll, 0);
+    chassisSpeeds =
+        roll > pitch
+            ? new ChassisSpeeds(Math.copySign(roll, AutoBalance.SPEED_METERS_PER_SECOND), 0, 0)
+            : new ChassisSpeeds(0, Math.copySign(pitch, AutoBalance.SPEED_METERS_PER_SECOND), 0);
+
+    drivePeriodic();
   }
 
   /**
