@@ -72,6 +72,13 @@ public final class Constants {
       public static final double BUMPER_WIDTH_METERS = .851;
     }
 
+    public static final class AutoBalance {
+      /** the speed to drive at when balancing */
+      public static final double SPEED_METERS_PER_SECOND = .55;
+      /** angles greater than this will drive at the above speed */
+      public static final double CONTROL_ANGLE_DEGREES = 11.5;
+    }
+
     /*
      module layout:
         ┌──────
@@ -180,7 +187,7 @@ public final class Constants {
       }
     }
 
-    public static final double EXTENSION_STATOR_LIMIT = 42;
+    public static final double EXTENSION_STATOR_LIMIT = 35;
 
     public static final double ZERO_RETRACTION_PERCENT = -0.14;
     public static final int TICKS = 2048;
