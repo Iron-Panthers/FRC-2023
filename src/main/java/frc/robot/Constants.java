@@ -76,7 +76,7 @@ public final class Constants {
       /** the speed to drive at when balancing */
       public static final double SPEED_METERS_PER_SECOND = .55;
       /** angles greater than this will drive at the above speed */
-      public static final double CONTROL_ANGLE_DEGREES = 11.5;
+      public static final double CONTROL_ANGLE_DEGREES = 10;
     }
 
     /*
