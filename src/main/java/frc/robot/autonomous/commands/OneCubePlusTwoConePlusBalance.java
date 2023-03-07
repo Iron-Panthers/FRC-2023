@@ -4,6 +4,7 @@ import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -11,7 +12,6 @@ import frc.robot.Constants;
 import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.FollowTrajectoryCommand;
 import frc.robot.commands.ForceOuttakeSubsystemModeCommand;
-import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.SetZeroModeCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
@@ -42,15 +42,37 @@ public class OneCubePlusTwoConePlusBalance extends SequentialCommandGroup {
     HashMap<String, Command> eventMap = new HashMap<>();
 
     eventMap.put("intake", intake());
-    eventMap.put(
-        "scoreConeHigh",
-        new ScoreCommand(outtakeSubsystem, armSubsystem, Constants.ScoringSteps.Cone.HIGH));
+
+    // eventMap.put(
+    //     "scoreConeHigh",
+    //     new ScoreCommand(
+    //         outtakeSubsystem,
+    //         armSubsystem,
+    //         Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH))));
+
+    eventMap.put("scoreConeHigh", new InstantCommand());
+
     eventMap.put("stow", new ArmPositionCommand(armSubsystem, Constants.Arm.Setpoints.STOWED));
+
     eventMap.put("zeroArm", new SetZeroModeCommand(armSubsystem));
 
-    // TODO: Actually get these features working lol
-    eventMap.put("scoreCubeHigh", new InstantCommand());
-    eventMap.put("balance", new InstantCommand());
+    // eventMap.put(
+    //     "scoreCubeMid",
+    //     new ScoreCommand(
+    //         outtakeSubsystem,
+    //         armSubsystem,
+    //         Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.MID))));
+
+    eventMap.put("scoreCubeMid", new InstantCommand());
+
+    eventMap.put(
+        "balance",
+        new FunctionalCommand(
+            drivebaseSubsystem::setBalanceMode,
+            () -> {},
+            interrupted -> {},
+            () -> false,
+            drivebaseSubsystem));
 
     addCommands(
         new FollowPathWithEvents(

@@ -18,7 +18,8 @@
       "stopEvent": {
         "names": [
           "zeroArm",
-          "scoreCubeHigh"
+          "scoreCubeMid",
+          "stow"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "none",
@@ -71,7 +72,8 @@
       "stopEvent": {
         "names": [
           "zeroArm",
-          "scoreConeHigh"
+          "scoreConeHigh",
+          "stow"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "none",
@@ -80,44 +82,19 @@
     },
     {
       "anchorPoint": {
-        "x": 5.483979514967577,
-        "y": 2.2
+        "x": 6.48,
+        "y": 1.75
       },
       "prevControl": {
-        "x": 5.472560346830096,
-        "y": -0.09844918578725995
+        "x": 3.9581443953144193,
+        "y": 0.009115710446786149
       },
       "nextControl": {
-        "x": 5.484020366915108,
-        "y": 2.208222676504209
+        "x": 3.9581443953144193,
+        "y": 0.009115710446786149
       },
-      "holonomicAngle": 180.0,
-      "isReversal": false,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": false,
-      "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 6.500285479203437,
-        "y": 2.2
-      },
-      "prevControl": {
-        "x": 6.5086959690278725,
-        "y": 2.2351174838283443
-      },
-      "nextControl": {
-        "x": 5.849392895366988,
-        "y": -0.5177620167206141
-      },
-      "holonomicAngle": 180.0,
-      "isReversal": false,
+      "holonomicAngle": 215.0,
+      "isReversal": true,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
@@ -149,7 +126,8 @@
       "stopEvent": {
         "names": [
           "zeroArm",
-          "scoreConeHigh"
+          "scoreConeHigh",
+          "stow"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "none",
@@ -192,19 +170,19 @@
       ]
     },
     {
-      "position": 2.8363636363636484,
-      "names": [
-        "intake"
-      ]
-    },
-    {
-      "position": 1.3090909090909149,
+      "position": 1.15,
       "names": [
         "stow"
       ]
     },
     {
-      "position": 4.2,
+      "position": 2.75,
+      "names": [
+        "intake"
+      ]
+    },
+    {
+      "position": 3.1,
       "names": [
         "stow"
       ]
