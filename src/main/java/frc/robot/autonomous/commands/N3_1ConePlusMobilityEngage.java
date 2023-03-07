@@ -7,7 +7,10 @@ package frc.robot.autonomous.commands;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
+import frc.robot.Constants.Arm;
+import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.FollowTrajectoryCommand;
 import frc.robot.commands.ScoreCommand;
@@ -35,13 +38,16 @@ public class N3_1ConePlusMobilityEngage extends SequentialCommandGroup {
             maxAccelerationMetersPerSecondSq);
 
     addCommands(
-        new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE),
-        new SetZeroModeCommand(armSubsystem),
+        new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)
+            .alongWith(new SetZeroModeCommand(armSubsystem)),
         new ScoreCommand(
             outtakeSubsystem,
             armSubsystem,
             Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH))),
-        new FollowTrajectoryCommand(path, true, drivebaseSubsystem),
+        (new FollowTrajectoryCommand(path, true, drivebaseSubsystem))
+            .alongWith(
+                (new WaitCommand(1))
+                    .andThen(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))),
         new BalanceCommand(drivebaseSubsystem));
   }
 }
