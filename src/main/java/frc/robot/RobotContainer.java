@@ -240,7 +240,7 @@ public class RobotContainer {
             new DriveToPlaceCommand(
                 drivebaseSubsystem,
                 manueverGenerator,
-                () -> new Pose2d(15.5595, 7.3965, Rotation2d.fromDegrees(0)),
+                () -> new Pose2d(15.424, 7.344, Rotation2d.fromDegrees(0)),
                 translationXSupplier,
                 translationYSupplier,
                 will.rightBumper(),
