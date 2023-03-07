@@ -11,6 +11,8 @@ import frc.robot.Constants;
 import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.FollowTrajectoryCommand;
 import frc.robot.commands.ScoreCommand;
+import frc.robot.commands.SetOuttakeModeCommand;
+import frc.robot.commands.SetZeroModeCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
@@ -33,6 +35,8 @@ public class N3_1ConePlusMobilityEngage extends SequentialCommandGroup {
             maxAccelerationMetersPerSecondSq);
 
     addCommands(
+        new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE),
+        new SetZeroModeCommand(armSubsystem),
         new ScoreCommand(
             outtakeSubsystem,
             armSubsystem,
