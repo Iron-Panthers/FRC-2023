@@ -7,22 +7,36 @@ package frc.robot.autonomous.commands;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.Constants;
 import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.FollowTrajectoryCommand;
+import frc.robot.commands.ScoreCommand;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
+import frc.robot.subsystems.OuttakeSubsystem;
+import frc.util.NodeSelectorUtility.Height;
+import frc.util.NodeSelectorUtility.NodeType;
 
-public class N2MobilityEngage extends SequentialCommandGroup {
+public class N3_1ConePlusMobilityEngage extends SequentialCommandGroup {
   /** Creates a new N2MobilityEngage. */
-  public N2MobilityEngage(
+  public N3_1ConePlusMobilityEngage(
       double maxVelocityMetersPerSecond,
       double maxAccelerationMetersPerSecondSq,
+      OuttakeSubsystem outtakeSubsystem,
+      ArmSubsystem armSubsystem,
       DrivebaseSubsystem drivebaseSubsystem) {
 
     PathPlannerTrajectory path =
         PathPlanner.loadPath(
-            "n2 mobility engage", maxVelocityMetersPerSecond, maxAccelerationMetersPerSecondSq);
+            "n3 1cone +  mobility engage",
+            maxVelocityMetersPerSecond,
+            maxAccelerationMetersPerSecondSq);
 
     addCommands(
+        new ScoreCommand(
+            outtakeSubsystem,
+            armSubsystem,
+            Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH))),
         new FollowTrajectoryCommand(path, true, drivebaseSubsystem),
         new BalanceCommand(drivebaseSubsystem));
   }
