@@ -355,8 +355,7 @@ public class RobotContainer {
             "intake",
             new ArmPositionCommand(armSubsystem, Constants.Arm.Setpoints.GROUND_INTAKE)
                 .alongWith(
-                    new ForceOuttakeSubsystemModeCommand(
-                        outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)),
+                    new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)),
             "stow arm",
             new ArmPositionCommand(armSubsystem, Constants.Arm.Setpoints.STOWED),
             "zero telescope",
