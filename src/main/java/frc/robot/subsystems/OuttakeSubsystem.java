@@ -57,13 +57,10 @@ public class OuttakeSubsystem extends SubsystemBase {
           outtakeDetails.minTimeSeconds.isEmpty()
               || Timer.getFPGATimestamp() - lastTransitionTime
                   > outtakeDetails.minTimeSeconds.get();
-      // if time likmit is exceedd and mode is not locked
-      if (exceededTimeLimit && !modeLocked) return true;
-      // if time limit is exceeded and stator limit is exceeded, even if locked
-      if (exceededTimeLimit
-          && outtakeDetails.statorLimit.isPresent()
-          && outtakeDetails.statorLimit.get().statorTransitionCurrent <= filterOutput) return true;
-      return false;
+      if (!exceededTimeLimit) return false;
+      if (outtakeDetails.statorLimit.isEmpty()) return modeLocked;
+
+      return outtakeDetails.statorLimit.get().statorTransitionCurrent <= filterOutput;
     }
   }
 

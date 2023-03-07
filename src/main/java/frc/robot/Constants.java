@@ -76,7 +76,7 @@ public final class Constants {
       /** the speed to drive at when balancing */
       public static final double SPEED_METERS_PER_SECOND = .55;
       /** angles greater than this will drive at the above speed */
-      public static final double CONTROL_ANGLE_DEGREES = 11.5;
+      public static final double CONTROL_ANGLE_DEGREES = 10;
     }
 
     /*
@@ -183,7 +183,7 @@ public final class Constants {
 
       public static final class Extensions {
         public static final double MAX_EXTENSION = 20.3;
-        public static final double MIN_EXTENSION = 0.75;
+        public static final double MIN_EXTENSION = 0.35;
       }
     }
 
@@ -200,8 +200,7 @@ public final class Constants {
        * negative sign of their angle in degrees
        */
       public static final class Angles {
-        public static final double BACKWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD =
-            -35; // FIXME: real value needed
+        public static final double BACKWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD = -40;
         public static final double FORWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD =
             20; // FIXME: real value needed
         public static final double UPPER_ANGLE_LIMIT = 120;
@@ -378,10 +377,10 @@ public final class Constants {
 
     public static final class OuttakeModes {
       public static final OuttakeDetails HOLD =
-          new OuttakeDetails(0.1, Optional.empty(), Optional.empty());
+          new OuttakeDetails(0.12, Optional.empty(), Optional.empty());
 
       public static final OuttakeDetails INTAKE =
-          new OuttakeDetails(1, Optional.of(new OuttakeDetails.StatorLimit(110)), Optional.of(2d));
+          new OuttakeDetails(1, Optional.of(new OuttakeDetails.StatorLimit(100)), Optional.of(2d));
 
       public static final OuttakeDetails OUTTAKE =
           new OuttakeDetails(-0.2, Optional.empty(), Optional.of(2d));

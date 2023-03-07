@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -29,8 +28,12 @@ import frc.robot.Constants.Drive;
 import frc.robot.autonomous.commands.AutoTestSequence;
 import frc.robot.autonomous.commands.MobilityAuto;
 import frc.robot.autonomous.commands.OneCubePlusTwoConePlusBalance;
+import frc.robot.autonomous.commands.N2Engage;
+import frc.robot.autonomous.commands.N2MobilityEngage;
+import frc.robot.autonomous.commands.N2_1CubePlus1ConeEngage;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
+import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
@@ -245,14 +248,7 @@ public class RobotContainer {
                 Optional.of(rgbSubsystem),
                 Optional.of(will.getHID())));
 
-    will.x()
-        .whileTrue(
-            new FunctionalCommand(
-                drivebaseSubsystem::setBalanceMode,
-                () -> {},
-                interrupted -> {},
-                () -> false,
-                drivebaseSubsystem));
+    will.x().whileTrue(new BalanceCommand(drivebaseSubsystem));
 
     // outtake states
     jasonLayer
@@ -375,6 +371,10 @@ public class RobotContainer {
             rgbSubsystem,
             new Pose2d(6, .6, Rotation2d.fromDegrees(0))));
 
+    autoSelector.addOption("N2 Engage", new N2Engage(5, 3.5, drivebaseSubsystem));
+
+    autoSelector.addOption("N2 Mobility Engage", new N2MobilityEngage(7, 3.5, drivebaseSubsystem));
+
     autoSelector.addOption(
         "AutoTest",
         new AutoTestSequence(
@@ -386,6 +386,10 @@ public class RobotContainer {
         "[NEW] One Cube Plus Two Cone Plus Balance",
         new OneCubePlusTwoConePlusBalance(
             4, 1, drivebaseSubsystem, armSubsystem, outtakeSubsystem));
+
+    autoSelector.addOption(
+        "N2 1Cube (not yet) + 1Cone Engage",
+        new N2_1CubePlus1ConeEngage(7, 4, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
 
     driverView.add("auto selector", autoSelector).withSize(4, 1).withPosition(7, 0);
 
