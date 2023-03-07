@@ -377,7 +377,7 @@ public final class Constants {
 
     public static final class OuttakeModes {
       public static final OuttakeDetails HOLD =
-          new OuttakeDetails(0.05, Optional.empty(), Optional.empty());
+          new OuttakeDetails(0.12, Optional.empty(), Optional.empty());
 
       public static final OuttakeDetails INTAKE =
           new OuttakeDetails(1, Optional.of(new OuttakeDetails.StatorLimit(100)), Optional.of(2d));
