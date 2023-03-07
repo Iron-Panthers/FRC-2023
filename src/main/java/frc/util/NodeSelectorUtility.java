@@ -25,7 +25,7 @@ public class NodeSelectorUtility {
 
   public static record NodeStack(int number, Pose2d position, NodeType type) {}
 
-  private static final double X_POSITION = 1.8;
+  private static final double X_POSITION = 1.75;
 
   private static final double Y_FUDGE = 0d;
 
