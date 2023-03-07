@@ -177,7 +177,7 @@ public final class Constants {
 
       public static final ArmState GROUND_INTAKE = new ArmState(-45, 19);
 
-      public static final ArmState SHELF_INTAKE = new ArmState(93, 0);
+      public static final ArmState SHELF_INTAKE = new ArmState(89, 0);
 
       public static final ArmState STOWED = new ArmState(0, Arm.Setpoints.Extensions.MIN_EXTENSION);
 
@@ -328,7 +328,7 @@ public final class Constants {
     public static final double POSE_AMBIGUITY_MULTIPLIER = 4;
 
     /** about one inch */
-    public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .05;
+    public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .025;
 
     public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 2;
   }
