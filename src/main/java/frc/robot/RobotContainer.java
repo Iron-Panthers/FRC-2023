@@ -396,7 +396,7 @@ public class RobotContainer {
     autoSelector.addOption(
         "N2 1Cube (not yet) + 1Cone Engage",
         new N2_1CubePlus1ConeEngage(
-            5, 4, eventMap, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+            5, 3.5, eventMap, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
 
     driverView.add("auto selector", autoSelector).withSize(4, 1).withPosition(7, 0);
 
