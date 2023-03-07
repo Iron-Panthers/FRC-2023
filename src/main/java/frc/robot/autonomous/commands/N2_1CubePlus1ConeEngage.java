@@ -10,6 +10,7 @@ import com.pathplanner.lib.commands.FollowPathWithEvents;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants;
+import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.FollowTrajectoryCommand;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.subsystems.ArmSubsystem;
@@ -47,6 +48,7 @@ public class N2_1CubePlus1ConeEngage extends SequentialCommandGroup {
         new FollowPathWithEvents(
             new FollowTrajectoryCommand(paths.get(1), drivebaseSubsystem),
             paths.get(1).getMarkers(),
-            eventMap));
+            eventMap),
+        new BalanceCommand(drivebaseSubsystem));
   }
 }
