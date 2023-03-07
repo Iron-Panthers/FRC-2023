@@ -39,22 +39,29 @@ public class ScoreCommand extends SequentialCommandGroup {
     }
   }
 
-  private static class AwaitTriggerTransition extends CommandBase {
+  private static class AwaitTriggerPressed extends CommandBase {
     private final Trigger trigger;
-    private boolean initialState;
+    private boolean hasBeenFalse;
 
-    public AwaitTriggerTransition(Trigger trigger) {
+    public AwaitTriggerPressed(Trigger trigger) {
       this.trigger = trigger;
     }
 
     @Override
     public void initialize() {
-      initialState = trigger.getAsBoolean();
+      hasBeenFalse = trigger.getAsBoolean() == false;
+    }
+
+    @Override
+    public void execute() {
+      if (!trigger.getAsBoolean()) {
+        hasBeenFalse = true;
+      }
     }
 
     @Override
     public boolean isFinished() {
-      return initialState != trigger.getAsBoolean();
+      return hasBeenFalse && trigger.getAsBoolean();
     }
   }
 
@@ -102,10 +109,12 @@ public class ScoreCommand extends SequentialCommandGroup {
     this.armSubsystem = armSubsystem;
 
     for (ScoreStep scoreStep : scoreSteps) {
-      addCommands(
-          trigger.isPresent() && scoreStep.isPausePoint()
-              ? createStep(scoreStep).alongWith(new AwaitTriggerTransition(trigger.get()))
-              : createStep(scoreStep));
+      if (trigger.isEmpty()) addCommands(createStep(scoreStep));
+      else
+        addCommands(
+            scoreStep.isPausePoint()
+                ? (new AwaitTriggerPressed(trigger.get())).deadlineWith(createStep(scoreStep))
+                : (new AwaitTriggerPressed(trigger.get())).raceWith(createStep(scoreStep)));
     }
   }
 }
