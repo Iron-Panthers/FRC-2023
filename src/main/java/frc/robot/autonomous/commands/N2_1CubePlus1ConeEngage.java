@@ -6,6 +6,7 @@ package frc.robot.autonomous.commands;
 
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants;
 import frc.robot.Constants.Arm;
@@ -19,12 +20,14 @@ import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.util.NodeSelectorUtility.Height;
 import frc.util.NodeSelectorUtility.NodeType;
+import java.util.Map;
 
 public class N2_1CubePlus1ConeEngage extends SequentialCommandGroup {
   /** Creates a new N2_1CubePlus1ConeEngage. */
   public N2_1CubePlus1ConeEngage(
       double maxVelocityMetersPerSecond,
       double maxAccelerationMetersPerSecondSq,
+      Map<String, Command> eventMap,
       OuttakeSubsystem outtakeSubsystem,
       ArmSubsystem armSubsystem,
       DrivebaseSubsystem drivebaseSubsystem) {

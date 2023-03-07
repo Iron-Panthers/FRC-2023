@@ -350,6 +350,18 @@ public class RobotContainer {
   private void setupAutonomousCommands() {
     driverView.addString("NOTES", () -> "...win?").withSize(3, 1).withPosition(0, 0);
 
+    final Map<String, Command> eventMap =
+        Map.of(
+            "intake",
+            new ArmPositionCommand(armSubsystem, Constants.Arm.Setpoints.GROUND_INTAKE)
+                .alongWith(
+                    new ForceOuttakeSubsystemModeCommand(
+                        outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)),
+            "stow arm",
+            new ArmPositionCommand(armSubsystem, Constants.Arm.Setpoints.STOWED),
+            "zero telescope",
+            new SetZeroModeCommand(armSubsystem));
+
     autoSelector.setDefaultOption(
         "Near Substation Mobility",
         new MobilityAuto(
@@ -383,7 +395,8 @@ public class RobotContainer {
 
     autoSelector.addOption(
         "N2 1Cube (not yet) + 1Cone Engage",
-        new N2_1CubePlus1ConeEngage(7, 4, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+        new N2_1CubePlus1ConeEngage(
+            5, 4, eventMap, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
 
     driverView.add("auto selector", autoSelector).withSize(4, 1).withPosition(7, 0);
 
