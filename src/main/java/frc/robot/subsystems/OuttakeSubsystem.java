@@ -58,7 +58,7 @@ public class OuttakeSubsystem extends SubsystemBase {
               || Timer.getFPGATimestamp() - lastTransitionTime
                   > outtakeDetails.minTimeSeconds.get();
       if (!exceededTimeLimit) return false;
-      if (outtakeDetails.statorLimit.isEmpty()) return modeLocked;
+      if (outtakeDetails.statorLimit.isEmpty()) return !modeLocked;
 
       return outtakeDetails.statorLimit.get().statorTransitionCurrent <= filterOutput;
     }
@@ -105,6 +105,8 @@ public class OuttakeSubsystem extends SubsystemBase {
     tab.addNumber("voltage", this.outtake::getMotorOutputVoltage);
 
     tab.addString("Current Mode", () -> mode.toString());
+
+    tab.addBoolean("mode locked", () -> this.modeLocked);
   }
 
   /**
