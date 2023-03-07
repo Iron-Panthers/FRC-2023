@@ -17,9 +17,7 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "zeroArm",
-          "scoreCubeMid",
-          "stow"
+          "zeroArm"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "none",
@@ -72,8 +70,7 @@
       "stopEvent": {
         "names": [
           "zeroArm",
-          "scoreConeHigh",
-          "stow"
+          "scoreConeHigh"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "none",
@@ -159,7 +156,7 @@
       }
     }
   ],
-  "maxVelocity": 6.0,
+  "maxVelocity": 5.0,
   "maxAcceleration": 4.0,
   "isReversed": null,
   "markers": [
@@ -184,6 +181,13 @@
     {
       "position": 3.1,
       "names": [
+        "stow"
+      ]
+    },
+    {
+      "position": 0.15,
+      "names": [
+        "scoreCubeMid",
         "stow"
       ]
     }
