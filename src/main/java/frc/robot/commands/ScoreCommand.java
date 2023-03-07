@@ -49,7 +49,7 @@ public class ScoreCommand extends SequentialCommandGroup {
 
     @Override
     public void initialize() {
-      hasBeenFalse = trigger.getAsBoolean() == false;
+      hasBeenFalse = false;
     }
 
     @Override
