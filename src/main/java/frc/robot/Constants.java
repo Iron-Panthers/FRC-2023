@@ -175,7 +175,7 @@ public final class Constants {
 
     public static final class Setpoints {
 
-      public static final ArmState GROUND_INTAKE = new ArmState(-47, 19);
+      public static final ArmState GROUND_INTAKE = new ArmState(-48, 19);
 
       public static final ArmState SHELF_INTAKE = new ArmState(89, 0);
 
