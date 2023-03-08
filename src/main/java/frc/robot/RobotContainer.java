@@ -410,7 +410,7 @@ public class RobotContainer {
 
     autoSelector.addOption(
         "N1 Hybrid 1Cone + 2Cone + Engage",
-        new N1_Hybrid1ConePlus2ConePlusEngage(5, 3.5, drivebaseSubsystem));
+        new N1_Hybrid1ConePlus2ConePlusEngage(5, 3.5, armSubsystem, drivebaseSubsystem));
 
     driverView.add("auto selector", autoSelector).withSize(4, 1).withPosition(7, 0);
 
