@@ -361,6 +361,8 @@ public class RobotContainer {
             "zero telescope",
             new SetZeroModeCommand(armSubsystem));
 
+    autoSelector.addOption("Just Zero Arm", new SetZeroModeCommand(armSubsystem));
+
     autoSelector.setDefaultOption(
         "Near Substation Mobility",
         new MobilityAuto(
