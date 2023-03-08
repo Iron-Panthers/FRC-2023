@@ -31,10 +31,11 @@ public class RGBSubsystem extends SubsystemBase {
 
   public enum MessagePriority {
     A_CRITICAL_NETWORK_INFORMATION,
-    B_PATHING_STATUS,
-    C_DRIVER_CONTROLLED_COLOR,
-    D_NODE_SELECTION_COLOR,
-    E_MISSING_PHOTONVISION_CLIENTS,
+    B_INTAKE_STATE_CHANGE,
+    C_PATHING_STATUS,
+    D_DRIVER_CONTROLLED_COLOR,
+    E_NODE_SELECTION_COLOR,
+    F_MISSING_PHOTONVISION_CLIENTS,
   }
 
   private enum CurrentAnimationTypes {

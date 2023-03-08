@@ -89,7 +89,7 @@ public class RobotContainer {
 
   private final ArmSubsystem armSubsystem = new ArmSubsystem();
 
-  private final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
+  private final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem(Optional.of(rgbSubsystem));
 
   private final SharedReference<NodeSelection> currentNodeSelection =
       new SharedReference<>(new NodeSelection(NodeSelectorUtility.defaultNodeStack, Height.HIGH));
@@ -338,7 +338,7 @@ public class RobotContainer {
                             ? Constants.Lights.Colors.PURPLE
                             : Constants.Lights.Colors.YELLOW,
                         RGBSubsystem.PatternTypes.PULSE,
-                        RGBSubsystem.MessagePriority.D_NODE_SELECTION_COLOR)
+                        RGBSubsystem.MessagePriority.E_NODE_SELECTION_COLOR)
                     ::expire));
 
     // show the current node selection

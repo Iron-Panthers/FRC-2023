@@ -134,7 +134,7 @@ public class DriveToPlaceCommand extends CommandBase {
             rgbSubsystem
                 .get()
                 .showMessage(
-                    color, PatternTypes.PULSE, MessagePriority.B_PATHING_STATUS, duration));
+                    color, PatternTypes.PULSE, MessagePriority.C_PATHING_STATUS, duration));
   }
 
   // Called when the command is initially scheduled.

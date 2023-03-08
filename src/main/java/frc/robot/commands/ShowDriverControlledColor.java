@@ -29,7 +29,7 @@ public class ShowDriverControlledColor extends InstantCommand {
     rgbSubsystem.showMessage(
         color,
         RGBSubsystem.PatternTypes.PULSE,
-        RGBSubsystem.MessagePriority.C_DRIVER_CONTROLLED_COLOR,
+        RGBSubsystem.MessagePriority.D_DRIVER_CONTROLLED_COLOR,
         maxLifetimeSeconds);
   }
 }
