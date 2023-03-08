@@ -27,8 +27,8 @@ import frc.robot.Constants.Arm;
 import frc.robot.Constants.Drive;
 import frc.robot.autonomous.commands.AutoTestSequence;
 import frc.robot.autonomous.commands.MobilityAuto;
-import frc.robot.autonomous.commands.N2Engage;
 import frc.robot.autonomous.commands.N2_1CubePlus1ConeEngage;
+import frc.robot.autonomous.commands.N2_Engage;
 import frc.robot.autonomous.commands.N3_1ConePlusMobilityEngage;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
@@ -384,7 +384,7 @@ public class RobotContainer {
             rgbSubsystem,
             new Pose2d(6, .6, Rotation2d.fromDegrees(0))));
 
-    autoSelector.addOption("N2 Engage", new N2Engage(5, 3.5, drivebaseSubsystem));
+    autoSelector.addOption("N2 Engage", new N2_Engage(5, 3.5, drivebaseSubsystem));
 
     autoSelector.addOption(
         "N3 1Cone + Mobility Engage",
