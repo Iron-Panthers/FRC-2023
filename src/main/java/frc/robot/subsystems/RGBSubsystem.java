@@ -63,11 +63,32 @@ public class RGBSubsystem extends SubsystemBase {
     private final PatternTypes pattern;
     private final MessagePriority priority;
     private boolean isExpired = false;
+    private final Optional<Lifespan> lifespan;
+
+    private record Lifespan(double creation, double max) {}
 
     private RGBMessage(RGBColor color, PatternTypes pattern, MessagePriority priority) {
       this.color = color;
       this.pattern = pattern;
       this.priority = priority;
+      this.lifespan = Optional.empty();
+    }
+
+    private RGBMessage(
+        RGBColor color, PatternTypes pattern, MessagePriority priority, double maxLifetime) {
+      this.color = color;
+      this.pattern = pattern;
+      this.priority = priority;
+      this.lifespan = Optional.of(new Lifespan(System.currentTimeMillis(), maxLifetime));
+    }
+
+    private boolean isExpired() {
+      if (isExpired) return true;
+      if (lifespan.isEmpty()) return false;
+      boolean lifespanExceeded =
+          lifespan.get().creation + lifespan.get().max < System.currentTimeMillis();
+      if (lifespanExceeded) isExpired = true;
+      return lifespanExceeded;
     }
 
     public void expire() {
@@ -135,6 +156,13 @@ public class RGBSubsystem extends SubsystemBase {
     return message;
   }
 
+  public RGBMessage showMessage(
+      RGBColor color, PatternTypes pattern, MessagePriority priority, double maxLifetimeSeconds) {
+    RGBMessage message = new RGBMessage(color, pattern, priority, maxLifetimeSeconds / 1000);
+    threadSafeMessageSink.offer(message);
+    return message;
+  }
+
   private void showPulseColor(RGBColor color) {
     candle.animate(new SingleFadeAnimation(color.r, color.g, color.b, 0, .7, Lights.NUM_LEDS));
     lastAppliedAnimation = Optional.of(CurrentAnimationTypes.SINGLE_FADE);
@@ -182,7 +210,7 @@ public class RGBSubsystem extends SubsystemBase {
     boolean isMessageDisplayed = false;
     while (!drainedMessageQueue.isEmpty() && !isMessageDisplayed) {
       RGBMessage message = drainedMessageQueue.peek();
-      if (message.isExpired) {
+      if (message.isExpired()) {
         drainedMessageQueue.remove();
         continue;
       }
