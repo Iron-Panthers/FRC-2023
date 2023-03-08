@@ -25,7 +25,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
 import frc.robot.Constants.Drive;
-import frc.robot.Constants.Lights;
 import frc.robot.autonomous.commands.AutoTestSequence;
 import frc.robot.autonomous.commands.MobilityAuto;
 import frc.robot.autonomous.commands.N2Engage;
@@ -45,7 +44,6 @@ import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.SetOuttakeModeCommand;
 import frc.robot.commands.SetZeroModeCommand;
-import frc.robot.commands.ShowDriverControlledColor;
 import frc.robot.commands.VibrateHIDCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
@@ -326,8 +324,6 @@ public class RobotContainer {
 
     jason.povRight().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(1))));
     jason.povLeft().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(-1))));
-    jason.povUp().onTrue(new ShowDriverControlledColor(rgbSubsystem, Lights.Colors.YELLOW, 10));
-    jason.povDown().onTrue(new ShowDriverControlledColor(rgbSubsystem, Lights.Colors.PURPLE, 10));
 
     // control the lights
     currentNodeSelection.subscribe(
