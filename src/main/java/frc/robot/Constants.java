@@ -231,7 +231,7 @@ public final class Constants {
 
       public static final ArmState GROUND_INTAKE = new ArmState(-45, 19);
 
-      public static final ArmState SHELF_INTAKE = new ArmState(95, 0);
+      public static final ArmState SHELF_INTAKE = new ArmState(89, 0);
 
       public static final ArmState STOWED = new ArmState(0, Arm.Setpoints.Extensions.MIN_EXTENSION);
 
@@ -286,13 +286,19 @@ public final class Constants {
                       new ArmState(92, Arm.Setpoints.Extensions.MIN_EXTENSION),
                       OuttakeSubsystem.Modes.OUTTAKE)),
           NodeType.CONE.atHeight(Height.MID),
-              List.of(
-                  new ScoreStep(new ArmState(100, Arm.Setpoints.Extensions.MIN_EXTENSION)),
-                  new ScoreStep(new ArmState(100, 4.8)).canWaitHere(),
-                  new ScoreStep(new ArmState(75, 4.8)).canWaitHere(),
-                  new ScoreStep(
-                      new ArmState(80, Arm.Setpoints.Extensions.MIN_EXTENSION),
-                      OuttakeSubsystem.Modes.OUTTAKE)));
+          List.of(
+              new ScoreStep(new ArmState(100, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(100, 4.8)).canWaitHere(),
+              new ScoreStep(new ArmState(75, 4.8)).canWaitHere(),
+              new ScoreStep(
+                  new ArmState(80, Arm.Setpoints.Extensions.MIN_EXTENSION),
+                  OuttakeSubsystem.Modes.OUTTAKE)),
+          NodeType.CUBE.atHeight(Height.HIGH),
+          List.of(
+              new ScoreStep(new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(95, 20)).canWaitHere(),
+              new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE),
+              new ScoreStep(new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION))));
 
   public static final class Vision {
     public static record VisionSource(String name, Transform3d robotToCamera) {}
@@ -377,7 +383,7 @@ public final class Constants {
     public static final double POSE_AMBIGUITY_MULTIPLIER = 4;
 
     /** about one inch */
-    public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .05;
+    public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .025;
 
     public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 2;
   }
