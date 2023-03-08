@@ -27,6 +27,7 @@ import frc.robot.Constants.Arm;
 import frc.robot.Constants.Drive;
 import frc.robot.autonomous.commands.AutoTestSequence;
 import frc.robot.autonomous.commands.MobilityAuto;
+import frc.robot.autonomous.commands.N1_Hybrid1ConePlus2ConePlusEngage;
 import frc.robot.autonomous.commands.N2_1CubePlus1ConeEngage;
 import frc.robot.autonomous.commands.N2_Engage;
 import frc.robot.autonomous.commands.N3_1ConePlusMobilityEngage;
@@ -406,6 +407,10 @@ public class RobotContainer {
         "N2 1Cube (not yet) + 1Cone Engage",
         new N2_1CubePlus1ConeEngage(
             5, 3.5, eventMap, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+
+    autoSelector.addOption(
+        "N1 Hybrid 1Cone + 2Cone + Engage",
+        new N1_Hybrid1ConePlus2ConePlusEngage(5, 3.5, drivebaseSubsystem));
 
     driverView.add("auto selector", autoSelector).withSize(4, 1).withPosition(7, 0);
 
