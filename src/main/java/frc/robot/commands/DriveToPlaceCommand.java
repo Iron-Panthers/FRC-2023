@@ -17,8 +17,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.Lights;
 import frc.robot.Constants.PoseEstimator;
 import frc.robot.subsystems.DrivebaseSubsystem;
@@ -131,11 +129,12 @@ public class DriveToPlaceCommand extends CommandBase {
     if (rgbSubsystem.isEmpty()) return;
     lastMsg.ifPresent(RGBMessage::expire);
 
-    var msg =
-        rgbSubsystem.get().showMessage(color, PatternTypes.PULSE, MessagePriority.B_PATHING_STATUS);
-    CommandScheduler.getInstance()
-        .schedule(new WaitCommand(duration).andThen(new InstantCommand(msg::expire)));
-    lastMsg = Optional.of(msg);
+    lastMsg =
+        Optional.of(
+            rgbSubsystem
+                .get()
+                .showMessage(
+                    color, PatternTypes.PULSE, MessagePriority.B_PATHING_STATUS, duration));
   }
 
   // Called when the command is initially scheduled.
