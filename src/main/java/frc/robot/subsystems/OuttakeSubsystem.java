@@ -11,7 +11,10 @@ import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.Lights.Colors;
 import frc.robot.Constants.Outtake;
 import frc.robot.subsystems.RGBSubsystem.MessagePriority;
@@ -148,10 +151,13 @@ public class OuttakeSubsystem extends SubsystemBase {
     switch (mode) {
       case INTAKE:
         if (rgbSubsystem.isPresent()) {
-          rgbSubsystem
-              .get()
-              .showMessage(
-                  Colors.WHITE, PatternTypes.PULSE, MessagePriority.B_INTAKE_STATE_CHANGE, 1);
+          var msg =
+              rgbSubsystem
+                  .get()
+                  .showMessage(
+                      Colors.WHITE, PatternTypes.PULSE, MessagePriority.B_INTAKE_STATE_CHANGE);
+          CommandScheduler.getInstance()
+              .schedule(new WaitCommand(.7).andThen(new InstantCommand(msg::expire)));
         }
         return Modes.HOLD;
       case OUTTAKE:

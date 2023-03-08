@@ -132,7 +132,7 @@ public class DriveToPlaceCommand extends CommandBase {
     lastMsg.ifPresent(RGBMessage::expire);
 
     var msg =
-        rgbSubsystem.get().showMessage(color, PatternTypes.PULSE, MessagePriority.B_PATHING_STATUS);
+        rgbSubsystem.get().showMessage(color, PatternTypes.PULSE, MessagePriority.C_PATHING_STATUS);
     CommandScheduler.getInstance()
         .schedule(new WaitCommand(duration).andThen(new InstantCommand(msg::expire)));
     lastMsg = Optional.of(msg);
