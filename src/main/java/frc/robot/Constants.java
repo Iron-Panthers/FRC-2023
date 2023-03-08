@@ -14,20 +14,9 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.Drive.Dims;
-import frc.robot.commands.ArmPositionCommand;
-import frc.robot.commands.BalanceCommand;
-import frc.robot.commands.ForceOuttakeSubsystemModeCommand;
-import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.ScoreCommand.ScoreStep;
-import frc.robot.commands.SetZeroModeCommand;
-import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ArmSubsystem.ArmState;
-import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.NetworkWatchdogSubsystem.IPv4;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem.OuttakeDetails;
@@ -168,49 +157,6 @@ public final class Constants {
     }
   }
 
-  public static final class Auto {
-    public static final Map<String, Command> CREATE_EVENT_MAP(
-        DrivebaseSubsystem drivebaseSubsystem,
-        ArmSubsystem armSubsystem,
-        OuttakeSubsystem outtakeSubsystem) {
-
-      return Map.of(
-          "intake",
-          intakeCommand(armSubsystem, outtakeSubsystem),
-          "stow",
-          new ArmPositionCommand(armSubsystem, Constants.Arm.Setpoints.STOWED),
-          "zeroArm",
-          new SetZeroModeCommand(armSubsystem),
-          "balance",
-          new BalanceCommand(drivebaseSubsystem),
-          "scoreConeHigh",
-          score(
-              armSubsystem,
-              new ScoreCommand(
-                  outtakeSubsystem,
-                  armSubsystem,
-                  Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH)))),
-          "scoreCubeMid",
-          new InstantCommand());
-    }
-
-    private static final ParallelCommandGroup intakeCommand(
-        ArmSubsystem armSubsystem, OuttakeSubsystem outtakeSubsystem) {
-      return new ArmPositionCommand(armSubsystem, Constants.Arm.Setpoints.GROUND_INTAKE)
-          .alongWith(
-              new ForceOuttakeSubsystemModeCommand(
-                  outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
-    }
-
-    private static final SequentialCommandGroup score(
-        ArmSubsystem armSubsystem, ScoreCommand scoreCommand) {
-      return new SequentialCommandGroup(
-          new SetZeroModeCommand(armSubsystem),
-          scoreCommand,
-          new ArmPositionCommand(armSubsystem, Constants.Arm.Setpoints.STOWED));
-    }
-  }
-
   public static final class Arm {
     public static final class Ports {
       public static final int ARM_MOTOR_PORT = 16;
@@ -276,15 +222,14 @@ public final class Constants {
   public static final Map<ScoreTypeIdentifier, List<ScoreStep>> SCORE_STEP_MAP =
       Map.of(
           NodeType.CONE.atHeight(Height.HIGH),
-              List.of(
-                  new ScoreStep(new ArmState(115, Arm.Setpoints.Extensions.MIN_EXTENSION)),
-                  new ScoreStep(new ArmState(115, Arm.Setpoints.Extensions.MAX_EXTENSION))
-                      .canWaitHere(),
-                  new ScoreStep(new ArmState(92, Arm.Setpoints.Extensions.MAX_EXTENSION))
-                      .canWaitHere(),
-                  new ScoreStep(
-                      new ArmState(92, Arm.Setpoints.Extensions.MIN_EXTENSION),
-                      OuttakeSubsystem.Modes.OUTTAKE)),
+          List.of(
+              new ScoreStep(new ArmState(115, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(115, Arm.Setpoints.Extensions.MAX_EXTENSION))
+                  .canWaitHere(),
+              new ScoreStep(new ArmState(92, Arm.Setpoints.Extensions.MAX_EXTENSION)).canWaitHere(),
+              new ScoreStep(
+                  new ArmState(92, Arm.Setpoints.Extensions.MIN_EXTENSION),
+                  OuttakeSubsystem.Modes.OUTTAKE)),
           NodeType.CONE.atHeight(Height.MID),
           List.of(
               new ScoreStep(new ArmState(100, Arm.Setpoints.Extensions.MIN_EXTENSION)),

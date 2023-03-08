@@ -27,10 +27,10 @@ import frc.robot.Constants.Arm;
 import frc.robot.Constants.Drive;
 import frc.robot.autonomous.commands.AutoTestSequence;
 import frc.robot.autonomous.commands.MobilityAuto;
-import frc.robot.autonomous.commands.OneCubePlusTwoConePlusBalance;
 import frc.robot.autonomous.commands.N2Engage;
 import frc.robot.autonomous.commands.N2_1CubePlus1ConeEngage;
 import frc.robot.autonomous.commands.N3_1ConePlusMobilityEngage;
+import frc.robot.autonomous.commands.OneCubePlusTwoConePlusBalance;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.BalanceCommand;
@@ -58,6 +58,7 @@ import frc.util.MacUtil;
 import frc.util.NodeSelectorUtility;
 import frc.util.NodeSelectorUtility.Height;
 import frc.util.NodeSelectorUtility.NodeSelection;
+import frc.util.NodeSelectorUtility.NodeType;
 import frc.util.SharedReference;
 import frc.util.Util;
 import frc.util.pathing.RubenManueverGenerator;
@@ -356,11 +357,26 @@ public class RobotContainer {
             "intake",
             new ArmPositionCommand(armSubsystem, Constants.Arm.Setpoints.GROUND_INTAKE)
                 .alongWith(
-                    new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)),
+                    new ForceOuttakeSubsystemModeCommand(
+                        outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)),
             "stow arm",
             new ArmPositionCommand(armSubsystem, Constants.Arm.Setpoints.STOWED),
             "zero telescope",
-            new SetZeroModeCommand(armSubsystem));
+            new SetZeroModeCommand(armSubsystem),
+            "balance",
+            new BalanceCommand(drivebaseSubsystem),
+            "score cube high",
+            new ScoreCommand(
+                outtakeSubsystem,
+                armSubsystem,
+                Constants.SCORE_STEP_MAP.get(NodeType.CUBE.atHeight(Height.HIGH))),
+            "score cube mid",
+            new InstantCommand(),
+            "score cone high",
+            new ScoreCommand(
+                outtakeSubsystem,
+                armSubsystem,
+                Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH))));
 
     autoSelector.setDefaultOption(
         "Near Substation Mobility",
@@ -398,7 +414,7 @@ public class RobotContainer {
     autoSelector.addOption(
         "[NEW] One Cube Plus Two Cone Plus Balance",
         new OneCubePlusTwoConePlusBalance(
-            4, 1, drivebaseSubsystem, armSubsystem, outtakeSubsystem));
+            4, 1, drivebaseSubsystem, armSubsystem, outtakeSubsystem, eventMap));
 
     autoSelector.addOption(
         "N2 1Cube (not yet) + 1Cone Engage",

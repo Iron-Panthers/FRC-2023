@@ -5,11 +5,15 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.Constants.Auto;
+import frc.robot.Constants;
+import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.FollowTrajectoryCommand;
+import frc.robot.commands.ScoreCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
+import frc.util.NodeSelectorUtility.Height;
+import frc.util.NodeSelectorUtility.NodeType;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -20,7 +24,8 @@ public class OneCubePlusTwoConePlusBalance extends SequentialCommandGroup {
       double maxAccelerationMetersPerSecondSq,
       DrivebaseSubsystem drivebaseSubsystem,
       ArmSubsystem armSubsystem,
-      OuttakeSubsystem outtakeSubsystem) {
+      OuttakeSubsystem outtakeSubsystem,
+      Map<String, Command> eventMap) {
 
     ArrayList<PathPlannerTrajectory> pathGroup =
         new ArrayList<>(
@@ -35,23 +40,28 @@ public class OneCubePlusTwoConePlusBalance extends SequentialCommandGroup {
             maxVelocityMetersPerSecond,
             maxAccelerationMetersPerSecondSq);
 
-    final Map<String, Command> eventMap =
-        Auto.CREATE_EVENT_MAP(drivebaseSubsystem, armSubsystem, outtakeSubsystem);
-
     addCommands(
         new FollowPathWithEvents(
             new FollowTrajectoryCommand(pathGroup.get(0), true, drivebaseSubsystem),
-            path.getMarkers(),
+            pathGroup.get(0).getMarkers(),
             eventMap),
-        eventMap.get("scoreConeHigh"),
+        new ScoreCommand(
+            outtakeSubsystem,
+            armSubsystem,
+            Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH))),
+        new ArmPositionCommand(armSubsystem, Constants.Arm.Setpoints.STOWED),
         new FollowPathWithEvents(
             new FollowTrajectoryCommand(pathGroup.get(1), false, drivebaseSubsystem),
-            path.getMarkers(),
+            pathGroup.get(1).getMarkers(),
             eventMap),
-        eventMap.get("scoreConeHigh"),
+        new ScoreCommand(
+            outtakeSubsystem,
+            armSubsystem,
+            Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH))),
+        new ArmPositionCommand(armSubsystem, Constants.Arm.Setpoints.STOWED),
         new FollowPathWithEvents(
             new FollowTrajectoryCommand(pathGroup.get(2), false, drivebaseSubsystem),
-            path.getMarkers(),
+            pathGroup.get(2).getMarkers(),
             eventMap));
   }
 }

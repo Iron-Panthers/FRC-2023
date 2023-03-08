@@ -17,7 +17,7 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "zeroArm"
+          "zero telescope"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "none",
@@ -26,16 +26,16 @@
     },
     {
       "anchorPoint": {
-        "x": 6.537702464256654,
-        "y": 0.9499447071548651
+        "x": 6.7,
+        "y": 0.93
       },
       "prevControl": {
-        "x": 4.5361885595566065,
-        "y": 0.9820484598234163
+        "x": 4.698486095299953,
+        "y": 0.9621037526685511
       },
       "nextControl": {
-        "x": 4.5361885595566065,
-        "y": 0.9820484598234163
+        "x": 4.698486095299953,
+        "y": 0.9621037526685511
       },
       "holonomicAngle": 180.0,
       "isReversal": true,
@@ -69,8 +69,8 @@
       "isStopPoint": true,
       "stopEvent": {
         "names": [
-          "zeroArm",
-          "scoreConeHigh"
+          "score cone high",
+          "stow arm"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "none",
@@ -79,16 +79,16 @@
     },
     {
       "anchorPoint": {
-        "x": 6.48,
-        "y": 1.75
+        "x": 6.83,
+        "y": 1.95
       },
       "prevControl": {
-        "x": 3.9581443953144193,
-        "y": 0.009115710446786149
+        "x": 4.308144395314419,
+        "y": 0.20911571044678612
       },
       "nextControl": {
-        "x": 3.9581443953144193,
-        "y": 0.009115710446786149
+        "x": 4.308144395314419,
+        "y": 0.20911571044678612
       },
       "holonomicAngle": 215.0,
       "isReversal": true,
@@ -122,9 +122,8 @@
       "isStopPoint": true,
       "stopEvent": {
         "names": [
-          "zeroArm",
-          "scoreConeHigh",
-          "stow"
+          "score cone high",
+          "stow arm"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "none",
@@ -169,7 +168,7 @@
     {
       "position": 1.15,
       "names": [
-        "stow"
+        "stow arm"
       ]
     },
     {
@@ -181,14 +180,14 @@
     {
       "position": 3.1,
       "names": [
-        "stow"
+        "stow arm"
       ]
     },
     {
       "position": 0.15,
       "names": [
-        "scoreCubeMid",
-        "stow"
+        "score cube high",
+        "stow arm"
       ]
     }
   ]
