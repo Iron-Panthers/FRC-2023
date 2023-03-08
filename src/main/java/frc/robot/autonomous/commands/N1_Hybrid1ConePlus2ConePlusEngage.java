@@ -26,7 +26,7 @@ public class N1_Hybrid1ConePlus2ConePlusEngage extends SequentialCommandGroup {
 
     addCommands(
         new SequentialCommandGroup(
-                new ArmPositionCommand(armSubsystem, new ArmState(50, 0)),
+                new ArmPositionCommand(armSubsystem, new ArmState(-55, 0)),
                 new SetZeroModeCommand(armSubsystem),
                 new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))
             .alongWith(new FollowTrajectoryCommand(path, true, drivebaseSubsystem)));
