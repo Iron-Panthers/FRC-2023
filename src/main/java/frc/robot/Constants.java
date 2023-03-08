@@ -335,7 +335,7 @@ public final class Constants {
 
   public static final class Pathing {
     /** The size in meters of a given cell for pathfinding */
-    public static final double CELL_SIZE_METERS = 0.1;
+    public static final double CELL_SIZE_METERS = 0.15;
 
     public static final int CELL_X_MAX =
         (int) Math.ceil(FieldObstructionMap.FIELD_LENGTH / Pathing.CELL_SIZE_METERS);
@@ -366,7 +366,7 @@ public final class Constants {
 
     public static final double RESPECT_CURRENT_VELOCITY_THRESHOLD_MS = .2;
 
-    public static final double ANTICIPATED_PATH_SOLVE_TIME_SECONDS = 1;
+    public static final double ANTICIPATED_PATH_SOLVE_TIME_SECONDS = .7;
 
     public static final class Costs {
       public static final int CARDINAL = 2;
