@@ -334,7 +334,7 @@ public class RobotContainer {
                             ? Constants.Lights.Colors.PURPLE
                             : Constants.Lights.Colors.YELLOW,
                         RGBSubsystem.PatternTypes.PULSE,
-                        RGBSubsystem.MessagePriority.C_DRIVER_CONTROLLED_COLOR)
+                        RGBSubsystem.MessagePriority.D_NODE_SELECTION_COLOR)
                     ::expire));
 
     // show the current node selection
