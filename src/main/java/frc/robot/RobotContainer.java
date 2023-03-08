@@ -361,10 +361,11 @@ public class RobotContainer {
             "zero telescope",
             new SetZeroModeCommand(armSubsystem));
 
-    autoSelector.addOption("Just Zero Arm", new SetZeroModeCommand(armSubsystem));
+    autoSelector.addOption(
+        "Just Zero Arm [DOES NOT CALIBRATE]", new SetZeroModeCommand(armSubsystem));
 
     autoSelector.setDefaultOption(
-        "Near Substation Mobility",
+        "Near Substation Mobility [APRILTAG]",
         new MobilityAuto(
             manueverGenerator,
             drivebaseSubsystem,
@@ -374,7 +375,7 @@ public class RobotContainer {
             new Pose2d(4.88, 6.05, Rotation2d.fromDegrees(0))));
 
     autoSelector.addOption(
-        "Far Substation Mobility",
+        "Far Substation Mobility [APRILTAG]",
         new MobilityAuto(
             manueverGenerator,
             drivebaseSubsystem,
