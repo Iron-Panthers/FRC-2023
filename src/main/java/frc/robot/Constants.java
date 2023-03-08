@@ -72,6 +72,13 @@ public final class Constants {
       public static final double BUMPER_WIDTH_METERS = .851;
     }
 
+    public static final class AutoBalance {
+      /** the speed to drive at when balancing */
+      public static final double SPEED_METERS_PER_SECOND = .55;
+      /** angles greater than this will drive at the above speed */
+      public static final double CONTROL_ANGLE_DEGREES = 10;
+    }
+
     /*
      module layout:
         ┌──────
@@ -170,17 +177,17 @@ public final class Constants {
 
       public static final ArmState GROUND_INTAKE = new ArmState(-45, 19);
 
-      public static final ArmState SHELF_INTAKE = new ArmState(95, 0);
+      public static final ArmState SHELF_INTAKE = new ArmState(89, 0);
 
       public static final ArmState STOWED = new ArmState(0, Arm.Setpoints.Extensions.MIN_EXTENSION);
 
       public static final class Extensions {
         public static final double MAX_EXTENSION = 20.3;
-        public static final double MIN_EXTENSION = 0.75;
+        public static final double MIN_EXTENSION = 0.35;
       }
     }
 
-    public static final double EXTENSION_STATOR_LIMIT = 42;
+    public static final double EXTENSION_STATOR_LIMIT = 35;
 
     public static final double ZERO_RETRACTION_PERCENT = -0.14;
     public static final int TICKS = 2048;
@@ -193,8 +200,7 @@ public final class Constants {
        * negative sign of their angle in degrees
        */
       public static final class Angles {
-        public static final double BACKWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD =
-            -35; // FIXME: real value needed
+        public static final double BACKWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD = -40;
         public static final double FORWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD =
             20; // FIXME: real value needed
         public static final double UPPER_ANGLE_LIMIT = 120;
@@ -216,23 +222,28 @@ public final class Constants {
   public static final Map<ScoreTypeIdentifier, List<ScoreStep>> SCORE_STEP_MAP =
       Map.of(
           NodeType.CONE.atHeight(Height.HIGH),
-              List.of(
-                  new ScoreStep(new ArmState(115, Arm.Setpoints.Extensions.MIN_EXTENSION)),
-                  new ScoreStep(new ArmState(115, Arm.Setpoints.Extensions.MAX_EXTENSION))
-                      .canWaitHere(),
-                  new ScoreStep(new ArmState(87, Arm.Setpoints.Extensions.MAX_EXTENSION))
-                      .canWaitHere(),
-                  new ScoreStep(
-                      new ArmState(87, Arm.Setpoints.Extensions.MIN_EXTENSION),
-                      OuttakeSubsystem.Modes.OUTTAKE)),
+          List.of(
+              new ScoreStep(new ArmState(115, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(115, Arm.Setpoints.Extensions.MAX_EXTENSION))
+                  .canWaitHere(),
+              new ScoreStep(new ArmState(87, Arm.Setpoints.Extensions.MAX_EXTENSION)).canWaitHere(),
+              new ScoreStep(
+                  new ArmState(87, Arm.Setpoints.Extensions.MIN_EXTENSION),
+                  OuttakeSubsystem.Modes.OUTTAKE)),
           NodeType.CONE.atHeight(Height.MID),
-              List.of(
-                  new ScoreStep(new ArmState(100, Arm.Setpoints.Extensions.MIN_EXTENSION)),
-                  new ScoreStep(new ArmState(100, 4.8)).canWaitHere(),
-                  new ScoreStep(new ArmState(75, 4.8)).canWaitHere(),
-                  new ScoreStep(
-                      new ArmState(80, Arm.Setpoints.Extensions.MIN_EXTENSION),
-                      OuttakeSubsystem.Modes.OUTTAKE)));
+          List.of(
+              new ScoreStep(new ArmState(100, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(100, 4.8)).canWaitHere(),
+              new ScoreStep(new ArmState(75, 4.8)).canWaitHere(),
+              new ScoreStep(
+                  new ArmState(80, Arm.Setpoints.Extensions.MIN_EXTENSION),
+                  OuttakeSubsystem.Modes.OUTTAKE)),
+          NodeType.CUBE.atHeight(Height.HIGH),
+          List.of(
+              new ScoreStep(new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(95, 20)).canWaitHere(),
+              new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE),
+              new ScoreStep(new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION))));
 
   public static final class Vision {
     public static record VisionSource(String name, Transform3d robotToCamera) {}
@@ -317,7 +328,7 @@ public final class Constants {
     public static final double POSE_AMBIGUITY_MULTIPLIER = 4;
 
     /** about one inch */
-    public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .05;
+    public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .025;
 
     public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 2;
   }
@@ -371,10 +382,10 @@ public final class Constants {
 
     public static final class OuttakeModes {
       public static final OuttakeDetails HOLD =
-          new OuttakeDetails(0.1, Optional.empty(), Optional.empty());
+          new OuttakeDetails(0.12, Optional.empty(), Optional.empty());
 
       public static final OuttakeDetails INTAKE =
-          new OuttakeDetails(1, Optional.of(new OuttakeDetails.StatorLimit(110)), Optional.of(2d));
+          new OuttakeDetails(1, Optional.of(new OuttakeDetails.StatorLimit(100)), Optional.of(2d));
 
       public static final OuttakeDetails OUTTAKE =
           new OuttakeDetails(-0.2, Optional.empty(), Optional.of(2d));

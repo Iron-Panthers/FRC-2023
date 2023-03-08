@@ -27,8 +27,12 @@ import frc.robot.Constants.Arm;
 import frc.robot.Constants.Drive;
 import frc.robot.autonomous.commands.AutoTestSequence;
 import frc.robot.autonomous.commands.MobilityAuto;
+import frc.robot.autonomous.commands.N2Engage;
+import frc.robot.autonomous.commands.N2_1CubePlus1ConeEngage;
+import frc.robot.autonomous.commands.N3_1ConePlusMobilityEngage;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
+import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
@@ -236,12 +240,14 @@ public class RobotContainer {
             new DriveToPlaceCommand(
                 drivebaseSubsystem,
                 manueverGenerator,
-                () -> new Pose2d(15.5595, 7.3965, Rotation2d.fromDegrees(0)),
+                () -> new Pose2d(15.424, 7.344, Rotation2d.fromDegrees(0)),
                 translationXSupplier,
                 translationYSupplier,
                 will.rightBumper(),
                 Optional.of(rgbSubsystem),
                 Optional.of(will.getHID())));
+
+    will.x().whileTrue(new BalanceCommand(drivebaseSubsystem));
 
     // outtake states
     jasonLayer
@@ -344,6 +350,17 @@ public class RobotContainer {
   private void setupAutonomousCommands() {
     driverView.addString("NOTES", () -> "...win?").withSize(3, 1).withPosition(0, 0);
 
+    final Map<String, Command> eventMap =
+        Map.of(
+            "intake",
+            new ArmPositionCommand(armSubsystem, Constants.Arm.Setpoints.GROUND_INTAKE)
+                .alongWith(
+                    new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)),
+            "stow arm",
+            new ArmPositionCommand(armSubsystem, Constants.Arm.Setpoints.STOWED),
+            "zero telescope",
+            new SetZeroModeCommand(armSubsystem));
+
     autoSelector.setDefaultOption(
         "Near Substation Mobility",
         new MobilityAuto(
@@ -364,12 +381,23 @@ public class RobotContainer {
             rgbSubsystem,
             new Pose2d(6, .6, Rotation2d.fromDegrees(0))));
 
+    autoSelector.addOption("N2 Engage", new N2Engage(5, 3.5, drivebaseSubsystem));
+
+    autoSelector.addOption(
+        "N3 1Cone + Mobility Engage",
+        new N3_1ConePlusMobilityEngage(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+
     autoSelector.addOption(
         "AutoTest",
         new AutoTestSequence(
             2, // m/s
             1, // m/s2
             drivebaseSubsystem));
+
+    autoSelector.addOption(
+        "N2 1Cube (not yet) + 1Cone Engage",
+        new N2_1CubePlus1ConeEngage(
+            5, 3.5, eventMap, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
 
     driverView.add("auto selector", autoSelector).withSize(4, 1).withPosition(7, 0);
 

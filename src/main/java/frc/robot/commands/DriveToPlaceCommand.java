@@ -185,7 +185,7 @@ public class DriveToPlaceCommand extends CommandBase {
                 drivebaseSubsystem.getPose(),
                 produceChassisSpeeds(),
                 observationPose.get(),
-                new PathConstraints(5, 2)));
+                new PathConstraints(5, 3.5)));
   }
 
   private Result<Optional<PathPlannerTrajectory>> createAdjustTrajectory() {

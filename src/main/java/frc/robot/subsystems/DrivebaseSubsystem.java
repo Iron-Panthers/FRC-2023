@@ -95,6 +95,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     DRIVE,
     DRIVE_ANGLE,
     DEFENSE,
+    BALANCE
   }
 
   /** The current mode */
@@ -207,6 +208,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
     // tab.addNumber(
     //     "angular difference",
     //     () -> -Util.relativeAngularDifference(targetAngle, getGyroscopeRotation().getDegrees()));
+
+    tab.addDouble("pitch", navx::getPitch);
+    tab.addDouble("roll", navx::getRoll);
 
     Shuffleboard.getTab("DriverView").add(field).withPosition(0, 2).withSize(8, 4);
   }
@@ -325,6 +329,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
     mode = Modes.DEFENSE;
   }
 
+  public void setBalanceMode() {
+    mode = Modes.BALANCE;
+  }
+
   /**
    * Updates the robot pose estimation for newly written module states. Should be called on every
    * periodic
@@ -401,6 +409,29 @@ public class DrivebaseSubsystem extends SubsystemBase {
     // No need to call odometry periodic
   }
 
+  private void balancePeriodic() {
+    // get the current combined pitch and roll of the robot as a magnitude and Rotation2d
+    // x direction
+    double roll = navx.getRoll();
+    double absRoll = Math.abs(roll);
+    // y direction
+    double pitch = navx.getPitch();
+    double absPitch = Math.abs(pitch);
+
+    if (Math.max(absRoll, absPitch) < AutoBalance.CONTROL_ANGLE_DEGREES) {
+      defensePeriodic();
+      return;
+    }
+
+    // use bang bang to generate chassis speeds that will balance the robot
+    chassisSpeeds =
+        absRoll > absPitch
+            ? new ChassisSpeeds(Math.copySign(AutoBalance.SPEED_METERS_PER_SECOND, roll), 0, 0)
+            : new ChassisSpeeds(0, Math.copySign(AutoBalance.SPEED_METERS_PER_SECOND, pitch), 0);
+
+    drivePeriodic();
+  }
+
   /**
    * Based on the current Mode of the drivebase, perform the mode-specific logic such as writing
    * outputs (may vary per mode).
@@ -409,15 +440,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
    */
   public void updateModules(Modes mode) {
     switch (mode) {
-      case DRIVE:
-        drivePeriodic();
-        break;
-      case DRIVE_ANGLE:
-        driveAnglePeriodic();
-        break;
-      case DEFENSE:
-        defensePeriodic();
-        break;
+      case DRIVE -> drivePeriodic();
+      case DRIVE_ANGLE -> driveAnglePeriodic();
+      case DEFENSE -> defensePeriodic();
+      case BALANCE -> balancePeriodic();
     }
   }
 
