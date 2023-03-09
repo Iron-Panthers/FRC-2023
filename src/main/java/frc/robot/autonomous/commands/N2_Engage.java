@@ -11,9 +11,9 @@ import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.FollowTrajectoryCommand;
 import frc.robot.subsystems.DrivebaseSubsystem;
 
-public class N2Engage extends SequentialCommandGroup {
+public class N2_Engage extends SequentialCommandGroup {
   /** Creates a new N2Engage. */
-  public N2Engage(
+  public N2_Engage(
       double maxVelocityMetersPerSecond,
       double maxAccelerationMetersPerSecondSq,
       DrivebaseSubsystem drivebaseSubsystem) {

@@ -27,9 +27,11 @@ import frc.robot.Constants.Arm;
 import frc.robot.Constants.Drive;
 import frc.robot.autonomous.commands.AutoTestSequence;
 import frc.robot.autonomous.commands.MobilityAuto;
-import frc.robot.autonomous.commands.N2Engage;
+import frc.robot.autonomous.commands.N1_Hybrid1ConePlus2ConePlusEngage;
 import frc.robot.autonomous.commands.N2_1CubePlus1ConeEngage;
+import frc.robot.autonomous.commands.N2_Engage;
 import frc.robot.autonomous.commands.N3_1ConePlusMobilityEngage;
+import frc.robot.autonomous.commands.N9_1ConePlusMobilityEngage;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.BalanceCommand;
@@ -87,7 +89,7 @@ public class RobotContainer {
 
   private final ArmSubsystem armSubsystem = new ArmSubsystem();
 
-  private final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
+  private final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem(Optional.of(rgbSubsystem));
 
   private final SharedReference<NodeSelection> currentNodeSelection =
       new SharedReference<>(new NodeSelection(NodeSelectorUtility.defaultNodeStack, Height.HIGH));
@@ -240,7 +242,7 @@ public class RobotContainer {
             new DriveToPlaceCommand(
                 drivebaseSubsystem,
                 manueverGenerator,
-                () -> new Pose2d(15.424, 7.344, Rotation2d.fromDegrees(0)),
+                () -> new Pose2d(15.377, 7.336, Rotation2d.fromDegrees(0)),
                 translationXSupplier,
                 translationYSupplier,
                 will.rightBumper(),
@@ -334,7 +336,7 @@ public class RobotContainer {
                             ? Constants.Lights.Colors.PURPLE
                             : Constants.Lights.Colors.YELLOW,
                         RGBSubsystem.PatternTypes.PULSE,
-                        RGBSubsystem.MessagePriority.C_DRIVER_CONTROLLED_COLOR)
+                        RGBSubsystem.MessagePriority.E_NODE_SELECTION_COLOR)
                     ::expire));
 
     // show the current node selection
@@ -361,8 +363,11 @@ public class RobotContainer {
             "zero telescope",
             new SetZeroModeCommand(armSubsystem));
 
+    autoSelector.addOption(
+        "Just Zero Arm [DOES NOT CALIBRATE]", new SetZeroModeCommand(armSubsystem));
+
     autoSelector.setDefaultOption(
-        "Near Substation Mobility",
+        "Near Substation Mobility [APRILTAG]",
         new MobilityAuto(
             manueverGenerator,
             drivebaseSubsystem,
@@ -372,7 +377,7 @@ public class RobotContainer {
             new Pose2d(4.88, 6.05, Rotation2d.fromDegrees(0))));
 
     autoSelector.addOption(
-        "Far Substation Mobility",
+        "Far Substation Mobility [APRILTAG]",
         new MobilityAuto(
             manueverGenerator,
             drivebaseSubsystem,
@@ -381,11 +386,15 @@ public class RobotContainer {
             rgbSubsystem,
             new Pose2d(6, .6, Rotation2d.fromDegrees(0))));
 
-    autoSelector.addOption("N2 Engage", new N2Engage(5, 3.5, drivebaseSubsystem));
+    autoSelector.addOption("N2 Engage", new N2_Engage(5, 3.5, drivebaseSubsystem));
 
     autoSelector.addOption(
         "N3 1Cone + Mobility Engage",
         new N3_1ConePlusMobilityEngage(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+
+    autoSelector.addOption(
+        "N9 1Cone + Mobility Engage",
+        new N9_1ConePlusMobilityEngage(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
 
     autoSelector.addOption(
         "AutoTest",
@@ -398,6 +407,10 @@ public class RobotContainer {
         "N2 1Cube (not yet) + 1Cone Engage",
         new N2_1CubePlus1ConeEngage(
             5, 3.5, eventMap, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+
+    autoSelector.addOption(
+        "N1 Hybrid 1Cone + 2Cone + Engage",
+        new N1_Hybrid1ConePlus2ConePlusEngage(5, 3.5, armSubsystem, drivebaseSubsystem));
 
     driverView.add("auto selector", autoSelector).withSize(4, 1).withPosition(7, 0);
 
