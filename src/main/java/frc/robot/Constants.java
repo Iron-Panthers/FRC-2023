@@ -175,7 +175,7 @@ public final class Constants {
 
     public static final class Setpoints {
 
-      public static final ArmState GROUND_INTAKE = new ArmState(-45, 19);
+      public static final ArmState GROUND_INTAKE = new ArmState(-48, 19);
 
       public static final ArmState SHELF_INTAKE = new ArmState(89, 0);
 
@@ -440,6 +440,7 @@ public final class Constants {
       public static final RGBColor PINK = new RGBColor(250, 35, 100);
       public static final RGBColor MINT = new RGBColor(55, 255, 50);
       public static final RGBColor TEAL = new RGBColor(0, 255, 255);
+      public static final RGBColor WHITE = new RGBColor(255, 255, 255);
     }
   }
 }
