@@ -19,11 +19,11 @@ public class MacUtil {
     SmartDashboard.putString("MAC address", macAddress);
     IS_COMP_BOT =
         !(macAddress.equals(
-                // this value is the mac address of the practice bot
-                // if the read mac address is not the practice bot, we default to comp bot
-                "00:80:2F:32:FD:81")
-            // this is the mac address of the practice bot with cable
-            || macAddress.equals("00:80:2F:28:AC:B1"));
+            // this value is the mac address of the practice bot
+            // if the read mac address is not the practice bot, we default to comp bot
+            "00:80:2F:33:05:13"));
+    // this is the mac address of the practice bot with cable
+    // || macAddress.equals("00:80:2F:28:AC:B1"));
   }
 
   private static void logErr(SocketException e) {
