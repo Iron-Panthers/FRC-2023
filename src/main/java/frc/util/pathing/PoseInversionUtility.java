@@ -19,11 +19,11 @@ public class PoseInversionUtility {
             new Translation2d(
                 FieldObstructionMap.FIELD_LENGTH - bluePose.getTranslation().getX(),
                 bluePose.getTranslation().getY()),
-            bluePose.getRotation().plus(mirrorRotation))
+            mirrorRotation.minus(bluePose.getRotation()))
         : new Pose2d(
             new Translation2d(
                 FieldObstructionMap.FIELD_LENGTH + bluePose.getTranslation().getX(),
                 bluePose.getTranslation().getY()),
-            bluePose.getRotation().plus(mirrorRotation));
+            mirrorRotation.minus(bluePose.getRotation()));
   }
 }
