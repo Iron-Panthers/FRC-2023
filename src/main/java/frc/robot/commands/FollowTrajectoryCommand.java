@@ -4,17 +4,21 @@
 
 package frc.robot.commands;
 
+import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.Trajectory.State;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DrivebaseSubsystem;
 
+/** Command to interface with the advanced trajectory follower, with automatic path mirroring. */
 public class FollowTrajectoryCommand extends CommandBase {
   private final DrivebaseSubsystem drivebaseSubsystem;
-  private final Trajectory trajectory;
+  private final PathPlannerTrajectory blueTrajectory;
+  private final PathPlannerTrajectory redTrajectory;
   /**
    * True if the swerve drive subsystem should localize to the trajectory's starting point in the
    * initialization block. Calls the underlying SwerveDriveOdometry.resetOdometry(pose, angle).
@@ -25,12 +29,15 @@ public class FollowTrajectoryCommand extends CommandBase {
    * Creates a new FollowTrajectoryCommand. If you would like to localize to the start pose of the
    * trajectory, instead use the constructor with a boolean parameter.
    *
-   * @param trajectory The desired trajectory to track.
+   * @param blueTrajectory The desired trajectory to track.
    * @param drivebaseSubsystem The instance of the Drivebase subsystem (should come from
    *     RobotContainer)
    */
-  public FollowTrajectoryCommand(Trajectory trajectory, DrivebaseSubsystem drivebaseSubsystem) {
-    this.trajectory = trajectory;
+  public FollowTrajectoryCommand(
+      PathPlannerTrajectory blueTrajectory, DrivebaseSubsystem drivebaseSubsystem) {
+    this.blueTrajectory = blueTrajectory;
+    this.redTrajectory =
+        PathPlannerTrajectory.transformTrajectoryForAlliance(blueTrajectory, Alliance.Red);
     this.drivebaseSubsystem = drivebaseSubsystem;
     this.localizeToStartPose = false;
     addRequirements(drivebaseSubsystem);
@@ -40,14 +47,18 @@ public class FollowTrajectoryCommand extends CommandBase {
    * Creates a new FollowTrajectoryCommand. Adds a parameter to optionally localize to the start
    * point of this trajectory.
    *
-   * @param trajectory The desired trajectory to track.
+   * @param blueTrajectory The desired trajectory to track.
    * @param localizeToStartPose If true, the drivebase will reset odometry to trajectory_state[0]
    * @param drivebaseSubsystem The instance of the Drivebase subsystem (should come from
    *     RobotContainer)
    */
   public FollowTrajectoryCommand(
-      Trajectory trajectory, boolean localizeToStartPose, DrivebaseSubsystem drivebaseSubsystem) {
-    this.trajectory = trajectory;
+      PathPlannerTrajectory blueTrajectory,
+      boolean localizeToStartPose,
+      DrivebaseSubsystem drivebaseSubsystem) {
+    this.blueTrajectory = blueTrajectory;
+    this.redTrajectory =
+        PathPlannerTrajectory.transformTrajectoryForAlliance(blueTrajectory, Alliance.Red);
     this.drivebaseSubsystem = drivebaseSubsystem;
     this.localizeToStartPose = localizeToStartPose;
     addRequirements(drivebaseSubsystem);
@@ -56,17 +67,19 @@ public class FollowTrajectoryCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    drivebaseSubsystem.getFollower().follow(trajectory);
+    PathPlannerTrajectory selectedTrajectory =
+        DriverStation.getAlliance() == Alliance.Blue ? blueTrajectory : redTrajectory;
+    drivebaseSubsystem.getFollower().follow(selectedTrajectory);
 
     if (localizeToStartPose) {
       // sample the trajectory at 0 seconds (its beginning)
-      State firstState = trajectory.sample(0);
+      State firstState = selectedTrajectory.sample(0);
       Pose2d pose = firstState.poseMeters;
       if (firstState instanceof PathPlannerState) {
         Rotation2d holonomicRotation = ((PathPlannerState) firstState).holonomicRotation;
         pose = new Pose2d(pose.getTranslation(), holonomicRotation);
       }
-      // If it's not an instanceof Pathplanner State, we still need to zero to current position...
+      // If it's not an instanceof PathPlanner State, we still need to zero to current position...
       drivebaseSubsystem.resetOdometryToPose(pose);
     }
   }
