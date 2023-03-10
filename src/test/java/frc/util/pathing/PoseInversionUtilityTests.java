@@ -33,4 +33,14 @@ public class PoseInversionUtilityTests {
         new Pose2d(FieldObstructionMap.FIELD_LENGTH - 1.75, 4.99, Rotation2d.fromDegrees(180 - 30)),
         inverted);
   }
+
+  @UtilTest
+  public void substationPositionInverts() {
+    var pose = new Pose2d(15.443, 7.410, Rotation2d.fromDegrees(0));
+    var inverted = PoseInversionUtility.findRedPose(pose);
+    assertEquals(
+        new Pose2d(
+            FieldObstructionMap.FIELD_LENGTH - 15.443, 7.410, Rotation2d.fromDegrees(180 + 0)),
+        inverted);
+  }
 }

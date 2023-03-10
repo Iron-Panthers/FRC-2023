@@ -14,16 +14,10 @@ public class PoseInversionUtility {
    * and then fix the heading. Field is only mirrored in the x axis.
    */
   public static Pose2d findRedPose(Pose2d bluePose) {
-    return bluePose.getTranslation().getX() < FieldObstructionMap.FIELD_CENTER_X
-        ? new Pose2d(
-            new Translation2d(
-                FieldObstructionMap.FIELD_LENGTH - bluePose.getTranslation().getX(),
-                bluePose.getTranslation().getY()),
-            mirrorRotation.minus(bluePose.getRotation()))
-        : new Pose2d(
-            new Translation2d(
-                FieldObstructionMap.FIELD_LENGTH + bluePose.getTranslation().getX(),
-                bluePose.getTranslation().getY()),
-            mirrorRotation.minus(bluePose.getRotation()));
+    return new Pose2d(
+        new Translation2d(
+            FieldObstructionMap.FIELD_LENGTH - bluePose.getTranslation().getX(),
+            bluePose.getTranslation().getY()),
+        mirrorRotation.minus(bluePose.getRotation()));
   }
 }
