@@ -230,7 +230,7 @@ public class RobotContainer {
             new DriveToPlaceCommand(
                 drivebaseSubsystem,
                 manueverGenerator,
-                () -> currentNodeSelection.get().nodeStack().position(),
+                () -> currentNodeSelection.get().nodeStack().position().get(),
                 translationXSupplier,
                 translationYSupplier,
                 will.rightBumper(),

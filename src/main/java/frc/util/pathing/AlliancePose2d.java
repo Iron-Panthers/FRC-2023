@@ -1,6 +1,7 @@
 package frc.util.pathing;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 
 public class AlliancePose2d {
@@ -14,6 +15,11 @@ public class AlliancePose2d {
             bluePose.getTranslation().getX(),
             FieldObstructionMap.FIELD_HEIGHT - bluePose.getTranslation().getY(),
             bluePose.getRotation().times(-1));
+  }
+
+  /** Convenience constructor for creating an AlliancePose2d with the pose2d constructor. */
+  public AlliancePose2d(double x, double y, Rotation2d rotation) {
+    this(new Pose2d(x, y, rotation));
   }
 
   public Pose2d get() {
