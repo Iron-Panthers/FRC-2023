@@ -61,6 +61,7 @@ import frc.util.NodeSelectorUtility.Height;
 import frc.util.NodeSelectorUtility.NodeSelection;
 import frc.util.SharedReference;
 import frc.util.Util;
+import frc.util.pathing.AlliancePose2d;
 import frc.util.pathing.RubenManueverGenerator;
 import java.util.HashMap;
 import java.util.Map;
@@ -242,7 +243,7 @@ public class RobotContainer {
             new DriveToPlaceCommand(
                 drivebaseSubsystem,
                 manueverGenerator,
-                () -> new Pose2d(15.377, 7.336, Rotation2d.fromDegrees(0)),
+                (new AlliancePose2d(15.377, 7.336, Rotation2d.fromDegrees(0)))::get,
                 translationXSupplier,
                 translationYSupplier,
                 will.rightBumper(),
