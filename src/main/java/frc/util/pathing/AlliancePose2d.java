@@ -10,11 +10,7 @@ public class AlliancePose2d {
 
   public AlliancePose2d(Pose2d bluePose) {
     this.bluePose = bluePose;
-    this.redPose =
-        new Pose2d(
-            bluePose.getTranslation().getX(),
-            FieldObstructionMap.FIELD_HEIGHT - bluePose.getTranslation().getY(),
-            bluePose.getRotation().times(-1));
+    this.redPose = PoseInversionUtility.findRedPose(bluePose);
   }
 
   /** Convenience constructor for creating an AlliancePose2d with the pose2d constructor. */
