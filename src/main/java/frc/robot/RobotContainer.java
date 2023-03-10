@@ -6,7 +6,6 @@ package frc.robot;
 
 import static frc.robot.Constants.Drive;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -243,7 +242,7 @@ public class RobotContainer {
             new DriveToPlaceCommand(
                 drivebaseSubsystem,
                 manueverGenerator,
-                (new AlliancePose2d(15.377, 7.336, Rotation2d.fromDegrees(0)))::get,
+                (new AlliancePose2d(15.443, 7.410, Rotation2d.fromDegrees(0)))::get,
                 translationXSupplier,
                 translationYSupplier,
                 will.rightBumper(),
@@ -375,7 +374,7 @@ public class RobotContainer {
             outtakeSubsystem,
             armSubsystem,
             rgbSubsystem,
-            new Pose2d(4.88, 6.05, Rotation2d.fromDegrees(0))));
+            new AlliancePose2d(4.88, 6.05, Rotation2d.fromDegrees(0))));
 
     autoSelector.addOption(
         "Far Substation Mobility [APRILTAG]",
@@ -385,7 +384,7 @@ public class RobotContainer {
             outtakeSubsystem,
             armSubsystem,
             rgbSubsystem,
-            new Pose2d(6, .6, Rotation2d.fromDegrees(0))));
+            new AlliancePose2d(6, .6, Rotation2d.fromDegrees(0))));
 
     autoSelector.addOption("N2 Engage", new N2_Engage(5, 3.5, drivebaseSubsystem));
 

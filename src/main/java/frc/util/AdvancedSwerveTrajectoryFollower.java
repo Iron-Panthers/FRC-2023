@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import frc.robot.autonomous.TrajectoryFollower;
+import frc.util.pathing.PoseInversionUtility;
 
 /**
  * Implements a simple swerve trajectory follower, with a fixed robot heading.
@@ -26,6 +27,7 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
   private boolean finished = false;
   /* Variable to track if calculateDriveSignal has run once yet */
   private boolean firstRun = false;
+  private boolean mirrorForRed = false;
 
   public AdvancedSwerveTrajectoryFollower(
       PIDController xController, PIDController yController, ProfiledPIDController angleController) {
@@ -37,6 +39,11 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
     // tab.addDouble("yError", yController::getPositionError);
     this.yController = yController;
     this.angleController = angleController;
+  }
+
+  public void followMirroredRed(Trajectory trajectory) {
+    mirrorForRed = true;
+    follow(trajectory);
   }
 
   private ChassisSpeeds finishTrajectory() {
@@ -53,7 +60,10 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
     }
 
     // there is still time left!
-    lastState = trajectory.sample(time);
+    lastState =
+        mirrorForRed
+            ? PoseInversionUtility.findRedState(trajectory.sample(time))
+            : trajectory.sample(time);
     if (firstRun) {
       angleController.reset(currentPose.getRotation().getRadians());
       firstRun = false;
@@ -105,5 +115,6 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
     angleController.reset(0);
     finished = false;
     firstRun = false;
+    mirrorForRed = false;
   }
 }

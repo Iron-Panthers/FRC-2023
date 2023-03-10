@@ -4,7 +4,6 @@
 
 package frc.robot.autonomous.commands;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.DriveToPlaceCommand;
@@ -14,6 +13,7 @@ import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.RGBSubsystem;
+import frc.util.pathing.AlliancePose2d;
 import frc.util.pathing.RubenManueverGenerator;
 import java.util.Optional;
 
@@ -25,14 +25,14 @@ public class MobilityAuto extends SequentialCommandGroup {
       OuttakeSubsystem outtakeSubsystem,
       ArmSubsystem armSubsystem,
       RGBSubsystem rgbSubsystem,
-      Pose2d finalPose) {
+      AlliancePose2d finalPose) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
         new DriveToPlaceCommand(
                 drivebaseSubsystem,
                 manueverGenerator,
-                () -> finalPose,
+                finalPose::get,
                 () -> 0,
                 () -> 0,
                 () -> false,
