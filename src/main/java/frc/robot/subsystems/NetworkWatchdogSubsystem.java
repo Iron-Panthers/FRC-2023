@@ -112,7 +112,7 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
   private void rebootSwitch() {
     System.out.println("[network watchdog] Rebooting switch");
     showColor(Lights.Colors.RED);
-    pdh.setSwitchableChannel(false);
+    // pdh.setSwitchableChannel(false);
     sleep(NetworkWatchdog.REBOOT_DURATION_MS);
     pdh.setSwitchableChannel(true);
     System.out.println("[network watchdog] Finished rebooting switch");
