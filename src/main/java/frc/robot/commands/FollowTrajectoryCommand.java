@@ -69,11 +69,11 @@ public class FollowTrajectoryCommand extends CommandBase {
   public void initialize() {
     PathPlannerTrajectory selectedTrajectory =
         DriverStation.getAlliance() == Alliance.Blue ? blueTrajectory : redTrajectory;
-    drivebaseSubsystem.getFollower().follow(blueTrajectory);
+    drivebaseSubsystem.getFollower().follow(selectedTrajectory);
 
     if (localizeToStartPose) {
       // sample the trajectory at 0 seconds (its beginning)
-      State firstState = blueTrajectory.sample(0);
+      State firstState = selectedTrajectory.sample(0);
       Pose2d pose = firstState.poseMeters;
       if (firstState instanceof PathPlannerState) {
         Rotation2d holonomicRotation = ((PathPlannerState) firstState).holonomicRotation;
