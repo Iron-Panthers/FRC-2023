@@ -3,6 +3,7 @@ package frc.util.pathing;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.Trajectory;
 
 public class PoseInversionUtility {
   private PoseInversionUtility() {}
@@ -19,5 +20,14 @@ public class PoseInversionUtility {
             FieldObstructionMap.FIELD_LENGTH - bluePose.getTranslation().getX(),
             bluePose.getTranslation().getY()),
         mirrorRotation.minus(bluePose.getRotation()));
+  }
+
+  public static Trajectory.State findRedState(Trajectory.State blueState) {
+    return new Trajectory.State(
+        blueState.timeSeconds,
+        blueState.velocityMetersPerSecond,
+        blueState.accelerationMetersPerSecondSq,
+        findRedPose(blueState.poseMeters),
+        blueState.curvatureRadPerMeter);
   }
 }
