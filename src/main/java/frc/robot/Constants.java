@@ -253,7 +253,7 @@ public final class Constants {
               new ScoreStep(new ArmState(80, Arm.Setpoints.Extensions.MIN_EXTENSION)),
               new ScoreStep(new ArmState(80, 12)).canWaitHere(),
               new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE),
-              new ScoreStep(new ArmState(80, Arm.Setpoints.Extensions.MIN_EXTENSION)))
+              new ScoreStep(new ArmState(80, Arm.Setpoints.Extensions.MIN_EXTENSION))),
           NodeType.CUBE.atHeight(Height.LOW),
           List.of(
               new ScoreStep(new ArmState(55, 15)).canWaitHere(),
