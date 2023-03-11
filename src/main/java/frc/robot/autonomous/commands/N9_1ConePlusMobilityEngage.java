@@ -34,7 +34,7 @@ public class N9_1ConePlusMobilityEngage extends SequentialCommandGroup {
 
     Supplier<PathPlannerTrajectory> path =
         LoadMirrorPath.loadPath(
-            "n9 1cone +  mobility engage",
+            "n9 1cone + mobility engage",
             maxVelocityMetersPerSecond,
             maxAccelerationMetersPerSecondSq);
 
