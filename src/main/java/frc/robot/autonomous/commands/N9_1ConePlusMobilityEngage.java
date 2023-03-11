@@ -41,8 +41,8 @@ public class N9_1ConePlusMobilityEngage extends SequentialCommandGroup {
             maxAccelerationMetersPerSecondSq);
 
     addCommands(
-        new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)
-            .alongWith(new SetZeroModeCommand(armSubsystem)),
+        new SetZeroModeCommand(armSubsystem).raceWith(
+        new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)),
         new ScoreCommand(
             outtakeSubsystem,
             armSubsystem,
