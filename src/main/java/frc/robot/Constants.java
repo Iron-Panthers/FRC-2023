@@ -240,7 +240,7 @@ public final class Constants {
                   OuttakeSubsystem.Modes.OUTTAKE)),
           NodeType.CONE.atHeight(Height.LOW),
           List.of(
-              new ScoreStep(new ArmState(55, 15)).canWaitHere(),
+              new ScoreStep(new ArmState(27.7, Arm.Setpoints.Extensions.MIN_EXTENSION)).canWaitHere(),
               new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE)),
           NodeType.CUBE.atHeight(Height.HIGH),
           List.of(
@@ -250,13 +250,13 @@ public final class Constants {
               new ScoreStep(new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION))),
           NodeType.CUBE.atHeight(Height.MID),
           List.of(
-              new ScoreStep(new ArmState(80, Arm.Setpoints.Extensions.MIN_EXTENSION)),
-              new ScoreStep(new ArmState(80, 12)).canWaitHere(),
+              new ScoreStep(new ArmState(67.32, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(67.32, 0.75)).canWaitHere(),
               new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE),
-              new ScoreStep(new ArmState(80, Arm.Setpoints.Extensions.MIN_EXTENSION))),
+              new ScoreStep(new ArmState(67.32, Arm.Setpoints.Extensions.MIN_EXTENSION))),
           NodeType.CUBE.atHeight(Height.LOW),
           List.of(
-              new ScoreStep(new ArmState(55, 15)).canWaitHere(),
+              new ScoreStep(new ArmState(29.7, Arm.Setpoints.Extensions.MIN_EXTENSION)).canWaitHere(),
               new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE)));
 
   public static final class Vision {
