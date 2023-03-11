@@ -17,7 +17,7 @@ public class LoadMirrorPath {
 
     PathPlannerTrajectory redPath =
         PathPlanner.loadPath(
-            pathName + ".mirror.path",
+            pathName + ".path.mirror",
             maxVelocityMetersPerSecond,
             maxAccelerationMetersPerSecondSq);
 
