@@ -35,20 +35,20 @@ public class N2_1CubePlus1ConeEngage extends SequentialCommandGroup {
         PathPlanner.loadPathGroup(
             "n2 cone pickup to n3", maxVelocityMetersPerSecond, maxAccelerationMetersPerSecondSq);
 
-    addCommands(
-        // score the cube (later)
-        new FollowPathWithEvents(
-            new FollowTrajectoryCommand(paths.get(0), true, drivebaseSubsystem),
-            paths.get(0).getMarkers(),
-            eventMap),
-        new ScoreCommand(
-            outtakeSubsystem,
-            armSubsystem,
-            Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH))),
-        new FollowPathWithEvents(
-            new FollowTrajectoryCommand(paths.get(1), drivebaseSubsystem),
-            paths.get(1).getMarkers(),
-            eventMap),
-        new BalanceCommand(drivebaseSubsystem));
+    // addCommands(
+    //     // score the cube (later)
+    //     new FollowPathWithEvents(
+    //         new FollowTrajectoryCommand(paths.get(0), true, drivebaseSubsystem),
+    //         paths.get(0).getMarkers(),
+    //         eventMap),
+    //     new ScoreCommand(
+    //         outtakeSubsystem,
+    //         armSubsystem,
+    //         Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH))),
+    //     new FollowPathWithEvents(
+    //         new FollowTrajectoryCommand(paths.get(1), drivebaseSubsystem),
+    //         paths.get(1).getMarkers(),
+    //         eventMap),
+    //     new BalanceCommand(drivebaseSubsystem));
   }
 }

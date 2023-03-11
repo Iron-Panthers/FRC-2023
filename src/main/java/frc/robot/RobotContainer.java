@@ -366,7 +366,7 @@ public class RobotContainer {
     autoSelector.addOption(
         "Just Zero Arm [DOES NOT CALIBRATE]", new SetZeroModeCommand(armSubsystem));
 
-    autoSelector.setDefaultOption(
+    autoSelector.addOption(
         "Near Substation Mobility [APRILTAG]",
         new MobilityAuto(
             manueverGenerator,
@@ -388,7 +388,7 @@ public class RobotContainer {
 
     autoSelector.addOption("N2 Engage", new N2_Engage(5, 3.5, drivebaseSubsystem));
 
-    autoSelector.addOption(
+    autoSelector.setDefaultOption(
         "N3 1Cone + Mobility Engage",
         new N3_1ConePlusMobilityEngage(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
 
@@ -403,10 +403,10 @@ public class RobotContainer {
             1, // m/s2
             drivebaseSubsystem));
 
-    autoSelector.addOption(
-        "N2 1Cube (not yet) + 1Cone Engage",
-        new N2_1CubePlus1ConeEngage(
-            5, 3.5, eventMap, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+    // autoSelector.addOption(
+    //     "N2 1Cube (not yet) + 1Cone Engage",
+    //     new N2_1CubePlus1ConeEngage(
+    //         5, 3.5, eventMap, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
 
     autoSelector.addOption(
         "N1 Hybrid 1Cone + 2Cone + Engage",
