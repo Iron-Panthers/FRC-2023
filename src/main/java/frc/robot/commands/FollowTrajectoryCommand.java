@@ -13,12 +13,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DrivebaseSubsystem;
-import frc.util.pathing.PoseInversionUtility;
 
 /** Command to interface with the advanced trajectory follower, with automatic path mirroring. */
 public class FollowTrajectoryCommand extends CommandBase {
   private final DrivebaseSubsystem drivebaseSubsystem;
   private final PathPlannerTrajectory blueTrajectory;
+  private final PathPlannerTrajectory redTrajectory;
   /**
    * True if the swerve drive subsystem should localize to the trajectory's starting point in the
    * initialization block. Calls the underlying SwerveDriveOdometry.resetOdometry(pose, angle).
@@ -36,6 +36,8 @@ public class FollowTrajectoryCommand extends CommandBase {
   public FollowTrajectoryCommand(
       PathPlannerTrajectory blueTrajectory, DrivebaseSubsystem drivebaseSubsystem) {
     this.blueTrajectory = blueTrajectory;
+    this.redTrajectory =
+        PathPlannerTrajectory.transformTrajectoryForAlliance(blueTrajectory, Alliance.Red);
     this.drivebaseSubsystem = drivebaseSubsystem;
     this.localizeToStartPose = false;
     addRequirements(drivebaseSubsystem);
@@ -55,6 +57,8 @@ public class FollowTrajectoryCommand extends CommandBase {
       boolean localizeToStartPose,
       DrivebaseSubsystem drivebaseSubsystem) {
     this.blueTrajectory = blueTrajectory;
+    this.redTrajectory =
+        PathPlannerTrajectory.transformTrajectoryForAlliance(blueTrajectory, Alliance.Red);
     this.drivebaseSubsystem = drivebaseSubsystem;
     this.localizeToStartPose = localizeToStartPose;
     addRequirements(drivebaseSubsystem);
@@ -63,18 +67,12 @@ public class FollowTrajectoryCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    if (DriverStation.getAlliance() == Alliance.Blue) {
-      drivebaseSubsystem.getFollower().follow(blueTrajectory);
-    } else {
-      drivebaseSubsystem.getFollower().followMirroredRed(blueTrajectory);
-    }
+    PathPlannerTrajectory trajectory =
+        DriverStation.getAlliance() == Alliance.Blue ? blueTrajectory : redTrajectory;
 
     if (localizeToStartPose) {
       // sample the trajectory at 0 seconds (its beginning)
-      State firstState =
-          (DriverStation.getAlliance() == Alliance.Blue)
-              ? blueTrajectory.sample(0)
-              : PoseInversionUtility.findRedState(blueTrajectory.sample(0));
+      State firstState = trajectory.sample(0);
       Pose2d pose = firstState.poseMeters;
       if (firstState instanceof PathPlannerState) {
         Rotation2d holonomicRotation = ((PathPlannerState) firstState).holonomicRotation;

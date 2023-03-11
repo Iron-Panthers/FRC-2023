@@ -2,19 +2,13 @@ package frc.util.pathing;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import au.com.origin.snapshots.Expect;
-import au.com.origin.snapshots.junit5.SnapshotExtension;
-import com.pathplanner.lib.PathConstraints;
-import com.pathplanner.lib.PathPlanner;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.UtilTest;
 import frc.robot.Constants.Pathing;
 import frc.util.pathing.DisplayFieldArray.FieldSquare;
-import org.junit.jupiter.api.extension.ExtendWith;
 
-@ExtendWith({SnapshotExtension.class})
 public class PoseInversionUtilityTests {
   @UtilTest
   public void originPositionInverts() {
@@ -68,34 +62,5 @@ public class PoseInversionUtilityTests {
     }
 
     return fieldSquares;
-  }
-
-  private Expect expect;
-
-  @UtilTest
-  public void trajectoryStateInversionMatchesSnapshot() {
-    var fieldSquares = placeObstructions();
-    var path = PathPlanner.loadPath("n2 engage", new PathConstraints(4, 2));
-
-    var states = path.getStates();
-
-    for (var state : states) {
-      {
-        final var inverted = PoseInversionUtility.findRedState(state);
-        final var coord = new GridCoord(inverted.poseMeters.getTranslation());
-        fieldSquares[coord.x][coord.y] = FieldSquare.SPLINE;
-      }
-
-      // also write the original pose to the field
-      {
-        final var coord = new GridCoord(state.poseMeters.getTranslation());
-        fieldSquares[coord.x][coord.y] = FieldSquare.REDUNDANT_CRITICAL_POINT;
-      }
-    }
-
-    StringBuilder sb = new StringBuilder();
-    DisplayFieldArray.renderField(sb, fieldSquares);
-
-    expect.toMatchSnapshot(sb);
   }
 }
