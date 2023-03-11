@@ -1,11 +1,14 @@
 package frc.util.pathing;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPlannerTrajectory.EventMarker;
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
+import com.pathplanner.lib.PathPlannerTrajectory.StopEvent;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory.State;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,9 +81,26 @@ public class PoseInversionUtility {
     transformedState.angularVelocityRadPerSec = -state.angularVelocityRadPerSec;
     transformedState.holonomicRotation = transformedHolonomicRotation;
     transformedState.holonomicAngularVelocityRadPerSec = -state.holonomicAngularVelocityRadPerSec;
-    transformedState.curveRadius = -state.curveRadius;
-    transformedState.curvatureRadPerMeter = -state.curvatureRadPerMeter;
-    transformedState.deltaPos = state.deltaPos;
+    try {
+      // use reflection to read and write private field
+      // transformedState.curveRadius = -state.curveRadius;
+
+      Field curveRadiusField = PathPlannerState.class.getDeclaredField("curveRadius");
+      curveRadiusField.setAccessible(true);
+      curveRadiusField.setDouble(transformedState, -curveRadiusField.getDouble(state));
+
+      transformedState.curvatureRadPerMeter = -state.curvatureRadPerMeter;
+      // use reflection to read and write private field
+      // transformedState.deltaPos = state.deltaPos;
+
+      Field deltaPosField = PathPlannerState.class.getDeclaredField("deltaPos");
+      deltaPosField.setAccessible(true);
+      deltaPosField.setDouble(transformedState, deltaPosField.getDouble(state));
+
+    } catch (NoSuchFieldException | IllegalAccessException e) {
+      // FIXME: handle exception?
+      e.printStackTrace();
+    }
 
     return transformedState;
   }
@@ -94,11 +114,23 @@ public class PoseInversionUtility {
       transformedStates.add(transformStateForRed(state));
     }
 
-    return new PathPlannerTrajectory(
-        transformedStates,
-        trajectory.markers,
-        trajectory.startStopEvent,
-        trajectory.endStopEvent,
-        trajectory.fromGUI);
+    try {
+      Field markersField = PathPlannerTrajectory.class.getDeclaredField("markers");
+      markersField.setAccessible(true);
+      Field startStopEventField = PathPlannerTrajectory.class.getDeclaredField("startStopEvent");
+      startStopEventField.setAccessible(true);
+      Field endStopEventField = PathPlannerTrajectory.class.getDeclaredField("endStopEvent");
+      endStopEventField.setAccessible(true);
+
+      return new PathPlannerTrajectory(
+          transformedStates,
+          (List<EventMarker>) markersField.get(trajectory),
+          (StopEvent) startStopEventField.get(trajectory),
+          (StopEvent) endStopEventField.get(trajectory),
+          trajectory.fromGUI);
+    } catch (NoSuchFieldException | IllegalAccessException e) {
+      e.printStackTrace();
+      return new PathPlannerTrajectory();
+    }
   }
 }
