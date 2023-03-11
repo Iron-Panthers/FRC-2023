@@ -29,13 +29,18 @@ public class N3_1ConePlusMobilityEngage extends SequentialCommandGroup {
       double maxAccelerationMetersPerSecondSq,
       OuttakeSubsystem outtakeSubsystem,
       ArmSubsystem armSubsystem,
-      DrivebaseSubsystem drivebaseSubsystem) {
+      DrivebaseSubsystem drivebaseSubsystem,
+      boolean isBlue) {
 
     PathPlannerTrajectory path =
+        isBlue ? 
         PathPlanner.loadPath(
-            "n3 1cone +  mobility engage",
-            maxVelocityMetersPerSecond,
-            maxAccelerationMetersPerSecondSq);
+        "n3 1cone +  mobility engage",
+        maxVelocityMetersPerSecond,
+        maxAccelerationMetersPerSecondSq) : 
+        PathPlanner.loadPath("[red] n3 1cone +  mobility engage",
+        maxVelocityMetersPerSecond,
+        maxAccelerationMetersPerSecondSq);
 
     addCommands(
         new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)

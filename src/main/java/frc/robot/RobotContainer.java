@@ -390,7 +390,11 @@ public class RobotContainer {
 
     autoSelector.addOption(
         "N3 1Cone + Mobility Engage",
-        new N3_1ConePlusMobilityEngage(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+        new N3_1ConePlusMobilityEngage(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem, true));
+    
+    autoSelector.addOption(
+        "N3 1Cone + Mobility Engage",
+        new N3_1ConePlusMobilityEngage(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem, DriverStation.getAlliance()));
 
     autoSelector.addOption(
         "N9 1Cone + Mobility Engage",
