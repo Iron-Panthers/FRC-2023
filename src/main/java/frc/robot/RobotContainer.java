@@ -45,6 +45,7 @@ import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.SetOuttakeModeCommand;
+import frc.robot.commands.SetRGBTimedCommand;
 import frc.robot.commands.SetZeroModeCommand;
 import frc.robot.commands.VibrateHIDCommand;
 import frc.robot.subsystems.ArmSubsystem;
@@ -327,6 +328,28 @@ public class RobotContainer {
 
     jason.povRight().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(1))));
     jason.povLeft().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(-1))));
+
+    jason
+        .povUp()
+        .onTrue(
+            new WaitCommand(5)
+                .deadlineWith(
+                    new SetRGBTimedCommand(
+                        rgbSubsystem,
+                        Constants.Lights.Colors.PURPLE,
+                        RGBSubsystem.PatternTypes.PULSE,
+                        RGBSubsystem.MessagePriority.D_DRIVER_CONTROLLED_COLOR)));
+
+    jason
+        .povDown()
+        .onTrue(
+            new WaitCommand(5)
+                .deadlineWith(
+                    new SetRGBTimedCommand(
+                        rgbSubsystem,
+                        Constants.Lights.Colors.YELLOW,
+                        RGBSubsystem.PatternTypes.PULSE,
+                        RGBSubsystem.MessagePriority.D_DRIVER_CONTROLLED_COLOR)));
 
     // control the lights
     currentNodeSelection.subscribe(
