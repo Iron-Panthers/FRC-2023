@@ -74,9 +74,9 @@ public final class Constants {
 
     public static final class AutoBalance {
       /** the speed to drive at when balancing */
-      public static final double SPEED_METERS_PER_SECOND = .55;
+      public static final double SPEED_METERS_PER_SECOND = .7;
       /** angles greater than this will drive at the above speed */
-      public static final double CONTROL_ANGLE_DEGREES = 10;
+      public static final double CONTROL_ANGLE_DEGREES = 12.5;
     }
 
     /*
@@ -183,7 +183,7 @@ public final class Constants {
 
       public static final class Extensions {
         public static final double MAX_EXTENSION = 20.3;
-        public static final double MIN_EXTENSION = 0.35;
+        public static final double MIN_EXTENSION = 0.0;
       }
     }
 
