@@ -24,12 +24,15 @@ public class ConePlusMobility extends SequentialCommandGroup {
       double maxAccelerationMetersPerSecondSq,
       OuttakeSubsystem outtakeSubsystem,
       ArmSubsystem armSubsystem,
-      DrivebaseSubsystem drivebaseSubsystem, String node) {
+      DrivebaseSubsystem drivebaseSubsystem,
+      String node) {
 
     PathPlannerTrajectory path =
         PathPlanner.loadPath(
             (((DriverStation.getAlliance() == DriverStation.Alliance.Blue) ? "[blue]" : "[red]")
-                + " " + node + " + score preload high + mobility"),
+                + " "
+                + node
+                + " 1cone + mobility"),
             maxVelocityMetersPerSecond,
             maxAccelerationMetersPerSecondSq);
 
