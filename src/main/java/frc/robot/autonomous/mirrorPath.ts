@@ -85,15 +85,19 @@ const mirrorPath = async (path: string) => {
 };
 
 // iterate over all the paths in the paths folder
-for await (const path of Deno.readDir(Deno.cwd() + "/src/main/deploy/pathplanner/")) {
+for await (const path of Deno.readDir(
+  Deno.cwd() + "/src/main/deploy/pathplanner/"
+)) {
   if (path.name.endsWith(".mirror.path")) {
     // delete the mirror path
     await Deno.remove(Deno.cwd() + "/src/main/deploy/pathplanner/" + path.name);
   }
 }
 
-for await (const path of Deno.readDir(Deno.cwd() + "/src/main/deploy/pathplanner/")) {
-   if (path.name.endsWith(".path")) {
+for await (const path of Deno.readDir(
+  Deno.cwd() + "/src/main/deploy/pathplanner/"
+)) {
+  if (path.name.endsWith(".path")) {
     await mirrorPath(Deno.cwd() + "/src/main/deploy/pathplanner/" + path.name);
   }
 }
