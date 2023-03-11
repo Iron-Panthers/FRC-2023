@@ -22,33 +22,24 @@ import frc.robot.subsystems.OuttakeSubsystem;
 import frc.util.NodeSelectorUtility.Height;
 import frc.util.NodeSelectorUtility.NodeType;
 
-public class N3_1ConePlusMobilityEngage extends SequentialCommandGroup {
+public class Red_N3_1ConePlusMobilityEngage extends SequentialCommandGroup {
   /** Creates a new N2MobilityEngage. */
-  public N3_1ConePlusMobilityEngage(
+  public Red_N3_1ConePlusMobilityEngage(
       double maxVelocityMetersPerSecond,
       double maxAccelerationMetersPerSecondSq,
       OuttakeSubsystem outtakeSubsystem,
       ArmSubsystem armSubsystem,
       DrivebaseSubsystem drivebaseSubsystem) {
 
-    private Alliance color = DriverStation.getAlliance();
-
     PathPlannerTrajectory path =
-        if (color = Alliance.BLUE) {
-            PathPlanner.loadPath(
-            "n3 1cone +  mobility engage",
-            maxVelocityMetersPerSecond,
-            maxAccelerationMetersPerSecondSq) 
-        } else {
-            PathPlanner.loadPath("[red] n3 1cone +  mobility engage",
+        PathPlanner.loadPath(
+            "[red] n3 1cone + mobility engage",
             maxVelocityMetersPerSecond,
             maxAccelerationMetersPerSecondSq);
-        }
-        
 
     addCommands(
-        new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)
-            .alongWith(new SetZeroModeCommand(armSubsystem)),
+        new WaitCommand(3).deadlineWith( new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)
+            .alongWith(new SetZeroModeCommand(armSubsystem))),
         new ScoreCommand(
             outtakeSubsystem,
             armSubsystem,
