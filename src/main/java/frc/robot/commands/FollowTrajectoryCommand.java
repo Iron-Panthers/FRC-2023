@@ -63,11 +63,7 @@ public class FollowTrajectoryCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    if (DriverStation.getAlliance() == Alliance.Blue) {
-      drivebaseSubsystem.getFollower().follow(blueTrajectory);
-    } else {
-      drivebaseSubsystem.getFollower().followMirroredRed(blueTrajectory);
-    }
+    drivebaseSubsystem.getFollower().follow(blueTrajectory);
 
     if (localizeToStartPose) {
       // sample the trajectory at 0 seconds (its beginning)

@@ -25,12 +25,13 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
 import frc.robot.Constants.Drive;
 import frc.robot.autonomous.commands.AutoTestSequence;
+import frc.robot.autonomous.commands.ConePlusMobility;
 import frc.robot.autonomous.commands.MobilityAuto;
 import frc.robot.autonomous.commands.N1_Hybrid1ConePlus2ConePlusEngage;
 import frc.robot.autonomous.commands.N2_1CubePlus1ConeEngage;
 import frc.robot.autonomous.commands.N2_Engage;
-import frc.robot.autonomous.commands.N3_1ConePlusMobilityEngage;
 import frc.robot.autonomous.commands.N9_1ConePlusMobilityEngage;
+import frc.robot.autonomous.commands.Red_N3_1ConePlusMobilityEngage;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.BalanceCommand;
@@ -389,8 +390,9 @@ public class RobotContainer {
     autoSelector.addOption("N2 Engage", new N2_Engage(5, 3.5, drivebaseSubsystem));
 
     autoSelector.addOption(
-        "N3 1Cone + Mobility Engage",
-        new N3_1ConePlusMobilityEngage(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+        "[red] N3 1Cone + Mobility Engage",
+        new Red_N3_1ConePlusMobilityEngage(
+            5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
 
     autoSelector.addOption(
         "N9 1Cone + Mobility Engage",
@@ -411,6 +413,14 @@ public class RobotContainer {
     autoSelector.addOption(
         "N1 Hybrid 1Cone + 2Cone + Engage",
         new N1_Hybrid1ConePlus2ConePlusEngage(5, 3.5, armSubsystem, drivebaseSubsystem));
+
+    autoSelector.addOption(
+        "N3 Score Cone High + Mobility",
+        new ConePlusMobility(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem, "n3"));
+
+    autoSelector.addOption(
+        "N7 Score Cone High + Mobility",
+        new ConePlusMobility(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem, "n7"));
 
     driverView.add("auto selector", autoSelector).withSize(4, 1).withPosition(7, 0);
 
