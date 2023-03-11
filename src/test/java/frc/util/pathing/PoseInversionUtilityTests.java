@@ -82,18 +82,14 @@ public class PoseInversionUtilityTests {
     for (var state : states) {
       {
         final var inverted = PoseInversionUtility.findRedState(state);
-        final var x =
-            (int) (inverted.poseMeters.getTranslation().getX() / Pathing.CELL_SIZE_METERS);
-        final var y =
-            (int) (inverted.poseMeters.getTranslation().getY() / Pathing.CELL_SIZE_METERS);
-        fieldSquares[x][y] = FieldSquare.PATH;
+        final var coord = new GridCoord(inverted.poseMeters.getTranslation());
+        fieldSquares[coord.x][coord.y] = FieldSquare.SPLINE;
       }
 
       // also write the original pose to the field
       {
-        final var x = (int) (state.poseMeters.getTranslation().getX() / Pathing.CELL_SIZE_METERS);
-        final var y = (int) (state.poseMeters.getTranslation().getY() / Pathing.CELL_SIZE_METERS);
-        fieldSquares[x][y] = FieldSquare.PATH;
+        final var coord = new GridCoord(state.poseMeters.getTranslation());
+        fieldSquares[coord.x][coord.y] = FieldSquare.REDUNDANT_CRITICAL_POINT;
       }
     }
 
