@@ -93,7 +93,7 @@ public class RGBSubsystemTests {
         rgbSubsystem.showMessage(
             Lights.Colors.MINT,
             RGBSubsystem.PatternTypes.PULSE,
-            RGBSubsystem.MessagePriority.B_DRIVER_CONTROLLED_COLOR);
+            RGBSubsystem.MessagePriority.E_NODE_SELECTION_COLOR);
     doPeriodic(1);
     showedPulse(1);
     showedRainbow(1);
@@ -111,7 +111,7 @@ public class RGBSubsystemTests {
         rgbSubsystem.showMessage(
             Lights.Colors.MINT,
             RGBSubsystem.PatternTypes.PULSE,
-            RGBSubsystem.MessagePriority.B_DRIVER_CONTROLLED_COLOR);
+            RGBSubsystem.MessagePriority.E_NODE_SELECTION_COLOR);
     doPeriodic(1);
 
     var msg2 =
@@ -139,7 +139,7 @@ public class RGBSubsystemTests {
         rgbSubsystem.showMessage(
             Lights.Colors.MINT,
             RGBSubsystem.PatternTypes.PULSE,
-            RGBSubsystem.MessagePriority.B_DRIVER_CONTROLLED_COLOR);
+            RGBSubsystem.MessagePriority.E_NODE_SELECTION_COLOR);
     doPeriodic(1);
 
     var msg2 =
@@ -162,7 +162,7 @@ public class RGBSubsystemTests {
         rgbSubsystem.showMessage(
             Lights.Colors.MINT,
             RGBSubsystem.PatternTypes.PULSE,
-            RGBSubsystem.MessagePriority.B_DRIVER_CONTROLLED_COLOR);
+            RGBSubsystem.MessagePriority.E_NODE_SELECTION_COLOR);
 
     doPeriodic(1);
     showedRainbow(0);
@@ -177,7 +177,7 @@ public class RGBSubsystemTests {
         rgbSubsystem.showMessage(
             Lights.Colors.BLUE,
             RGBSubsystem.PatternTypes.PULSE,
-            RGBSubsystem.MessagePriority.B_DRIVER_CONTROLLED_COLOR);
+            RGBSubsystem.MessagePriority.E_NODE_SELECTION_COLOR);
     doPeriodic(1);
     showedRainbow(0);
     showedPulse(2);
@@ -189,7 +189,7 @@ public class RGBSubsystemTests {
         rgbSubsystem.showMessage(
             Lights.Colors.MINT,
             RGBSubsystem.PatternTypes.PULSE,
-            RGBSubsystem.MessagePriority.B_DRIVER_CONTROLLED_COLOR);
+            RGBSubsystem.MessagePriority.E_NODE_SELECTION_COLOR);
 
     doPeriodic(1);
     showedRainbow(0);
@@ -200,7 +200,7 @@ public class RGBSubsystemTests {
         rgbSubsystem.showMessage(
             Lights.Colors.MINT,
             RGBSubsystem.PatternTypes.PULSE,
-            RGBSubsystem.MessagePriority.B_DRIVER_CONTROLLED_COLOR);
+            RGBSubsystem.MessagePriority.E_NODE_SELECTION_COLOR);
     doPeriodic(1);
     showedRainbow(0);
     showedPulse(1);
@@ -233,7 +233,7 @@ public class RGBSubsystemTests {
         rgbSubsystem.showMessage(
             Lights.Colors.MINT,
             RGBSubsystem.PatternTypes.PULSE,
-            RGBSubsystem.MessagePriority.C_MISSING_PHOTONVISION_CLIENTS);
+            RGBSubsystem.MessagePriority.F_MISSING_PHOTONVISION_CLIENTS);
 
     doPeriodic(1);
     showedRainbow(0);

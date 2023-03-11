@@ -17,11 +17,16 @@ import edu.wpi.first.math.numbers.N3;
 import frc.robot.Constants.Drive.Dims;
 import frc.robot.commands.ScoreCommand.ScoreStep;
 import frc.robot.subsystems.ArmSubsystem.ArmState;
+import frc.robot.subsystems.NetworkWatchdogSubsystem.IPv4;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem.OuttakeDetails;
 import frc.robot.subsystems.RGBSubsystem.RGBColor;
+import frc.util.NodeSelectorUtility.Height;
+import frc.util.NodeSelectorUtility.NodeType;
+import frc.util.NodeSelectorUtility.ScoreTypeIdentifier;
 import frc.util.pathing.FieldObstructionMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @SuppressWarnings("java:S1118")
@@ -65,6 +70,13 @@ public final class Constants {
       public static final double WHEELBASE_METERS = TRACKWIDTH_METERS; // robot is square
 
       public static final double BUMPER_WIDTH_METERS = .851;
+    }
+
+    public static final class AutoBalance {
+      /** the speed to drive at when balancing */
+      public static final double SPEED_METERS_PER_SECOND = .55;
+      /** angles greater than this will drive at the above speed */
+      public static final double CONTROL_ANGLE_DEGREES = 10;
     }
 
     /*
@@ -152,25 +164,30 @@ public final class Constants {
       public static final int ENCODER_PORT = 28;
     }
 
+    public static final class ExtensionGains {
+      public static final double BASE_P = .15;
+      public static final double MAX_ADDITIONAL_P = .05;
+    }
+
     public static final double GRAVITY_CONTROL_PERCENT = 0.07;
 
-    public static final double ANGULAR_OFFSET = -8.75;
+    public static final double ANGULAR_OFFSET = 54.22;
 
     public static final class Setpoints {
 
-      public static final ArmState GROUND_INTAKE = new ArmState(-45, 19);
+      public static final ArmState GROUND_INTAKE = new ArmState(-48, 19);
 
-      public static final ArmState SHELF_INTAKE = new ArmState(95, 0);
+      public static final ArmState SHELF_INTAKE = new ArmState(89, 0);
 
       public static final ArmState STOWED = new ArmState(0, Arm.Setpoints.Extensions.MIN_EXTENSION);
 
       public static final class Extensions {
-        public static final double MAX_EXTENSION = 20.7;
-        public static final double MIN_EXTENSION = 0.4;
+        public static final double MAX_EXTENSION = 20.3;
+        public static final double MIN_EXTENSION = 0.35;
       }
     }
 
-    public static final double EXTENSION_STATOR_LIMIT = 42;
+    public static final double EXTENSION_STATOR_LIMIT = 35;
 
     public static final double ZERO_RETRACTION_PERCENT = -0.14;
     public static final int TICKS = 2048;
@@ -183,8 +200,7 @@ public final class Constants {
        * negative sign of their angle in degrees
        */
       public static final class Angles {
-        public static final double BACKWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD =
-            -35; // FIXME: real value needed
+        public static final double BACKWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD = -40;
         public static final double FORWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD =
             20; // FIXME: real value needed
         public static final double UPPER_ANGLE_LIMIT = 120;
@@ -203,65 +219,64 @@ public final class Constants {
     }
   }
 
-  public static final class ScoringSteps {
-    public static final class Cone {
-      public static final List<ScoreStep> HIGH =
+  public static final Map<ScoreTypeIdentifier, List<ScoreStep>> SCORE_STEP_MAP =
+      Map.of(
+          NodeType.CONE.atHeight(Height.HIGH),
           List.of(
               new ScoreStep(new ArmState(115, Arm.Setpoints.Extensions.MIN_EXTENSION)),
               new ScoreStep(new ArmState(115, Arm.Setpoints.Extensions.MAX_EXTENSION))
                   .canWaitHere(),
-              new ScoreStep(new ArmState(87, Arm.Setpoints.Extensions.MAX_EXTENSION)),
+              new ScoreStep(new ArmState(87, Arm.Setpoints.Extensions.MAX_EXTENSION)).canWaitHere(),
               new ScoreStep(
                   new ArmState(87, Arm.Setpoints.Extensions.MIN_EXTENSION),
-                  OuttakeSubsystem.Modes.OUTTAKE));
-
-      public static final List<ScoreStep> MID =
+                  OuttakeSubsystem.Modes.OUTTAKE)),
+          NodeType.CONE.atHeight(Height.MID),
           List.of(
               new ScoreStep(new ArmState(100, Arm.Setpoints.Extensions.MIN_EXTENSION)),
               new ScoreStep(new ArmState(100, 4.8)).canWaitHere(),
-              new ScoreStep(new ArmState(75, 4.8)),
+              new ScoreStep(new ArmState(75, 4.8)).canWaitHere(),
               new ScoreStep(
                   new ArmState(80, Arm.Setpoints.Extensions.MIN_EXTENSION),
-                  OuttakeSubsystem.Modes.OUTTAKE));
-    }
-
-    public static final class Cube {}
-  }
+                  OuttakeSubsystem.Modes.OUTTAKE)),
+          NodeType.CUBE.atHeight(Height.HIGH),
+          List.of(
+              new ScoreStep(new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(95, 20)).canWaitHere(),
+              new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE),
+              new ScoreStep(new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION))));
 
   public static final class Vision {
+    public static record VisionSource(String name, Transform3d robotToCamera) {}
 
-    public static final class FrontCam {
-      public static final String NAME = "frontCam";
-      public static final Transform3d ROBOT_TO_CAM =
-          new Transform3d(
-              // 9.867 in to the right looking from behind the front of the robot
-              // 7 inch forward from center
-              // up 17.422 inches
-              new Translation3d(
-                  0.1778, // front/back
-                  0.2506218, // left/right
-                  0.4425188 // up/down
-                  ),
-              new Rotation3d(
-                  0,
-                  Math.toRadians(-11.5), // angle up/down
-                  0));
-    }
-
-    public static final class BackCam {
-      public static final String NAME = "backCam";
-      public static final Transform3d ROBOT_TO_CAM =
-          new Transform3d(
-              // 9.867 in to the right looking from behind the front of the robot
-              // 48.5 inches up
-              // two inches forward
-              new Translation3d(
-                  0.0508, // front/back
-                  -0.2506218, // left/right
-                  1.2319 // up/down
-                  ),
-              new Rotation3d(0, Math.toRadians(17), Math.PI));
-    }
+    public static final List<VisionSource> VISION_SOURCES =
+        List.of(
+            new VisionSource(
+                "frontCam",
+                new Transform3d(
+                    // 9.867 in to the right looking from behind the front of the robot
+                    // 7 inch forward from center
+                    // up 17.422 inches
+                    new Translation3d(
+                        0.1778, // front/back
+                        0.2506218, // left/right
+                        0.4425188 // up/down
+                        ),
+                    new Rotation3d(
+                        0,
+                        Math.toRadians(-11.5), // angle up/down
+                        0))),
+            new VisionSource(
+                "backCam",
+                new Transform3d(
+                    // 9.867 in to the right looking from behind the front of the robot
+                    // 48.5 inches up
+                    // two inches forward
+                    new Translation3d(
+                        0.0508, // front/back
+                        -0.2506218, // left/right
+                        1.2319 // up/down
+                        ),
+                    new Rotation3d(0, Math.toRadians(17), Math.PI))));
   }
 
   public static final class PoseEstimator {
@@ -285,22 +300,42 @@ public final class Constants {
     public static final Matrix<N3, N1> VISION_MEASUREMENT_STANDARD_DEVIATIONS =
         Matrix.mat(Nat.N3(), Nat.N1())
             .fill(
-                .9, // x
-                .9, // y
-                .9 * Math.PI // theta
+                // if these numbers are less than one, multiplying will do bad things
+                1, // x
+                1, // y
+                1 * Math.PI // theta
                 );
 
-    public static final double CAMERA_CAPTURE_LATENCY_FUDGE_MS = 11;
+    /** The distance at which tag distance is factored into deviation */
+    public static final double NOISY_DISTANCE_METERS = 2.5;
+
+    /**
+     * The number to multiply by the smallest of the distance minus the above constant, clamped
+     * above 1 to be the numerator of the fraction.
+     */
+    public static final double DISTANCE_WEIGHT = 7;
+
+    /**
+     * The number to multiply by the number of tags beyond the first to get the denominator of the
+     * deviations matrix.
+     */
+    public static final double TAG_PRESENCE_WEIGHT = 10;
+
+    /** The amount to shift the pose ambiguity by before multiplying it. */
+    public static final double POSE_AMBIGUITY_SHIFTER = .2;
+
+    /** The amount to multiply the pose ambiguity by if there is only one tag. */
+    public static final double POSE_AMBIGUITY_MULTIPLIER = 4;
 
     /** about one inch */
-    public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .05;
+    public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .025;
 
     public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 2;
   }
 
   public static final class Pathing {
     /** The size in meters of a given cell for pathfinding */
-    public static final double CELL_SIZE_METERS = 0.1;
+    public static final double CELL_SIZE_METERS = 0.15;
 
     public static final int CELL_X_MAX =
         (int) Math.ceil(FieldObstructionMap.FIELD_LENGTH / Pathing.CELL_SIZE_METERS);
@@ -329,6 +364,10 @@ public final class Constants {
 
     public static final int PATHFINDING_HEURISTIC_CONSTANT = 1;
 
+    public static final double RESPECT_CURRENT_VELOCITY_THRESHOLD_MS = .2;
+
+    public static final double ANTICIPATED_PATH_SOLVE_TIME_SECONDS = .7;
+
     public static final class Costs {
       public static final int CARDINAL = 2;
       public static final int DIAGONAL = 3;
@@ -343,10 +382,10 @@ public final class Constants {
 
     public static final class OuttakeModes {
       public static final OuttakeDetails HOLD =
-          new OuttakeDetails(0.1, Optional.empty(), Optional.empty());
+          new OuttakeDetails(0.12, Optional.empty(), Optional.empty());
 
       public static final OuttakeDetails INTAKE =
-          new OuttakeDetails(0.7, Optional.of(new OuttakeDetails.StatorLimit(75)), Optional.of(2d));
+          new OuttakeDetails(1, Optional.of(new OuttakeDetails.StatorLimit(100)), Optional.of(2d));
 
       public static final OuttakeDetails OUTTAKE =
           new OuttakeDetails(-0.2, Optional.empty(), Optional.of(2d));
@@ -357,14 +396,15 @@ public final class Constants {
   }
 
   public static final class NetworkWatchdog {
-    /** The IP address to ping for testing bridging, on the second vlan. */
-    public static final String TEST_IP_ADDRESS = "10.50.26.19";
+    /** The IP addresses to ping for testing bridging, on the second vlan. */
+    public static final List<IPv4> TEST_IP_ADDRESSES =
+        List.of(IPv4.internal(17), IPv4.internal(18), IPv4.internal(19));
 
     /**
      * The number of ms (sleep delta using oshi system uptime) to wait before beginning to ping the
      * test IP.
      */
-    public static final int BOOT_SCAN_DELAY_MS = 30_000;
+    public static final int BOOT_SCAN_DELAY_MS = 50_000;
 
     /** The number of seconds for ping to wait before giving up on reaching a device. */
     public static final int PING_TIMEOUT_SECONDS = 2;
@@ -382,7 +422,7 @@ public final class Constants {
      * The number of ms to wait before rerunning health checks after a failed check which triggered
      * switch reboot.
      */
-    public static final int SWITCH_POWERCYCLE_SCAN_DELAY_MS = 6_000;
+    public static final int SWITCH_POWERCYCLE_SCAN_DELAY_MS = 25_000;
   }
 
   public static final class Lights {
@@ -399,6 +439,8 @@ public final class Constants {
       public static final RGBColor BLUE = new RGBColor(0, 0, 255);
       public static final RGBColor PINK = new RGBColor(250, 35, 100);
       public static final RGBColor MINT = new RGBColor(55, 255, 50);
+      public static final RGBColor TEAL = new RGBColor(0, 255, 255);
+      public static final RGBColor WHITE = new RGBColor(255, 255, 255);
     }
   }
 }
