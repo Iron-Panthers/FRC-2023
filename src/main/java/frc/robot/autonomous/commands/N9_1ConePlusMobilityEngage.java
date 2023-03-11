@@ -4,9 +4,6 @@
 
 package frc.robot.autonomous.commands;
 
-import java.util.function.Supplier;
-
-import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -24,6 +21,7 @@ import frc.robot.subsystems.OuttakeSubsystem;
 import frc.util.NodeSelectorUtility.Height;
 import frc.util.NodeSelectorUtility.NodeType;
 import frc.util.pathing.LoadMirrorPath;
+import java.util.function.Supplier;
 
 public class N9_1ConePlusMobilityEngage extends SequentialCommandGroup {
   /** Creates a new N2MobilityEngage. */
@@ -41,8 +39,8 @@ public class N9_1ConePlusMobilityEngage extends SequentialCommandGroup {
             maxAccelerationMetersPerSecondSq);
 
     addCommands(
-        new SetZeroModeCommand(armSubsystem).raceWith(
-        new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)),
+        new SetZeroModeCommand(armSubsystem)
+            .raceWith(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)),
         new ScoreCommand(
             outtakeSubsystem,
             armSubsystem,
