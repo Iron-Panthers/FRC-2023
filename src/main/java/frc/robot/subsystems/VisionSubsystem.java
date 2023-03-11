@@ -10,10 +10,13 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.PoseEstimator;
 import frc.robot.Constants.Vision;
 import java.io.IOException;
@@ -50,6 +53,21 @@ public class VisionSubsystem {
       e.printStackTrace();
       return;
     }
+
+    fieldLayout.setOrigin(
+        DriverStation.getAlliance() == DriverStation.Alliance.Red
+            ? AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide
+            : AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
+
+    new Trigger(DriverStation::isFMSAttached)
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  fieldLayout.setOrigin(
+                      DriverStation.getAlliance() == DriverStation.Alliance.Red
+                          ? AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide
+                          : AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
+                }));
 
     for (Vision.VisionSource visionSource : Vision.VISION_SOURCES) {
       var camera = new PhotonCamera(visionSource.name());
