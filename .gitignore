@@ -166,3 +166,5 @@ bin/
 
 # recording of matches
 *.mkv
+
+*.mirror.path

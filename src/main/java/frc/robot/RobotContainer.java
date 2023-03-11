@@ -27,9 +27,10 @@ import frc.robot.Constants.Drive;
 import frc.robot.autonomous.commands.AutoTestSequence;
 import frc.robot.autonomous.commands.MobilityAuto;
 import frc.robot.autonomous.commands.N1_Hybrid1ConePlus2ConePlusEngage;
-import frc.robot.autonomous.commands.N2_1CubePlus1ConeEngage;
 import frc.robot.autonomous.commands.N2_Engage;
+import frc.robot.autonomous.commands.N3_1ConePlusMobility;
 import frc.robot.autonomous.commands.N3_1ConePlusMobilityEngage;
+import frc.robot.autonomous.commands.N6_1ConePlusEngage;
 import frc.robot.autonomous.commands.N9_1ConePlusMobilityEngage;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
@@ -366,7 +367,7 @@ public class RobotContainer {
     autoSelector.addOption(
         "Just Zero Arm [DOES NOT CALIBRATE]", new SetZeroModeCommand(armSubsystem));
 
-    autoSelector.setDefaultOption(
+    autoSelector.addOption(
         "Near Substation Mobility [APRILTAG]",
         new MobilityAuto(
             manueverGenerator,
@@ -388,9 +389,17 @@ public class RobotContainer {
 
     autoSelector.addOption("N2 Engage", new N2_Engage(5, 3.5, drivebaseSubsystem));
 
-    autoSelector.addOption(
+    autoSelector.setDefaultOption(
         "N3 1Cone + Mobility Engage",
         new N3_1ConePlusMobilityEngage(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+
+    autoSelector.setDefaultOption(
+        "N3 1Cone + Mobility",
+        new N3_1ConePlusMobility(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+
+    autoSelector.setDefaultOption(
+        "N6 1Cone + Engage",
+        new N6_1ConePlusEngage(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
 
     autoSelector.addOption(
         "N9 1Cone + Mobility Engage",
@@ -403,10 +412,10 @@ public class RobotContainer {
             1, // m/s2
             drivebaseSubsystem));
 
-    autoSelector.addOption(
-        "N2 1Cube (not yet) + 1Cone Engage",
-        new N2_1CubePlus1ConeEngage(
-            5, 3.5, eventMap, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+    // autoSelector.addOption(
+    //     "N2 1Cube (not yet) + 1Cone Engage",
+    //     new N2_1CubePlus1ConeEngage(
+    //         5, 3.5, eventMap, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
 
     autoSelector.addOption(
         "N1 Hybrid 1Cone + 2Cone + Engage",
