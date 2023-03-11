@@ -238,12 +238,26 @@ public final class Constants {
               new ScoreStep(
                   new ArmState(80, Arm.Setpoints.Extensions.MIN_EXTENSION),
                   OuttakeSubsystem.Modes.OUTTAKE)),
+          NodeType.CONE.atHeight(Height.LOW),
+          List.of(
+              new ScoreStep(new ArmState(55, 15)).canWaitHere(),
+              new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE)),
           NodeType.CUBE.atHeight(Height.HIGH),
           List.of(
               new ScoreStep(new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION)),
               new ScoreStep(new ArmState(95, 20)).canWaitHere(),
               new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE),
-              new ScoreStep(new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION))));
+              new ScoreStep(new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION))),
+          NodeType.CUBE.atHeight(Height.MID),
+          List.of(
+              new ScoreStep(new ArmState(80, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(80, 12)).canWaitHere(),
+              new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE),
+              new ScoreStep(new ArmState(80, Arm.Setpoints.Extensions.MIN_EXTENSION)))
+          NodeType.CUBE.atHeight(Height.LOW),
+          List.of(
+              new ScoreStep(new ArmState(55, 15)).canWaitHere(),
+              new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE)));
 
   public static final class Vision {
     public static record VisionSource(String name, Transform3d robotToCamera) {}
