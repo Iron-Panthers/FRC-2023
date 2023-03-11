@@ -17,19 +17,19 @@ import frc.robot.subsystems.OuttakeSubsystem;
 import frc.util.NodeSelectorUtility.Height;
 import frc.util.NodeSelectorUtility.NodeType;
 
-public class N3_1ConePlusMobility extends SequentialCommandGroup {
-  /** Creates a new N3_1ConePlusMobility */
-  public N3_1ConePlusMobility(
+public class ConePlusMobility extends SequentialCommandGroup {
+  /** Creates a ne ConePlusMobility */
+  public ConePlusMobility(
       double maxVelocityMetersPerSecond,
       double maxAccelerationMetersPerSecondSq,
       OuttakeSubsystem outtakeSubsystem,
       ArmSubsystem armSubsystem,
-      DrivebaseSubsystem drivebaseSubsystem) {
+      DrivebaseSubsystem drivebaseSubsystem, String node) {
 
     PathPlannerTrajectory path =
         PathPlanner.loadPath(
-            ((DriverStation.getAlliance() == DriverStation.Alliance.Blue) ? "[blue]" : "[red]")
-                + " n3 + score preload high + mobility",
+            (((DriverStation.getAlliance() == DriverStation.Alliance.Blue) ? "[blue]" : "[red]")
+                + " " + node + " + score preload high + mobility"),
             maxVelocityMetersPerSecond,
             maxAccelerationMetersPerSecondSq);
 
