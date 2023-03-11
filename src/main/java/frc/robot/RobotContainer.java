@@ -406,6 +406,17 @@ public class RobotContainer {
         new N9_1ConePlusMobilityEngage(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
 
     autoSelector.addOption(
+        "Score High Cone [DOES NOT CALIBRATE]",
+        new SetZeroModeCommand(armSubsystem)
+            .raceWith(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE))
+            .andThen(
+                new ScoreCommand(
+                    outtakeSubsystem,
+                    armSubsystem,
+                    Constants.SCORE_STEP_MAP.get(
+                        NodeSelectorUtility.NodeType.CONE.atHeight(Height.HIGH)))));
+
+    autoSelector.addOption(
         "AutoTest",
         new AutoTestSequence(
             2, // m/s
