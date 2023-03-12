@@ -34,9 +34,7 @@ public class N6_1ConePlusEngage extends SequentialCommandGroup {
 
     Supplier<PathPlannerTrajectory> path =
         LoadMirrorPath.loadPath(
-            "n6 1cone + engage",
-            maxVelocityMetersPerSecond,
-            maxAccelerationMetersPerSecondSq);
+            "n6 1cone + engage", maxVelocityMetersPerSecond, maxAccelerationMetersPerSecondSq);
 
     addCommands(
         new SetZeroModeCommand(armSubsystem)
