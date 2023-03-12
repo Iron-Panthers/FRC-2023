@@ -76,11 +76,11 @@ public final class Constants {
       /** the max speed to drive at when balancing */
       public static final double P_SPEED_METERS_PER_SECOND = 1.1;
       /** the angle to use for normalizing the range */
-      public static final double MAX_ANGLE = 16;
+      public static final double MAX_ANGLE = 15;
       /** the angle to stop applying control */
       public static final double THRESHOLD_ANGLE = 5;
       /** the number to raise the [0, 1] error to */
-      public static final double E_EXPONENTIAL_FACTOR = 2;
+      public static final double E_EXPONENTIAL_FACTOR = 4;
     }
 
     /*
