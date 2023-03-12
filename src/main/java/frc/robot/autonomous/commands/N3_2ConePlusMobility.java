@@ -21,6 +21,7 @@ import frc.robot.subsystems.OuttakeSubsystem;
 import frc.util.NodeSelectorUtility.Height;
 import frc.util.NodeSelectorUtility.NodeType;
 import frc.util.pathing.LoadMirrorPath;
+import java.util.List;
 import java.util.function.Supplier;
 
 public class N3_2ConePlusMobility extends SequentialCommandGroup {
@@ -31,8 +32,8 @@ public class N3_2ConePlusMobility extends SequentialCommandGroup {
       ArmSubsystem armSubsystem,
       DrivebaseSubsystem drivebaseSubsystem) {
 
-    Supplier<PathPlannerTrajectory> path =
-        LoadMirrorPath.loadPath(
+    List<Supplier<PathPlannerTrajectory>> paths =
+        LoadMirrorPath.loadPathGroup(
             "n3 2cone + mobility", maxVelocityMetersPerSecond, maxAccelerationMetersPerSecondSq);
 
     addCommands(
@@ -42,7 +43,7 @@ public class N3_2ConePlusMobility extends SequentialCommandGroup {
             outtakeSubsystem,
             armSubsystem,
             Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH))),
-        (new FollowTrajectoryCommand(path, true, drivebaseSubsystem))
+        (new FollowTrajectoryCommand(paths.get(0), true, drivebaseSubsystem))
             .alongWith(
                 (new WaitCommand(1))
                     .andThen(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))),
@@ -52,6 +53,11 @@ public class N3_2ConePlusMobility extends SequentialCommandGroup {
                     .alongWith(
                         new ForceOuttakeSubsystemModeCommand(
                             outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE))),
-        new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED));
+        new FollowTrajectoryCommand(paths.get(1), drivebaseSubsystem)
+            .alongWith(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)),
+        new ScoreCommand(
+            outtakeSubsystem,
+            armSubsystem,
+            Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH))));
   }
 }
