@@ -74,7 +74,7 @@ public final class Constants {
 
     public static final class AutoBalance {
       /** the max speed to drive at when balancing */
-      public static final double P_SPEED_METERS_PER_SECOND = 1.1;
+      public static final double P_SPEED_METERS_PER_SECOND = 1;
       /** the angle to use for normalizing the range */
       public static final double MAX_ANGLE = 15;
       /** the angle to stop applying control */
