@@ -410,7 +410,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
   }
 
   private void balancePeriodic() {
-    // get the current combined pitch and roll of the robot as a magnitude and Rotation2d
     // x direction
     double roll = navx.getRoll();
     double absRoll = Math.abs(roll);
@@ -418,16 +417,22 @@ public class DrivebaseSubsystem extends SubsystemBase {
     double pitch = navx.getPitch();
     double absPitch = Math.abs(pitch);
 
-    if (Math.max(absRoll, absPitch) < AutoBalance.CONTROL_ANGLE_DEGREES) {
+    if (Math.max(absRoll, absPitch) <= AutoBalance.THRESHOLD_ANGLE) {
       defensePeriodic();
       return;
     }
 
+    double control =
+        AutoBalance.P_SPEED_METERS_PER_SECOND
+            * Math.pow(
+                MathUtil.clamp(Math.max(absRoll, absPitch) / AutoBalance.MAX_ANGLE, 0, 1),
+                AutoBalance.E_EXPONENTIAL_FACTOR);
+
     // use bang bang to generate chassis speeds that will balance the robot
     chassisSpeeds =
         absRoll > absPitch
-            ? new ChassisSpeeds(Math.copySign(AutoBalance.SPEED_METERS_PER_SECOND, roll), 0, 0)
-            : new ChassisSpeeds(0, Math.copySign(AutoBalance.SPEED_METERS_PER_SECOND, pitch), 0);
+            ? new ChassisSpeeds(Math.copySign(control, roll), 0, 0)
+            : new ChassisSpeeds(0, Math.copySign(control, pitch), 0);
 
     drivePeriodic();
   }
