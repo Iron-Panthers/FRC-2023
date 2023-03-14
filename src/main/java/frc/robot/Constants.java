@@ -73,10 +73,14 @@ public final class Constants {
     }
 
     public static final class AutoBalance {
-      /** the speed to drive at when balancing */
-      public static final double SPEED_METERS_PER_SECOND = .55;
-      /** angles greater than this will drive at the above speed */
-      public static final double CONTROL_ANGLE_DEGREES = 10;
+      /** the max speed to drive at when balancing */
+      public static final double P_SPEED_METERS_PER_SECOND = .8;
+      /** the angle to use for normalizing the range */
+      public static final double MAX_ANGLE = 15;
+      /** the angle to stop applying control */
+      public static final double THRESHOLD_ANGLE = 5;
+      /** the number to raise the [0, 1] error to */
+      public static final double E_EXPONENTIAL_FACTOR = 4;
     }
 
     /*
@@ -183,7 +187,7 @@ public final class Constants {
 
       public static final class Extensions {
         public static final double MAX_EXTENSION = 20.3;
-        public static final double MIN_EXTENSION = 0.35;
+        public static final double MIN_EXTENSION = 0.0;
       }
     }
 
@@ -238,12 +242,28 @@ public final class Constants {
               new ScoreStep(
                   new ArmState(80, Arm.Setpoints.Extensions.MIN_EXTENSION),
                   OuttakeSubsystem.Modes.OUTTAKE)),
+          NodeType.CONE.atHeight(Height.LOW),
+          List.of(
+              new ScoreStep(new ArmState(27.7, Arm.Setpoints.Extensions.MIN_EXTENSION))
+                  .canWaitHere(),
+              new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE)),
           NodeType.CUBE.atHeight(Height.HIGH),
           List.of(
               new ScoreStep(new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION)),
               new ScoreStep(new ArmState(95, 20)).canWaitHere(),
               new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE),
-              new ScoreStep(new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION))));
+              new ScoreStep(new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION))),
+          NodeType.CUBE.atHeight(Height.MID),
+          List.of(
+              new ScoreStep(new ArmState(67.32, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(67.32, 0.75)).canWaitHere(),
+              new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE),
+              new ScoreStep(new ArmState(67.32, Arm.Setpoints.Extensions.MIN_EXTENSION))),
+          NodeType.CUBE.atHeight(Height.LOW),
+          List.of(
+              new ScoreStep(new ArmState(29.7, Arm.Setpoints.Extensions.MIN_EXTENSION))
+                  .canWaitHere(),
+              new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE)));
 
   public static final class Vision {
     public static record VisionSource(String name, Transform3d robotToCamera) {}

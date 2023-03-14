@@ -67,5 +67,7 @@
     "teleoperated",
     "temurin",
     "TRACKWIDTH"
-  ]
+  ],
+  "deno.enable": true,
+  "deno.unstable": true
 }
