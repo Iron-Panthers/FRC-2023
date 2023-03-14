@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -13,8 +15,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.List;
-import java.util.Optional;
+import java.util.stream.Stream;
 
 public class CANWatchdogSubsystem extends SubsystemBase {
   private static final String REQUEST = "http://localhost:1250/?action=getdevices";
@@ -36,48 +37,50 @@ public class CANWatchdogSubsystem extends SubsystemBase {
     }
   }
 
-  private record CANDevice(int uniqID) {}
-
   private static final ObjectReader reader =
-      new ObjectMapper().readerFor(CANDevice[].class).withRootName("DeviceArray");
+      new ObjectMapper()
+          .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+          .reader()
+          .withRootName("DeviceArray");
 
-  private static Optional<List<Integer>> getIds(String jsonBody) {
+  protected static Stream<Integer> getIds(String jsonBody) {
     /*
     {
-      "DeviceArray": [
-        {
-          "BootloaderRev": "0.2",
-          "CurrentVers": "4.1",
-          "DynID": 17102859,
-          "HardwareRev": "1.0",
-          "ID": 17102859
-          "ManDate": "Nov 19, 2017"
-          "Model": "Victor SPX",
-          "Name": "Victor SPX 1",
-          "SoftStatus": "Running Application",
-          "UniqID": 5,
-          "Vendor": "VEX Robotics",
-        },
-        {
-          "BootloaderRev": "2.6",
-          "CurrentVers": "4.1",
-          "DynID": 33880073,
-          "HardwareRev": "1.4",
-          "ID": 33880073,
-          "ManDate": "Nov 3, 2017",
-          "Model": "Talon SRX",
-          "Name": "Talon SRX 1",
-          "SoftStatus": "Running Application",
-          "UniqID": 4,
-          "Vendor": "Cross The Road Electronics",
-        }
-      ]
+    	"DeviceArray": [{
+    			"BootloaderRev": "0.2",
+    			"CurrentVers": "4.1",
+    			"DynID": 17102859,
+    			"HardwareRev": "1.0",
+    			"ID": 17102859,
+    			"ManDate": "Nov 19, 2017",
+    			"Model": "Victor SPX",
+    			"Name": "Victor SPX 1",
+    			"SoftStatus": "Running Application",
+    			"UniqID": 5,
+    			"Vendor": "VEX Robotics"
+    		},
+    		{
+    			"BootloaderRev": "2.6",
+    			"CurrentVers": "4.1",
+    			"DynID": 33880073,
+    			"HardwareRev": "1.4",
+    			"ID": 33880073,
+    			"ManDate": "Nov 3, 2017",
+    			"Model": "Talon SRX",
+    			"Name": "Talon SRX 1",
+    			"SoftStatus": "Running Application",
+    			"UniqID": 4,
+    			"Vendor": "Cross The Road Electronics"
+    		}
+    	]
     }
-    */
+        */
     try {
-      return Optional.of(List.of(reader.readValue(jsonBody)));
+      return reader.readTree(jsonBody).findValues("UniqID").stream()
+          .map(JsonNode::numberValue)
+          .map(Number::intValue);
     } catch (IOException e) {
-      return Optional.empty();
+      return Stream.empty();
     }
   }
 
