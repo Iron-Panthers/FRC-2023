@@ -18,8 +18,10 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CANWatchdogSubsystem extends SubsystemBase {
   private static final String REQUEST = "http://localhost:1250/?action=getdevices";
@@ -47,14 +49,13 @@ public class CANWatchdogSubsystem extends SubsystemBase {
           .reader()
           .withRootName("DeviceArray");
 
-  protected static List<Integer> getIds(String jsonBody) {
+  protected static Stream<Integer> getIds(String jsonBody) {
     try {
       return reader.readTree(jsonBody).findValues("UniqID").stream()
           .map(JsonNode::numberValue)
-          .map(Number::intValue)
-          .toList();
+          .map(Number::intValue);
     } catch (IOException e) {
-      return List.of();
+      return Stream.empty();
     }
   }
 
@@ -76,9 +77,9 @@ public class CANWatchdogSubsystem extends SubsystemBase {
 
         if (body == null) continue;
 
-        // parse the json
-        var ids = getIds(body);
-        boolean allCanDevicesPresent = CAN.getIds().containsAll(ids);
+        // parse the json and check if all the ids we expect are present
+        boolean allCanDevicesPresent =
+            getIds(body).collect(Collectors.toCollection(HashSet::new)).containsAll(CAN.getIds());
 
         if (allCanDevicesPresent) {
           lastMsg.ifPresent(RGBMessage::expire);
