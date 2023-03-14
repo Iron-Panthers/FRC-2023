@@ -445,6 +445,10 @@ public final class Constants {
     public static final int SWITCH_POWERCYCLE_SCAN_DELAY_MS = 25_000;
   }
 
+  public static final class CANWatchdog {
+    public static final int SCAN_DELAY_MS = 3_000;
+  }
+
   public static final class Lights {
     public static final int CANDLE_ID = 34;
     public static final int NUM_LEDS =
