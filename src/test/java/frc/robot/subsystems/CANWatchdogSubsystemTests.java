@@ -42,12 +42,12 @@ public class CANWatchdogSubsystemTests {
 }
         """;
     var ids = CANWatchdogSubsystem.getIds(json);
-    assertEquals(List.of(5, 4), ids.toList());
+    assertEquals(List.of(5, 4), ids);
   }
 
   @RobotTest
   public void jsonDeserializationProducesEmptyStreamOnBadData() {
     var ids = CANWatchdogSubsystem.getIds("This is not JSON");
-    assertEquals(List.of(), ids.toList());
+    assertEquals(List.of(), ids);
   }
 }

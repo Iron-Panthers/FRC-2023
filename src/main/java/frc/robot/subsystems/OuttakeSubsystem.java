@@ -155,7 +155,7 @@ public class OuttakeSubsystem extends SubsystemBase {
               rgbSubsystem
                   .get()
                   .showMessage(
-                      Colors.WHITE, PatternTypes.PULSE, MessagePriority.B_INTAKE_STATE_CHANGE);
+                      Colors.WHITE, PatternTypes.PULSE, MessagePriority.C_INTAKE_STATE_CHANGE);
           CommandScheduler.getInstance()
               .schedule(new WaitCommand(.7).andThen(new InstantCommand(msg::expire)));
         }

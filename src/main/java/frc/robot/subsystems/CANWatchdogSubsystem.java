@@ -10,12 +10,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CANWatchdog;
+import frc.robot.Constants.Lights;
+import frc.robot.subsystems.RGBSubsystem.RGBMessage;
+import frc.util.CAN;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.stream.Stream;
+import java.util.List;
+import java.util.Optional;
 
 public class CANWatchdogSubsystem extends SubsystemBase {
   private static final String REQUEST = "http://localhost:1250/?action=getdevices";
@@ -43,17 +47,20 @@ public class CANWatchdogSubsystem extends SubsystemBase {
           .reader()
           .withRootName("DeviceArray");
 
-  protected static Stream<Integer> getIds(String jsonBody) {
+  protected static List<Integer> getIds(String jsonBody) {
     try {
       return reader.readTree(jsonBody).findValues("UniqID").stream()
           .map(JsonNode::numberValue)
-          .map(Number::intValue);
+          .map(Number::intValue)
+          .toList();
     } catch (IOException e) {
-      return Stream.empty();
+      return List.of();
     }
   }
 
-  private static void threadFn() {
+  Optional<RGBMessage> lastMsg = Optional.empty();
+
+  private void threadFn() {
     final URI uri = URI.create(REQUEST);
     final HttpClient client = HttpClient.newHttpClient();
     try {
@@ -71,6 +78,21 @@ public class CANWatchdogSubsystem extends SubsystemBase {
 
         // parse the json
         var ids = getIds(body);
+        boolean allCanDevicesPresent = CAN.getIds().containsAll(ids);
+
+        if (allCanDevicesPresent) {
+          lastMsg.ifPresent(RGBMessage::expire);
+          continue;
+        }
+
+        if (lastMsg.isPresent()) continue;
+
+        lastMsg =
+            Optional.of(
+                rgbSubsystem.showMessage(
+                    Lights.Colors.ORANGE,
+                    RGBSubsystem.PatternTypes.BOUNCE,
+                    RGBSubsystem.MessagePriority.B_MISSING_CAN_DEVICE));
       }
     } catch (InterruptedException e) {
       // restore the interrupted status
@@ -81,8 +103,9 @@ public class CANWatchdogSubsystem extends SubsystemBase {
   }
 
   /** Creates a new CANWatchdog. */
-  public CANWatchdogSubsystem() {
-    canWatchdogThread = new Thread(CANWatchdogSubsystem::threadFn, "CAN Watchdog Thread");
+  public CANWatchdogSubsystem(RGBSubsystem rgbSubsystem) {
+    this.rgbSubsystem = rgbSubsystem;
+    canWatchdogThread = new Thread(this::threadFn, "CAN Watchdog Thread");
     canWatchdogThread.setDaemon(true);
     canWatchdogThread.start();
   }
@@ -90,5 +113,11 @@ public class CANWatchdogSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+  }
+
+  public void matchStarting() {
+    canWatchdogThread.interrupt();
+    lastMsg.ifPresent(RGBMessage::expire);
+    lastMsg = Optional.empty();
   }
 }

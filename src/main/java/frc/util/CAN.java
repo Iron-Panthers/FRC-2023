@@ -1,19 +1,19 @@
 package frc.util;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class CAN {
   private CAN() {}
 
-  protected static final List<Integer> ids = new ArrayList<>();
+  protected static final Set<Integer> ids = new HashSet<>();
 
   public static int at(int id) {
     ids.add(id);
     return id;
   }
 
-  public static List<Integer> getIds() {
+  public static Set<Integer> getIds() {
     return ids;
   }
 }

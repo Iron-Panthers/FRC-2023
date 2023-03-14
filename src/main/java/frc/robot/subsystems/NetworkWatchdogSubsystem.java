@@ -71,15 +71,11 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
 
   private Optional<RGBMessage> lastMessage = Optional.empty();
 
-  private void showColor(RGBColor color) {
+  private void showColor(RGBColor color, MessagePriority priority) {
     if (!optionalRGBSubsystem.isPresent()) return;
     lastMessage.ifPresent(RGBMessage::expire);
     lastMessage =
-        Optional.of(
-            optionalRGBSubsystem
-                .get()
-                .showMessage(
-                    color, PatternTypes.BOUNCE, MessagePriority.A_CRITICAL_NETWORK_INFORMATION));
+        Optional.of(optionalRGBSubsystem.get().showMessage(color, PatternTypes.BOUNCE, priority));
   }
 
   /**
@@ -111,7 +107,7 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
 
   private void rebootSwitch() {
     System.out.println("[network watchdog] Rebooting switch");
-    showColor(Lights.Colors.RED);
+    showColor(Lights.Colors.RED, MessagePriority.A_CRITICAL_NETWORK_FAILURE);
     // pdh.setSwitchableChannel(false);
     sleep(NetworkWatchdog.REBOOT_DURATION_MS);
     pdh.setSwitchableChannel(true);
@@ -121,7 +117,7 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
   private boolean pingAttemptStep() {
     if (!canPingAny()) return false;
     System.out.println("[network watchdog] Network is up.");
-    showColor(Lights.Colors.MINT);
+    showColor(Lights.Colors.MINT, MessagePriority.H_NETWORK_HEALTHY);
     sleep(NetworkWatchdog.HEALTHY_CHECK_INTERVAL_MS);
     return true;
   }
@@ -182,5 +178,6 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
     pdh.setSwitchableChannel(true);
     // remove the message
     lastMessage.ifPresent(RGBMessage::expire);
+    lastMessage = Optional.empty();
   }
 }
