@@ -126,44 +126,45 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
     return true;
   }
 
+  private void threadFn() {
+    final int initialUptimeMS =
+        (int) Math.floor(new SystemInfo().getOperatingSystem().getSystemUptime() * 1000d);
+    System.out.println("[network watchdog] System uptime: " + initialUptimeMS);
+    if (initialUptimeMS < NetworkWatchdog.BOOT_SCAN_DELAY_MS) {
+      sleep(NetworkWatchdog.BOOT_SCAN_DELAY_MS - initialUptimeMS);
+    }
+
+    while (!Thread.currentThread().isInterrupted()) {
+      if (pingAttemptStep()) continue;
+
+      // the network is down if we get here
+      while (!Thread.currentThread().isInterrupted()) {
+        System.out.println("[network watchdog] Network is down.");
+        rebootSwitch();
+        System.out.println("[network watchdog] Scanning until duration expires.");
+        final long startTime = System.currentTimeMillis();
+        boolean didPing = false;
+        while ((!Thread.currentThread().isInterrupted())
+            && (System.currentTimeMillis() - startTime
+                < NetworkWatchdog.SWITCH_POWERCYCLE_SCAN_DELAY_MS)) {
+          if (pingAttemptStep()) {
+            didPing = true;
+            break;
+          }
+        }
+        if (didPing) break;
+        // repeat the cycle
+      }
+    }
+  }
+
   /** Creates a new NetworkWatchdogSubsystem. */
   public NetworkWatchdogSubsystem(Optional<RGBSubsystem> optionalRGBSubsystem) {
     this.optionalRGBSubsystem = optionalRGBSubsystem;
 
     pdh.setSwitchableChannel(true);
-    networkWatchdogThread =
-        new Thread(
-            () -> {
-              final int initialUptimeMS =
-                  (int) Math.floor(new SystemInfo().getOperatingSystem().getSystemUptime() * 1000d);
-              System.out.println("[network watchdog] System uptime: " + initialUptimeMS);
-              if (initialUptimeMS < NetworkWatchdog.BOOT_SCAN_DELAY_MS) {
-                sleep(NetworkWatchdog.BOOT_SCAN_DELAY_MS - initialUptimeMS);
-              }
-
-              while (!Thread.currentThread().isInterrupted()) {
-                if (pingAttemptStep()) continue;
-
-                // the network is down if we get here
-                while (!Thread.currentThread().isInterrupted()) {
-                  System.out.println("[network watchdog] Network is down.");
-                  rebootSwitch();
-                  System.out.println("[network watchdog] Scanning until duration expires.");
-                  final long startTime = System.currentTimeMillis();
-                  boolean didPing = false;
-                  while ((!Thread.currentThread().isInterrupted())
-                      && (System.currentTimeMillis() - startTime
-                          < NetworkWatchdog.SWITCH_POWERCYCLE_SCAN_DELAY_MS)) {
-                    if (pingAttemptStep()) {
-                      didPing = true;
-                      break;
-                    }
-                  }
-                  if (didPing) break;
-                  // repeat the cycle
-                }
-              }
-            });
+    networkWatchdogThread = new Thread(this::threadFn, "Network Watchdog Thread");
+    networkWatchdogThread.setDaemon(true);
     networkWatchdogThread.start();
   }
 
