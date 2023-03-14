@@ -68,6 +68,9 @@ public class CANWatchdogSubsystem extends SubsystemBase {
                 .body();
 
         if (body == null) continue;
+
+        // parse the json
+        var ids = getIds(body);
       }
     } catch (InterruptedException e) {
       // restore the interrupted status
