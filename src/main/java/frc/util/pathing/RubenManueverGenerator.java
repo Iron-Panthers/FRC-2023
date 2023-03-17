@@ -13,6 +13,8 @@ import frc.robot.Constants.Pathing;
 import frc.robot.Constants.Pathing.Costs;
 import frc.util.Graph;
 import frc.util.Util;
+import frc.util.pathing.FieldObstructionMap.PriorityFlow.FlowType;
+import frc.util.pathing.GridCoord.LinkDirection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -52,9 +54,30 @@ public class RubenManueverGenerator {
     return danger;
   }
 
+  private int computeFlowPriority(GridCoord start, GridCoord end) {
+    LinkDirection direction = GridCoord.getLinkDirection(start, end);
+    FlowType flowTypeStart = FieldObstructionMap.getPriorityFlow(start.toTranslation2d());
+    FlowType flowTypeEnd = FieldObstructionMap.getPriorityFlow(end.toTranslation2d());
+
+    if (flowTypeStart == FlowType.NO_PREFERENCE && flowTypeEnd == FlowType.NO_PREFERENCE) {
+      return 1;
+    }
+
+    if (flowTypeStart == FlowType.X_AXIS_PREFERRED || flowTypeEnd == FlowType.X_AXIS_PREFERRED) {
+      return direction == LinkDirection.PURE_X ? 1 : Costs.BAD_FLOW_PENALTY;
+    }
+
+    if (flowTypeStart == FlowType.Y_AXIS_PREFERRED || flowTypeEnd == FlowType.Y_AXIS_PREFERRED) {
+      return direction == LinkDirection.PURE_Y ? 1 : Costs.BAD_FLOW_PENALTY;
+    }
+
+    return 1;
+  }
+
   private void addEdgeIfEndAccessible(GridCoord start, GridCoord end, int weight) {
     if (isValidCoord(end)) {
-      adjacencyGraph.addEdge(start, end, weight * computeDanger(start, end));
+      adjacencyGraph.addEdge(
+          start, end, weight * computeDanger(start, end) * computeFlowPriority(start, end));
     }
   }
 

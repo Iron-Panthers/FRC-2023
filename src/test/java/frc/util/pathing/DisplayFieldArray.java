@@ -10,7 +10,9 @@ public class DisplayFieldArray {
     END("EE"),
     REDUNDANT_CRITICAL_POINT("XX"),
     CRITICAL_POINT("<>"),
-    SPLINE("~~");
+    SPLINE("~~"),
+    X_AXIS_FLOW(">."),
+    Y_AXIS_FLOW("v.");
 
     private final String display;
 
