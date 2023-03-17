@@ -144,15 +144,15 @@ public class FieldObstructionMap {
   }
 
   private static void addAndMirrorPriorityFlowRectangle(
-      List<PriorityFlow> obstructions,
+      List<PriorityFlow> priorityFlows,
       AllianceColor allianceColor,
       String name,
       Translation2d bottomLeft,
       Translation2d topRight,
       PriorityFlow.FlowType flowType) {
     var rect = new PriorityFlowRectangle(allianceColor, name, bottomLeft, topRight, flowType);
-    obstructions.add(rect);
-    obstructions.add(rect.forAllianceColor(invertAllianceColor(allianceColor)));
+    priorityFlows.add(rect);
+    priorityFlows.add(rect.forAllianceColor(invertAllianceColor(allianceColor)));
   }
 
   private static List<Obstruction> initializeObstructions() {
@@ -207,7 +207,7 @@ public class FieldObstructionMap {
         priorityFlows,
         AllianceColor.RED,
         "Substation Priority Flow Zone",
-        new Translation2d(0, 5.61),
+        new Translation2d(0, 5.65),
         new Translation2d(4, FIELD_HEIGHT),
         PriorityFlow.FlowType.X_AXIS_PREFERRED);
 
