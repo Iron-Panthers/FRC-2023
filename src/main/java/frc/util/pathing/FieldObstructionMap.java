@@ -17,8 +17,7 @@ public class FieldObstructionMap {
 
   public enum AllianceColor {
     RED,
-    BLUE,
-    NEUTRAL
+    BLUE
   }
 
   public static interface Obstruction {
@@ -27,6 +26,20 @@ public class FieldObstructionMap {
     public String getName();
 
     public AllianceColor getAllianceColor();
+
+    public Obstruction forAllianceColor(AllianceColor color);
+  }
+
+  public static interface PriorityFlow extends Obstruction {
+    public enum FlowDirection {
+      POSITIVE,
+      NONE,
+      NEGATIVE
+    }
+
+    public FlowDirection getXFlowDirection();
+
+    public FlowDirection getYFlowDirection();
   }
 
   public static class RectangleObstruction implements Obstruction {
@@ -61,17 +74,52 @@ public class FieldObstructionMap {
     public AllianceColor getAllianceColor() {
       return allianceColor;
     }
+
+    public Obstruction forAllianceColor(AllianceColor color) {
+      if (color == allianceColor) {
+        return this;
+      } else {
+        return new RectangleObstruction(
+            color,
+            name,
+            new Translation2d(
+                FIELD_CENTER_X - (topRight.getX() - FIELD_CENTER_X), bottomLeft.getY()),
+            new Translation2d(
+                FIELD_CENTER_X - (bottomLeft.getX() - FIELD_CENTER_X), topRight.getY()));
+      }
+    }
+  }
+
+  public static class PriorityFlowRectangle extends RectangleObstruction implements PriorityFlow {
+    @JsonProperty private final PriorityFlow.FlowDirection xFlowDirection;
+    @JsonProperty private final PriorityFlow.FlowDirection yFlowDirection;
+
+    public PriorityFlowRectangle(
+        AllianceColor allianceColor,
+        String name,
+        Translation2d bottomLeft,
+        Translation2d topRight,
+        PriorityFlow.FlowDirection xFlowDirection,
+        PriorityFlow.FlowDirection yFlowDirection) {
+      super(allianceColor, name, bottomLeft, topRight);
+      this.xFlowDirection = xFlowDirection;
+      this.yFlowDirection = yFlowDirection;
+    }
+
+    public PriorityFlow.FlowDirection getXFlowDirection() {
+      return xFlowDirection;
+    }
+
+    public PriorityFlow.FlowDirection getYFlowDirection() {
+      return yFlowDirection;
+    }
   }
 
   private static AllianceColor invertAllianceColor(AllianceColor color) {
-    switch (color) {
-      case RED:
-        return AllianceColor.BLUE;
-      case BLUE:
-        return AllianceColor.RED;
-      default:
-        return AllianceColor.NEUTRAL;
-    }
+    return switch (color) {
+      case RED -> AllianceColor.BLUE;
+      case BLUE -> AllianceColor.RED;
+    };
   }
 
   private static void addAndMirrorRectangleObstruction(
@@ -80,21 +128,14 @@ public class FieldObstructionMap {
       String name,
       Translation2d bottomLeft,
       Translation2d topRight) {
-    obstructions.add(new RectangleObstruction(allianceColor, name, bottomLeft, topRight));
+    var rect = new RectangleObstruction(allianceColor, name, bottomLeft, topRight);
     // mirror over the center line. The final rect should have the same Y coords, but the X coords
     // should be mirrored
 
     // this is complected by using topRight and bottomLeft, so we have to do some math
 
-    Translation2d mirroredBottomLeft =
-        new Translation2d(FIELD_CENTER_X - (topRight.getX() - FIELD_CENTER_X), bottomLeft.getY());
-
-    Translation2d mirroredTopRight =
-        new Translation2d(FIELD_CENTER_X - (bottomLeft.getX() - FIELD_CENTER_X), topRight.getY());
-
-    obstructions.add(
-        new RectangleObstruction(
-            invertAllianceColor(allianceColor), name, mirroredBottomLeft, mirroredTopRight));
+    obstructions.add(rect);
+    obstructions.add(rect.forAllianceColor(invertAllianceColor(allianceColor)));
   }
 
   private static List<Obstruction> initializeObstructions() {
