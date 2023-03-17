@@ -2,6 +2,7 @@ package frc.util.pathing;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import edu.wpi.first.math.geometry.Translation2d;
+import frc.util.pathing.FieldObstructionMap.PriorityFlow.FlowType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,15 +32,13 @@ public class FieldObstructionMap {
   }
 
   public static interface PriorityFlow extends Obstruction {
-    public enum FlowDirection {
-      POSITIVE,
-      NONE,
-      NEGATIVE
+    public enum FlowType {
+      X_AXIS_PREFERRED,
+      Y_AXIS_PREFERRED,
+      NO_PREFERENCE;
     }
 
-    public FlowDirection getXFlowDirection();
-
-    public FlowDirection getYFlowDirection();
+    public FlowType getFlowPreference();
   }
 
   public static class RectangleObstruction implements Obstruction {
@@ -75,10 +74,16 @@ public class FieldObstructionMap {
       return allianceColor;
     }
 
-    public Obstruction forAllianceColor(AllianceColor color) {
+    public RectangleObstruction forAllianceColor(AllianceColor color) {
       if (color == allianceColor) {
         return this;
       } else {
+        // mirror over the center line. The final rect should have the same Y coords, but the X
+        // coords
+        // should be mirrored
+
+        // this is complected by using topRight and bottomLeft, so we have to do some math
+
         return new RectangleObstruction(
             color,
             name,
@@ -91,27 +96,32 @@ public class FieldObstructionMap {
   }
 
   public static class PriorityFlowRectangle extends RectangleObstruction implements PriorityFlow {
-    @JsonProperty private final PriorityFlow.FlowDirection xFlowDirection;
-    @JsonProperty private final PriorityFlow.FlowDirection yFlowDirection;
+    @JsonProperty private final FlowType flowPreference;
 
     public PriorityFlowRectangle(
         AllianceColor allianceColor,
         String name,
         Translation2d bottomLeft,
         Translation2d topRight,
-        PriorityFlow.FlowDirection xFlowDirection,
-        PriorityFlow.FlowDirection yFlowDirection) {
+        FlowType flowType) {
       super(allianceColor, name, bottomLeft, topRight);
-      this.xFlowDirection = xFlowDirection;
-      this.yFlowDirection = yFlowDirection;
+      this.flowPreference = flowType;
     }
 
-    public PriorityFlow.FlowDirection getXFlowDirection() {
-      return xFlowDirection;
+    public FlowType getFlowPreference() {
+      return flowPreference;
     }
 
-    public PriorityFlow.FlowDirection getYFlowDirection() {
-      return yFlowDirection;
+    @Override
+    public PriorityFlowRectangle forAllianceColor(AllianceColor color) {
+      if (color == super.getAllianceColor()) {
+        return this;
+      } else {
+        var rect = super.forAllianceColor(color);
+
+        return new PriorityFlowRectangle(
+            color, rect.getName(), rect.bottomLeft, rect.topRight, flowPreference);
+      }
     }
   }
 
@@ -129,11 +139,18 @@ public class FieldObstructionMap {
       Translation2d bottomLeft,
       Translation2d topRight) {
     var rect = new RectangleObstruction(allianceColor, name, bottomLeft, topRight);
-    // mirror over the center line. The final rect should have the same Y coords, but the X coords
-    // should be mirrored
+    obstructions.add(rect);
+    obstructions.add(rect.forAllianceColor(invertAllianceColor(allianceColor)));
+  }
 
-    // this is complected by using topRight and bottomLeft, so we have to do some math
-
+  private static void addAndMirrorPriorityFlowRectangle(
+      List<PriorityFlow> obstructions,
+      AllianceColor allianceColor,
+      String name,
+      Translation2d bottomLeft,
+      Translation2d topRight,
+      PriorityFlow.FlowType flowType) {
+    var rect = new PriorityFlowRectangle(allianceColor, name, bottomLeft, topRight, flowType);
     obstructions.add(rect);
     obstructions.add(rect.forAllianceColor(invertAllianceColor(allianceColor)));
   }
@@ -182,8 +199,27 @@ public class FieldObstructionMap {
     return obstructions;
   }
 
+  private static List<PriorityFlow> initializePriorityFlows() {
+    List<PriorityFlow> priorityFlows = new ArrayList<>();
+
+    // add the priority flow rectangles for the double substation
+    addAndMirrorPriorityFlowRectangle(
+        priorityFlows,
+        AllianceColor.RED,
+        "Substation Priority Flow Zone",
+        new Translation2d(0, 5.61),
+        new Translation2d(4, FIELD_HEIGHT),
+        PriorityFlow.FlowType.X_AXIS_PREFERRED);
+
+    // list is made immutable after calling function to satisfy sonarlint
+    return priorityFlows;
+  }
+
   public static final List<Obstruction> obstructions =
       Collections.unmodifiableList(initializeObstructions());
+
+  public static final List<PriorityFlow> priorityFlows =
+      Collections.unmodifiableList(initializePriorityFlows());
 
   public static boolean isInsideObstruction(Translation2d point) {
     for (Obstruction obstruction : obstructions) {
@@ -192,5 +228,14 @@ public class FieldObstructionMap {
       }
     }
     return false;
+  }
+
+  public static FlowType getPriorityFlow(Translation2d point) {
+    for (PriorityFlow priorityFlow : priorityFlows) {
+      if (priorityFlow.contains(point)) {
+        return priorityFlow.getFlowPreference();
+      }
+    }
+    return FlowType.NO_PREFERENCE;
   }
 }
