@@ -6,10 +6,10 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -19,31 +19,13 @@ import frc.robot.Constants.Vision;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
-import org.photonvision.RobotPoseEstimator;
-import org.photonvision.RobotPoseEstimator.PoseStrategy;
+import org.photonvision.PhotonPoseEstimator;
 
 public class VisionSubsystem {
   /** If shuffleboard should be used--important for unit testing. */
   private static boolean useShuffleboard = true;
-
-  class VisionSource {
-    public final PhotonCamera camera;
-    public final Transform3d robotToCam;
-
-    public VisionSource(PhotonCamera camera, Transform3d robotToCam) {
-      this.camera = camera;
-      this.robotToCam = robotToCam;
-      if (useShuffleboard)
-        cameraStatusList.addBoolean(this.camera.getName(), this.camera::isConnected);
-      visionSources.add(this);
-    }
-
-    Pair<PhotonCamera, Transform3d> getAsPair() {
-      return new Pair<>(camera, robotToCam);
-    }
-  }
 
   private final ShuffleboardLayout cameraStatusList =
       Shuffleboard.getTab("DriverView")
@@ -51,22 +33,14 @@ public class VisionSubsystem {
           .withPosition(11, 0)
           .withSize(2, 3);
 
-  private final List<VisionSource> visionSources = new ArrayList<>();
+  private final List<PhotonPoseEstimator> estimators = new ArrayList<>();
 
   private AprilTagFieldLayout fieldLayout;
-
-  RobotPoseEstimator poseEstimator;
 
   private double lastDetection = 0;
 
   /** Creates a new VisionSubsystem. */
   public VisionSubsystem() {
-
-    visionSources.add(
-        new VisionSource(new PhotonCamera(Vision.FrontCam.NAME), Vision.FrontCam.ROBOT_TO_CAM));
-    visionSources.add(
-        new VisionSource(new PhotonCamera(Vision.BackCam.NAME), Vision.BackCam.ROBOT_TO_CAM));
-
     // loading the 2023 field arrangement
     try {
       fieldLayout =
@@ -77,14 +51,18 @@ public class VisionSubsystem {
       return;
     }
 
-    // Create a list of cameras to use for pose estimation
-    var cameraList = new ArrayList<Pair<PhotonCamera, Transform3d>>();
-    for (var source : visionSources) {
-      cameraList.add(source.getAsPair());
+    for (Vision.VisionSource visionSource : Vision.VISION_SOURCES) {
+      var camera = new PhotonCamera(visionSource.name());
+      var estimator =
+          new PhotonPoseEstimator(
+              fieldLayout,
+              PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP,
+              camera,
+              visionSource.robotToCamera());
+      estimator.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
+      cameraStatusList.addBoolean(visionSource.name(), camera::isConnected);
+      estimators.add(estimator);
     }
-
-    poseEstimator =
-        new RobotPoseEstimator(fieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE, cameraList);
 
     if (useShuffleboard)
       cameraStatusList.addString(
@@ -92,34 +70,64 @@ public class VisionSubsystem {
           () -> String.format("%3.0f seconds", Timer.getFPGATimestamp() - lastDetection));
   }
 
-  /**
-   * @param estimatedRobotPose The current best guess at robot pose
-   * @return A pair of the fused camera observations to a single Pose2d on the field, and the time
-   *     of the observation in seconds. Assumes a planar field and the robot is always firmly on the
-   *     ground
-   */
-  public Optional<Pair<Pose2d, Double>> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
+  public static record VisionMeasurement(
+      EstimatedRobotPose estimation, Matrix<N3, N1> confidence) {}
+
+  public List<VisionMeasurement> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
     if (fieldLayout == null) {
-      return Optional.empty();
+      return List.of();
     }
 
-    poseEstimator.setReferencePose(prevEstimatedRobotPose);
+    List<VisionMeasurement> estimations = new ArrayList<>();
 
-    double currentTime = Timer.getFPGATimestamp();
-    Optional<Pair<Pose3d, Double>> result = poseEstimator.update();
+    for (PhotonPoseEstimator estimator : estimators) {
+      estimator.setReferencePose(prevEstimatedRobotPose);
+      var optEstimation = estimator.update();
+      if (optEstimation.isEmpty()) continue;
+      var estimation = optEstimation.get();
+      double smallestDistance = Double.POSITIVE_INFINITY;
+      for (var target : estimation.targetsUsed) {
+        var t3d = target.getBestCameraToTarget();
+        var distance =
+            Math.sqrt(Math.pow(t3d.getX(), 2) + Math.pow(t3d.getY(), 2) + Math.pow(t3d.getZ(), 2));
+        if (distance < smallestDistance) smallestDistance = distance;
+      }
+      double poseAmbiguityFactor =
+          estimation.targetsUsed.size() != 1
+              ? 1
+              : Math.max(
+                  1,
+                  (estimation.targetsUsed.get(0).getPoseAmbiguity()
+                          + PoseEstimator.POSE_AMBIGUITY_SHIFTER)
+                      * PoseEstimator.POSE_AMBIGUITY_MULTIPLIER);
+      double confidenceMultiplier =
+          Math.max(
+              1,
+              (Math.max(
+                          1,
+                          Math.max(0, smallestDistance - PoseEstimator.NOISY_DISTANCE_METERS)
+                              * PoseEstimator.DISTANCE_WEIGHT)
+                      * poseAmbiguityFactor)
+                  / (1
+                      + ((estimation.targetsUsed.size() - 1) * PoseEstimator.TAG_PRESENCE_WEIGHT)));
+      // System.out.println(
+      //     String.format(
+      //         "with %d tags at smallest distance %f and pose ambiguity factor %f, confidence
+      // multiplier %f",
+      //         estimation.targetsUsed.size(),
+      //         smallestDistance,
+      //         poseAmbiguityFactor,
+      //         confidenceMultiplier));
+      estimations.add(
+          new VisionMeasurement(
+              estimation,
+              PoseEstimator.VISION_MEASUREMENT_STANDARD_DEVIATIONS.times(confidenceMultiplier)));
+    }
 
-    // optional will be present but first can still be null!
-    if (!result.isPresent() || result.get().getFirst() == null) return Optional.empty();
+    if (!estimations.isEmpty()) {
+      lastDetection = Timer.getFPGATimestamp();
+    }
 
-    var resultSome = result.get();
-
-    lastDetection = Timer.getFPGATimestamp();
-
-    return Optional.of(
-        new Pair<Pose2d, Double>(
-            resultSome.getFirst().toPose2d(),
-            currentTime
-                - ((resultSome.getSecond() + PoseEstimator.CAMERA_CAPTURE_LATENCY_FUDGE_MS)
-                    / 1000)));
+    return estimations;
   }
 }

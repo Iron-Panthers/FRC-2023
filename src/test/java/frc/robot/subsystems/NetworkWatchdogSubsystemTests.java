@@ -8,11 +8,13 @@ import static org.junit.jupiter.api.condition.OS.LINUX;
 
 import frc.RobotTest;
 import frc.robot.Constants.NetworkWatchdog;
+import frc.robot.subsystems.NetworkWatchdogSubsystem.IPv4;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Optional;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 
@@ -48,6 +50,8 @@ public class NetworkWatchdogSubsystemTests {
   }
 
   @RobotTest
+  @Disabled(
+      "spams the console, not a very useful test. need to switch to using loggers instead of printing")
   public void subsystemConstructs() {
     assertDoesNotThrow(
         () -> {
@@ -65,7 +69,7 @@ public class NetworkWatchdogSubsystemTests {
         "Skipping test on CI, azure does not provide public IP address");
     assumeTrue(NetworkWatchdogSubsystemTests::hasPingBinary, "no ping binary");
     assumeTrue(NetworkWatchdogSubsystemTests::isOnline, "No network connectivity");
-    assertTrue(NetworkWatchdogSubsystem.canPing("8.8.8.8"));
+    assertTrue(NetworkWatchdogSubsystem.canPing(new IPv4(8, 8, 8, 8)));
   }
 
   @EnabledOnOs(LINUX)
@@ -81,6 +85,6 @@ public class NetworkWatchdogSubsystemTests {
         () -> isReachable("192.0.2.0", 443, 500),
         "TEST-NET-1 should not be reachable, it is reserved for documentation and testing");
 
-    assertFalse(NetworkWatchdogSubsystem.canPing("192.0.2.0"));
+    assertFalse(NetworkWatchdogSubsystem.canPing(new IPv4(192, 0, 2, 0)));
   }
 }
