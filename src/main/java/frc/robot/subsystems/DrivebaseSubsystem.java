@@ -146,44 +146,44 @@ public class DrivebaseSubsystem extends SubsystemBase {
   public DrivebaseSubsystem(VisionSubsystem visionSubsystem) {
     this.visionSubsystem = visionSubsystem;
 
-    final SwerveModule frontRightModule =
+    final SwerveModule module1 =
         createModule(
-            "Front Right Module #1",
+            "Module #1",
             0,
-            Modules.FrontRight.DRIVE_MOTOR,
-            Modules.FrontRight.STEER_MOTOR,
-            Modules.FrontRight.STEER_ENCODER,
-            Modules.FrontRight.STEER_OFFSET);
+            Modules.Module1.DRIVE_MOTOR,
+            Modules.Module1.STEER_MOTOR,
+            Modules.Module1.STEER_ENCODER,
+            Modules.Module1.STEER_OFFSET);
 
-    final SwerveModule frontLeftModule =
+    final SwerveModule module2 =
         createModule(
-            "Front Left Module #2",
+            "Module #2",
             1,
-            Modules.FrontLeft.DRIVE_MOTOR,
-            Modules.FrontLeft.STEER_MOTOR,
-            Modules.FrontLeft.STEER_ENCODER,
-            Modules.FrontLeft.STEER_OFFSET);
+            Modules.Module2.DRIVE_MOTOR,
+            Modules.Module2.STEER_MOTOR,
+            Modules.Module2.STEER_ENCODER,
+            Modules.Module2.STEER_OFFSET);
 
-    final SwerveModule backLeftModule =
+    final SwerveModule module3 =
         createModule(
-            "Back Left Module #3",
+            "Module #3",
             2,
-            Modules.BackLeft.DRIVE_MOTOR,
-            Modules.BackLeft.STEER_MOTOR,
-            Modules.BackLeft.STEER_ENCODER,
-            Modules.BackLeft.STEER_OFFSET);
+            Modules.Module3.DRIVE_MOTOR,
+            Modules.Module3.STEER_MOTOR,
+            Modules.Module3.STEER_ENCODER,
+            Modules.Module3.STEER_OFFSET);
 
-    final SwerveModule backRightModule =
+    final SwerveModule module4 =
         createModule(
-            "Back Right Module #4",
+            "Module #4",
             3,
-            Modules.BackRight.DRIVE_MOTOR,
-            Modules.BackRight.STEER_MOTOR,
-            Modules.BackRight.STEER_ENCODER,
-            Modules.BackRight.STEER_OFFSET);
+            Modules.Module4.DRIVE_MOTOR,
+            Modules.Module4.STEER_MOTOR,
+            Modules.Module4.STEER_ENCODER,
+            Modules.Module4.STEER_OFFSET);
 
     swerveModules = // modules are always initialized and passed in this order
-        new SwerveModule[] {frontRightModule, frontLeftModule, backLeftModule, backRightModule};
+        new SwerveModule[] {module1, module2, module3, module4};
 
     rotController = new PIDController(0.03, 0.001, 0.003);
     rotController.setSetpoint(0);
