@@ -46,15 +46,15 @@ public class CANWatchdogSubsystem extends SubsystemBase {
   private static final ObjectReader reader =
       new ObjectMapper()
           .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-          .reader()
-          .withRootName("DeviceArray");
+          .reader();
 
   protected static Stream<Integer> getIds(String jsonBody) {
     try {
-      return reader.readTree(jsonBody).findValues("UniqID").stream()
+      return reader.readTree(jsonBody).findPath("DeviceArray").findValues("ID").stream()
           .map(JsonNode::numberValue)
           .map(Number::intValue);
     } catch (IOException e) {
+      // e.printStackTrace();
       return Stream.empty();
     }
   }
