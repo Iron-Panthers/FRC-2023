@@ -21,6 +21,7 @@ import frc.robot.subsystems.NetworkWatchdogSubsystem.IPv4;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem.OuttakeDetails;
 import frc.robot.subsystems.RGBSubsystem.RGBColor;
+import frc.util.CAN;
 import frc.util.NodeSelectorUtility.Height;
 import frc.util.NodeSelectorUtility.NodeType;
 import frc.util.NodeSelectorUtility.ScoreTypeIdentifier;
@@ -116,9 +117,9 @@ public final class Constants {
 
     public static final class Modules {
       public static final class Module1 { // historically front right
-        public static final int DRIVE_MOTOR = 4;
-        public static final int STEER_MOTOR = 3;
-        public static final int STEER_ENCODER = 24;
+        public static final int DRIVE_MOTOR = CAN.at(4);
+        public static final int STEER_MOTOR = CAN.at(3);
+        public static final int STEER_ENCODER = CAN.at(24);
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
@@ -127,9 +128,9 @@ public final class Constants {
       }
 
       public static final class Module2 { // historically front left
-        public static final int DRIVE_MOTOR = 11;
-        public static final int STEER_MOTOR = 10;
-        public static final int STEER_ENCODER = 25;
+        public static final int DRIVE_MOTOR = CAN.at(11);
+        public static final int STEER_MOTOR = CAN.at(10);
+        public static final int STEER_ENCODER = CAN.at(25);
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
@@ -138,9 +139,9 @@ public final class Constants {
       }
 
       public static final class Module3 { // historically back left
-        public static final int DRIVE_MOTOR = 13;
-        public static final int STEER_MOTOR = 12;
-        public static final int STEER_ENCODER = 26;
+        public static final int DRIVE_MOTOR = CAN.at(13);
+        public static final int STEER_MOTOR = CAN.at(12);
+        public static final int STEER_ENCODER = CAN.at(26);
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
@@ -149,9 +150,9 @@ public final class Constants {
       }
 
       public static final class Module4 { // historically back right
-        public static final int DRIVE_MOTOR = 2;
-        public static final int STEER_MOTOR = 1;
-        public static final int STEER_ENCODER = 27;
+        public static final int DRIVE_MOTOR = CAN.at(2);
+        public static final int STEER_MOTOR = CAN.at(1);
+        public static final int STEER_ENCODER = CAN.at(27);
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
@@ -163,9 +164,9 @@ public final class Constants {
 
   public static final class Arm {
     public static final class Ports {
-      public static final int ARM_MOTOR_PORT = 16;
-      public static final int TELESCOPING_MOTOR_PORT = 17;
-      public static final int ENCODER_PORT = 28;
+      public static final int ARM_MOTOR_PORT = CAN.at(16);
+      public static final int TELESCOPING_MOTOR_PORT = CAN.at(17);
+      public static final int ENCODER_PORT = CAN.at(28);
     }
 
     public static final class ExtensionGains {
@@ -397,7 +398,7 @@ public final class Constants {
 
   public static final class Outtake {
     public static final class Ports {
-      public static final int OUTTAKE_MOTOR = 8; // Placeholder value
+      public static final int OUTTAKE_MOTOR = CAN.at(8);
     }
 
     public static final class OuttakeModes {
@@ -445,6 +446,10 @@ public final class Constants {
     public static final int SWITCH_POWERCYCLE_SCAN_DELAY_MS = 25_000;
   }
 
+  public static final class CANWatchdog {
+    public static final int SCAN_DELAY_MS = 100;
+  }
+
   public static final class Lights {
     public static final int CANDLE_ID = 34;
     public static final int NUM_LEDS =
@@ -456,6 +461,7 @@ public final class Constants {
       public static final RGBColor YELLOW = new RGBColor(255, 107, 0);
       public static final RGBColor PURPLE = new RGBColor(127, 0, 127);
       public static final RGBColor RED = new RGBColor(255, 0, 0);
+      public static final RGBColor ORANGE = new RGBColor(255, 35, 0);
       public static final RGBColor BLUE = new RGBColor(0, 0, 255);
       public static final RGBColor PINK = new RGBColor(250, 35, 100);
       public static final RGBColor MINT = new RGBColor(55, 255, 50);

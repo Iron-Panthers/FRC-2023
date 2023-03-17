@@ -48,6 +48,7 @@ import frc.robot.commands.SetOuttakeModeCommand;
 import frc.robot.commands.SetZeroModeCommand;
 import frc.robot.commands.VibrateHIDCommand;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.CANWatchdogSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.NetworkWatchdogSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
@@ -85,6 +86,8 @@ public class RobotContainer {
 
   private final NetworkWatchdogSubsystem networkWatchdogSubsystem =
       new NetworkWatchdogSubsystem(Optional.of(rgbSubsystem));
+
+  private final CANWatchdogSubsystem canWatchdogSubsystem = new CANWatchdogSubsystem(rgbSubsystem);
 
   private final RubenManueverGenerator manueverGenerator = new RubenManueverGenerator();
 
@@ -165,6 +168,7 @@ public class RobotContainer {
   public void containerMatchStarting() {
     // runs when the match starts
     networkWatchdogSubsystem.matchStarting();
+    canWatchdogSubsystem.matchStarting();
   }
 
   /**
@@ -337,7 +341,7 @@ public class RobotContainer {
                             ? Constants.Lights.Colors.PURPLE
                             : Constants.Lights.Colors.YELLOW,
                         RGBSubsystem.PatternTypes.PULSE,
-                        RGBSubsystem.MessagePriority.E_NODE_SELECTION_COLOR)
+                        RGBSubsystem.MessagePriority.F_NODE_SELECTION_COLOR)
                     ::expire));
 
     // show the current node selection
