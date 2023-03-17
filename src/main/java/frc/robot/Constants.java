@@ -40,6 +40,12 @@ import java.util.Optional;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+  public static final class Config {
+    /** turn this off before comp. */
+    public static final boolean RUN_PATHPLANNER_SERVER = true;
+  }
+
   public static final class Drive {
     // max voltage delivered to drivebase
     // supposedly useful to limit speed for testing
