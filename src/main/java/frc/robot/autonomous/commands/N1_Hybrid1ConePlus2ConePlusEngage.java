@@ -1,6 +1,5 @@
 package frc.robot.autonomous.commands;
 
-import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.Arm;
@@ -10,6 +9,8 @@ import frc.robot.commands.SetZeroModeCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ArmSubsystem.ArmState;
 import frc.robot.subsystems.DrivebaseSubsystem;
+import frc.util.pathing.LoadMirrorPath;
+import java.util.function.Supplier;
 
 public class N1_Hybrid1ConePlus2ConePlusEngage extends SequentialCommandGroup {
   public N1_Hybrid1ConePlus2ConePlusEngage(
@@ -18,8 +19,8 @@ public class N1_Hybrid1ConePlus2ConePlusEngage extends SequentialCommandGroup {
       ArmSubsystem armSubsystem,
       DrivebaseSubsystem drivebaseSubsystem) {
 
-    PathPlannerTrajectory path =
-        PathPlanner.loadPath(
+    Supplier<PathPlannerTrajectory> path =
+        LoadMirrorPath.loadPath(
             "n1 hybrid 1cone + 2cone + engage",
             maxVelocityMetersPerSecond,
             maxAccelerationMetersPerSecondSq);

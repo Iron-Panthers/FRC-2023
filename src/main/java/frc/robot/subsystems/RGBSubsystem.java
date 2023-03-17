@@ -9,6 +9,7 @@ import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.LarsonAnimation;
 import com.ctre.phoenix.led.RainbowAnimation;
 import com.ctre.phoenix.led.SingleFadeAnimation;
+import com.ctre.phoenix.led.StrobeAnimation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Lights;
 import java.util.Objects;
@@ -30,23 +31,27 @@ public class RGBSubsystem extends SubsystemBase {
   }
 
   public enum MessagePriority {
-    A_CRITICAL_NETWORK_INFORMATION,
-    B_INTAKE_STATE_CHANGE,
-    C_PATHING_STATUS,
-    D_DRIVER_CONTROLLED_COLOR,
-    E_NODE_SELECTION_COLOR,
-    F_MISSING_PHOTONVISION_CLIENTS,
+    A_CRITICAL_NETWORK_FAILURE,
+    B_MISSING_CAN_DEVICE,
+    C_INTAKE_STATE_CHANGE,
+    D_PATHING_STATUS,
+    E_DRIVER_CONTROLLED_COLOR,
+    F_NODE_SELECTION_COLOR,
+    G_MISSING_PHOTONVISION_CLIENTS,
+    H_NETWORK_HEALTHY,
   }
 
   private enum CurrentAnimationTypes {
     RAINBOW,
     LARSON,
     SINGLE_FADE,
+    STROBE
   }
 
   public enum PatternTypes {
     PULSE(CurrentAnimationTypes.SINGLE_FADE),
-    BOUNCE(CurrentAnimationTypes.LARSON);
+    BOUNCE(CurrentAnimationTypes.LARSON),
+    STROBE(CurrentAnimationTypes.STROBE);
 
     private final CurrentAnimationTypes type;
 
@@ -157,11 +162,17 @@ public class RGBSubsystem extends SubsystemBase {
     lastAppliedColor = Optional.of(color);
   }
 
+  private void showStrobeColor(RGBColor color) {
+    candle.animate(new StrobeAnimation(color.r, color.g, color.b, 0, .2, Lights.NUM_LEDS));
+    lastAppliedAnimation = Optional.of(CurrentAnimationTypes.STROBE);
+    lastAppliedColor = Optional.of(color);
+  }
+
   private void showMessage(RGBMessage message) {
-    if (message.pattern == PatternTypes.PULSE) {
-      showPulseColor(message.color);
-    } else if (message.pattern == PatternTypes.BOUNCE) {
-      showBounceColor(message.color);
+    switch (message.pattern) {
+      case PULSE -> showPulseColor(message.color);
+      case BOUNCE -> showBounceColor(message.color);
+      case STROBE -> showStrobeColor(message.color);
     }
   }
 

@@ -21,6 +21,7 @@ import frc.robot.subsystems.NetworkWatchdogSubsystem.IPv4;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem.OuttakeDetails;
 import frc.robot.subsystems.RGBSubsystem.RGBColor;
+import frc.util.CAN;
 import frc.util.NodeSelectorUtility.Height;
 import frc.util.NodeSelectorUtility.NodeType;
 import frc.util.NodeSelectorUtility.ScoreTypeIdentifier;
@@ -73,10 +74,14 @@ public final class Constants {
     }
 
     public static final class AutoBalance {
-      /** the speed to drive at when balancing */
-      public static final double SPEED_METERS_PER_SECOND = .55;
-      /** angles greater than this will drive at the above speed */
-      public static final double CONTROL_ANGLE_DEGREES = 10;
+      /** the max speed to drive at when balancing */
+      public static final double P_SPEED_METERS_PER_SECOND = .8;
+      /** the angle to use for normalizing the range */
+      public static final double MAX_ANGLE = 15;
+      /** the angle to stop applying control */
+      public static final double THRESHOLD_ANGLE = 5;
+      /** the number to raise the [0, 1] error to */
+      public static final double E_EXPONENTIAL_FACTOR = 4;
     }
 
     /*
@@ -111,57 +116,57 @@ public final class Constants {
      */
 
     public static final class Modules {
-      public static final class FrontRight { // Module 1
-        public static final int DRIVE_MOTOR = 4;
-        public static final int STEER_MOTOR = 3;
-        public static final int STEER_ENCODER = 24;
+      public static final class Module1 { // historically front right
+        public static final int DRIVE_MOTOR = CAN.at(4);
+        public static final int STEER_MOTOR = CAN.at(3);
+        public static final int STEER_ENCODER = CAN.at(24);
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
                 ? -Math.toRadians(8.07400 + 180) // comp bot offset
-                : -Math.toRadians(129.375 + 180); // practice bot offset
+                : -Math.toRadians(128.759766 + 180); // practice bot offset
       }
 
-      public static final class FrontLeft { // Module 2
-        public static final int DRIVE_MOTOR = 11;
-        public static final int STEER_MOTOR = 10;
-        public static final int STEER_ENCODER = 25;
+      public static final class Module2 { // historically front left
+        public static final int DRIVE_MOTOR = CAN.at(11);
+        public static final int STEER_MOTOR = CAN.at(10);
+        public static final int STEER_ENCODER = CAN.at(25);
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
                 ? -Math.toRadians(274.562 + 180) // comp bot offset
-                : -Math.toRadians(129.375 + 180); // practice bot offset
+                : -Math.toRadians(129.375000 + 180); // practice bot offset
       }
 
-      public static final class BackLeft { // Module 3
-        public static final int DRIVE_MOTOR = 13;
-        public static final int STEER_MOTOR = 12;
-        public static final int STEER_ENCODER = 26;
+      public static final class Module3 { // historically back left
+        public static final int DRIVE_MOTOR = CAN.at(13);
+        public static final int STEER_MOTOR = CAN.at(12);
+        public static final int STEER_ENCODER = CAN.at(26);
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
                 ? -Math.toRadians(225.082 + 180) // comp bot offset
-                : -Math.toRadians(307.793 + 180); // practice bot offset
+                : -Math.toRadians(306.650391 + 180); // practice bot offset
       }
 
-      public static final class BackRight { // Module 4
-        public static final int DRIVE_MOTOR = 2;
-        public static final int STEER_MOTOR = 1;
-        public static final int STEER_ENCODER = 27;
+      public static final class Module4 { // historically back right
+        public static final int DRIVE_MOTOR = CAN.at(2);
+        public static final int STEER_MOTOR = CAN.at(1);
+        public static final int STEER_ENCODER = CAN.at(27);
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
                 ? -Math.toRadians(335.124 + 180) // comp bot offset
-                : -Math.toRadians(241.963 + 180); // practice bot offset
+                : -Math.toRadians(241.875000 + 180); // practice bot offset
       }
     }
   }
 
   public static final class Arm {
     public static final class Ports {
-      public static final int ARM_MOTOR_PORT = 16;
-      public static final int TELESCOPING_MOTOR_PORT = 17;
-      public static final int ENCODER_PORT = 28;
+      public static final int ARM_MOTOR_PORT = CAN.at(16);
+      public static final int TELESCOPING_MOTOR_PORT = CAN.at(17);
+      public static final int ENCODER_PORT = CAN.at(28);
     }
 
     public static final class ExtensionGains {
@@ -183,7 +188,7 @@ public final class Constants {
 
       public static final class Extensions {
         public static final double MAX_EXTENSION = 20.3;
-        public static final double MIN_EXTENSION = 0.35;
+        public static final double MIN_EXTENSION = 0.0;
       }
     }
 
@@ -238,12 +243,28 @@ public final class Constants {
               new ScoreStep(
                   new ArmState(80, Arm.Setpoints.Extensions.MIN_EXTENSION),
                   OuttakeSubsystem.Modes.OUTTAKE)),
+          NodeType.CONE.atHeight(Height.LOW),
+          List.of(
+              new ScoreStep(new ArmState(27.7, Arm.Setpoints.Extensions.MIN_EXTENSION))
+                  .canWaitHere(),
+              new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE)),
           NodeType.CUBE.atHeight(Height.HIGH),
           List.of(
               new ScoreStep(new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION)),
               new ScoreStep(new ArmState(95, 20)).canWaitHere(),
               new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE),
-              new ScoreStep(new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION))));
+              new ScoreStep(new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION))),
+          NodeType.CUBE.atHeight(Height.MID),
+          List.of(
+              new ScoreStep(new ArmState(67.32, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(67.32, 0.75)).canWaitHere(),
+              new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE),
+              new ScoreStep(new ArmState(67.32, Arm.Setpoints.Extensions.MIN_EXTENSION))),
+          NodeType.CUBE.atHeight(Height.LOW),
+          List.of(
+              new ScoreStep(new ArmState(29.7, Arm.Setpoints.Extensions.MIN_EXTENSION))
+                  .canWaitHere(),
+              new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE)));
 
   public static final class Vision {
     public static record VisionSource(String name, Transform3d robotToCamera) {}
@@ -377,7 +398,7 @@ public final class Constants {
 
   public static final class Outtake {
     public static final class Ports {
-      public static final int OUTTAKE_MOTOR = 8; // Placeholder value
+      public static final int OUTTAKE_MOTOR = CAN.at(8);
     }
 
     public static final class OuttakeModes {
@@ -425,6 +446,10 @@ public final class Constants {
     public static final int SWITCH_POWERCYCLE_SCAN_DELAY_MS = 25_000;
   }
 
+  public static final class CANWatchdog {
+    public static final int SCAN_DELAY_MS = 100;
+  }
+
   public static final class Lights {
     public static final int CANDLE_ID = 34;
     public static final int NUM_LEDS =
@@ -436,6 +461,7 @@ public final class Constants {
       public static final RGBColor YELLOW = new RGBColor(255, 107, 0);
       public static final RGBColor PURPLE = new RGBColor(127, 0, 127);
       public static final RGBColor RED = new RGBColor(255, 0, 0);
+      public static final RGBColor ORANGE = new RGBColor(255, 35, 0);
       public static final RGBColor BLUE = new RGBColor(0, 0, 255);
       public static final RGBColor PINK = new RGBColor(250, 35, 100);
       public static final RGBColor MINT = new RGBColor(55, 255, 50);

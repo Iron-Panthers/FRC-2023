@@ -443,24 +443,22 @@ public class RubenManueverGenerator {
     GridCoord startCoord = new GridCoord(projectedStart.getTranslation());
     GridCoord endCoord = new GridCoord(end.getTranslation());
 
-    System.out.println("start: " + new GridCoord(start.getTranslation()));
-    System.out.println("projected: " + startCoord);
-    System.out.println("chassis speeds: " + chassisSpeeds);
+    // System.out.println("start: " + new GridCoord(start.getTranslation()));
+    // System.out.println("projected: " + startCoord);
+    // System.out.println("chassis speeds: " + chassisSpeeds);
     var t1 = Timer.getFPGATimestamp();
     var path = findFullPath(startCoord, endCoord);
-    System.out.println("path solve time: " + (Timer.getFPGATimestamp() - t1));
+    // System.out.println("path solve time: " + (Timer.getFPGATimestamp() - t1));
     if (path.isEmpty()) return Optional.empty();
     var criticalPoints = findCriticalPoints(path.get());
     var neededCriticalPoints = simplifyCriticalPoints(criticalPoints);
-    // System.out.println("'real' start: " + new GridCoord(start.get().getTranslation()));
     var pathPoints =
         computePathPointsFromCriticalPoints(
             neededCriticalPoints, projectedStart, chassisSpeeds, end);
 
     PathPlannerTrajectory trajectory = PathPlanner.generatePath(constraints, pathPoints);
 
-    // System.out.println("ultra 'real' start: " + new GridCoord(start.get().getTranslation()));
-    System.out.println("work time: " + (Timer.getFPGATimestamp() - t1));
+    // System.out.println("work time: " + (Timer.getFPGATimestamp() - t1));
 
     return Optional.of(trajectory);
   }
