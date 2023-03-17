@@ -461,7 +461,7 @@ public final class Constants {
       public static final RGBColor YELLOW = new RGBColor(255, 107, 0);
       public static final RGBColor PURPLE = new RGBColor(127, 0, 127);
       public static final RGBColor RED = new RGBColor(255, 0, 0);
-      public static final RGBColor ORANGE = new RGBColor(150, 200, 40);
+      public static final RGBColor ORANGE = new RGBColor(255, 35, 0);
       public static final RGBColor BLUE = new RGBColor(0, 0, 255);
       public static final RGBColor PINK = new RGBColor(250, 35, 100);
       public static final RGBColor MINT = new RGBColor(55, 255, 50);
