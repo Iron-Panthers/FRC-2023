@@ -92,7 +92,7 @@ public class CANWatchdogSubsystem extends SubsystemBase {
             Optional.of(
                 rgbSubsystem.showMessage(
                     Lights.Colors.ORANGE,
-                    RGBSubsystem.PatternTypes.BOUNCE,
+                    RGBSubsystem.PatternTypes.STROBE,
                     RGBSubsystem.MessagePriority.B_MISSING_CAN_DEVICE));
       }
     } catch (InterruptedException e) {

@@ -9,6 +9,7 @@ import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.LarsonAnimation;
 import com.ctre.phoenix.led.RainbowAnimation;
 import com.ctre.phoenix.led.SingleFadeAnimation;
+import com.ctre.phoenix.led.StrobeAnimation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Lights;
 import java.util.Objects;
@@ -44,11 +45,13 @@ public class RGBSubsystem extends SubsystemBase {
     RAINBOW,
     LARSON,
     SINGLE_FADE,
+    STROBE
   }
 
   public enum PatternTypes {
     PULSE(CurrentAnimationTypes.SINGLE_FADE),
-    BOUNCE(CurrentAnimationTypes.LARSON);
+    BOUNCE(CurrentAnimationTypes.LARSON),
+    STROBE(CurrentAnimationTypes.STROBE);
 
     private final CurrentAnimationTypes type;
 
@@ -159,11 +162,17 @@ public class RGBSubsystem extends SubsystemBase {
     lastAppliedColor = Optional.of(color);
   }
 
+  private void showStrobeColor(RGBColor color) {
+    candle.animate(new StrobeAnimation(color.r, color.g, color.b, 0, .2, Lights.NUM_LEDS));
+    lastAppliedAnimation = Optional.of(CurrentAnimationTypes.STROBE);
+    lastAppliedColor = Optional.of(color);
+  }
+
   private void showMessage(RGBMessage message) {
-    if (message.pattern == PatternTypes.PULSE) {
-      showPulseColor(message.color);
-    } else if (message.pattern == PatternTypes.BOUNCE) {
-      showBounceColor(message.color);
+    switch (message.pattern) {
+      case PULSE -> showPulseColor(message.color);
+      case BOUNCE -> showBounceColor(message.color);
+      case STROBE -> showStrobeColor(message.color);
     }
   }
 
