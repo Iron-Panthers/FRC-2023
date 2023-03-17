@@ -83,6 +83,7 @@ public class CANWatchdogSubsystem extends SubsystemBase {
 
         if (allCanDevicesPresent) {
           lastMsg.ifPresent(RGBMessage::expire);
+          lastMsg = Optional.empty();
           continue;
         }
 

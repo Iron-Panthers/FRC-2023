@@ -447,7 +447,7 @@ public final class Constants {
   }
 
   public static final class CANWatchdog {
-    public static final int SCAN_DELAY_MS = 3_000;
+    public static final int SCAN_DELAY_MS = 100;
   }
 
   public static final class Lights {
