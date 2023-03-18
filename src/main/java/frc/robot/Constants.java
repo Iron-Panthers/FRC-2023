@@ -7,6 +7,7 @@ package frc.robot;
 import static frc.util.MacUtil.IS_COMP_BOT;
 
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
+import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -43,7 +44,9 @@ public final class Constants {
 
   public static final class Config {
     /** turn this off before comp. */
-    public static final boolean RUN_PATHPLANNER_SERVER = true;
+    public static final boolean RUN_PATHPLANNER_SERVER =
+        // never run pathplanner server in simulation, it will fail unit tests (???)
+        HALUtil.getHALRuntimeType() != HALUtil.RUNTIME_SIMULATION;
   }
 
   public static final class Drive {
