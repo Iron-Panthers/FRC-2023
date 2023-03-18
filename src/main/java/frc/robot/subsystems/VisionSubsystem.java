@@ -4,41 +4,28 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.math.Pair;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import frc.robot.Constants.PoseEstimator;
 import frc.robot.Constants.Vision;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
-import org.photonvision.RobotPoseEstimator;
-import org.photonvision.RobotPoseEstimator.PoseStrategy;
+import org.photonvision.PhotonPoseEstimator;
 
 public class VisionSubsystem {
-  class VisionSource {
-    PhotonCamera camera;
-    Transform3d robotToCam;
-
-    public VisionSource(PhotonCamera camera, Transform3d robotToCam) {
-      this.camera = camera;
-      this.robotToCam = robotToCam;
-      cameraStatusList.addBoolean(this.camera.getName(), this.camera::isConnected);
-    }
-
-    Pair<PhotonCamera, Transform3d> getAsPair() {
-      return new Pair<PhotonCamera, Transform3d>(camera, robotToCam);
-    }
-  }
+  /** If shuffleboard should be used--important for unit testing. */
+  private static boolean useShuffleboard = true;
 
   private final ShuffleboardLayout cameraStatusList =
       Shuffleboard.getTab("DriverView")
@@ -46,68 +33,101 @@ public class VisionSubsystem {
           .withPosition(11, 0)
           .withSize(2, 3);
 
-  private final VisionSource frontCam =
-      new VisionSource(new PhotonCamera(Vision.FrontCam.NAME), Vision.FrontCam.ROBOT_TO_CAM);
-  private final VisionSource backCam =
-      new VisionSource(new PhotonCamera(Vision.BackCam.NAME), Vision.BackCam.ROBOT_TO_CAM);
+  private final List<PhotonPoseEstimator> estimators = new ArrayList<>();
 
-  RobotPoseEstimator poseEstimator;
-
-  static final double TEST_SPACE_WIDTH = 2.5;
-  static final double TEST_SPACE_LENGTH = 5;
+  private AprilTagFieldLayout fieldLayout;
 
   private double lastDetection = 0;
 
   /** Creates a new VisionSubsystem. */
   public VisionSubsystem() {
-    // Set up a test arena of two apriltags at the center of each driver station set
-    final AprilTag tag00 =
-        new AprilTag(0, new Pose3d(new Pose2d(5, 2.387, Rotation2d.fromDegrees(180))));
-    final AprilTag tag01 =
-        new AprilTag(01, new Pose3d(new Pose2d(5, 0, Rotation2d.fromDegrees(180))));
-    ArrayList<AprilTag> atList = new ArrayList<AprilTag>();
-    atList.add(tag00);
-    atList.add(tag01);
+    // loading the 2023 field arrangement
+    try {
+      fieldLayout =
+          AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
+    } catch (IOException e) {
+      System.err.println("Failed to load field layout.");
+      e.printStackTrace();
+      return;
+    }
 
-    // TODO - once 2023 happens, replace this with just loading the 2023 field arrangement
-    AprilTagFieldLayout atfl = new AprilTagFieldLayout(atList, TEST_SPACE_LENGTH, TEST_SPACE_WIDTH);
+    for (Vision.VisionSource visionSource : Vision.VISION_SOURCES) {
+      var camera = new PhotonCamera(visionSource.name());
+      var estimator =
+          new PhotonPoseEstimator(
+              fieldLayout,
+              PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP,
+              camera,
+              visionSource.robotToCamera());
+      estimator.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
+      cameraStatusList.addBoolean(visionSource.name(), camera::isConnected);
+      estimators.add(estimator);
+    }
 
-    // Create a list of cameras to use for pose estimation
-    List<Pair<PhotonCamera, Transform3d>> cameras = new ArrayList<>();
-    cameras.add(frontCam.getAsPair());
-    cameras.add(backCam.getAsPair());
-
-    poseEstimator = new RobotPoseEstimator(atfl, PoseStrategy.CLOSEST_TO_REFERENCE_POSE, cameras);
-
-    cameraStatusList.addString(
-        "time since apriltag detection",
-        () -> String.format("%3.0f seconds", Timer.getFPGATimestamp() - lastDetection));
+    if (useShuffleboard)
+      cameraStatusList.addString(
+          "time since apriltag detection",
+          () -> String.format("%3.0f seconds", Timer.getFPGATimestamp() - lastDetection));
   }
 
-  /**
-   * @param estimatedRobotPose The current best guess at robot pose
-   * @return A pair of the fused camera observations to a single Pose2d on the field, and the time
-   *     of the observation in seconds. Assumes a planar field and the robot is always firmly on the
-   *     ground
-   */
-  public Optional<Pair<Pose2d, Double>> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
-    poseEstimator.setReferencePose(prevEstimatedRobotPose);
+  public static record VisionMeasurement(
+      EstimatedRobotPose estimation, Matrix<N3, N1> confidence) {}
 
-    double currentTime = Timer.getFPGATimestamp();
-    Optional<Pair<Pose3d, Double>> result = poseEstimator.update();
+  public List<VisionMeasurement> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
+    if (fieldLayout == null) {
+      return List.of();
+    }
 
-    // optional will be present but first can still be null!
-    if (!result.isPresent() || result.get().getFirst() == null) return Optional.empty();
+    List<VisionMeasurement> estimations = new ArrayList<>();
 
-    var resultSome = result.get();
+    for (PhotonPoseEstimator estimator : estimators) {
+      estimator.setReferencePose(prevEstimatedRobotPose);
+      var optEstimation = estimator.update();
+      if (optEstimation.isEmpty()) continue;
+      var estimation = optEstimation.get();
+      double smallestDistance = Double.POSITIVE_INFINITY;
+      for (var target : estimation.targetsUsed) {
+        var t3d = target.getBestCameraToTarget();
+        var distance =
+            Math.sqrt(Math.pow(t3d.getX(), 2) + Math.pow(t3d.getY(), 2) + Math.pow(t3d.getZ(), 2));
+        if (distance < smallestDistance) smallestDistance = distance;
+      }
+      double poseAmbiguityFactor =
+          estimation.targetsUsed.size() != 1
+              ? 1
+              : Math.max(
+                  1,
+                  (estimation.targetsUsed.get(0).getPoseAmbiguity()
+                          + PoseEstimator.POSE_AMBIGUITY_SHIFTER)
+                      * PoseEstimator.POSE_AMBIGUITY_MULTIPLIER);
+      double confidenceMultiplier =
+          Math.max(
+              1,
+              (Math.max(
+                          1,
+                          Math.max(0, smallestDistance - PoseEstimator.NOISY_DISTANCE_METERS)
+                              * PoseEstimator.DISTANCE_WEIGHT)
+                      * poseAmbiguityFactor)
+                  / (1
+                      + ((estimation.targetsUsed.size() - 1) * PoseEstimator.TAG_PRESENCE_WEIGHT)));
+      // System.out.println(
+      //     String.format(
+      //         "with %d tags at smallest distance %f and pose ambiguity factor %f, confidence
+      // multiplier %f",
+      //         estimation.targetsUsed.size(),
+      //         smallestDistance,
+      //         poseAmbiguityFactor,
+      //         confidenceMultiplier));
+      estimations.add(
+          new VisionMeasurement(
+              estimation,
+              PoseEstimator.VISION_MEASUREMENT_STANDARD_DEVIATIONS.times(confidenceMultiplier)));
+    }
 
-    lastDetection = Timer.getFPGATimestamp();
+    if (!estimations.isEmpty()) {
+      lastDetection = Timer.getFPGATimestamp();
+    }
 
-    return Optional.of(
-        new Pair<Pose2d, Double>(
-            resultSome.getFirst().toPose2d(),
-            currentTime
-                - ((resultSome.getSecond() + PoseEstimator.CAMERA_CAPTURE_LATENCY_FUDGE_MS)
-                    / 1000)));
+    return estimations;
   }
 }
