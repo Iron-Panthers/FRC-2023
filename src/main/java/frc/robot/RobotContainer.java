@@ -6,6 +6,7 @@ package frc.robot;
 
 import static frc.robot.Constants.Drive;
 
+import com.pathplanner.lib.server.PathPlannerServer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -23,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
+import frc.robot.Constants.Config;
 import frc.robot.Constants.Drive;
 import frc.robot.autonomous.commands.AutoTestSequence;
 import frc.robot.autonomous.commands.MobilityAuto;
@@ -357,6 +359,10 @@ public class RobotContainer {
    * Adds all autonomous routines to the autoSelector, and places the autoSelector on Shuffleboard.
    */
   private void setupAutonomousCommands() {
+    if (Config.RUN_PATHPLANNER_SERVER) {
+      PathPlannerServer.startServer(5811);
+    }
+
     driverView.addString("NOTES", () -> "...win?").withSize(3, 1).withPosition(0, 0);
 
     final Map<String, Command> eventMap =
