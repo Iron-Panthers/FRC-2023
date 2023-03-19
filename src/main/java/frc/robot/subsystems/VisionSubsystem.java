@@ -18,10 +18,8 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import frc.robot.Constants.Config;
 import frc.robot.Constants.PoseEstimator;
 import frc.robot.Constants.Vision;
-import java.io.File;
-import java.io.FileWriter;
+import frc.util.CSV;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import org.photonvision.EstimatedRobotPose;
@@ -82,22 +80,26 @@ public class VisionSubsystem {
       double ambiguity,
       double estX,
       double estY,
-      double estTheta) {
-    /** produce csv row for this measurement */
-    @Override
-    public String toString() {
-      return String.format(
-          "%f,%d,%f,%f,%f,%f,%f", timestamp, tags, avgDistance, ambiguity, estX, estY, estTheta);
-    }
+      double estTheta) {}
 
-    /** produce csv header for this measurement */
-    public static String header = "timestamp, tags, avgDistance, ambiguity, estX, estY, estTheta";
-  }
+  private final CSV<MeasurementRow> measurementCSV =
+      Config.WRITE_APRILTAG_DATA
+          ? new CSV<>(
+              Config.APRILTAG_DATA_PATH,
+              List.of(
+                  CSV.column("timestamp", MeasurementRow::timestamp),
+                  CSV.column("tags", MeasurementRow::tags),
+                  CSV.column("avgDistance", MeasurementRow::avgDistance),
+                  CSV.column("ambiguity", MeasurementRow::ambiguity),
+                  CSV.column("estX", MeasurementRow::estX),
+                  CSV.column("estY", MeasurementRow::estY),
+                  CSV.column("estTheta", MeasurementRow::estTheta)))
+          : null;
 
   private void logMeasurement(int tags, double avgDistance, double ambiguity, Pose3d est) {
     if (!Config.WRITE_APRILTAG_DATA) return;
 
-    var row =
+    measurementCSV.write(
         new MeasurementRow(
             Timer.getFPGATimestamp(),
             tags,
@@ -105,24 +107,7 @@ public class VisionSubsystem {
             ambiguity,
             est.toPose2d().getTranslation().getX(),
             est.toPose2d().getTranslation().getY(),
-            est.toPose2d().getRotation().getRadians());
-
-    // write to {@link PathConfig.APRILTAG_DATA_FILE and add a header if the file is empty
-    try (var writer = new StringWriter()) {
-      File file = Config.APRILTAG_DATA_PATH.toFile();
-      if (!file.isFile()) {
-        writer.write(MeasurementRow.header);
-        writer.write(System.lineSeparator());
-      }
-      writer.write(row.toString());
-      writer.write(System.lineSeparator());
-      try (var fileWriter = new FileWriter(file, true)) {
-        fileWriter.write(writer.toString());
-      }
-    } catch (IOException e) {
-      System.err.println("Failed to write to file.");
-      e.printStackTrace();
-    }
+            est.toPose2d().getRotation().getRadians()));
   }
 
   public static record VisionMeasurement(
