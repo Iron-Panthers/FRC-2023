@@ -8,15 +8,19 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import frc.robot.Constants.Config;
 import frc.robot.Constants.PoseEstimator;
 import frc.robot.Constants.Vision;
 import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import org.photonvision.EstimatedRobotPose;
@@ -70,6 +74,47 @@ public class VisionSubsystem {
           () -> String.format("%3.0f seconds", Timer.getFPGATimestamp() - lastDetection));
   }
 
+  record MeasurementRow(
+      int tags, double avgDistance, double ambiguity, double estX, double estY, double estTheta) {
+    /** produce csv row for this measurement */
+    @Override
+    public String toString() {
+      return String.format(
+          "%d, %f, %f, %f, %f, %f", tags, avgDistance, ambiguity, estX, estY, estTheta);
+    }
+
+    /** produce csv header for this measurement */
+    public static String header = "tags, avgDistance, ambiguity, estX, estY, estTheta";
+  }
+
+  private void logMeasurement(int tags, double avgDistance, double ambiguity, Pose3d est) {
+    if (!Config.WRITE_APRILTAG_DATA) return;
+
+    var row =
+        new MeasurementRow(
+            tags,
+            avgDistance,
+            ambiguity,
+            est.toPose2d().getTranslation().getX(),
+            est.toPose2d().getTranslation().getY(),
+            est.toPose2d().getRotation().getRadians());
+
+    // write to {@link PathConfig.APRILTAG_DATA_FILE and add a header if the file is empty
+    try (var writer = new StringWriter()) {
+      if (Config.APRILTAG_DATA_FILE.toFile().length() == 0) {
+        writer.write(MeasurementRow.header);
+        writer.write(System.lineSeparator());
+      }
+      writer.write(row.toString());
+      writer.write(System.lineSeparator());
+      // write to file
+      Files.writeString(Config.APRILTAG_DATA_FILE, writer.toString());
+    } catch (IOException e) {
+      System.err.println("Failed to write apriltag data.");
+      e.printStackTrace();
+    }
+  }
+
   public static record VisionMeasurement(
       EstimatedRobotPose estimation, Matrix<N3, N1> confidence) {}
 
@@ -118,6 +163,11 @@ public class VisionSubsystem {
       //         smallestDistance,
       //         poseAmbiguityFactor,
       //         confidenceMultiplier));
+      logMeasurement(
+          estimation.targetsUsed.size(),
+          smallestDistance,
+          estimation.targetsUsed.get(0).getPoseAmbiguity(),
+          estimation.estimatedPose);
       estimations.add(
           new VisionMeasurement(
               estimation,
