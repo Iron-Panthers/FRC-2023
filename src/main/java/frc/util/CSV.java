@@ -5,22 +5,26 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.Path;
-import java.util.Map;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Function;
 
 public class CSV<E> {
 
-  private final Map<String, Function<E, ?>> rowMap;
+  private final List<Column<E>> rows;
   private final File file;
   private final String header;
 
-  public CSV(Path path, Map<String, Function<E, ?>> rowMap) {
+  private record Column<E>(String name, Function<E, ?> getter) {}
+
+  public static <E> Column<E> column(String name, Function<E, ?> getter) {
+    return new Column<>(name, getter);
+  }
+
+  public CSV(Path path, List<Column<E>> columns) {
     this.file = path.toFile();
-    this.rowMap = rowMap;
-    this.header =
-        rowMap.keySet().stream()
-            .reduce((a, b) -> a + "," + b)
-            .orElseThrow(IllegalStateException::new);
+    this.rows = Collections.unmodifiableList(columns);
+    this.header = columns.stream().map(Column::name).reduce((a, b) -> a + "," + b).orElseThrow();
   }
 
   public void write(E row) {
@@ -30,11 +34,10 @@ public class CSV<E> {
         writer.write(System.lineSeparator());
       }
       writer.write(
-          rowMap.values().stream()
-              .map(f -> f.apply(row))
-              .map(Object::toString)
+          rows.stream()
+              .map(r -> r.getter().apply(row).toString())
               .reduce((a, b) -> a + "," + b)
-              .orElseThrow(IllegalStateException::new));
+              .orElseThrow());
       writer.write(System.lineSeparator());
       try (var fileWriter = new FileWriter(file, true)) {
         fileWriter.write(writer.toString());
