@@ -50,8 +50,8 @@ public final class Constants {
         // never run pathplanner server in simulation, it will fail unit tests (???)
         HALUtil.getHALRuntimeType() != HALUtil.RUNTIME_SIMULATION;
 
-    public static final boolean WRITE_APRILTAG_DATA = true;
-    public static final Path APRILTAG_DATA_FILE =
+    public static final boolean WRITE_APRILTAG_DATA = false;
+    public static final Path APRILTAG_DATA_PATH =
         Filesystem.getDeployDirectory().toPath().resolve("aprilTagData.csv");
   }
 

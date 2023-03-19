@@ -18,9 +18,10 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import frc.robot.Constants.Config;
 import frc.robot.Constants.PoseEstimator;
 import frc.robot.Constants.Vision;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import org.photonvision.EstimatedRobotPose;
@@ -101,16 +102,18 @@ public class VisionSubsystem {
 
     // write to {@link PathConfig.APRILTAG_DATA_FILE and add a header if the file is empty
     try (var writer = new StringWriter()) {
-      if (Config.APRILTAG_DATA_FILE.toFile().length() == 0) {
+      File file = Config.APRILTAG_DATA_PATH.toFile();
+      if (!file.isFile()) {
         writer.write(MeasurementRow.header);
         writer.write(System.lineSeparator());
       }
       writer.write(row.toString());
       writer.write(System.lineSeparator());
-      // write to file
-      Files.writeString(Config.APRILTAG_DATA_FILE, writer.toString());
+      try (var fileWriter = new FileWriter(file, true)) {
+        fileWriter.write(writer.toString());
+      }
     } catch (IOException e) {
-      System.err.println("Failed to write apriltag data.");
+      System.err.println("Failed to write to file.");
       e.printStackTrace();
     }
   }
