@@ -380,11 +380,11 @@ public class RubenManueverGenerator {
               break;
             }
           }
+
+          if (hasDanger) continue;
           // if it does not, then the point is our new best candidate to remove
-          if (!hasDanger) {
-            bestCandidate = i;
-            bestDistance = d;
-          }
+          bestCandidate = i;
+          bestDistance = d;
         }
       }
       // if we found a point to remove
