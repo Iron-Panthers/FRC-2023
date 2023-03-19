@@ -52,7 +52,7 @@ public final class Constants {
 
     public static final boolean WRITE_APRILTAG_DATA = false;
     public static final Path APRILTAG_DATA_PATH =
-        Filesystem.getDeployDirectory().toPath().resolve("aprilTagData.csv");
+        Filesystem.getDeployDirectory().toPath().resolve("testAprilTagData.csv");
   }
 
   public static final class Drive {

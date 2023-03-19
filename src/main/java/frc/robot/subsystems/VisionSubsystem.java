@@ -76,16 +76,22 @@ public class VisionSubsystem {
   }
 
   record MeasurementRow(
-      int tags, double avgDistance, double ambiguity, double estX, double estY, double estTheta) {
+      double timestamp,
+      int tags,
+      double avgDistance,
+      double ambiguity,
+      double estX,
+      double estY,
+      double estTheta) {
     /** produce csv row for this measurement */
     @Override
     public String toString() {
       return String.format(
-          "%d, %f, %f, %f, %f, %f", tags, avgDistance, ambiguity, estX, estY, estTheta);
+          "%f,%d,%f,%f,%f,%f,%f", timestamp, tags, avgDistance, ambiguity, estX, estY, estTheta);
     }
 
     /** produce csv header for this measurement */
-    public static String header = "tags, avgDistance, ambiguity, estX, estY, estTheta";
+    public static String header = "timestamp, tags, avgDistance, ambiguity, estX, estY, estTheta";
   }
 
   private void logMeasurement(int tags, double avgDistance, double ambiguity, Pose3d est) {
@@ -93,6 +99,7 @@ public class VisionSubsystem {
 
     var row =
         new MeasurementRow(
+            Timer.getFPGATimestamp(),
             tags,
             avgDistance,
             ambiguity,
