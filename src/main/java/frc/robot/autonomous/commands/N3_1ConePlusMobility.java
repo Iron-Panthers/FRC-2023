@@ -10,8 +10,8 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.Arm;
 import frc.robot.commands.ArmPositionCommand;
-import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.FollowTrajectoryCommand;
+import frc.robot.commands.ForceOuttakeSubsystemModeCommand;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.SetOuttakeModeCommand;
 import frc.robot.commands.SetZeroModeCommand;
@@ -23,9 +23,8 @@ import frc.util.NodeSelectorUtility.NodeType;
 import frc.util.pathing.LoadMirrorPath;
 import java.util.function.Supplier;
 
-public class N3_1ConePlusMobilityEngage extends SequentialCommandGroup {
-  /** Creates a new N2MobilityEngage. */
-  public N3_1ConePlusMobilityEngage(
+public class N3_1ConePlusMobility extends SequentialCommandGroup {
+  public N3_1ConePlusMobility(
       double maxVelocityMetersPerSecond,
       double maxAccelerationMetersPerSecondSq,
       OuttakeSubsystem outtakeSubsystem,
@@ -34,9 +33,7 @@ public class N3_1ConePlusMobilityEngage extends SequentialCommandGroup {
 
     Supplier<PathPlannerTrajectory> path =
         LoadMirrorPath.loadPath(
-            "n3 1cone + mobility engage",
-            maxVelocityMetersPerSecond,
-            maxAccelerationMetersPerSecondSq);
+            "n3 1cone + mobility", maxVelocityMetersPerSecond, maxAccelerationMetersPerSecondSq);
 
     addCommands(
         new SetZeroModeCommand(armSubsystem)
@@ -49,6 +46,12 @@ public class N3_1ConePlusMobilityEngage extends SequentialCommandGroup {
             .alongWith(
                 (new WaitCommand(1))
                     .andThen(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))),
-        new BalanceCommand(drivebaseSubsystem));
+        (new WaitCommand(4))
+            .deadlineWith(
+                new ArmPositionCommand(armSubsystem, Arm.Setpoints.GROUND_INTAKE)
+                    .alongWith(
+                        new ForceOuttakeSubsystemModeCommand(
+                            outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE))),
+        new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED));
   }
 }

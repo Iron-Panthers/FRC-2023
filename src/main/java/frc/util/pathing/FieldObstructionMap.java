@@ -2,6 +2,7 @@ package frc.util.pathing;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import edu.wpi.first.math.geometry.Translation2d;
+import frc.util.pathing.FieldObstructionMap.PriorityFlow.FlowType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,8 +18,7 @@ public class FieldObstructionMap {
 
   public enum AllianceColor {
     RED,
-    BLUE,
-    NEUTRAL
+    BLUE
   }
 
   public static interface Obstruction {
@@ -27,6 +27,18 @@ public class FieldObstructionMap {
     public String getName();
 
     public AllianceColor getAllianceColor();
+
+    public Obstruction forAllianceColor(AllianceColor color);
+  }
+
+  public static interface PriorityFlow extends Obstruction {
+    public enum FlowType {
+      X_AXIS_PREFERRED,
+      Y_AXIS_PREFERRED,
+      NO_PREFERENCE;
+    }
+
+    public FlowType getFlowPreference();
   }
 
   public static class RectangleObstruction implements Obstruction {
@@ -61,17 +73,63 @@ public class FieldObstructionMap {
     public AllianceColor getAllianceColor() {
       return allianceColor;
     }
+
+    public RectangleObstruction forAllianceColor(AllianceColor color) {
+      if (color == allianceColor) {
+        return this;
+      } else {
+        // mirror over the center line. The final rect should have the same Y coords, but the X
+        // coords
+        // should be mirrored
+
+        // this is complected by using topRight and bottomLeft, so we have to do some math
+
+        return new RectangleObstruction(
+            color,
+            name,
+            new Translation2d(
+                FIELD_CENTER_X - (topRight.getX() - FIELD_CENTER_X), bottomLeft.getY()),
+            new Translation2d(
+                FIELD_CENTER_X - (bottomLeft.getX() - FIELD_CENTER_X), topRight.getY()));
+      }
+    }
+  }
+
+  public static class PriorityFlowRectangle extends RectangleObstruction implements PriorityFlow {
+    @JsonProperty private final FlowType flowPreference;
+
+    public PriorityFlowRectangle(
+        AllianceColor allianceColor,
+        String name,
+        Translation2d bottomLeft,
+        Translation2d topRight,
+        FlowType flowType) {
+      super(allianceColor, name, bottomLeft, topRight);
+      this.flowPreference = flowType;
+    }
+
+    public FlowType getFlowPreference() {
+      return flowPreference;
+    }
+
+    @Override
+    public PriorityFlowRectangle forAllianceColor(AllianceColor color) {
+      if (color == super.getAllianceColor()) {
+        return this;
+      } else {
+        var rect = super.forAllianceColor(color);
+
+        return new PriorityFlowRectangle(
+            color, rect.getName(), rect.bottomLeft, rect.topRight, flowPreference);
+      }
+    }
   }
 
   private static AllianceColor invertAllianceColor(AllianceColor color) {
-    switch (color) {
-      case RED:
-        return AllianceColor.BLUE;
-      case BLUE:
-        return AllianceColor.RED;
-      default:
-        return AllianceColor.NEUTRAL;
-    }
+    return switch (color) {
+      case RED -> AllianceColor.BLUE;
+      case BLUE -> AllianceColor.RED;
+    };
   }
 
   private static void addAndMirrorRectangleObstruction(
@@ -80,21 +138,21 @@ public class FieldObstructionMap {
       String name,
       Translation2d bottomLeft,
       Translation2d topRight) {
-    obstructions.add(new RectangleObstruction(allianceColor, name, bottomLeft, topRight));
-    // mirror over the center line. The final rect should have the same Y coords, but the X coords
-    // should be mirrored
+    var rect = new RectangleObstruction(allianceColor, name, bottomLeft, topRight);
+    obstructions.add(rect);
+    obstructions.add(rect.forAllianceColor(invertAllianceColor(allianceColor)));
+  }
 
-    // this is complected by using topRight and bottomLeft, so we have to do some math
-
-    Translation2d mirroredBottomLeft =
-        new Translation2d(FIELD_CENTER_X - (topRight.getX() - FIELD_CENTER_X), bottomLeft.getY());
-
-    Translation2d mirroredTopRight =
-        new Translation2d(FIELD_CENTER_X - (bottomLeft.getX() - FIELD_CENTER_X), topRight.getY());
-
-    obstructions.add(
-        new RectangleObstruction(
-            invertAllianceColor(allianceColor), name, mirroredBottomLeft, mirroredTopRight));
+  private static void addAndMirrorPriorityFlowRectangle(
+      List<PriorityFlow> priorityFlows,
+      AllianceColor allianceColor,
+      String name,
+      Translation2d bottomLeft,
+      Translation2d topRight,
+      PriorityFlow.FlowType flowType) {
+    var rect = new PriorityFlowRectangle(allianceColor, name, bottomLeft, topRight, flowType);
+    priorityFlows.add(rect);
+    priorityFlows.add(rect.forAllianceColor(invertAllianceColor(allianceColor)));
   }
 
   private static List<Obstruction> initializeObstructions() {
@@ -141,8 +199,27 @@ public class FieldObstructionMap {
     return obstructions;
   }
 
+  private static List<PriorityFlow> initializePriorityFlows() {
+    List<PriorityFlow> priorityFlows = new ArrayList<>();
+
+    // add the priority flow rectangles for the double substation
+    addAndMirrorPriorityFlowRectangle(
+        priorityFlows,
+        AllianceColor.RED,
+        "Substation Priority Flow Zone",
+        new Translation2d(0, 5.65),
+        new Translation2d(4, FIELD_HEIGHT),
+        PriorityFlow.FlowType.X_AXIS_PREFERRED);
+
+    // list is made immutable after calling function to satisfy sonarlint
+    return priorityFlows;
+  }
+
   public static final List<Obstruction> obstructions =
       Collections.unmodifiableList(initializeObstructions());
+
+  public static final List<PriorityFlow> priorityFlows =
+      Collections.unmodifiableList(initializePriorityFlows());
 
   public static boolean isInsideObstruction(Translation2d point) {
     for (Obstruction obstruction : obstructions) {
@@ -151,5 +228,14 @@ public class FieldObstructionMap {
       }
     }
     return false;
+  }
+
+  public static FlowType getPriorityFlow(Translation2d point) {
+    for (PriorityFlow priorityFlow : priorityFlows) {
+      if (priorityFlow.contains(point)) {
+        return priorityFlow.getFlowPreference();
+      }
+    }
+    return FlowType.NO_PREFERENCE;
   }
 }

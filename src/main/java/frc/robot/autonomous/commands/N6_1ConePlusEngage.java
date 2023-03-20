@@ -23,9 +23,9 @@ import frc.util.NodeSelectorUtility.NodeType;
 import frc.util.pathing.LoadMirrorPath;
 import java.util.function.Supplier;
 
-public class N3_1ConePlusMobilityEngage extends SequentialCommandGroup {
+public class N6_1ConePlusEngage extends SequentialCommandGroup {
   /** Creates a new N2MobilityEngage. */
-  public N3_1ConePlusMobilityEngage(
+  public N6_1ConePlusEngage(
       double maxVelocityMetersPerSecond,
       double maxAccelerationMetersPerSecondSq,
       OuttakeSubsystem outtakeSubsystem,
@@ -34,9 +34,7 @@ public class N3_1ConePlusMobilityEngage extends SequentialCommandGroup {
 
     Supplier<PathPlannerTrajectory> path =
         LoadMirrorPath.loadPath(
-            "n3 1cone + mobility engage",
-            maxVelocityMetersPerSecond,
-            maxAccelerationMetersPerSecondSq);
+            "n6 1cone + engage", maxVelocityMetersPerSecond, maxAccelerationMetersPerSecondSq);
 
     addCommands(
         new SetZeroModeCommand(armSubsystem)
