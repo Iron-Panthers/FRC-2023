@@ -74,7 +74,8 @@ public class VisionSubsystem {
   }
 
   record MeasurementRow(
-      double timestamp,
+      double realX,
+      double realY,
       int tags,
       double avgDistance,
       double ambiguity,
@@ -87,7 +88,8 @@ public class VisionSubsystem {
           ? new CSV<>(
               Config.APRILTAG_DATA_PATH,
               List.of(
-                  CSV.column("timestamp", MeasurementRow::timestamp),
+                  CSV.column("realX", MeasurementRow::realX),
+                  CSV.column("realY", MeasurementRow::realY),
                   CSV.column("tags", MeasurementRow::tags),
                   CSV.column("avgDistance", MeasurementRow::avgDistance),
                   CSV.column("ambiguity", MeasurementRow::ambiguity),
@@ -101,7 +103,8 @@ public class VisionSubsystem {
 
     measurementCSV.write(
         new MeasurementRow(
-            Timer.getFPGATimestamp(),
+            Config.REAL_X,
+            Config.REAL_Y,
             tags,
             avgDistance,
             ambiguity,
