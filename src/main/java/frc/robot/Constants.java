@@ -195,7 +195,12 @@ public final class Constants {
 
     public static final class Setpoints {
 
-      public static final ArmState GROUND_INTAKE = new ArmState(-48, 19);
+      public static final List<ScoreStep> GROUND_INTAKE =
+          List.of(
+              new ScoreStep(new ArmState(-53, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(-53, 19)),
+              new ScoreStep(new ArmState(-60, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(0, Arm.Setpoints.Extensions.MIN_EXTENSION)));
 
       public static final ArmState SHELF_INTAKE = new ArmState(89, 0);
 
