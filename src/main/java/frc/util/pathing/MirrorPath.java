@@ -16,7 +16,7 @@ public class MirrorPath {
   // For testing purposes
   // public static void main(String[] args) {
   //   eraseMirroredFiles();
-  //   JSONObject redPath = mirrorSinglePath("n2 engage");
+  //   JSONObject redPath = mirrorSinglePath("n9 1cone + mobility engage");
   //   System.out.println(redPath);
   //   writeToFile("redTest", redPath);
   // }
@@ -125,7 +125,7 @@ public class MirrorPath {
     JSONObject anchorPoint = (JSONObject) objectPoint.get("anchorPoint");
 
     if (!anchorPoint.isEmpty()) {
-      anchorPoint.put("x", FIELD_LENGTH - (double) anchorPoint.get("x"));
+      anchorPoint.put("x", FIELD_LENGTH - ((Number) anchorPoint.get("x")).doubleValue());
     }
 
     System.out.println(objectPoint.get("prevControl"));
@@ -139,10 +139,12 @@ public class MirrorPath {
       // System.out.println("[Mirrored] Prev control: ");
       // System.out.println(FIELD_LENGTH - (double) prevPoint.get("x"));
 
-      System.out.println(prevPoint.get("x").getClass().getSimpleName());
+      // System.out.println(prevPoint.get("x").getClass().getSimpleName());
+
+      // ((Number) jsonNextControl.get("y")).doubleValue())
 
       if (!prevPoint.isEmpty()) {
-        prevPoint.put("x", FIELD_LENGTH - (double) prevPoint.get("x"));
+        prevPoint.put("x", FIELD_LENGTH - ((Number) prevPoint.get("x")).doubleValue());
       }
     }
 
@@ -157,16 +159,13 @@ public class MirrorPath {
       // System.out.println(FIELD_LENGTH - (double) nextControl.get("x"));
 
       if (!nextControl.isEmpty()) {
-        nextControl.put("x", FIELD_LENGTH - (double) nextControl.get("x"));
+        nextControl.put("x", FIELD_LENGTH - ((Number) nextControl.get("x")).doubleValue());
       }
     }
 
     // System.out.println(objectPoint.get("holonomicAngle").getClass().getSimpleName());
 
-    double holonomicAngle =
-        objectPoint.get("holonomicAngle") instanceof Long
-            ? (double) ((long) objectPoint.get("holonomicAngle"))
-            : (double) objectPoint.get("holonomicAngle");
+    double holonomicAngle = ((Number) objectPoint.get("holonomicAngle")).doubleValue();
 
     objectPoint.put("holonomicAngle", (180d - (holonomicAngle % 360)));
   }
