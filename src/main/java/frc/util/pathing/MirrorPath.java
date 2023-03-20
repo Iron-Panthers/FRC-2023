@@ -1,4 +1,4 @@
-package frc.robot.autonomous;
+package frc.util.pathing;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -13,58 +13,57 @@ import org.json.simple.parser.*;
 
 public class MirrorPath {
 
-  // public static void main (String[] args) {
-  //   System.out.println(mirrorSinglePath("auto test"));
+  // For testing purposes
+  // public static void main(String[] args) {
+  //   eraseMirroredFiles();
+  //   JSONObject redPath = mirrorSinglePath("n2 engage");
+  //   System.out.println(redPath);
+  //   writeToFile("redTest", redPath);
   // }
 
   public static JSONObject mirrorSinglePath(String autoName) {
-    
+
     Path path = Paths.get("src/main/deploy/pathplanner/" + autoName + ".path");
 
-    // Read JSON file
     String fileContents = "";
-
     try {
-      // Files.readAllLines(path).toString
-      for (String line : Files.readAllLines(path)) {
-        fileContents += line;
-      }
+      fileContents = String.join(",", Files.readAllLines(path));
+      // Converting file into a JSON object
+      JSONObject parsedJSON = (JSONObject) (new JSONParser().parse(fileContents));
+
+      // Getting the waypoints
+      JSONArray wayPoints = (JSONArray) parsedJSON.get("waypoints");
+
+      // Mirroring each waypoint
+      wayPoints.forEach((point) -> mirrorPathPoint(path, point));
+
+      // Overriding the original waypoints
+      parsedJSON.put("waypoints", wayPoints);
+
+      return parsedJSON;
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
-    }
-
-    // Converting file into a JSON object
-    JSONObject parsedJSON = new JSONObject();
-    try {
-      parsedJSON = (JSONObject) (new JSONParser().parse(fileContents));
     } catch (ParseException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
-    JSONArray wayPoints = (JSONArray) parsedJSON.get("waypoints");
-
-    wayPoints.forEach((point) -> mirrorPathPoint(path, point));
-    parsedJSON.put("waypoints", wayPoints);
-
-    //writeToFile(path, parsedJSON);
-    return parsedJSON;
+    return new JSONObject();
   }
 
-  public static void mirrorPathPlannerFolder() throws IOException, ParseException {
+  public static void mirrorPathPlannerFolder() {
     eraseMirroredFiles();
 
+    // List of all the paths
     List<Path> listOfPaths = new ArrayList<Path>();
+
+    // Reading all the paths of all the auto files from the pathplanner folder
     try (Stream<Path> paths = Files.walk(Paths.get("src/main/deploy/pathplanner"))) {
       paths.filter(Files::isRegularFile).forEach((Path path) -> listOfPaths.add(path));
       for (Path path : listOfPaths) {
 
-        String fileContents = "";
-
-        for (String line : Files.readAllLines(path)) {
-          fileContents += line;
-        }
+        String fileContents = String.join(",", Files.readAllLines(path));
 
         // Read JSON file
         JSONObject parsedJSON = (JSONObject) (new JSONParser().parse(fileContents));
@@ -76,11 +75,21 @@ public class MirrorPath {
 
         writeToFile(path, parsedJSON);
       }
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (ParseException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
     }
   }
 
   public static void writeToFile(Path path, JSONObject parsedJSON) {
     String fileName = path.getFileName().toString().replaceAll(".path", "");
+    writeToFile(fileName, parsedJSON);
+  }
+
+  public static void writeToFile(String fileName, JSONObject parsedJSON) {
     try {
       FileWriter mirroredPathFile =
           new FileWriter("src/main/deploy/pathplanner/" + fileName + ".mirror.path");
@@ -92,7 +101,7 @@ public class MirrorPath {
     }
   }
 
-  public static void eraseMirroredFiles() throws IOException {
+  public static void eraseMirroredFiles() {
     try (Stream<Path> paths = Files.walk(Paths.get("src/main/deploy/pathplanner"))) {
       paths
           .filter((Path path) -> path.toString().contains(".mirror.path"))
@@ -105,6 +114,8 @@ public class MirrorPath {
                   e.printStackTrace();
                 }
               });
+    } catch (IOException e) {
+      e.printStackTrace();
     }
   }
 
@@ -128,6 +139,8 @@ public class MirrorPath {
       // System.out.println("[Mirrored] Prev control: ");
       // System.out.println(FIELD_LENGTH - (double) prevPoint.get("x"));
 
+      System.out.println(prevPoint.get("x").getClass().getSimpleName());
+
       if (!prevPoint.isEmpty()) {
         prevPoint.put("x", FIELD_LENGTH - (double) prevPoint.get("x"));
       }
@@ -148,7 +161,7 @@ public class MirrorPath {
       }
     }
 
-    //System.out.println(objectPoint.get("holonomicAngle").getClass().getSimpleName());
+    // System.out.println(objectPoint.get("holonomicAngle").getClass().getSimpleName());
 
     double holonomicAngle =
         objectPoint.get("holonomicAngle") instanceof Long
