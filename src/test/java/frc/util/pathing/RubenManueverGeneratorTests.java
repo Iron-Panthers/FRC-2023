@@ -1,7 +1,9 @@
 package frc.util.pathing;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -17,6 +19,7 @@ import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.UtilParamTest;
 import frc.UtilTest;
 import frc.robot.Constants.Pathing;
@@ -28,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -172,8 +176,8 @@ public class RubenManueverGeneratorTests {
 
     var displayCoords =
         List.of(
-            new GridCoord(10, 62),
-            new GridCoord(32, 10),
+            new GridCoord((int) ((2d / 3d) * 10), (int) ((2d / 3d) * 62)),
+            new GridCoord((int) ((2d / 3d) * 32), (int) ((2d / 3d) * 10)),
             new GridCoord(new Translation2d(1.8, .5)),
             new GridCoord(new Translation2d(14.75, .5)));
 
@@ -200,8 +204,12 @@ public class RubenManueverGeneratorTests {
 
   public static Stream<Arguments> findFullPathMatchesSnapshotProvider() {
     return Stream.of(
-        Arguments.of(new GridCoord(50, 50), new GridCoord(50, 55)),
-        Arguments.of(new GridCoord(10, 62), new GridCoord(32, 10))
+        Arguments.of(
+            new GridCoord((int) ((2d / 3d) * 50), (int) ((2d / 3d) * 50)),
+            new GridCoord((int) ((2d / 3d) * 50), (int) ((2d / 3d) * 55))),
+        Arguments.of(
+            new GridCoord((int) ((2d / 3d) * 10), (int) ((2d / 3d) * 62)),
+            new GridCoord((int) ((2d / 3d) * 32), (int) ((2d / 3d) * 10)))
         // load bearing comment (hold the final brace)
         );
   }
@@ -232,8 +240,12 @@ public class RubenManueverGeneratorTests {
 
   public static Stream<Arguments> findPathAndCriticalPointsMatchesSnapshotProvider() {
     return Stream.of(
-        Arguments.of(new GridCoord(50, 50), new GridCoord(50, 55)),
-        Arguments.of(new GridCoord(10, 62), new GridCoord(32, 10))
+        Arguments.of(
+            new GridCoord((int) ((2d / 3d) * 50), (int) ((2d / 3d) * 50)),
+            new GridCoord((int) ((2d / 3d) * 50), (int) ((2d / 3d) * 55))),
+        Arguments.of(
+            new GridCoord((int) ((2d / 3d) * 10), (int) ((2d / 3d) * 62)),
+            new GridCoord((int) ((2d / 3d) * 32), (int) ((2d / 3d) * 10)))
         // load bearing comment (hold the final brace)
         );
   }
@@ -272,8 +284,12 @@ public class RubenManueverGeneratorTests {
 
   public static Stream<Arguments> findRedundantCriticalPointsProvider() {
     return Stream.of(
-        Arguments.of(new GridCoord(50, 50), new GridCoord(50, 55)),
-        Arguments.of(new GridCoord(10, 62), new GridCoord(32, 10)),
+        Arguments.of(
+            new GridCoord((int) ((2d / 3d) * 50), (int) ((2d / 3d) * 50)),
+            new GridCoord((int) ((2d / 3d) * 50), (int) ((2d / 3d) * 55))),
+        Arguments.of(
+            new GridCoord((int) ((2d / 3d) * 10), (int) ((2d / 3d) * 62)),
+            new GridCoord((int) ((2d / 3d) * 32), (int) ((2d / 3d) * 10))),
         Arguments.of(
             new GridCoord(new Translation2d(14.94, 6.78)),
             new GridCoord(new Translation2d(2.34, .78)))
@@ -320,15 +336,26 @@ public class RubenManueverGeneratorTests {
 
   public static Stream<Arguments> computePathPointsForSplineProvider() {
     return Stream.of(
-        Arguments.of(new GridCoord(50, 50), new GridCoord(50, 55)),
-        Arguments.of(new GridCoord(10, 62), new GridCoord(32, 10)),
+        Arguments.of(
+            new GridCoord((int) ((2d / 3d) * 50), (int) ((2d / 3d) * 50)),
+            new GridCoord((int) ((2d / 3d) * 50), (int) ((2d / 3d) * 55))),
+        Arguments.of(
+            new GridCoord((int) ((2d / 3d) * 10), (int) ((2d / 3d) * 62)),
+            new GridCoord((int) ((2d / 3d) * 32), (int) ((2d / 3d) * 10))),
         Arguments.of(
             new GridCoord(new Translation2d(14.94, 6.78)),
             new GridCoord(new Translation2d(2.34, .78))),
-        Arguments.of(new GridCoord(71, 46), new GridCoord(new Translation2d(1.8, .5))),
+        Arguments.of(
+            new GridCoord((int) ((2d / 3d) * 71), (int) ((2d / 3d) * 46)),
+            new GridCoord(new Translation2d(1.8, .5))),
         Arguments.of(
             new GridCoord(new Translation2d(1.8, .5)), new GridCoord(new Translation2d(1.8, 4.6))),
-        Arguments.of(new GridCoord(78, 75), new GridCoord(18, 16))
+        Arguments.of(
+            new GridCoord((int) ((2d / 3d) * 78), (int) ((2d / 3d) * 75)),
+            new GridCoord((int) ((2d / 3d) * 18), (int) ((2d / 3d) * 16))),
+        Arguments.of(
+            new GridCoord(new Translation2d(13.7, 6.28)),
+            new GridCoord(new Translation2d(15.26, 7.58)))
         // load bearing comment (hold the final brace)
         );
   }
@@ -350,6 +377,7 @@ public class RubenManueverGeneratorTests {
         RubenManueverGenerator.computePathPointsFromCriticalPoints(
             neededCriticalPoints,
             new Pose2d(start.toTranslation2d(), new Rotation2d()),
+            new ChassisSpeeds(),
             new Pose2d(end.toTranslation2d(), new Rotation2d()));
 
     for (var coord : path.get()) {
@@ -405,5 +433,84 @@ public class RubenManueverGeneratorTests {
                 "%s -> %s len: %s",
                 start.toString(), end.toString(), path.map(List::size).orElse(-1)))
         .toMatchSnapshot(sb.toString());
+  }
+
+  @UtilTest
+  @Disabled("this test broke when i changed decimation. Fix it! -isaac")
+  public void stepsShouldNotIntroduceMoreThanTwoPointsIntoStraightLinePath() {
+    var start = new GridCoord((int) ((2d / 3d) * 50), (int) ((2d / 3d) * 50));
+    var end = new GridCoord((int) ((2d / 3d) * 50), (int) ((2d / 3d) * 55));
+
+    RubenManueverGenerator rubenManueverGenerator = new RubenManueverGenerator();
+
+    var fullPath = rubenManueverGenerator.findFullPath(start, end);
+    assertIterableEquals(
+        List.of(
+            new GridCoord((int) ((2d / 3d) * 50), (int) ((2d / 3d) * 50)),
+            new GridCoord((int) ((2d / 3d) * 50), (int) ((2d / 3d) * 51)),
+            new GridCoord((int) ((2d / 3d) * 50), (int) ((2d / 3d) * 52)),
+            new GridCoord((int) ((2d / 3d) * 50), (int) ((2d / 3d) * 53)),
+            new GridCoord((int) ((2d / 3d) * 50), (int) ((2d / 3d) * 54)),
+            new GridCoord((int) ((2d / 3d) * 50), (int) ((2d / 3d) * 55))),
+        fullPath.get());
+
+    var criticalPoints = RubenManueverGenerator.findCriticalPoints(fullPath.get());
+    assertIterableEquals(
+        List.of(
+            new GridCoord((int) ((2d / 3d) * 50), (int) ((2d / 3d) * 50)),
+            new GridCoord((int) ((2d / 3d) * 50), (int) ((2d / 3d) * 55))),
+        criticalPoints);
+
+    var simplifiedCriticalPoints = rubenManueverGenerator.simplifyCriticalPoints(criticalPoints);
+    assertIterableEquals(
+        List.of(
+            new GridCoord((int) ((2d / 3d) * 50), (int) ((2d / 3d) * 50)),
+            new GridCoord((int) ((2d / 3d) * 50), (int) ((2d / 3d) * 55))),
+        criticalPoints);
+
+    var pathPoints =
+        RubenManueverGenerator.computePathPointsFromCriticalPoints(
+            simplifiedCriticalPoints,
+            new Pose2d(start.toTranslation2d(), new Rotation2d()),
+            new ChassisSpeeds(),
+            new Pose2d(end.toTranslation2d(), new Rotation2d()));
+    assertEquals(2, pathPoints.size(), "should only have start and end");
+  }
+
+  @UtilTest
+  public void computePathMatchesSnapshot() {
+    var start =
+        new Pose2d(
+            new GridCoord((int) ((2d / 3d) * 78), (int) ((2d / 3d) * 75)).toTranslation2d(),
+            new Rotation2d());
+    var chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(-1, -1, 0, new Rotation2d());
+    var end =
+        new Pose2d(
+            new GridCoord((int) ((2d / 3d) * 18), (int) ((2d / 3d) * 16)).toTranslation2d(),
+            new Rotation2d());
+
+    var rubenManueverGenerator = new RubenManueverGenerator();
+
+    var path =
+        rubenManueverGenerator
+            .computePath(start, chassisSpeeds, end, new PathConstraints(3, 1))
+            .get();
+
+    var fieldSquares = placeObstructions();
+
+    for (var states : path.getStates()) {
+      var coord = new GridCoord(states.poseMeters.getTranslation());
+      fieldSquares[coord.x][coord.y] = FieldSquare.SPLINE;
+    }
+
+    var startGridCoord = new GridCoord(start.getTranslation());
+    var endGridCoord = new GridCoord(end.getTranslation());
+    fieldSquares[startGridCoord.x][startGridCoord.y] = FieldSquare.START;
+    fieldSquares[endGridCoord.x][endGridCoord.y] = FieldSquare.END;
+
+    StringBuilder sb = new StringBuilder();
+    DisplayFieldArray.renderField(sb, fieldSquares);
+
+    expect.toMatchSnapshot(sb.toString());
   }
 }

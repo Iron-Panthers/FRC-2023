@@ -7,6 +7,7 @@ package frc.robot;
 import static frc.util.MacUtil.IS_COMP_BOT;
 
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
+import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -14,10 +15,24 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.Constants.Drive.Dims;
+import frc.robot.commands.ScoreCommand.ScoreStep;
+import frc.robot.subsystems.ArmSubsystem.ArmState;
+import frc.robot.subsystems.NetworkWatchdogSubsystem.IPv4;
+import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem.OuttakeDetails;
+import frc.robot.subsystems.RGBSubsystem.RGBColor;
+import frc.util.CAN;
+import frc.util.NodeSelectorUtility.Height;
+import frc.util.NodeSelectorUtility.NodeType;
+import frc.util.NodeSelectorUtility.ScoreTypeIdentifier;
 import frc.util.pathing.FieldObstructionMap;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @SuppressWarnings("java:S1118")
 /**
@@ -29,6 +44,20 @@ import java.util.Optional;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+  public static final class Config {
+    /** turn this off before comp. */
+    public static final boolean RUN_PATHPLANNER_SERVER =
+        // never run pathplanner server in simulation, it will fail unit tests (???)
+        HALUtil.getHALRuntimeType() != HALUtil.RUNTIME_SIMULATION;
+
+    public static final boolean WRITE_APRILTAG_DATA = false;
+    public static final Path APRILTAG_DATA_PATH =
+        Filesystem.getDeployDirectory().toPath().resolve("poseEstimationsAtDistances.csv");
+    public static final double REAL_X = 0.0;
+    public static final double REAL_Y = 0.0;
+  }
+
   public static final class Drive {
     // max voltage delivered to drivebase
     // supposedly useful to limit speed for testing
@@ -60,6 +89,17 @@ public final class Constants {
       public static final double WHEELBASE_METERS = TRACKWIDTH_METERS; // robot is square
 
       public static final double BUMPER_WIDTH_METERS = .851;
+    }
+
+    public static final class AutoBalance {
+      /** the max speed to drive at when balancing */
+      public static final double P_SPEED_METERS_PER_SECOND = .8;
+      /** the angle to use for normalizing the range */
+      public static final double MAX_ANGLE = 15;
+      /** the angle to stop applying control */
+      public static final double THRESHOLD_ANGLE = 5;
+      /** the number to raise the [0, 1] error to */
+      public static final double E_EXPONENTIAL_FACTOR = 4;
     }
 
     /*
@@ -94,103 +134,90 @@ public final class Constants {
      */
 
     public static final class Modules {
-      public static final class FrontRight { // Module 1
-        public static final int DRIVE_MOTOR = 4;
-        public static final int STEER_MOTOR = 3;
-        public static final int STEER_ENCODER = 24;
+      public static final class Module1 { // historically front right
+        public static final int DRIVE_MOTOR = CAN.at(4);
+        public static final int STEER_MOTOR = CAN.at(3);
+        public static final int STEER_ENCODER = CAN.at(24);
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
                 ? -Math.toRadians(8.07400 + 180) // comp bot offset
-                : -Math.toRadians(39.462890); // practice bot offset
+                : -Math.toRadians(128.759766 + 180); // practice bot offset
       }
 
-      public static final class FrontLeft { // Module 2
-        public static final int DRIVE_MOTOR = 11;
-        public static final int STEER_MOTOR = 10;
-        public static final int STEER_ENCODER = 25;
+      public static final class Module2 { // historically front left
+        public static final int DRIVE_MOTOR = CAN.at(11);
+        public static final int STEER_MOTOR = CAN.at(10);
+        public static final int STEER_ENCODER = CAN.at(25);
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
                 ? -Math.toRadians(274.562 + 180) // comp bot offset
-                : -Math.toRadians(222.7148); // practice bot offset
+                : -Math.toRadians(129.375000 + 180); // practice bot offset
       }
 
-      public static final class BackLeft { // Module 3
-        public static final int DRIVE_MOTOR = 13;
-        public static final int STEER_MOTOR = 12;
-        public static final int STEER_ENCODER = 26;
+      public static final class Module3 { // historically back left
+        public static final int DRIVE_MOTOR = CAN.at(13);
+        public static final int STEER_MOTOR = CAN.at(12);
+        public static final int STEER_ENCODER = CAN.at(26);
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
                 ? -Math.toRadians(225.082 + 180) // comp bot offset
-                : -Math.toRadians(129.63867); // practice bot offset
+                : -Math.toRadians(306.650391 + 180); // practice bot offset
       }
 
-      public static final class BackRight { // Module 4
-        public static final int DRIVE_MOTOR = 2;
-        public static final int STEER_MOTOR = 1;
-        public static final int STEER_ENCODER = 27;
+      public static final class Module4 { // historically back right
+        public static final int DRIVE_MOTOR = CAN.at(2);
+        public static final int STEER_MOTOR = CAN.at(1);
+        public static final int STEER_ENCODER = CAN.at(27);
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
                 ? -Math.toRadians(335.124 + 180) // comp bot offset
-                : -Math.toRadians(61.3476); // practice bot offset
+                : -Math.toRadians(241.875000 + 180); // practice bot offset
       }
     }
   }
 
   public static final class Arm {
     public static final class Ports {
-      public static final int ARM_MOTOR_PORT = 14;
-      public static final int TELESCOPING_MOTOR_PORT = 16; // TODO: find CAN ID
-      public static final int ENCODER_PORT = 28;
+      public static final int ARM_MOTOR_PORT = CAN.at(16);
+      public static final int TELESCOPING_MOTOR_PORT = CAN.at(17);
+      public static final int ENCODER_PORT = CAN.at(28);
+    }
+
+    public static final class ExtensionGains {
+      public static final double BASE_P = .15;
+      public static final double MAX_ADDITIONAL_P = .05;
     }
 
     public static final double GRAVITY_CONTROL_PERCENT = 0.07;
 
-    public static final double ANGULAR_OFFSET = 8;
+    public static final double ANGULAR_OFFSET = -4.835;
 
     public static final class Setpoints {
-      public static final class ScoreLow {
-        public static final int ANGLE = 40;
-        public static final double EXTENSION = Extensions.MAX_EXTENSION;
-      }
 
-      public static final class ScoreMid {
-        public static final int ANGLE = 90;
-        public static final double CAPPED_ANGLE = 40;
-        public static final double EXTENSION = 5d;
-      }
+      public static final List<ScoreStep> GROUND_INTAKE =
+          List.of(
+              new ScoreStep(new ArmState(-46, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(-46, 19.5)),
+              new ScoreStep(new ArmState(-60, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(0, Arm.Setpoints.Extensions.MIN_EXTENSION)));
 
-      public static final class ScoreHigh {
-        public static final int ANGLE = 110;
-        public static final double EXTENSION = Extensions.MAX_EXTENSION;
-      }
+      public static final ArmState SHELF_INTAKE = new ArmState(85, 0);
 
-      public static final class GroundIntake {
-        public static final int ANGLE = 30;
-        public static final double EXTENSION = Extensions.MAX_EXTENSION;
-      }
-
-      public static final class ShelfIntake {
-        public static final int ANGLE = 90;
-        public static final double EXTENSION = Extensions.MAX_EXTENSION;
-      }
-
-      public static final class Angles {
-        public static final int STARTING_ANGLE = 0;
-        public static final int FORWARD_ANGLE = 90;
-        public static final int BACKWARD_ANGLE = -90;
-        public static final int TEST_ANGLE = 45;
-      }
+      public static final ArmState STOWED = new ArmState(0, Arm.Setpoints.Extensions.MIN_EXTENSION);
 
       public static final class Extensions {
-        public static final double MAX_EXTENSION = 10;
-        public static final double MIN_EXTENSION = 0;
+        public static final double MAX_EXTENSION = 20.3;
+        public static final double MIN_EXTENSION = 0.0;
       }
     }
 
+    public static final double EXTENSION_STATOR_LIMIT = 35;
+
+    public static final double ZERO_RETRACTION_PERCENT = -0.14;
     public static final int TICKS = 2048;
     public static final int TELESCOPING_ARM_GEAR_RATIO = 3;
     public static final double SPOOL_CIRCUMFERENCE = 1.5 * Math.PI;
@@ -201,11 +228,11 @@ public final class Constants {
        * negative sign of their angle in degrees
        */
       public static final class Angles {
-        public static final double BACKWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD =
-            -40; // FIXME: real value needed
+        public static final double BACKWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD = -40;
         public static final double FORWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD =
             20; // FIXME: real value needed
-        public static final double UPPER_ANGLE_LIMIT = 100; // FIXME: real value needed
+        public static final double UPPER_ANGLE_LIMIT = 120;
+        public static final double EPSILON = 5;
       }
 
       public static final class Extensions {
@@ -214,44 +241,88 @@ public final class Constants {
          * safety purposes
          */
         public static final double FULLY_RETRACTED_INCHES_THRESHOLD = 1;
+
+        public static final double EPSILON = .5;
       }
     }
   }
 
+  public static final Map<ScoreTypeIdentifier, List<ScoreStep>> SCORE_STEP_MAP =
+      Map.of(
+          NodeType.CONE.atHeight(Height.HIGH),
+          List.of(
+              new ScoreStep(new ArmState(102.5, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(102.5, Arm.Setpoints.Extensions.MAX_EXTENSION))
+                  .canWaitHere(),
+              new ScoreStep(new ArmState(87, Arm.Setpoints.Extensions.MAX_EXTENSION)).canWaitHere(),
+              new ScoreStep(
+                  new ArmState(87, Arm.Setpoints.Extensions.MIN_EXTENSION),
+                  OuttakeSubsystem.Modes.OUTTAKE)),
+          NodeType.CONE.atHeight(Height.MID),
+          List.of(
+              new ScoreStep(new ArmState(90, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(90, 6)).canWaitHere(),
+              new ScoreStep(new ArmState(72, 6)).canWaitHere(),
+              new ScoreStep(
+                  new ArmState(72, Arm.Setpoints.Extensions.MIN_EXTENSION),
+                  OuttakeSubsystem.Modes.OUTTAKE)),
+          NodeType.CONE.atHeight(Height.LOW),
+          List.of(
+              new ScoreStep(new ArmState(27.7, Arm.Setpoints.Extensions.MIN_EXTENSION))
+                  .canWaitHere(),
+              new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE)),
+          NodeType.CUBE.atHeight(Height.HIGH),
+          List.of(
+              new ScoreStep(new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(95, 20)).canWaitHere(),
+              new ScoreStep(
+                  new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION),
+                  OuttakeSubsystem.Modes.OUTTAKE)),
+          NodeType.CUBE.atHeight(Height.MID),
+          List.of(
+              new ScoreStep(new ArmState(67.32, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(67.32, 0.75)).canWaitHere(),
+              new ScoreStep(
+                  new ArmState(67.32, Arm.Setpoints.Extensions.MIN_EXTENSION),
+                  OuttakeSubsystem.Modes.OUTTAKE)),
+          NodeType.CUBE.atHeight(Height.LOW),
+          List.of(
+              new ScoreStep(new ArmState(29.7, Arm.Setpoints.Extensions.MIN_EXTENSION))
+                  .canWaitHere(),
+              new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE)));
+
   public static final class Vision {
+    public static record VisionSource(String name, Transform3d robotToCamera) {}
 
-    public static final class FrontCam {
-      public static final String NAME = "frontCam";
-      public static final Transform3d ROBOT_TO_CAM =
-          new Transform3d(
-              // 9.867 in to the right looking from behind the front of the robot
-              // 7 inch forward from center
-              // up 17.422 inches
-              new Translation3d(
-                  0.1778, // front/back
-                  0.2506218, // left/right
-                  0.4425188 // up/down
-                  ),
-              new Rotation3d(
-                  0,
-                  Math.toRadians(-11.5), // angle up/down
-                  0));
-    }
-
-    public static final class BackCam {
-      public static final String NAME = "backCam";
-      public static final Transform3d ROBOT_TO_CAM =
-          new Transform3d(
-              // 9.867 in to the right looking from behind the front of the robot
-              // 48.5 inches up
-              // two inches forward
-              new Translation3d(
-                  0.0508, // front/back
-                  -0.2506218, // left/right
-                  1.2319 // up/down
-                  ),
-              new Rotation3d(0, Math.toRadians(17), Math.PI));
-    }
+    public static final List<VisionSource> VISION_SOURCES =
+        List.of(
+            new VisionSource(
+                "frontCam",
+                new Transform3d(
+                    // 9.867 in to the right looking from behind the front of the robot
+                    // 7 inch forward from center
+                    // up 17.422 inches
+                    new Translation3d(
+                        0.1778, // front/back
+                        0.2506218, // left/right
+                        0.4425188 // up/down
+                        ),
+                    new Rotation3d(
+                        0,
+                        Math.toRadians(-11.5), // angle up/down
+                        0))),
+            new VisionSource(
+                "backCam",
+                new Transform3d(
+                    // 9.867 in to the right looking from behind the front of the robot
+                    // 48.5 inches up
+                    // two inches forward
+                    new Translation3d(
+                        0.0508, // front/back
+                        -0.2506218, // left/right
+                        1.2319 // up/down
+                        ),
+                    new Rotation3d(0, Math.toRadians(17), Math.PI))));
   }
 
   public static final class PoseEstimator {
@@ -275,22 +346,47 @@ public final class Constants {
     public static final Matrix<N3, N1> VISION_MEASUREMENT_STANDARD_DEVIATIONS =
         Matrix.mat(Nat.N3(), Nat.N1())
             .fill(
-                .9, // x
-                .9, // y
-                .9 * Math.PI // theta
+                // if these numbers are less than one, multiplying will do bad things
+                1, // x
+                1, // y
+                1 * Math.PI // theta
                 );
 
-    public static final double CAMERA_CAPTURE_LATENCY_FUDGE_MS = 11;
+    /** The distance at which tag distance is factored into deviation */
+    public static final double NOISY_DISTANCE_METERS = 2.5;
+
+    /**
+     * The number to multiply by the smallest of the distance minus the above constant, clamped
+     * above 1 to be the numerator of the fraction.
+     */
+    public static final double DISTANCE_WEIGHT = 7;
+
+    /**
+     * The number to multiply by the number of tags beyond the first to get the denominator of the
+     * deviations matrix.
+     */
+    public static final double TAG_PRESENCE_WEIGHT = 10;
+
+    /** The amount to shift the pose ambiguity by before multiplying it. */
+    public static final double POSE_AMBIGUITY_SHIFTER = .2;
+
+    /** The amount to multiply the pose ambiguity by if there is only one tag. */
+    public static final double POSE_AMBIGUITY_MULTIPLIER = 4;
 
     /** about one inch */
-    public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .05;
+    public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .025;
 
     public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 2;
+
+    public static final List<Set<Integer>> POSSIBLE_FRAME_FID_COMBOS =
+        List.of(Set.of(1, 2, 3, 4), Set.of(5, 6, 7, 8));
+
+    public static final int MAX_FRAME_FIDS = 4;
   }
 
   public static final class Pathing {
     /** The size in meters of a given cell for pathfinding */
-    public static final double CELL_SIZE_METERS = 0.1;
+    public static final double CELL_SIZE_METERS = 0.15;
 
     public static final int CELL_X_MAX =
         (int) Math.ceil(FieldObstructionMap.FIELD_LENGTH / Pathing.CELL_SIZE_METERS);
@@ -319,28 +415,30 @@ public final class Constants {
 
     public static final int PATHFINDING_HEURISTIC_CONSTANT = 1;
 
+    public static final double RESPECT_CURRENT_VELOCITY_THRESHOLD_MS = .2;
+
+    public static final double ANTICIPATED_PATH_SOLVE_TIME_SECONDS = .7;
+
     public static final class Costs {
       public static final int CARDINAL = 2;
       public static final int DIAGONAL = 3;
       public static final int DANGER_MULTIPLIER = 50;
+      public static final int PERPENDICULAR_BAD_FLOW_PENALTY = 3;
+      public static final int DIAGONAL_BAD_FLOW_PENALTY = 4;
     }
   }
 
   public static final class Outtake {
     public static final class Ports {
-      public static final int OUTTAKE_MOTOR = 17; // Placeholder value
-      public static final int OUTTAKE_ENCODER = 0; // PLaceholder value
+      public static final int OUTTAKE_MOTOR = CAN.at(8);
     }
-
-    public static final int OPEN_ANGLE = 500;
-    public static final int CLAMP_ANGLE = 0;
 
     public static final class OuttakeModes {
       public static final OuttakeDetails HOLD =
-          new OuttakeDetails(0.1, Optional.empty(), Optional.empty());
+          new OuttakeDetails(0.07, Optional.empty(), Optional.empty());
 
       public static final OuttakeDetails INTAKE =
-          new OuttakeDetails(0.7, Optional.of(new OuttakeDetails.StatorLimit(75)), Optional.of(2d));
+          new OuttakeDetails(.5, Optional.of(new OuttakeDetails.StatorLimit(100)), Optional.of(2d));
 
       public static final OuttakeDetails OUTTAKE =
           new OuttakeDetails(-0.2, Optional.empty(), Optional.of(2d));
@@ -348,25 +446,18 @@ public final class Constants {
       public static final OuttakeDetails OFF =
           new OuttakeDetails(0.0, Optional.empty(), Optional.empty());
     }
-
-    // Thinking of using these to plug into the stator limits above...?
-    // Better readability?
-    private static final class StatorCurrents {
-      // FIXME find real value using glass
-      public static final double OPENING_FINISH = 20;
-      public static final double ENDING_FINISH = 80;
-    }
   }
 
   public static final class NetworkWatchdog {
-    /** The IP address to ping for testing bridging, on the second vlan. */
-    public static final String TEST_IP_ADDRESS = "10.50.26.19";
+    /** The IP addresses to ping for testing bridging, on the second vlan. */
+    public static final List<IPv4> TEST_IP_ADDRESSES =
+        List.of(IPv4.internal(17), IPv4.internal(18), IPv4.internal(19));
 
     /**
      * The number of ms (sleep delta using oshi system uptime) to wait before beginning to ping the
      * test IP.
      */
-    public static final int BOOT_SCAN_DELAY_MS = 20_000;
+    public static final int BOOT_SCAN_DELAY_MS = 50_000;
 
     /** The number of seconds for ping to wait before giving up on reaching a device. */
     public static final int PING_TIMEOUT_SECONDS = 2;
@@ -384,6 +475,30 @@ public final class Constants {
      * The number of ms to wait before rerunning health checks after a failed check which triggered
      * switch reboot.
      */
-    public static final int SWITCH_POWERCYCLE_SCAN_DELAY_MS = 6_000;
+    public static final int SWITCH_POWERCYCLE_SCAN_DELAY_MS = 25_000;
+  }
+
+  public static final class CANWatchdog {
+    public static final int SCAN_DELAY_MS = 100;
+  }
+
+  public static final class Lights {
+    public static final int CANDLE_ID = 34;
+    public static final int NUM_LEDS =
+        91
+            // 8 inside the candle
+            + 8;
+
+    public static final class Colors {
+      public static final RGBColor YELLOW = new RGBColor(255, 107, 0);
+      public static final RGBColor PURPLE = new RGBColor(127, 0, 127);
+      public static final RGBColor RED = new RGBColor(255, 0, 0);
+      public static final RGBColor ORANGE = new RGBColor(255, 35, 0);
+      public static final RGBColor BLUE = new RGBColor(0, 0, 255);
+      public static final RGBColor PINK = new RGBColor(250, 35, 100);
+      public static final RGBColor MINT = new RGBColor(55, 255, 50);
+      public static final RGBColor TEAL = new RGBColor(0, 255, 255);
+      public static final RGBColor WHITE = new RGBColor(255, 255, 255);
+    }
   }
 }
