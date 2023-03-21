@@ -200,12 +200,12 @@ public final class Constants {
 
       public static final List<ScoreStep> GROUND_INTAKE =
           List.of(
-              new ScoreStep(new ArmState(-53, Arm.Setpoints.Extensions.MIN_EXTENSION)),
-              new ScoreStep(new ArmState(-53, 19)),
+              new ScoreStep(new ArmState(-46, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(-46, 20)),
               new ScoreStep(new ArmState(-60, Arm.Setpoints.Extensions.MIN_EXTENSION)),
               new ScoreStep(new ArmState(0, Arm.Setpoints.Extensions.MIN_EXTENSION)));
 
-      public static final ArmState SHELF_INTAKE = new ArmState(89, 0);
+      public static final ArmState SHELF_INTAKE = new ArmState(85, 0);
 
       public static final ArmState STOWED = new ArmState(0, Arm.Setpoints.Extensions.MIN_EXTENSION);
 
@@ -275,14 +275,16 @@ public final class Constants {
           List.of(
               new ScoreStep(new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION)),
               new ScoreStep(new ArmState(95, 20)).canWaitHere(),
-              new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE),
-              new ScoreStep(new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION))),
+              new ScoreStep(
+                  new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION),
+                  OuttakeSubsystem.Modes.OUTTAKE)),
           NodeType.CUBE.atHeight(Height.MID),
           List.of(
               new ScoreStep(new ArmState(67.32, Arm.Setpoints.Extensions.MIN_EXTENSION)),
               new ScoreStep(new ArmState(67.32, 0.75)).canWaitHere(),
-              new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE),
-              new ScoreStep(new ArmState(67.32, Arm.Setpoints.Extensions.MIN_EXTENSION))),
+              new ScoreStep(
+                  new ArmState(67.32, Arm.Setpoints.Extensions.MIN_EXTENSION),
+                  OuttakeSubsystem.Modes.OUTTAKE)),
           NodeType.CUBE.atHeight(Height.LOW),
           List.of(
               new ScoreStep(new ArmState(29.7, Arm.Setpoints.Extensions.MIN_EXTENSION))
