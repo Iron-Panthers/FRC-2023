@@ -7,6 +7,7 @@ package frc.robot.commands;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DrivebaseSubsystem;
+import frc.util.Util;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
@@ -21,7 +22,8 @@ public class RotateVelocityDriveCommand extends CommandBase {
   private final DoubleSupplier translationYSupplier;
   private final DoubleSupplier rotationSupplier;
 
-  private final BooleanSupplier isRobotRelativeSupplier;
+  private final BooleanSupplier isRobotRelativeForwardSupplier;
+  private final BooleanSupplier isRobotRelativeBackwardSupplier;
 
   /** Creates a new RotateVelocityDriveCommand. */
   public RotateVelocityDriveCommand(
@@ -29,18 +31,16 @@ public class RotateVelocityDriveCommand extends CommandBase {
       DoubleSupplier translationXSupplier,
       DoubleSupplier translationYSupplier,
       DoubleSupplier rotationSupplier,
-      BooleanSupplier isRobotRelativeSupplier) {
+      BooleanSupplier isRobotRelativeForwardSupplier,
+      BooleanSupplier isRobotRelativeBackwardSupplier) {
 
     this.drivebaseSubsystem = drivebaseSubsystem;
     this.translationXSupplier = translationXSupplier;
     this.translationYSupplier = translationYSupplier;
     this.rotationSupplier = rotationSupplier;
-    this.isRobotRelativeSupplier = isRobotRelativeSupplier;
+    this.isRobotRelativeForwardSupplier = isRobotRelativeForwardSupplier;
+    this.isRobotRelativeBackwardSupplier = isRobotRelativeBackwardSupplier;
 
-    /*
-    Shuffleboard.getTab("Drivebase")
-        .addBoolean("Is robot relative drive?", isRobotRelativeSupplier);
-    */
     addRequirements(drivebaseSubsystem);
   }
 
@@ -58,10 +58,13 @@ public class RotateVelocityDriveCommand extends CommandBase {
     // movement
 
     drivebaseSubsystem.drive(
-        isRobotRelativeSupplier.getAsBoolean()
-            ? new ChassisSpeeds(x, y, rot)
-            : ChassisSpeeds.fromFieldRelativeSpeeds(
-                x, y, rot, drivebaseSubsystem.getDriverGyroscopeRotation()));
+        Util.checkedRobotSpeeds(
+            isRobotRelativeForwardSupplier.getAsBoolean(),
+            isRobotRelativeBackwardSupplier.getAsBoolean(),
+            x,
+            y,
+            rot,
+            drivebaseSubsystem.getDriverGyroscopeRotation()));
   }
 
   // Called once the command ends or is interrupted.

@@ -7,6 +7,7 @@ package frc.robot.commands;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DrivebaseSubsystem;
+import frc.util.Util;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
@@ -47,20 +48,17 @@ public class DefaultDriveCommand extends CommandBase {
   public void execute() {
     double x = translationXSupplier.getAsDouble();
     double y = translationYSupplier.getAsDouble();
+    Boolean forwardRelative = isRobotRelativeForwardSupplier.getAsBoolean();
+    Boolean backwardRelative = isRobotRelativeBackwardSupplier.getAsBoolean();
 
-    ChassisSpeeds chassisSpeeds;
-
-    if (isRobotRelativeForwardSupplier.getAsBoolean()) {
-      chassisSpeeds = new ChassisSpeeds(x, y, 0);
-    } else if (isRobotRelativeBackwardSupplier.getAsBoolean()) {
-      chassisSpeeds = new ChassisSpeeds(-x, -y, 0);
-    } else {
-      chassisSpeeds =
-          ChassisSpeeds.fromFieldRelativeSpeeds(
-              x, y, 0, drivebaseSubsystem.getDriverGyroscopeRotation());
-    }
-
-    drivebaseSubsystem.drive(chassisSpeeds);
+    drivebaseSubsystem.drive(
+        Util.checkedRobotSpeeds(
+            forwardRelative,
+            backwardRelative,
+            x,
+            y,
+            0,
+            drivebaseSubsystem.getDriverGyroscopeRotation()));
   }
 
   // Called once the command ends or is interrupted.
