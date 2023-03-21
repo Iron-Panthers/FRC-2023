@@ -93,7 +93,7 @@ public class RGBSubsystemTests {
         rgbSubsystem.showMessage(
             Lights.Colors.MINT,
             RGBSubsystem.PatternTypes.PULSE,
-            RGBSubsystem.MessagePriority.C_DRIVER_CONTROLLED_COLOR);
+            RGBSubsystem.MessagePriority.F_NODE_SELECTION_COLOR);
     doPeriodic(1);
     showedPulse(1);
     showedRainbow(1);
@@ -111,14 +111,14 @@ public class RGBSubsystemTests {
         rgbSubsystem.showMessage(
             Lights.Colors.MINT,
             RGBSubsystem.PatternTypes.PULSE,
-            RGBSubsystem.MessagePriority.C_DRIVER_CONTROLLED_COLOR);
+            RGBSubsystem.MessagePriority.F_NODE_SELECTION_COLOR);
     doPeriodic(1);
 
     var msg2 =
         rgbSubsystem.showMessage(
             Lights.Colors.MINT,
             RGBSubsystem.PatternTypes.BOUNCE,
-            RGBSubsystem.MessagePriority.A_CRITICAL_NETWORK_INFORMATION);
+            RGBSubsystem.MessagePriority.A_CRITICAL_NETWORK_FAILURE);
 
     doPeriodic(1);
     showedBounce(1);
@@ -139,14 +139,14 @@ public class RGBSubsystemTests {
         rgbSubsystem.showMessage(
             Lights.Colors.MINT,
             RGBSubsystem.PatternTypes.PULSE,
-            RGBSubsystem.MessagePriority.C_DRIVER_CONTROLLED_COLOR);
+            RGBSubsystem.MessagePriority.F_NODE_SELECTION_COLOR);
     doPeriodic(1);
 
     var msg2 =
         rgbSubsystem.showMessage(
             Lights.Colors.MINT,
             RGBSubsystem.PatternTypes.BOUNCE,
-            RGBSubsystem.MessagePriority.A_CRITICAL_NETWORK_INFORMATION);
+            RGBSubsystem.MessagePriority.A_CRITICAL_NETWORK_FAILURE);
     doPeriodic(1);
 
     msg2.expire();
@@ -162,7 +162,7 @@ public class RGBSubsystemTests {
         rgbSubsystem.showMessage(
             Lights.Colors.MINT,
             RGBSubsystem.PatternTypes.PULSE,
-            RGBSubsystem.MessagePriority.C_DRIVER_CONTROLLED_COLOR);
+            RGBSubsystem.MessagePriority.F_NODE_SELECTION_COLOR);
 
     doPeriodic(1);
     showedRainbow(0);
@@ -177,7 +177,7 @@ public class RGBSubsystemTests {
         rgbSubsystem.showMessage(
             Lights.Colors.BLUE,
             RGBSubsystem.PatternTypes.PULSE,
-            RGBSubsystem.MessagePriority.C_DRIVER_CONTROLLED_COLOR);
+            RGBSubsystem.MessagePriority.F_NODE_SELECTION_COLOR);
     doPeriodic(1);
     showedRainbow(0);
     showedPulse(2);
@@ -189,7 +189,7 @@ public class RGBSubsystemTests {
         rgbSubsystem.showMessage(
             Lights.Colors.MINT,
             RGBSubsystem.PatternTypes.PULSE,
-            RGBSubsystem.MessagePriority.C_DRIVER_CONTROLLED_COLOR);
+            RGBSubsystem.MessagePriority.F_NODE_SELECTION_COLOR);
 
     doPeriodic(1);
     showedRainbow(0);
@@ -200,7 +200,7 @@ public class RGBSubsystemTests {
         rgbSubsystem.showMessage(
             Lights.Colors.MINT,
             RGBSubsystem.PatternTypes.PULSE,
-            RGBSubsystem.MessagePriority.C_DRIVER_CONTROLLED_COLOR);
+            RGBSubsystem.MessagePriority.F_NODE_SELECTION_COLOR);
     doPeriodic(1);
     showedRainbow(0);
     showedPulse(1);
@@ -209,7 +209,7 @@ public class RGBSubsystemTests {
         rgbSubsystem.showMessage(
             Lights.Colors.MINT,
             RGBSubsystem.PatternTypes.PULSE,
-            RGBSubsystem.MessagePriority.A_CRITICAL_NETWORK_INFORMATION);
+            RGBSubsystem.MessagePriority.A_CRITICAL_NETWORK_FAILURE);
 
     doPeriodic(1);
     showedRainbow(0);
@@ -233,7 +233,7 @@ public class RGBSubsystemTests {
         rgbSubsystem.showMessage(
             Lights.Colors.MINT,
             RGBSubsystem.PatternTypes.PULSE,
-            RGBSubsystem.MessagePriority.D_MISSING_PHOTONVISION_CLIENTS);
+            RGBSubsystem.MessagePriority.G_MISSING_PHOTONVISION_CLIENTS);
 
     doPeriodic(1);
     showedRainbow(0);
@@ -272,7 +272,7 @@ public class RGBSubsystemTests {
                         // nasty white color but it needs to be different from the other messages
                         new RGBColor(c, c, c),
                         RGBSubsystem.PatternTypes.PULSE,
-                        RGBSubsystem.MessagePriority.A_CRITICAL_NETWORK_INFORMATION);
+                        RGBSubsystem.MessagePriority.A_CRITICAL_NETWORK_FAILURE);
                 messagesWritten.countDown();
                 try {
                   latch.await();

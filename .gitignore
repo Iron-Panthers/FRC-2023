@@ -163,3 +163,8 @@ bin/
 *-window.json
 
 *.snap.debug
+
+# recording of matches
+*.mkv
+
+*.mirror.path

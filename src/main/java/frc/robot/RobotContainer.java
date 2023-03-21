@@ -6,7 +6,7 @@ package frc.robot;
 
 import static frc.robot.Constants.Drive;
 
-import edu.wpi.first.math.geometry.Pose2d;
+import com.pathplanner.lib.server.PathPlannerServer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -24,12 +24,17 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
+import frc.robot.Constants.Arm.Setpoints;
+import frc.robot.Constants.Config;
 import frc.robot.Constants.Drive;
 import frc.robot.autonomous.commands.AutoTestSequence;
 import frc.robot.autonomous.commands.MobilityAuto;
-import frc.robot.autonomous.commands.N2Engage;
-import frc.robot.autonomous.commands.N2_1CubePlus1ConeEngage;
+import frc.robot.autonomous.commands.N1_Hybrid1ConePlus2ConePlusEngage;
+import frc.robot.autonomous.commands.N2_Engage;
+import frc.robot.autonomous.commands.N3_1ConePlusMobility;
 import frc.robot.autonomous.commands.N3_1ConePlusMobilityEngage;
+import frc.robot.autonomous.commands.N6_1ConePlusEngage;
+import frc.robot.autonomous.commands.N9_1ConePlusMobilityEngage;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.BalanceCommand;
@@ -46,6 +51,7 @@ import frc.robot.commands.SetOuttakeModeCommand;
 import frc.robot.commands.SetZeroModeCommand;
 import frc.robot.commands.VibrateHIDCommand;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.CANWatchdogSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.NetworkWatchdogSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
@@ -59,6 +65,7 @@ import frc.util.NodeSelectorUtility.Height;
 import frc.util.NodeSelectorUtility.NodeSelection;
 import frc.util.SharedReference;
 import frc.util.Util;
+import frc.util.pathing.AlliancePose2d;
 import frc.util.pathing.RubenManueverGenerator;
 import java.util.HashMap;
 import java.util.Map;
@@ -83,11 +90,13 @@ public class RobotContainer {
   private final NetworkWatchdogSubsystem networkWatchdogSubsystem =
       new NetworkWatchdogSubsystem(Optional.of(rgbSubsystem));
 
+  private final CANWatchdogSubsystem canWatchdogSubsystem = new CANWatchdogSubsystem(rgbSubsystem);
+
   private final RubenManueverGenerator manueverGenerator = new RubenManueverGenerator();
 
   private final ArmSubsystem armSubsystem = new ArmSubsystem();
 
-  private final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem();
+  private final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem(Optional.of(rgbSubsystem));
 
   private final SharedReference<NodeSelection> currentNodeSelection =
       new SharedReference<>(new NodeSelection(NodeSelectorUtility.defaultNodeStack, Height.HIGH));
@@ -162,6 +171,7 @@ public class RobotContainer {
   public void containerMatchStarting() {
     // runs when the match starts
     networkWatchdogSubsystem.matchStarting();
+    canWatchdogSubsystem.matchStarting();
   }
 
   /**
@@ -228,7 +238,7 @@ public class RobotContainer {
             new DriveToPlaceCommand(
                 drivebaseSubsystem,
                 manueverGenerator,
-                () -> currentNodeSelection.get().nodeStack().position(),
+                () -> currentNodeSelection.get().nodeStack().position().get(),
                 translationXSupplier,
                 translationYSupplier,
                 will.rightBumper(),
@@ -240,7 +250,9 @@ public class RobotContainer {
             new DriveToPlaceCommand(
                 drivebaseSubsystem,
                 manueverGenerator,
-                () -> new Pose2d(15.424, 7.344, Rotation2d.fromDegrees(0)),
+                (new AlliancePose2d(15.443 - 1.5, 7.410, Rotation2d.fromDegrees(0)))::get,
+                (new AlliancePose2d(15.443, 7.410, Rotation2d.fromDegrees(0)))::get,
+                0,
                 translationXSupplier,
                 translationYSupplier,
                 will.rightBumper(),
@@ -264,7 +276,7 @@ public class RobotContainer {
     // intake presets
     jasonLayer
         .off(jason.a())
-        .onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.GROUND_INTAKE))
+        .onTrue(new ScoreCommand(outtakeSubsystem, armSubsystem, Setpoints.GROUND_INTAKE))
         .whileTrue(
             new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
 
@@ -334,7 +346,7 @@ public class RobotContainer {
                             ? Constants.Lights.Colors.PURPLE
                             : Constants.Lights.Colors.YELLOW,
                         RGBSubsystem.PatternTypes.PULSE,
-                        RGBSubsystem.MessagePriority.C_DRIVER_CONTROLLED_COLOR)
+                        RGBSubsystem.MessagePriority.F_NODE_SELECTION_COLOR)
                     ::expire));
 
     // show the current node selection
@@ -348,44 +360,70 @@ public class RobotContainer {
    * Adds all autonomous routines to the autoSelector, and places the autoSelector on Shuffleboard.
    */
   private void setupAutonomousCommands() {
+    if (Config.RUN_PATHPLANNER_SERVER) {
+      PathPlannerServer.startServer(5811);
+    }
+
     driverView.addString("NOTES", () -> "...win?").withSize(3, 1).withPosition(0, 0);
 
     final Map<String, Command> eventMap =
         Map.of(
-            "intake",
-            new ArmPositionCommand(armSubsystem, Constants.Arm.Setpoints.GROUND_INTAKE)
-                .alongWith(
-                    new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)),
             "stow arm",
             new ArmPositionCommand(armSubsystem, Constants.Arm.Setpoints.STOWED),
             "zero telescope",
             new SetZeroModeCommand(armSubsystem));
 
+    autoSelector.addOption(
+        "Just Zero Arm [DOES NOT CALIBRATE]", new SetZeroModeCommand(armSubsystem));
+
+    autoSelector.addOption(
+        "Near Substation Mobility [APRILTAG]",
+        new MobilityAuto(
+            manueverGenerator,
+            drivebaseSubsystem,
+            outtakeSubsystem,
+            armSubsystem,
+            rgbSubsystem,
+            new AlliancePose2d(4.88, 6.05, Rotation2d.fromDegrees(0))));
+
+    autoSelector.addOption(
+        "Far Substation Mobility [APRILTAG]",
+        new MobilityAuto(
+            manueverGenerator,
+            drivebaseSubsystem,
+            outtakeSubsystem,
+            armSubsystem,
+            rgbSubsystem,
+            new AlliancePose2d(6, .6, Rotation2d.fromDegrees(0))));
+
+    autoSelector.addOption("N2 Engage", new N2_Engage(5, 3.5, drivebaseSubsystem));
+
     autoSelector.setDefaultOption(
-        "Near Substation Mobility",
-        new MobilityAuto(
-            manueverGenerator,
-            drivebaseSubsystem,
-            outtakeSubsystem,
-            armSubsystem,
-            rgbSubsystem,
-            new Pose2d(4.88, 6.05, Rotation2d.fromDegrees(0))));
-
-    autoSelector.addOption(
-        "Far Substation Mobility",
-        new MobilityAuto(
-            manueverGenerator,
-            drivebaseSubsystem,
-            outtakeSubsystem,
-            armSubsystem,
-            rgbSubsystem,
-            new Pose2d(6, .6, Rotation2d.fromDegrees(0))));
-
-    autoSelector.addOption("N2 Engage", new N2Engage(5, 3.5, drivebaseSubsystem));
-
-    autoSelector.addOption(
         "N3 1Cone + Mobility Engage",
         new N3_1ConePlusMobilityEngage(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+
+    autoSelector.setDefaultOption(
+        "N3 1Cone + Mobility",
+        new N3_1ConePlusMobility(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+
+    autoSelector.setDefaultOption(
+        "N6 1Cone + Engage",
+        new N6_1ConePlusEngage(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+
+    autoSelector.addOption(
+        "N9 1Cone + Mobility Engage",
+        new N9_1ConePlusMobilityEngage(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+
+    autoSelector.addOption(
+        "Score High Cone [DOES NOT CALIBRATE]",
+        new SetZeroModeCommand(armSubsystem)
+            .raceWith(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE))
+            .andThen(
+                new ScoreCommand(
+                    outtakeSubsystem,
+                    armSubsystem,
+                    Constants.SCORE_STEP_MAP.get(
+                        NodeSelectorUtility.NodeType.CONE.atHeight(Height.HIGH)))));
 
     autoSelector.addOption(
         "AutoTest",
@@ -394,10 +432,14 @@ public class RobotContainer {
             1, // m/s2
             drivebaseSubsystem));
 
+    // autoSelector.addOption(
+    //     "N2 1Cube (not yet) + 1Cone Engage",
+    //     new N2_1CubePlus1ConeEngage(
+    //         5, 3.5, eventMap, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+
     autoSelector.addOption(
-        "N2 1Cube (not yet) + 1Cone Engage",
-        new N2_1CubePlus1ConeEngage(
-            5, 3.5, eventMap, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+        "N1 Hybrid 1Cone + 2Cone + Engage",
+        new N1_Hybrid1ConePlus2ConePlusEngage(5, 3.5, armSubsystem, drivebaseSubsystem));
 
     driverView.add("auto selector", autoSelector).withSize(4, 1).withPosition(7, 0);
 

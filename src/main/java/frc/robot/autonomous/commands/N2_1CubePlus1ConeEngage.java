@@ -6,18 +6,11 @@ package frc.robot.autonomous.commands;
 
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.commands.FollowPathWithEvents;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.Constants;
-import frc.robot.commands.BalanceCommand;
-import frc.robot.commands.FollowTrajectoryCommand;
-import frc.robot.commands.ScoreCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
-import frc.util.NodeSelectorUtility.Height;
-import frc.util.NodeSelectorUtility.NodeType;
 import java.util.List;
 import java.util.Map;
 
@@ -35,20 +28,20 @@ public class N2_1CubePlus1ConeEngage extends SequentialCommandGroup {
         PathPlanner.loadPathGroup(
             "n2 cone pickup to n3", maxVelocityMetersPerSecond, maxAccelerationMetersPerSecondSq);
 
-    addCommands(
-        // score the cube (later)
-        new FollowPathWithEvents(
-            new FollowTrajectoryCommand(paths.get(0), true, drivebaseSubsystem),
-            paths.get(0).getMarkers(),
-            eventMap),
-        new ScoreCommand(
-            outtakeSubsystem,
-            armSubsystem,
-            Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH))),
-        new FollowPathWithEvents(
-            new FollowTrajectoryCommand(paths.get(1), drivebaseSubsystem),
-            paths.get(1).getMarkers(),
-            eventMap),
-        new BalanceCommand(drivebaseSubsystem));
+    // addCommands(
+    //     // score the cube (later)
+    //     new FollowPathWithEvents(
+    //         new FollowTrajectoryCommand(paths.get(0), true, drivebaseSubsystem),
+    //         paths.get(0).getMarkers(),
+    //         eventMap),
+    //     new ScoreCommand(
+    //         outtakeSubsystem,
+    //         armSubsystem,
+    //         Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH))),
+    //     new FollowPathWithEvents(
+    //         new FollowTrajectoryCommand(paths.get(1), drivebaseSubsystem),
+    //         paths.get(1).getMarkers(),
+    //         eventMap),
+    //     new BalanceCommand(drivebaseSubsystem));
   }
 }
