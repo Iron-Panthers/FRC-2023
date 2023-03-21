@@ -130,7 +130,11 @@ public class RobotContainer {
     // Right stick X axis -> rotation
     drivebaseSubsystem.setDefaultCommand(
         new DefaultDriveCommand(
-            drivebaseSubsystem, translationXSupplier, translationYSupplier, will.rightBumper()));
+            drivebaseSubsystem,
+            translationXSupplier,
+            translationYSupplier,
+            will.povUp(),
+            will.povDown()));
 
     armSubsystem.setDefaultCommand(
         new ArmManualCommand(

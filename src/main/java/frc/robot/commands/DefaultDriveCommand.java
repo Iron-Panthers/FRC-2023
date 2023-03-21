@@ -22,19 +22,22 @@ public class DefaultDriveCommand extends CommandBase {
   private final DoubleSupplier translationXSupplier;
   private final DoubleSupplier translationYSupplier;
 
-  private final BooleanSupplier isRobotRelativeSupplier;
+  private final BooleanSupplier isRobotRelativeForwardSupplier;
+  private final BooleanSupplier isRobotRelativeBackwardSupplier;
 
   /** Creates a new DefaultDriveCommand. */
   public DefaultDriveCommand(
       DrivebaseSubsystem drivebaseSubsystem,
       DoubleSupplier translationXSupplier,
       DoubleSupplier translationYSupplier,
-      BooleanSupplier isRobotRelativeRelativeSupplier) {
+      BooleanSupplier isRobotRelativeForwardSupplier,
+      BooleanSupplier isRobotRelativeBackwardSupplier) {
 
     this.drivebaseSubsystem = drivebaseSubsystem;
     this.translationXSupplier = translationXSupplier;
     this.translationYSupplier = translationYSupplier;
-    this.isRobotRelativeSupplier = isRobotRelativeRelativeSupplier;
+    this.isRobotRelativeForwardSupplier = isRobotRelativeForwardSupplier;
+    this.isRobotRelativeBackwardSupplier = isRobotRelativeBackwardSupplier;
 
     addRequirements(drivebaseSubsystem);
   }
@@ -45,13 +48,19 @@ public class DefaultDriveCommand extends CommandBase {
     double x = translationXSupplier.getAsDouble();
     double y = translationYSupplier.getAsDouble();
 
-    boolean isRobotRelative = isRobotRelativeSupplier.getAsBoolean();
+    ChassisSpeeds chassisSpeeds;
 
-    drivebaseSubsystem.drive(
-        isRobotRelative
-            ? new ChassisSpeeds(x, y, 0)
-            : ChassisSpeeds.fromFieldRelativeSpeeds(
-                x, y, 0, drivebaseSubsystem.getDriverGyroscopeRotation()));
+    if (isRobotRelativeForwardSupplier.getAsBoolean()) {
+      chassisSpeeds = new ChassisSpeeds(x, y, 0);
+    } else if (isRobotRelativeBackwardSupplier.getAsBoolean()) {
+      chassisSpeeds = new ChassisSpeeds(-x, y, 0);
+    } else {
+      chassisSpeeds =
+          ChassisSpeeds.fromFieldRelativeSpeeds(
+              x, y, 0, drivebaseSubsystem.getDriverGyroscopeRotation());
+    }
+
+    drivebaseSubsystem.drive(chassisSpeeds);
   }
 
   // Called once the command ends or is interrupted.
