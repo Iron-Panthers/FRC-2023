@@ -63,14 +63,19 @@ public class RubenManueverGenerator {
       return 1;
     }
 
+    if (direction == LinkDirection.COMBO) {
+      return Costs.DIAGONAL_BAD_FLOW_PENALTY;
+    }
+
     if (flowTypeStart == FlowType.X_AXIS_PREFERRED || flowTypeEnd == FlowType.X_AXIS_PREFERRED) {
-      return direction == LinkDirection.PURE_X ? 1 : Costs.BAD_FLOW_PENALTY;
+      return direction == LinkDirection.PURE_X ? 1 : Costs.PERPENDICULAR_BAD_FLOW_PENALTY;
     }
 
     if (flowTypeStart == FlowType.Y_AXIS_PREFERRED || flowTypeEnd == FlowType.Y_AXIS_PREFERRED) {
-      return direction == LinkDirection.PURE_Y ? 1 : Costs.BAD_FLOW_PENALTY;
+      return direction == LinkDirection.PURE_Y ? 1 : Costs.PERPENDICULAR_BAD_FLOW_PENALTY;
     }
 
+    // we should never actually get here
     return 1;
   }
 
