@@ -421,7 +421,8 @@ public final class Constants {
       public static final int CARDINAL = 2;
       public static final int DIAGONAL = 3;
       public static final int DANGER_MULTIPLIER = 50;
-      public static final int BAD_FLOW_PENALTY = 2;
+      public static final int PERPENDICULAR_BAD_FLOW_PENALTY = 3;
+      public static final int DIAGONAL_BAD_FLOW_PENALTY = 4;
     }
   }
 

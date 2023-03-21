@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import frc.UtilParamTest;
 import frc.UtilTest;
 import frc.robot.Constants.Pathing.Costs;
+import frc.util.pathing.GridCoord.LinkDirection;
 import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Disabled;
@@ -74,5 +75,24 @@ public class GridCoordTests {
         List.of(new GridCoord(0, 0), new GridCoord(1, 1), new GridCoord(1, 2), new GridCoord(2, 3));
     List<GridCoord> actual = GridCoord.line(a, b);
     assertEquals(expected, actual, String.format("Line between %s and %s", a, b));
+  }
+
+  public static Stream<Arguments> getLinkDirectionProvider() {
+    return Stream.of(
+        Arguments.of(new GridCoord(0, 0), new GridCoord(1, 0), LinkDirection.PURE_X),
+        Arguments.of(new GridCoord(0, 0), new GridCoord(0, 1), LinkDirection.PURE_Y),
+        Arguments.of(new GridCoord(0, 0), new GridCoord(1, 1), LinkDirection.COMBO),
+        Arguments.of(new GridCoord(0, 0), new GridCoord(2, 2), LinkDirection.COMBO),
+        Arguments.of(new GridCoord(2, 2), new GridCoord(0, 0), LinkDirection.COMBO),
+        Arguments.of(new GridCoord(0, 0), new GridCoord(2, 0), LinkDirection.PURE_X),
+        Arguments.of(new GridCoord(0, 0), new GridCoord(0, 2), LinkDirection.PURE_Y),
+        Arguments.of(new GridCoord(0, 0), new GridCoord(2, 1), LinkDirection.COMBO));
+  }
+
+  @UtilParamTest
+  @MethodSource("getLinkDirectionProvider")
+  public void getLinkDirectionCorrect(GridCoord a, GridCoord b, LinkDirection expected) {
+    assertEquals(
+        expected, GridCoord.getLinkDirection(a, b), String.format("Link between %s and %s", a, b));
   }
 }
