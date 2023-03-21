@@ -6,6 +6,7 @@ package frc.robot;
 
 import static frc.robot.Constants.Drive;
 
+import com.pathplanner.lib.server.PathPlannerServer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -23,6 +24,8 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
+import frc.robot.Constants.Arm.Setpoints;
+import frc.robot.Constants.Config;
 import frc.robot.Constants.Drive;
 import frc.robot.autonomous.commands.AutoTestSequence;
 import frc.robot.autonomous.commands.MobilityAuto;
@@ -127,7 +130,11 @@ public class RobotContainer {
     // Right stick X axis -> rotation
     drivebaseSubsystem.setDefaultCommand(
         new DefaultDriveCommand(
-            drivebaseSubsystem, translationXSupplier, translationYSupplier, will.rightBumper()));
+            drivebaseSubsystem,
+            translationXSupplier,
+            translationYSupplier,
+            will.rightBumper(),
+            will.leftBumper()));
 
     armSubsystem.setDefaultCommand(
         new ArmManualCommand(
@@ -188,7 +195,10 @@ public class RobotContainer {
         });
 
     will.start().onTrue(new InstantCommand(drivebaseSubsystem::zeroGyroscope, drivebaseSubsystem));
-    will.leftBumper().whileTrue(new DefenseModeCommand(drivebaseSubsystem));
+
+    // pov(-1) is the case when no pov is pressed, so doing while false will bind this command to
+    // any pov angle
+    will.pov(-1).whileFalse(new DefenseModeCommand(drivebaseSubsystem));
 
     will.leftStick().onTrue(new HaltDriveCommandsCommand(drivebaseSubsystem));
     jason.leftStick().onTrue(new InstantCommand(() -> {}, armSubsystem));
@@ -214,7 +224,8 @@ public class RobotContainer {
                 translationXSupplier,
                 translationYSupplier,
                 rotationVelocity,
-                will.rightBumper()));
+                will.rightBumper(),
+                will.leftBumper()));
 
     new Trigger(
             () ->
@@ -247,7 +258,9 @@ public class RobotContainer {
             new DriveToPlaceCommand(
                 drivebaseSubsystem,
                 manueverGenerator,
+                (new AlliancePose2d(15.443 - 1.5, 7.410, Rotation2d.fromDegrees(0)))::get,
                 (new AlliancePose2d(15.443, 7.410, Rotation2d.fromDegrees(0)))::get,
+                0,
                 translationXSupplier,
                 translationYSupplier,
                 will.rightBumper(),
@@ -271,7 +284,7 @@ public class RobotContainer {
     // intake presets
     jasonLayer
         .off(jason.a())
-        .onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.GROUND_INTAKE))
+        .onTrue(new ScoreCommand(outtakeSubsystem, armSubsystem, Setpoints.GROUND_INTAKE))
         .whileTrue(
             new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
 
@@ -355,14 +368,14 @@ public class RobotContainer {
    * Adds all autonomous routines to the autoSelector, and places the autoSelector on Shuffleboard.
    */
   private void setupAutonomousCommands() {
+    if (Config.RUN_PATHPLANNER_SERVER) {
+      PathPlannerServer.startServer(5811);
+    }
+
     driverView.addString("NOTES", () -> "...win?").withSize(3, 1).withPosition(0, 0);
 
     final Map<String, Command> eventMap =
         Map.of(
-            "intake",
-            new ArmPositionCommand(armSubsystem, Constants.Arm.Setpoints.GROUND_INTAKE)
-                .alongWith(
-                    new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)),
             "stow arm",
             new ArmPositionCommand(armSubsystem, Constants.Arm.Setpoints.STOWED),
             "zero telescope",

@@ -7,6 +7,7 @@ package frc.robot;
 import static frc.util.MacUtil.IS_COMP_BOT;
 
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
+import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -14,6 +15,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.Constants.Drive.Dims;
 import frc.robot.commands.ScoreCommand.ScoreStep;
 import frc.robot.subsystems.ArmSubsystem.ArmState;
@@ -26,9 +28,11 @@ import frc.util.NodeSelectorUtility.Height;
 import frc.util.NodeSelectorUtility.NodeType;
 import frc.util.NodeSelectorUtility.ScoreTypeIdentifier;
 import frc.util.pathing.FieldObstructionMap;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @SuppressWarnings("java:S1118")
 /**
@@ -40,6 +44,20 @@ import java.util.Optional;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+  public static final class Config {
+    /** turn this off before comp. */
+    public static final boolean RUN_PATHPLANNER_SERVER =
+        // never run pathplanner server in simulation, it will fail unit tests (???)
+        HALUtil.getHALRuntimeType() != HALUtil.RUNTIME_SIMULATION;
+
+    public static final boolean WRITE_APRILTAG_DATA = false;
+    public static final Path APRILTAG_DATA_PATH =
+        Filesystem.getDeployDirectory().toPath().resolve("poseEstimationsAtDistances.csv");
+    public static final double REAL_X = 0.0;
+    public static final double REAL_Y = 0.0;
+  }
+
   public static final class Drive {
     // max voltage delivered to drivebase
     // supposedly useful to limit speed for testing
@@ -176,13 +194,18 @@ public final class Constants {
 
     public static final double GRAVITY_CONTROL_PERCENT = 0.07;
 
-    public static final double ANGULAR_OFFSET = 54.22;
+    public static final double ANGULAR_OFFSET = -4.835;
 
     public static final class Setpoints {
 
-      public static final ArmState GROUND_INTAKE = new ArmState(-48, 19);
+      public static final List<ScoreStep> GROUND_INTAKE =
+          List.of(
+              new ScoreStep(new ArmState(-46, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(-46, 19.5)),
+              new ScoreStep(new ArmState(-60, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(0, Arm.Setpoints.Extensions.MIN_EXTENSION)));
 
-      public static final ArmState SHELF_INTAKE = new ArmState(89, 0);
+      public static final ArmState SHELF_INTAKE = new ArmState(85, 0);
 
       public static final ArmState STOWED = new ArmState(0, Arm.Setpoints.Extensions.MIN_EXTENSION);
 
@@ -228,8 +251,8 @@ public final class Constants {
       Map.of(
           NodeType.CONE.atHeight(Height.HIGH),
           List.of(
-              new ScoreStep(new ArmState(115, Arm.Setpoints.Extensions.MIN_EXTENSION)),
-              new ScoreStep(new ArmState(115, Arm.Setpoints.Extensions.MAX_EXTENSION))
+              new ScoreStep(new ArmState(102.5, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(102.5, Arm.Setpoints.Extensions.MAX_EXTENSION))
                   .canWaitHere(),
               new ScoreStep(new ArmState(87, Arm.Setpoints.Extensions.MAX_EXTENSION)).canWaitHere(),
               new ScoreStep(
@@ -237,11 +260,11 @@ public final class Constants {
                   OuttakeSubsystem.Modes.OUTTAKE)),
           NodeType.CONE.atHeight(Height.MID),
           List.of(
-              new ScoreStep(new ArmState(100, Arm.Setpoints.Extensions.MIN_EXTENSION)),
-              new ScoreStep(new ArmState(100, 4.8)).canWaitHere(),
-              new ScoreStep(new ArmState(75, 4.8)).canWaitHere(),
+              new ScoreStep(new ArmState(90, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(90, 6)).canWaitHere(),
+              new ScoreStep(new ArmState(72, 6)).canWaitHere(),
               new ScoreStep(
-                  new ArmState(80, Arm.Setpoints.Extensions.MIN_EXTENSION),
+                  new ArmState(72, Arm.Setpoints.Extensions.MIN_EXTENSION),
                   OuttakeSubsystem.Modes.OUTTAKE)),
           NodeType.CONE.atHeight(Height.LOW),
           List.of(
@@ -252,14 +275,16 @@ public final class Constants {
           List.of(
               new ScoreStep(new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION)),
               new ScoreStep(new ArmState(95, 20)).canWaitHere(),
-              new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE),
-              new ScoreStep(new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION))),
+              new ScoreStep(
+                  new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION),
+                  OuttakeSubsystem.Modes.OUTTAKE)),
           NodeType.CUBE.atHeight(Height.MID),
           List.of(
               new ScoreStep(new ArmState(67.32, Arm.Setpoints.Extensions.MIN_EXTENSION)),
               new ScoreStep(new ArmState(67.32, 0.75)).canWaitHere(),
-              new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE),
-              new ScoreStep(new ArmState(67.32, Arm.Setpoints.Extensions.MIN_EXTENSION))),
+              new ScoreStep(
+                  new ArmState(67.32, Arm.Setpoints.Extensions.MIN_EXTENSION),
+                  OuttakeSubsystem.Modes.OUTTAKE)),
           NodeType.CUBE.atHeight(Height.LOW),
           List.of(
               new ScoreStep(new ArmState(29.7, Arm.Setpoints.Extensions.MIN_EXTENSION))
@@ -352,6 +377,11 @@ public final class Constants {
     public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .025;
 
     public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 2;
+
+    public static final List<Set<Integer>> POSSIBLE_FRAME_FID_COMBOS =
+        List.of(Set.of(1, 2, 3, 4), Set.of(5, 6, 7, 8));
+
+    public static final int MAX_FRAME_FIDS = 4;
   }
 
   public static final class Pathing {
@@ -393,6 +423,8 @@ public final class Constants {
       public static final int CARDINAL = 2;
       public static final int DIAGONAL = 3;
       public static final int DANGER_MULTIPLIER = 50;
+      public static final int PERPENDICULAR_BAD_FLOW_PENALTY = 3;
+      public static final int DIAGONAL_BAD_FLOW_PENALTY = 4;
     }
   }
 
@@ -403,10 +435,10 @@ public final class Constants {
 
     public static final class OuttakeModes {
       public static final OuttakeDetails HOLD =
-          new OuttakeDetails(0.12, Optional.empty(), Optional.empty());
+          new OuttakeDetails(0.07, Optional.empty(), Optional.empty());
 
       public static final OuttakeDetails INTAKE =
-          new OuttakeDetails(1, Optional.of(new OuttakeDetails.StatorLimit(100)), Optional.of(2d));
+          new OuttakeDetails(.5, Optional.of(new OuttakeDetails.StatorLimit(100)), Optional.of(2d));
 
       public static final OuttakeDetails OUTTAKE =
           new OuttakeDetails(-0.2, Optional.empty(), Optional.of(2d));

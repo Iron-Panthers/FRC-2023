@@ -5,13 +5,15 @@
 package frc.util;
 
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
+import com.pathplanner.lib.server.PathPlannerServer;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
+import frc.robot.Constants.Config;
 import frc.robot.autonomous.TrajectoryFollower;
-import frc.util.pathing.PoseInversionUtility;
 
 /**
  * Implements a simple swerve trajectory follower, with a fixed robot heading.
@@ -27,7 +29,6 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
   private boolean finished = false;
   /* Variable to track if calculateDriveSignal has run once yet */
   private boolean firstRun = false;
-  private boolean mirrorForRed = false;
 
   public AdvancedSwerveTrajectoryFollower(
       PIDController xController, PIDController yController, ProfiledPIDController angleController) {
@@ -39,11 +40,6 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
     // tab.addDouble("yError", yController::getPositionError);
     this.yController = yController;
     this.angleController = angleController;
-  }
-
-  public void followMirroredRed(Trajectory trajectory) {
-    mirrorForRed = true;
-    follow(trajectory);
   }
 
   private ChassisSpeeds finishTrajectory() {
@@ -60,10 +56,7 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
     }
 
     // there is still time left!
-    lastState =
-        mirrorForRed
-            ? PoseInversionUtility.findRedState(trajectory.sample(time))
-            : trajectory.sample(time);
+    lastState = trajectory.sample(time);
     if (firstRun) {
       angleController.reset(currentPose.getRotation().getRadians());
       firstRun = false;
@@ -79,6 +72,10 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
         lastState instanceof PathPlannerState
             ? ((360 - ((PathPlannerState) lastState).holonomicRotation.getDegrees()) % 360)
             : ((360 - poseRef.getRotation().getDegrees()) % 360);
+
+    if (Config.RUN_PATHPLANNER_SERVER)
+      PathPlannerServer.sendPathFollowingData(
+          new Pose2d(poseRef.getTranslation(), Rotation2d.fromDegrees(targetDegrees)), currentPose);
 
     // scope current and target angles
     double angularDifferenceDeg = Util.relativeAngularDifference(currentDegrees, targetDegrees);
@@ -115,6 +112,5 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
     angleController.reset(0);
     finished = false;
     firstRun = false;
-    mirrorForRed = false;
   }
 }

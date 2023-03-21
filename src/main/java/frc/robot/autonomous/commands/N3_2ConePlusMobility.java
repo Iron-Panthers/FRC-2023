@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.Arm;
+import frc.robot.Constants.Arm.Setpoints;
 import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.FollowTrajectoryCommand;
 import frc.robot.commands.ForceOuttakeSubsystemModeCommand;
@@ -49,7 +50,7 @@ public class N3_2ConePlusMobility extends SequentialCommandGroup {
                     .andThen(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))),
         (new WaitCommand(4))
             .deadlineWith(
-                new ArmPositionCommand(armSubsystem, Arm.Setpoints.GROUND_INTAKE)
+                new ScoreCommand(outtakeSubsystem, armSubsystem, Setpoints.GROUND_INTAKE)
                     .alongWith(
                         new ForceOuttakeSubsystemModeCommand(
                             outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE))),

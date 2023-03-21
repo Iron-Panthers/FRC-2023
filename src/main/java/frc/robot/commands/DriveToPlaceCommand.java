@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.Constants.Drive;
 import frc.robot.Constants.Lights;
 import frc.robot.Constants.PoseEstimator;
 import frc.robot.subsystems.DrivebaseSubsystem;
@@ -185,7 +186,7 @@ public class DriveToPlaceCommand extends CommandBase {
                 drivebaseSubsystem.getPose(),
                 produceChassisSpeeds(),
                 observationPose.get(),
-                new PathConstraints(5, 3.5)));
+                new PathConstraints(Drive.MAX_VELOCITY_METERS_PER_SECOND, 5)));
   }
 
   private Result<Optional<PathPlannerTrajectory>> createAdjustTrajectory() {
@@ -206,7 +207,8 @@ public class DriveToPlaceCommand extends CommandBase {
             straightLineAngle(finalPose.get().getTranslation(), currentPose.getTranslation()),
             finalPose.get().getRotation());
 
-    return asyncPathGen(new PathConstraints(5, 3), initialPoint, finalPoint);
+    return asyncPathGen(
+        new PathConstraints(Drive.MAX_VELOCITY_METERS_PER_SECOND, 3), initialPoint, finalPoint);
   }
 
   private boolean finishedPath() {
