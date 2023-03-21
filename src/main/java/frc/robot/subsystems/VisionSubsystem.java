@@ -130,6 +130,7 @@ public class VisionSubsystem {
       possibleCombination = possibleFIDCombo.containsAll(ids);
       if (possibleCombination) break;
     }
+    if (!possibleCombination) System.out.println("Ignoring frame with FIDs: " + ids);
     return !possibleCombination;
   }
 
