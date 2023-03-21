@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.Constants.Drive.Dims;
 import frc.robot.commands.ScoreCommand.ScoreStep;
 import frc.robot.subsystems.ArmSubsystem.ArmState;
@@ -27,6 +28,7 @@ import frc.util.NodeSelectorUtility.Height;
 import frc.util.NodeSelectorUtility.NodeType;
 import frc.util.NodeSelectorUtility.ScoreTypeIdentifier;
 import frc.util.pathing.FieldObstructionMap;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -47,6 +49,12 @@ public final class Constants {
     public static final boolean RUN_PATHPLANNER_SERVER =
         // never run pathplanner server in simulation, it will fail unit tests (???)
         HALUtil.getHALRuntimeType() != HALUtil.RUNTIME_SIMULATION;
+
+    public static final boolean WRITE_APRILTAG_DATA = false;
+    public static final Path APRILTAG_DATA_PATH =
+        Filesystem.getDeployDirectory().toPath().resolve("poseEstimationsAtDistances.csv");
+    public static final double REAL_X = 0.0;
+    public static final double REAL_Y = 0.0;
   }
 
   public static final class Drive {
@@ -189,7 +197,12 @@ public final class Constants {
 
     public static final class Setpoints {
 
-      public static final ArmState GROUND_INTAKE = new ArmState(-48, 19);
+      public static final List<ScoreStep> GROUND_INTAKE =
+          List.of(
+              new ScoreStep(new ArmState(-53, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(-53, 19)),
+              new ScoreStep(new ArmState(-60, Arm.Setpoints.Extensions.MIN_EXTENSION)),
+              new ScoreStep(new ArmState(0, Arm.Setpoints.Extensions.MIN_EXTENSION)));
 
       public static final ArmState SHELF_INTAKE = new ArmState(89, 0);
 
