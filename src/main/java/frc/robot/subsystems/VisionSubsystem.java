@@ -9,11 +9,9 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
@@ -25,6 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -73,10 +72,21 @@ public class VisionSubsystem {
       cameraEstimators.add(new CameraEstimator(camera, estimator));
     }
 
-    if (useShuffleboard)
-      cameraStatusList.addString(
-          "time since apriltag detection",
-          () -> String.format("%3.0f seconds", Timer.getFPGATimestamp() - lastDetection));
+    // if (useShuffleboard)
+    //   cameraStatusList.addString(
+    //       "time since apriltag detection",
+    //       () -> String.format("%3.0f seconds", Timer.getFPGATimestamp() - lastDetection));
+
+    var thread =
+        new Thread(
+            () -> {
+              if (fieldLayout == null) return;
+              while (!Thread.currentThread().isInterrupted()) {
+                this.findVisionMeasurements();
+              }
+            });
+    thread.setDaemon(true);
+    thread.start();
   }
 
   record MeasurementRow(
@@ -142,6 +152,9 @@ public class VisionSubsystem {
   public static record VisionMeasurement(
       EstimatedRobotPose estimation, Matrix<N3, N1> confidence) {}
 
+  private ConcurrentLinkedQueue<VisionMeasurement> visionMeasurements =
+      new ConcurrentLinkedQueue<>();
+
   private static boolean ignoreFrame(PhotonPipelineResult frame) {
     if (!frame.hasTargets() || frame.getTargets().size() > PoseEstimator.MAX_FRAME_FIDS)
       return true;
@@ -156,15 +169,12 @@ public class VisionSubsystem {
     return !possibleCombination;
   }
 
-  public List<VisionMeasurement> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
-    if (fieldLayout == null) {
-      return List.of();
-    }
+  public VisionMeasurement drainVisionMeasurement() {
+    return visionMeasurements.poll();
+  }
 
-    List<VisionMeasurement> estimations = new ArrayList<>();
-
+  private void findVisionMeasurements() {
     for (CameraEstimator cameraEstimator : cameraEstimators) {
-      cameraEstimator.estimator().setReferencePose(prevEstimatedRobotPose);
       PhotonPipelineResult frame = cameraEstimator.camera().getLatestResult();
 
       // determine if result should be ignored
@@ -208,13 +218,7 @@ public class VisionSubsystem {
           avgDistance,
           estimation.targetsUsed.get(0).getPoseAmbiguity(),
           estimation.estimatedPose);
-      estimations.add(new VisionMeasurement(estimation, deviation));
+      visionMeasurements.add(new VisionMeasurement(estimation, deviation));
     }
-
-    if (!estimations.isEmpty()) {
-      lastDetection = Timer.getFPGATimestamp();
-    }
-
-    return estimations;
   }
 }

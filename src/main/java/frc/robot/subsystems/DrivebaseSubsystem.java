@@ -34,7 +34,6 @@ import frc.robot.Constants.PoseEstimator;
 import frc.robot.subsystems.VisionSubsystem.VisionMeasurement;
 import frc.util.AdvancedSwerveTrajectoryFollower;
 import frc.util.Util;
-import java.util.List;
 import java.util.Optional;
 
 public class DrivebaseSubsystem extends SubsystemBase {
@@ -341,23 +340,13 @@ public class DrivebaseSubsystem extends SubsystemBase {
     this.robotPose =
         swervePoseEstimator.update(getConsistentGyroscopeRotation(), getSwerveModulePositions());
 
-    List<VisionMeasurement> visionMeasurements = visionSubsystem.getEstimatedGlobalPose(robotPose);
-
-    for (VisionMeasurement measurement : visionMeasurements) {
+    VisionMeasurement measurement;
+    while ((measurement = visionSubsystem.drainVisionMeasurement()) != null) {
       swervePoseEstimator.addVisionMeasurement(
           measurement.estimation().estimatedPose.toPose2d(),
           measurement.estimation().timestampSeconds,
           measurement.confidence());
     }
-
-    // System.out.println(
-    //     "Vision measurement "
-    //         + cameraPoseSome.getFirst().toString()
-    //         + " from "
-    //         + cameraPoseSome.getSecond()
-    //         + " at time "
-    //         + Timer.getFPGATimestamp()
-    //         + " added to pose estimator");
   }
 
   private void drivePeriodic() {
