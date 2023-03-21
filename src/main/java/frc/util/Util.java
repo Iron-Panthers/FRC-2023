@@ -93,27 +93,6 @@ public class Util {
             + Math.pow(chassisSpeeds.vyMetersPerSecond, 2));
   }
 
-  public static ChassisSpeeds checkedRobotSpeeds(
-      boolean isRobotRelativeForward,
-      boolean isRobotRelativeBackward,
-      double x,
-      double y,
-      double rotationVelocity,
-      Rotation2d currentGyroAngle) {
-    ChassisSpeeds chassisSpeeds;
-
-    if (isRobotRelativeForward) {
-      chassisSpeeds = new ChassisSpeeds(x, y, rotationVelocity);
-    } else if (isRobotRelativeBackward) {
-      chassisSpeeds = new ChassisSpeeds(-x, -y, rotationVelocity);
-    } else {
-      chassisSpeeds =
-          ChassisSpeeds.fromFieldRelativeSpeeds(x, y, rotationVelocity, currentGyroAngle);
-    }
-
-    return chassisSpeeds;
-  }
-
   /**
    * Solve for the translation velocity of a robot given its frame relative chassis speeds and
    * heading. Does the opposite of {@link ChassisSpeeds#fromFieldRelativeSpeeds}.

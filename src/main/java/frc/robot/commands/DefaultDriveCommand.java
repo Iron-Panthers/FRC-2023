@@ -7,7 +7,6 @@ package frc.robot.commands;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DrivebaseSubsystem;
-import frc.util.Util;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
@@ -52,7 +51,7 @@ public class DefaultDriveCommand extends CommandBase {
     Boolean backwardRelative = isRobotRelativeBackwardSupplier.getAsBoolean();
 
     drivebaseSubsystem.drive(
-        Util.checkedRobotSpeeds(
+        DrivebaseSubsystem.produceChassisSpeeds(
             forwardRelative,
             backwardRelative,
             x,

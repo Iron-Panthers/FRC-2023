@@ -196,6 +196,8 @@ public class RobotContainer {
 
     will.start().onTrue(new InstantCommand(drivebaseSubsystem::zeroGyroscope, drivebaseSubsystem));
 
+    // pov(-1) is the case when no pov is pressed, so doing while false will bind this command to
+    // any pov angle
     will.pov(-1).whileFalse(new DefenseModeCommand(drivebaseSubsystem));
 
     will.leftStick().onTrue(new HaltDriveCommandsCommand(drivebaseSubsystem));
