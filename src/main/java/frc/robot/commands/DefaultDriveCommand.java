@@ -53,7 +53,7 @@ public class DefaultDriveCommand extends CommandBase {
     if (isRobotRelativeForwardSupplier.getAsBoolean()) {
       chassisSpeeds = new ChassisSpeeds(x, y, 0);
     } else if (isRobotRelativeBackwardSupplier.getAsBoolean()) {
-      chassisSpeeds = new ChassisSpeeds(-x, y, 0);
+      chassisSpeeds = new ChassisSpeeds(-x, -y, 0);
     } else {
       chassisSpeeds =
           ChassisSpeeds.fromFieldRelativeSpeeds(

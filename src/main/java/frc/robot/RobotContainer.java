@@ -133,8 +133,8 @@ public class RobotContainer {
             drivebaseSubsystem,
             translationXSupplier,
             translationYSupplier,
-            will.povUp(),
-            will.povDown()));
+            will.rightBumper(),
+            will.leftBumper()));
 
     armSubsystem.setDefaultCommand(
         new ArmManualCommand(
@@ -195,7 +195,8 @@ public class RobotContainer {
         });
 
     will.start().onTrue(new InstantCommand(drivebaseSubsystem::zeroGyroscope, drivebaseSubsystem));
-    will.leftBumper().whileTrue(new DefenseModeCommand(drivebaseSubsystem));
+
+    will.pov(-1).whileFalse(new DefenseModeCommand(drivebaseSubsystem));
 
     will.leftStick().onTrue(new HaltDriveCommandsCommand(drivebaseSubsystem));
     jason.leftStick().onTrue(new InstantCommand(() -> {}, armSubsystem));
