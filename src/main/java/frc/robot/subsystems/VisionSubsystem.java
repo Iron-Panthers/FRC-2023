@@ -22,9 +22,11 @@ import frc.util.CSV;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.targeting.PhotonPipelineResult;
 
 public class VisionSubsystem {
   /** If shuffleboard should be used--important for unit testing. */
@@ -36,7 +38,9 @@ public class VisionSubsystem {
           .withPosition(11, 0)
           .withSize(2, 3);
 
-  private final List<PhotonPoseEstimator> estimators = new ArrayList<>();
+  record CameraEstimator(PhotonCamera camera, PhotonPoseEstimator estimator) {}
+
+  private final List<CameraEstimator> cameraEstimators = new ArrayList<>();
 
   private AprilTagFieldLayout fieldLayout;
 
@@ -64,7 +68,7 @@ public class VisionSubsystem {
               visionSource.robotToCamera());
       estimator.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
       cameraStatusList.addBoolean(visionSource.name(), camera::isConnected);
-      estimators.add(estimator);
+      cameraEstimators.add(new CameraEstimator(camera, estimator));
     }
 
     if (useShuffleboard)
@@ -116,6 +120,19 @@ public class VisionSubsystem {
   public static record VisionMeasurement(
       EstimatedRobotPose estimation, Matrix<N3, N1> confidence) {}
 
+  private static boolean ignoreFrame(PhotonPipelineResult frame) {
+    if (!frame.hasTargets() || frame.getTargets().size() > PoseEstimator.MAX_FRAME_FIDS)
+      return true;
+
+    boolean impossibleCombination = false;
+    List<Integer> ids = frame.targets.stream().map(t -> t.getFiducialId()).toList();
+    for (Set<Integer> possibleFIDCombo : PoseEstimator.POSSIBLE_FRAME_FID_COMBOS) {
+      impossibleCombination = possibleFIDCombo.containsAll(ids);
+      if (impossibleCombination) break;
+    }
+    return impossibleCombination;
+  }
+
   public List<VisionMeasurement> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
     if (fieldLayout == null) {
       return List.of();
@@ -123,9 +140,14 @@ public class VisionSubsystem {
 
     List<VisionMeasurement> estimations = new ArrayList<>();
 
-    for (PhotonPoseEstimator estimator : estimators) {
-      estimator.setReferencePose(prevEstimatedRobotPose);
-      var optEstimation = estimator.update();
+    for (CameraEstimator cameraEstimator : cameraEstimators) {
+      cameraEstimator.estimator().setReferencePose(prevEstimatedRobotPose);
+      PhotonPipelineResult frame = cameraEstimator.camera().getLatestResult();
+
+      // determine if result should be ignored
+      if (ignoreFrame(frame)) continue;
+
+      var optEstimation = cameraEstimator.estimator().update(frame);
       if (optEstimation.isEmpty()) continue;
       var estimation = optEstimation.get();
       double smallestDistance = Double.POSITIVE_INFINITY;

@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @SuppressWarnings("java:S1118")
 /**
@@ -374,6 +375,11 @@ public final class Constants {
     public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .025;
 
     public static final double DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES = 2;
+
+    public static final List<Set<Integer>> POSSIBLE_FRAME_FID_COMBOS =
+        List.of(Set.of(1, 2, 3, 4), Set.of(5, 6, 7, 8));
+
+    public static final int MAX_FRAME_FIDS = 4;
   }
 
   public static final class Pathing {
