@@ -23,6 +23,8 @@ import frc.robot.subsystems.NetworkWatchdogSubsystem.IPv4;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem.OuttakeDetails;
 import frc.robot.subsystems.RGBSubsystem.RGBColor;
+import frc.robot.subsystems.VisionSubsystem.TagCountDeviation;
+import frc.robot.subsystems.VisionSubsystem.UnitDeviationParams;
 import frc.util.CAN;
 import frc.util.NodeSelectorUtility.Height;
 import frc.util.NodeSelectorUtility.NodeType;
@@ -338,40 +340,16 @@ public final class Constants {
                 0.1 // theta
                 );
 
-    /**
-     * Standard deviations of the vision measurements. Increase these numbers to trust global
-     * measurements from vision less. This matrix is in the form [x, y, theta]ᵀ, with units in
-     * meters and radians.
-     */
-    public static final Matrix<N3, N1> VISION_MEASUREMENT_STANDARD_DEVIATIONS =
-        Matrix.mat(Nat.N3(), Nat.N1())
-            .fill(
-                // if these numbers are less than one, multiplying will do bad things
-                1, // x
-                1, // y
-                1 * Math.PI // theta
-                );
+    /** Discard single tag readings with an ambiguity greater than this value */
+    public static final double POSE_AMBIGUITY_CUTOFF = .15;
 
-    /** The distance at which tag distance is factored into deviation */
-    public static final double NOISY_DISTANCE_METERS = 2.5;
-
-    /**
-     * The number to multiply by the smallest of the distance minus the above constant, clamped
-     * above 1 to be the numerator of the fraction.
-     */
-    public static final double DISTANCE_WEIGHT = 7;
-
-    /**
-     * The number to multiply by the number of tags beyond the first to get the denominator of the
-     * deviations matrix.
-     */
-    public static final double TAG_PRESENCE_WEIGHT = 10;
-
-    /** The amount to shift the pose ambiguity by before multiplying it. */
-    public static final double POSE_AMBIGUITY_SHIFTER = .2;
-
-    /** The amount to multiply the pose ambiguity by if there is only one tag. */
-    public static final double POSE_AMBIGUITY_MULTIPLIER = 4;
+    public static final List<TagCountDeviation> TAG_COUNT_DEVIATION_PARAMS =
+        List.of(
+            // 1 tag
+            new TagCountDeviation(
+                new UnitDeviationParams(.7, .6, .9, -1),
+                new UnitDeviationParams(.7, .6, .9, -1),
+                new UnitDeviationParams(.7, .6, .9, -1)));
 
     /** about one inch */
     public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .025;

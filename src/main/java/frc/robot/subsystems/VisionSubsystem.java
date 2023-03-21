@@ -6,7 +6,9 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.numbers.N1;
@@ -117,6 +119,26 @@ public class VisionSubsystem {
             est.toPose2d().getRotation().getRadians()));
   }
 
+  public static record UnitDeviationParams(
+      double distanceMultiplier, double eulerMultiplier, double minimum, double eulerShifter) {
+    private double computeUnitDeviation(double averageDistance) {
+      return Math.max(
+          minimum,
+          (eulerMultiplier * Math.exp(averageDistance * distanceMultiplier)) + eulerShifter);
+    }
+  }
+
+  public static record TagCountDeviation(
+      UnitDeviationParams xParams, UnitDeviationParams yParams, UnitDeviationParams thetaParams) {
+    private Matrix<N3, N1> computeDeviation(double averageDistance) {
+      return Matrix.mat(Nat.N3(), Nat.N1())
+          .fill(
+              xParams.computeUnitDeviation(averageDistance),
+              yParams.computeUnitDeviation(averageDistance),
+              thetaParams.computeUnitDeviation(averageDistance));
+    }
+  }
+
   public static record VisionMeasurement(
       EstimatedRobotPose estimation, Matrix<N3, N1> confidence) {}
 
@@ -151,31 +173,28 @@ public class VisionSubsystem {
       var optEstimation = cameraEstimator.estimator().update(frame);
       if (optEstimation.isEmpty()) continue;
       var estimation = optEstimation.get();
-      double smallestDistance = Double.POSITIVE_INFINITY;
+
+      if (estimation.targetsUsed.size() == 1
+          && estimation.targetsUsed.get(0).getPoseAmbiguity() > PoseEstimator.POSE_AMBIGUITY_CUTOFF)
+        continue;
+
+      double sumDistance = 0;
       for (var target : estimation.targetsUsed) {
         var t3d = target.getBestCameraToTarget();
-        var distance =
+        sumDistance +=
             Math.sqrt(Math.pow(t3d.getX(), 2) + Math.pow(t3d.getY(), 2) + Math.pow(t3d.getZ(), 2));
-        if (distance < smallestDistance) smallestDistance = distance;
       }
-      double poseAmbiguityFactor =
-          estimation.targetsUsed.size() != 1
-              ? 1
-              : Math.max(
-                  1,
-                  (estimation.targetsUsed.get(0).getPoseAmbiguity()
-                          + PoseEstimator.POSE_AMBIGUITY_SHIFTER)
-                      * PoseEstimator.POSE_AMBIGUITY_MULTIPLIER);
-      double confidenceMultiplier =
-          Math.max(
-              1,
-              (Math.max(
-                          1,
-                          Math.max(0, smallestDistance - PoseEstimator.NOISY_DISTANCE_METERS)
-                              * PoseEstimator.DISTANCE_WEIGHT)
-                      * poseAmbiguityFactor)
-                  / (1
-                      + ((estimation.targetsUsed.size() - 1) * PoseEstimator.TAG_PRESENCE_WEIGHT)));
+      double avgDistance = sumDistance / estimation.targetsUsed.size();
+
+      var deviation =
+          PoseEstimator.TAG_COUNT_DEVIATION_PARAMS
+              .get(
+                  MathUtil.clamp(
+                      estimation.targetsUsed.size() - 1,
+                      0,
+                      PoseEstimator.TAG_COUNT_DEVIATION_PARAMS.size() - 1))
+              .computeDeviation(avgDistance);
+
       // System.out.println(
       //     String.format(
       //         "with %d tags at smallest distance %f and pose ambiguity factor %f, confidence
@@ -186,13 +205,10 @@ public class VisionSubsystem {
       //         confidenceMultiplier));
       logMeasurement(
           estimation.targetsUsed.size(),
-          smallestDistance,
+          avgDistance,
           estimation.targetsUsed.get(0).getPoseAmbiguity(),
           estimation.estimatedPose);
-      estimations.add(
-          new VisionMeasurement(
-              estimation,
-              PoseEstimator.VISION_MEASUREMENT_STANDARD_DEVIATIONS.times(confidenceMultiplier)));
+      estimations.add(new VisionMeasurement(estimation, deviation));
     }
 
     if (!estimations.isEmpty()) {
