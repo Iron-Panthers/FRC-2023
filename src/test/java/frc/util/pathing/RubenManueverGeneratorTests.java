@@ -352,7 +352,10 @@ public class RubenManueverGeneratorTests {
             new GridCoord(new Translation2d(1.8, .5)), new GridCoord(new Translation2d(1.8, 4.6))),
         Arguments.of(
             new GridCoord((int) ((2d / 3d) * 78), (int) ((2d / 3d) * 75)),
-            new GridCoord((int) ((2d / 3d) * 18), (int) ((2d / 3d) * 16)))
+            new GridCoord((int) ((2d / 3d) * 18), (int) ((2d / 3d) * 16))),
+        Arguments.of(
+            new GridCoord(new Translation2d(13.7, 6.28)),
+            new GridCoord(new Translation2d(15.26, 7.58)))
         // load bearing comment (hold the final brace)
         );
   }
