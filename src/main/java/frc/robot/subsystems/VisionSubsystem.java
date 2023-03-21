@@ -124,13 +124,13 @@ public class VisionSubsystem {
     if (!frame.hasTargets() || frame.getTargets().size() > PoseEstimator.MAX_FRAME_FIDS)
       return true;
 
-    boolean impossibleCombination = false;
+    boolean possibleCombination = false;
     List<Integer> ids = frame.targets.stream().map(t -> t.getFiducialId()).toList();
     for (Set<Integer> possibleFIDCombo : PoseEstimator.POSSIBLE_FRAME_FID_COMBOS) {
-      impossibleCombination = possibleFIDCombo.containsAll(ids);
-      if (impossibleCombination) break;
+      possibleCombination = possibleFIDCombo.containsAll(ids);
+      if (possibleCombination) break;
     }
-    return impossibleCombination;
+    return !possibleCombination;
   }
 
   public List<VisionMeasurement> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
