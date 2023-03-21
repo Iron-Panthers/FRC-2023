@@ -130,7 +130,11 @@ public class RobotContainer {
     // Right stick X axis -> rotation
     drivebaseSubsystem.setDefaultCommand(
         new DefaultDriveCommand(
-            drivebaseSubsystem, translationXSupplier, translationYSupplier, will.rightBumper()));
+            drivebaseSubsystem,
+            translationXSupplier,
+            translationYSupplier,
+            will.rightBumper(),
+            will.leftBumper()));
 
     armSubsystem.setDefaultCommand(
         new ArmManualCommand(
@@ -191,7 +195,10 @@ public class RobotContainer {
         });
 
     will.start().onTrue(new InstantCommand(drivebaseSubsystem::zeroGyroscope, drivebaseSubsystem));
-    will.leftBumper().whileTrue(new DefenseModeCommand(drivebaseSubsystem));
+
+    // pov(-1) is the case when no pov is pressed, so doing while false will bind this command to
+    // any pov angle
+    will.pov(-1).whileFalse(new DefenseModeCommand(drivebaseSubsystem));
 
     will.leftStick().onTrue(new HaltDriveCommandsCommand(drivebaseSubsystem));
     jason.leftStick().onTrue(new InstantCommand(() -> {}, armSubsystem));
@@ -217,7 +224,8 @@ public class RobotContainer {
                 translationXSupplier,
                 translationYSupplier,
                 rotationVelocity,
-                will.rightBumper()));
+                will.rightBumper(),
+                will.leftBumper()));
 
     new Trigger(
             () ->
