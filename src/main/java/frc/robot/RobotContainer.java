@@ -36,6 +36,7 @@ import frc.robot.autonomous.commands.N3_1ConePlusMobilityEngage;
 import frc.robot.autonomous.commands.N6_1ConePlusEngage;
 import frc.robot.autonomous.commands.N9_1ConePlusMobilityEngage;
 import frc.robot.autonomous.commands.N9_2ConePlus1CubeMobility;
+import frc.robot.autonomous.commands.N9_2ConePlusMobility;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.BalanceCommand;
@@ -422,6 +423,10 @@ public class RobotContainer {
     autoSelector.addOption(
         "N9 1Cone + Mobility Engage",
         new N9_1ConePlusMobilityEngage(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+
+    autoSelector.addOption(
+        "N9 2Cone + Mobility", 
+        new N9_2ConePlusMobility(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
 
     autoSelector.addOption(
         "[NEW + UNTESTED] N9 2Cone + 1Cube + Mobility",
