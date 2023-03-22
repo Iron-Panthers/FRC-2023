@@ -301,13 +301,10 @@ public final class Constants {
             new VisionSource(
                 "frontCam",
                 new Transform3d(
-                    // 9.867 in to the right looking from behind the front of the robot
-                    // 7 inch forward from center
-                    // up 17.422 inches
                     new Translation3d(
-                        0.1778, // front/back
-                        0.2506218, // left/right
-                        0.4425188 // up/down
+                        0.228110, // front/back
+                        0.253802, // left/right
+                        0.443955 // up/down
                         ),
                     new Rotation3d(
                         0,
@@ -316,13 +313,10 @@ public final class Constants {
             new VisionSource(
                 "backCam",
                 new Transform3d(
-                    // 9.867 in to the right looking from behind the front of the robot
-                    // 48.5 inches up
-                    // two inches forward
                     new Translation3d(
-                        0.0508, // front/back
-                        -0.2506218, // left/right
-                        1.2319 // up/down
+                        0.102078, // front/back
+                        -0.253802, // left/right
+                        1.222387 // up/down
                         ),
                     new Rotation3d(0, Math.toRadians(17), Math.PI))));
   }
