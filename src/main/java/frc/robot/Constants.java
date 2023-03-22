@@ -371,7 +371,7 @@ public final class Constants {
 
             // 2 tags
             new TagCountDeviation(
-                new UnitDeviationParams(.2, .1, .4), new UnitDeviationParams(.5, .7, 1.5)),
+                new UnitDeviationParams(.35, .1, .4), new UnitDeviationParams(.5, .7, 1.5)),
 
             // 3+ tags
             new TagCountDeviation(
