@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.Config;
 import frc.robot.Constants.PoseEstimator;
 import frc.robot.subsystems.VisionSubsystem.VisionMeasurement;
 import frc.util.AdvancedSwerveTrajectoryFollower;
@@ -208,8 +209,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
     //     "angular difference",
     //     () -> -Util.relativeAngularDifference(targetAngle, getGyroscopeRotation().getDegrees()));
 
-    tab.addDouble("pitch", navx::getPitch);
-    tab.addDouble("roll", navx::getRoll);
+    if (Config.SHOW_SHUFFLEBOARD_DEBUG_DATA) {
+      tab.addDouble("pitch", navx::getPitch);
+      tab.addDouble("roll", navx::getRoll);
+    }
 
     Shuffleboard.getTab("DriverView").add(field).withPosition(0, 2).withSize(8, 4);
   }
