@@ -217,8 +217,8 @@ public class ArmSubsystem extends SubsystemBase {
 
   // Return true if encoder is bad
   private boolean encoderCheck() {
-    return angleEncoder.getMagnetFieldStrength() == MagnetFieldStrength.Invalid_Unknown || 
-      angleEncoder.getMagnetFieldStrength() == MagnetFieldStrength.BadRange_RedLED;
+    return angleEncoder.getMagnetFieldStrength() == MagnetFieldStrength.Invalid_Unknown
+        || angleEncoder.getMagnetFieldStrength() == MagnetFieldStrength.BadRange_RedLED;
   }
 
   // Add the gravity offset as a function of sine
@@ -301,7 +301,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     angleOutput = angleController.calculate(currentAngle, computeIntermediateAngleGoal());
 
-    if(encoderCheck()) angleOutput = 0;
+    if (encoderCheck()) angleOutput = 0;
 
     angleMotor.set(
         ControlMode.PercentOutput, MathUtil.clamp(angleOutput + armGravityOffset, -.7, .7));
