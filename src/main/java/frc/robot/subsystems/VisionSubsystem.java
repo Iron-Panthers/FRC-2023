@@ -130,11 +130,9 @@ public class VisionSubsystem {
   }
 
   public static record UnitDeviationParams(
-      double distanceMultiplier, double eulerMultiplier, double minimum, double eulerShifter) {
+      double distanceMultiplier, double eulerMultiplier, double minimum) {
     private double computeUnitDeviation(double averageDistance) {
-      return Math.max(
-          minimum,
-          (eulerMultiplier * Math.exp(averageDistance * distanceMultiplier)) + eulerShifter);
+      return Math.max(minimum, eulerMultiplier * Math.exp(averageDistance * distanceMultiplier));
     }
   }
 
@@ -146,6 +144,10 @@ public class VisionSubsystem {
               xParams.computeUnitDeviation(averageDistance),
               yParams.computeUnitDeviation(averageDistance),
               thetaParams.computeUnitDeviation(averageDistance));
+    }
+
+    public TagCountDeviation(UnitDeviationParams xyParams, UnitDeviationParams thetaParams) {
+      this(xyParams, xyParams, thetaParams);
     }
   }
 

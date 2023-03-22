@@ -358,15 +358,15 @@ public final class Constants {
         List.of(
             // 1 tag
             new TagCountDeviation(
-                new UnitDeviationParams(.7, .6, .9, -1),
-                new UnitDeviationParams(.7, .6, .9, -1),
-                new UnitDeviationParams(.5, .7, 1.5, 0)),
+                new UnitDeviationParams(.7, .6, .9), new UnitDeviationParams(.5, .7, 1.5)),
 
-            // 2+ tags
+            // 2 tags
             new TagCountDeviation(
-                new UnitDeviationParams(.1, 1, .9, 0),
-                new UnitDeviationParams(.1, 1, .9, 0),
-                new UnitDeviationParams(.15, 1, 1.5, 0)));
+                new UnitDeviationParams(.4, .5, .9), new UnitDeviationParams(.5, .7, 1.5)),
+
+            // 3+ tags
+            new TagCountDeviation(
+                new UnitDeviationParams(.1, 1, .9), new UnitDeviationParams(.15, 1, 1.5)));
 
     /** about one inch */
     public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .025;
