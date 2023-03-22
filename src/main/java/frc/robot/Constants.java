@@ -359,7 +359,7 @@ public final class Constants {
                 );
 
     /** Discard single tag readings with an ambiguity greater than this value */
-    public static final double POSE_AMBIGUITY_CUTOFF = .15;
+    public static final double POSE_AMBIGUITY_CUTOFF = .07;
 
     public static final List<TagCountDeviation> TAG_COUNT_DEVIATION_PARAMS =
         List.of(
@@ -371,11 +371,11 @@ public final class Constants {
 
             // 2 tags
             new TagCountDeviation(
-                new UnitDeviationParams(.4, .5, .9), new UnitDeviationParams(.5, .7, 1.5)),
+                new UnitDeviationParams(.2, .1, .4), new UnitDeviationParams(.5, .7, 1.5)),
 
             // 3+ tags
             new TagCountDeviation(
-                new UnitDeviationParams(.1, 1, .9), new UnitDeviationParams(.15, 1, 1.5)));
+                new UnitDeviationParams(.25, .07, .25), new UnitDeviationParams(.15, 1, 1.5)));
 
     /** about one inch */
     public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .025;
