@@ -358,7 +358,7 @@ public final class Constants {
         List.of(
             // 1 tag
             new TagCountDeviation(
-                new UnitDeviationParams(.7, .6, .9), new UnitDeviationParams(.5, .7, 1.5)),
+                new UnitDeviationParams(.75, .6, .9), new UnitDeviationParams(.5, .7, 1.5)),
 
             // 2 tags
             new TagCountDeviation(
