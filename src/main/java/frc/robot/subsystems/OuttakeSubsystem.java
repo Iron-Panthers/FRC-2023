@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.Constants.Config;
 import frc.robot.Constants.Lights.Colors;
 import frc.robot.Constants.Outtake;
 import frc.robot.subsystems.RGBSubsystem.MessagePriority;
@@ -109,14 +110,16 @@ public class OuttakeSubsystem extends SubsystemBase {
 
     filterOutput = 0;
 
-    tab.addNumber("Stator Current", this.outtake::getStatorCurrent);
-    tab.addNumber("Filter Output", () -> this.filterOutput);
+    if (Config.SHOW_SHUFFLEBOARD_DEBUG_DATA) {
+      tab.addNumber("Stator Current", this.outtake::getStatorCurrent);
+      tab.addNumber("Filter Output", () -> this.filterOutput);
 
-    tab.addNumber("voltage", this.outtake::getMotorOutputVoltage);
+      tab.addNumber("voltage", this.outtake::getMotorOutputVoltage);
 
-    tab.addString("Current Mode", () -> mode.toString());
+      tab.addString("Current Mode", () -> mode.toString());
 
-    tab.addBoolean("mode locked", () -> this.modeLocked);
+      tab.addBoolean("mode locked", () -> this.modeLocked);
+    }
   }
 
   /**

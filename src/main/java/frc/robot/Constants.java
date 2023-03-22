@@ -53,7 +53,12 @@ public final class Constants {
         // never run pathplanner server in simulation, it will fail unit tests (???)
         HALUtil.getHALRuntimeType() != HALUtil.RUNTIME_SIMULATION;
 
+    /** turn this off before comp. */
+    public static final boolean SHOW_SHUFFLEBOARD_DEBUG_DATA = false;
+
+    /** def turn this off unless you are using it, generates in excess of 100k rows for a match. */
     public static final boolean WRITE_APRILTAG_DATA = false;
+
     public static final Path APRILTAG_DATA_PATH =
         Filesystem.getDeployDirectory().toPath().resolve("poseEstimationsAtDistances.csv");
     public static final double REAL_X = 0.0;
