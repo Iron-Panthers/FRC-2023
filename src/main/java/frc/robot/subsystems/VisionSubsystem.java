@@ -83,6 +83,11 @@ public class VisionSubsystem {
               if (fieldLayout == null) return;
               while (!Thread.currentThread().isInterrupted()) {
                 this.findVisionMeasurements();
+                try {
+                  Thread.sleep(Vision.THREAD_SLEEP_DURATION_MS);
+                } catch (InterruptedException e) {
+                  Thread.currentThread().interrupt();
+                }
               }
             });
     thread.setDaemon(true);

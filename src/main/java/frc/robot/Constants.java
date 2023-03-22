@@ -324,6 +324,8 @@ public final class Constants {
                         1.222387 // up/down
                         ),
                     new Rotation3d(0, Math.toRadians(17), Math.PI))));
+
+    public static int THREAD_SLEEP_DURATION_MS = 5;
   }
 
   public static final class PoseEstimator {
