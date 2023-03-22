@@ -192,8 +192,8 @@ public class VisionSubsystem {
       var estimation = optEstimation.get();
 
       if (estimation.targetsUsed.size() == 1
-          && estimation.targetsUsed.get(0).getPoseAmbiguity() > PoseEstimator.POSE_AMBIGUITY_CUTOFF)
-        continue;
+          && (estimation.targetsUsed.get(0).getPoseAmbiguity() > PoseEstimator.POSE_AMBIGUITY_CUTOFF
+              || estimation.targetsUsed.get(0).getPoseAmbiguity() == -1)) continue;
 
       double sumDistance = 0;
       for (var target : estimation.targetsUsed) {
