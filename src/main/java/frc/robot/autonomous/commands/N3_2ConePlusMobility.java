@@ -17,6 +17,7 @@ import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.SetOuttakeModeCommand;
 import frc.robot.commands.SetZeroModeCommand;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ArmSubsystem.ArmState;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.util.NodeSelectorUtility.Height;
@@ -61,7 +62,12 @@ public class N3_2ConePlusMobility extends SequentialCommandGroup {
         new FollowTrajectoryCommand(paths.get(2), drivebaseSubsystem)
             .alongWith(
                 new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)
-                    .andThen(new SetZeroModeCommand(armSubsystem))),
+                    .andThen(
+                        new SetZeroModeCommand(armSubsystem)
+                            .andThen(
+                                new ArmPositionCommand(
+                                    armSubsystem,
+                                    new ArmState(102.5, Arm.Setpoints.Extensions.MIN_EXTENSION))))),
         new ScoreCommand(
             outtakeSubsystem,
             armSubsystem,

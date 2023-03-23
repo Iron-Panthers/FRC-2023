@@ -417,7 +417,7 @@ public class RobotContainer {
 
     autoSelector.addOption(
         "N3 2Cone + Mobility",
-        new N3_2ConePlusMobility(4.95, 6, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+        new N3_2ConePlusMobility(4.95, 7, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
 
     autoSelector.addOption(
         "N3 2Cone + Mobility Dock Try Engage",
