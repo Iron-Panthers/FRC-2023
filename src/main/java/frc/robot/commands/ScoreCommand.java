@@ -143,14 +143,18 @@ public class ScoreCommand extends SequentialCommandGroup {
     int end = 0;
     while (end < scoreSteps.size()) {
       if (scoreSteps.get(end).isPausePoint()) {
+        // System.out.printf("start: %d end: %d%n", start, end);
+        // System.out.println(scoreSteps.subList(start, end + 1));
         scoreCommands.add(
             new ScoreCommand(
-                outtakeSubsystem, armSubsystem, scoreSteps.subList(start, end), stepDeadline));
-        start = end;
+                outtakeSubsystem, armSubsystem, scoreSteps.subList(start, end + 1), stepDeadline));
+        start = end + 1;
       }
       end++;
     }
 
+    // System.out.printf("start: %d end: %d%n", start, end);
+    // System.out.println(scoreSteps.subList(start, end));
     scoreCommands.add(
         new ScoreCommand(
             outtakeSubsystem, armSubsystem, scoreSteps.subList(start, end), stepDeadline));
