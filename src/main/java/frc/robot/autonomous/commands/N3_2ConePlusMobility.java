@@ -26,16 +26,6 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class N3_2ConePlusMobility extends SequentialCommandGroup {
-
-  private static List<ScoreCommand> makeScoreCommands(
-      ArmSubsystem armSubsystem, OuttakeSubsystem outtakeSubsystem) {
-    return ScoreCommand.splitAlongPausePoints(
-        outtakeSubsystem,
-        armSubsystem,
-        Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH)),
-        1);
-  }
-
   public N3_2ConePlusMobility(
       double maxVelocityMetersPerSecond,
       double maxAccelerationMetersPerSecondSq,
@@ -48,8 +38,6 @@ public class N3_2ConePlusMobility extends SequentialCommandGroup {
             "n3 2cone + mobility dock try engage",
             maxVelocityMetersPerSecond,
             maxAccelerationMetersPerSecondSq);
-
-    List<ScoreCommand> scoreB = makeScoreCommands(armSubsystem, outtakeSubsystem);
 
     addCommands(
         new SetZeroModeCommand(armSubsystem)
@@ -73,7 +61,11 @@ public class N3_2ConePlusMobility extends SequentialCommandGroup {
         new FollowTrajectoryCommand(paths.get(2), drivebaseSubsystem)
             .alongWith(
                 new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)
-                    .andThen(new SetZeroModeCommand(armSubsystem).andThen(scoreB.get(0)))),
-        scoreB.get(1));
+                    .andThen(new SetZeroModeCommand(armSubsystem))),
+        new ScoreCommand(
+            outtakeSubsystem,
+            armSubsystem,
+            Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH)),
+            1));
   }
 }
