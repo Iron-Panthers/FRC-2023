@@ -88,20 +88,29 @@ public class ScoreCommand extends SequentialCommandGroup {
       ArmSubsystem armSubsystem,
       List<ScoreStep> scoreSteps,
       Trigger trigger) {
-    this(outtakeSubsystem, armSubsystem, scoreSteps, Optional.of(trigger));
+    this(outtakeSubsystem, armSubsystem, scoreSteps, Optional.of(trigger), Optional.empty());
   }
 
   public ScoreCommand(
       OuttakeSubsystem outtakeSubsystem, ArmSubsystem armSubsystem, List<ScoreStep> scoreSteps) {
-    this(outtakeSubsystem, armSubsystem, scoreSteps, Optional.empty());
+    this(outtakeSubsystem, armSubsystem, scoreSteps, Optional.empty(), Optional.empty());
   }
 
-  /** Creates a new ScoreCommand. */
   public ScoreCommand(
       OuttakeSubsystem outtakeSubsystem,
       ArmSubsystem armSubsystem,
       List<ScoreStep> scoreSteps,
-      Optional<Trigger> trigger) {
+      double stepDeadline) {
+    this(outtakeSubsystem, armSubsystem, scoreSteps, Optional.empty(), Optional.of(stepDeadline));
+  }
+
+  /** Creates a new ScoreCommand. */
+  private ScoreCommand(
+      OuttakeSubsystem outtakeSubsystem,
+      ArmSubsystem armSubsystem,
+      List<ScoreStep> scoreSteps,
+      Optional<Trigger> trigger,
+      Optional<Double> stepDeadline) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
 
@@ -109,7 +118,11 @@ public class ScoreCommand extends SequentialCommandGroup {
     this.armSubsystem = armSubsystem;
 
     for (ScoreStep scoreStep : scoreSteps) {
-      if (trigger.isEmpty()) addCommands(createStep(scoreStep));
+      if (trigger.isEmpty())
+        addCommands(
+            stepDeadline.isPresent()
+                ? createStep(scoreStep).withTimeout(stepDeadline.get())
+                : createStep(scoreStep));
       else
         addCommands(
             scoreStep.isPausePoint()
