@@ -23,6 +23,8 @@ import frc.robot.subsystems.NetworkWatchdogSubsystem.IPv4;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem.OuttakeDetails;
 import frc.robot.subsystems.RGBSubsystem.RGBColor;
+import frc.robot.subsystems.VisionSubsystem.TagCountDeviation;
+import frc.robot.subsystems.VisionSubsystem.UnitDeviationParams;
 import frc.util.CAN;
 import frc.util.NodeSelectorUtility.Height;
 import frc.util.NodeSelectorUtility.NodeType;
@@ -51,7 +53,12 @@ public final class Constants {
         // never run pathplanner server in simulation, it will fail unit tests (???)
         HALUtil.getHALRuntimeType() != HALUtil.RUNTIME_SIMULATION;
 
+    /** turn this off before comp. */
+    public static final boolean SHOW_SHUFFLEBOARD_DEBUG_DATA = false;
+
+    /** def turn this off unless you are using it, generates in excess of 100k rows for a match. */
     public static final boolean WRITE_APRILTAG_DATA = false;
+
     public static final Path APRILTAG_DATA_PATH =
         Filesystem.getDeployDirectory().toPath().resolve("poseEstimationsAtDistances.csv");
     public static final double REAL_X = 0.0;
@@ -299,13 +306,10 @@ public final class Constants {
             new VisionSource(
                 "frontCam",
                 new Transform3d(
-                    // 9.867 in to the right looking from behind the front of the robot
-                    // 7 inch forward from center
-                    // up 17.422 inches
                     new Translation3d(
-                        0.1778, // front/back
-                        0.2506218, // left/right
-                        0.4425188 // up/down
+                        0.228110, // front/back
+                        0.253802, // left/right
+                        0.443955 // up/down
                         ),
                     new Rotation3d(
                         0,
@@ -314,15 +318,14 @@ public final class Constants {
             new VisionSource(
                 "backCam",
                 new Transform3d(
-                    // 9.867 in to the right looking from behind the front of the robot
-                    // 48.5 inches up
-                    // two inches forward
                     new Translation3d(
-                        0.0508, // front/back
-                        -0.2506218, // left/right
-                        1.2319 // up/down
+                        0.102078, // front/back
+                        -0.253802, // left/right
+                        1.222387 // up/down
                         ),
                     new Rotation3d(0, Math.toRadians(17), Math.PI))));
+
+    public static int THREAD_SLEEP_DURATION_MS = 5;
   }
 
   public static final class PoseEstimator {
@@ -342,6 +345,9 @@ public final class Constants {
      * Standard deviations of the vision measurements. Increase these numbers to trust global
      * measurements from vision less. This matrix is in the form [x, y, theta]ᵀ, with units in
      * meters and radians.
+     *
+     * <p>These are not actually used anymore, but the constructor for the pose estimator wants
+     * them. This value is calculated dynamically using the below list.
      */
     public static final Matrix<N3, N1> VISION_MEASUREMENT_STANDARD_DEVIATIONS =
         Matrix.mat(Nat.N3(), Nat.N1())
@@ -352,26 +358,24 @@ public final class Constants {
                 1 * Math.PI // theta
                 );
 
-    /** The distance at which tag distance is factored into deviation */
-    public static final double NOISY_DISTANCE_METERS = 2.5;
+    /** Discard single tag readings with an ambiguity greater than this value */
+    public static final double POSE_AMBIGUITY_CUTOFF = 0;
 
-    /**
-     * The number to multiply by the smallest of the distance minus the above constant, clamped
-     * above 1 to be the numerator of the fraction.
-     */
-    public static final double DISTANCE_WEIGHT = 7;
+    public static final List<TagCountDeviation> TAG_COUNT_DEVIATION_PARAMS =
+        List.of(
+            // 1 tag
+            new TagCountDeviation(
+                new UnitDeviationParams(.25, .4, .9),
+                new UnitDeviationParams(.35, .5, 1.2),
+                new UnitDeviationParams(.5, .7, 1.5)),
 
-    /**
-     * The number to multiply by the number of tags beyond the first to get the denominator of the
-     * deviations matrix.
-     */
-    public static final double TAG_PRESENCE_WEIGHT = 10;
+            // 2 tags
+            new TagCountDeviation(
+                new UnitDeviationParams(.35, .1, .4), new UnitDeviationParams(.5, .7, 1.5)),
 
-    /** The amount to shift the pose ambiguity by before multiplying it. */
-    public static final double POSE_AMBIGUITY_SHIFTER = .2;
-
-    /** The amount to multiply the pose ambiguity by if there is only one tag. */
-    public static final double POSE_AMBIGUITY_MULTIPLIER = 4;
+            // 3+ tags
+            new TagCountDeviation(
+                new UnitDeviationParams(.25, .07, .25), new UnitDeviationParams(.15, 1, 1.5)));
 
     /** about one inch */
     public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .025;
