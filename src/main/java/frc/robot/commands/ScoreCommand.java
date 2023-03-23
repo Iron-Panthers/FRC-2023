@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ArmSubsystem.ArmState;
 import frc.robot.subsystems.OuttakeSubsystem;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -129,5 +130,31 @@ public class ScoreCommand extends SequentialCommandGroup {
                 ? (new AwaitTriggerPressed(trigger.get())).deadlineWith(createStep(scoreStep))
                 : (new AwaitTriggerPressed(trigger.get())).raceWith(createStep(scoreStep)));
     }
+  }
+
+  public static List<ScoreCommand> splitAlongPausePoints(
+      OuttakeSubsystem outtakeSubsystem,
+      ArmSubsystem armSubsystem,
+      List<ScoreStep> scoreSteps,
+      double stepDeadline) {
+    var scoreCommands = new ArrayList<ScoreCommand>();
+
+    int start = 0;
+    int end = 0;
+    while (end < scoreSteps.size()) {
+      if (scoreSteps.get(end).isPausePoint()) {
+        scoreCommands.add(
+            new ScoreCommand(
+                outtakeSubsystem, armSubsystem, scoreSteps.subList(start, end), stepDeadline));
+        start = end;
+      }
+      end++;
+    }
+
+    scoreCommands.add(
+        new ScoreCommand(
+            outtakeSubsystem, armSubsystem, scoreSteps.subList(start, end), stepDeadline));
+
+    return scoreCommands;
   }
 }
