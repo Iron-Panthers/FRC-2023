@@ -69,6 +69,25 @@ public class GridCoord {
     return line;
   }
 
+  enum LinkDirection {
+    PURE_X,
+    PURE_Y,
+    COMBO,
+    EQUAL
+  }
+
+  public static LinkDirection getLinkDirection(GridCoord start, GridCoord end) {
+    if (start.x == end.x && start.y == end.y) {
+      return LinkDirection.EQUAL;
+    } else if (start.x == end.x && start.y != end.y) {
+      return LinkDirection.PURE_Y;
+    } else if (start.y == end.y && start.x != end.x) {
+      return LinkDirection.PURE_X;
+    } else {
+      return LinkDirection.COMBO;
+    }
+  }
+
   @Override
   public boolean equals(Object o) {
     if (o instanceof GridCoord) {
