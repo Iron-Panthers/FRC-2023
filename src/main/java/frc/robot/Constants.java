@@ -365,8 +365,8 @@ public final class Constants {
         List.of(
             // 1 tag
             new TagCountDeviation(
-                new UnitDeviationParams(.2, .4, .9),
-                new UnitDeviationParams(1.2, .5, 1.2),
+                new UnitDeviationParams(.25, .4, .9),
+                new UnitDeviationParams(.35, .5, 1.2),
                 new UnitDeviationParams(.5, .7, 1.5)),
 
             // 2 tags
