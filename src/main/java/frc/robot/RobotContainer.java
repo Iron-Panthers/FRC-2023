@@ -27,12 +27,12 @@ import frc.robot.Constants.Arm;
 import frc.robot.Constants.Arm.Setpoints;
 import frc.robot.Constants.Config;
 import frc.robot.Constants.Drive;
-import frc.robot.autonomous.commands.AutoTestSequence;
 import frc.robot.autonomous.commands.MobilityAuto;
 import frc.robot.autonomous.commands.N1_Hybrid1ConePlus2ConePlusEngage;
 import frc.robot.autonomous.commands.N2_Engage;
 import frc.robot.autonomous.commands.N3_1ConePlusMobility;
 import frc.robot.autonomous.commands.N3_1ConePlusMobilityEngage;
+import frc.robot.autonomous.commands.N3_2ConePlusMobility;
 import frc.robot.autonomous.commands.N6_1ConePlusEngage;
 import frc.robot.autonomous.commands.N9_1ConePlusMobilityEngage;
 import frc.robot.commands.ArmManualCommand;
@@ -412,7 +412,11 @@ public class RobotContainer {
 
     autoSelector.setDefaultOption(
         "N3 1Cone + Mobility",
-        new N3_1ConePlusMobility(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+        new N3_1ConePlusMobility(4.95, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+
+    autoSelector.addOption(
+        "N3 2Cone + Mobility",
+        new N3_2ConePlusMobility(4.5, 2.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
 
     autoSelector.setDefaultOption(
         "N6 1Cone + Engage",
@@ -433,12 +437,12 @@ public class RobotContainer {
                     Constants.SCORE_STEP_MAP.get(
                         NodeSelectorUtility.NodeType.CONE.atHeight(Height.HIGH)))));
 
-    autoSelector.addOption(
-        "AutoTest",
-        new AutoTestSequence(
-            2, // m/s
-            1, // m/s2
-            drivebaseSubsystem));
+    // autoSelector.addOption(
+    //     "AutoTest",
+    //     new AutoTestSequence(
+    //         2, // m/s
+    //         1, // m/s2
+    //         drivebaseSubsystem));
 
     // autoSelector.addOption(
     //     "N2 1Cube (not yet) + 1Cone Engage",
