@@ -44,14 +44,15 @@ public class N3_2ConePlusMobility extends SequentialCommandGroup {
         new ScoreCommand(
             outtakeSubsystem,
             armSubsystem,
-            Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH))),
+            Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH)),
+            1),
         (new FollowTrajectoryCommand(paths.get(0), true, drivebaseSubsystem))
             .alongWith(
-                (new WaitCommand(.5))
+                (new WaitCommand(.7))
                     .andThen(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))),
         new FollowTrajectoryCommand(paths.get(1), drivebaseSubsystem)
             .andThen(
-                new ScoreCommand(outtakeSubsystem, armSubsystem, Setpoints.GROUND_INTAKE)
+                new ScoreCommand(outtakeSubsystem, armSubsystem, Setpoints.GROUND_INTAKE, 1)
                     .deadlineWith(
                         new ForceOuttakeSubsystemModeCommand(
                             outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE))),
@@ -62,6 +63,7 @@ public class N3_2ConePlusMobility extends SequentialCommandGroup {
         new ScoreCommand(
             outtakeSubsystem,
             armSubsystem,
-            Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH))));
+            Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH)),
+            1));
   }
 }
