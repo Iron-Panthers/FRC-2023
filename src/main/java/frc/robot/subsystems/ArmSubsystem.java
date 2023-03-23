@@ -216,7 +216,7 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   // Return true if encoder is bad
-  private boolean encoderCheck() {
+  private boolean encoderIsBad() {
     return angleEncoder.getMagnetFieldStrength() == MagnetFieldStrength.Invalid_Unknown
         || angleEncoder.getMagnetFieldStrength() == MagnetFieldStrength.BadRange_RedLED;
   }
@@ -301,10 +301,10 @@ public class ArmSubsystem extends SubsystemBase {
 
     angleOutput = angleController.calculate(currentAngle, computeIntermediateAngleGoal());
 
-    if (encoderCheck()) angleOutput = 0;
-
-    angleMotor.set(
+    if (!encoderIsBad()) {
+      angleMotor.set(
         ControlMode.PercentOutput, MathUtil.clamp(angleOutput + armGravityOffset, -.7, .7));
+    }    
     extensionMotor.set(ControlMode.PercentOutput, MathUtil.clamp(extensionOutput, -.5, .5));
   }
 }
