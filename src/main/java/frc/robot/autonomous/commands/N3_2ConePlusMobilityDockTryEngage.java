@@ -11,6 +11,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.Arm;
 import frc.robot.Constants.Arm.Setpoints;
 import frc.robot.commands.ArmPositionCommand;
+import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.FollowTrajectoryCommand;
 import frc.robot.commands.ForceOuttakeSubsystemModeCommand;
 import frc.robot.commands.ScoreCommand;
@@ -25,8 +26,8 @@ import frc.util.pathing.LoadMirrorPath;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class N3_2ConePlusMobility extends SequentialCommandGroup {
-  public N3_2ConePlusMobility(
+public class N3_2ConePlusMobilityDockTryEngage extends SequentialCommandGroup {
+  public N3_2ConePlusMobilityDockTryEngage(
       double maxVelocityMetersPerSecond,
       double maxAccelerationMetersPerSecondSq,
       OuttakeSubsystem outtakeSubsystem,
@@ -66,6 +67,11 @@ public class N3_2ConePlusMobility extends SequentialCommandGroup {
             outtakeSubsystem,
             armSubsystem,
             Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH)),
-            1));
+            1),
+        (new FollowTrajectoryCommand(paths.get(3), drivebaseSubsystem))
+            .alongWith(
+                (new WaitCommand(1))
+                    .andThen(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))),
+        new BalanceCommand(drivebaseSubsystem));
   }
 }
