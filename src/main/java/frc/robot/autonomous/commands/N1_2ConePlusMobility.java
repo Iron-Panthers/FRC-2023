@@ -63,13 +63,12 @@ public class N1_2ConePlusMobility extends SequentialCommandGroup {
         new FollowTrajectoryCommand(paths.get(2), drivebaseSubsystem)
             .alongWith(
                 new ScoreCommand(
-                        outtakeSubsystem, armSubsystem, Setpoints.GROUND_INTAKE.subList(2, 4), 1)
+                        // skip bringing it into the body
+                        outtakeSubsystem, armSubsystem, Setpoints.GROUND_INTAKE.subList(2, 3), 1)
                     .andThen(
-                        new SetZeroModeCommand(armSubsystem)
-                            .andThen(
-                                new ArmPositionCommand(
-                                    armSubsystem,
-                                    new ArmState(102.5, Arm.Setpoints.Extensions.MIN_EXTENSION))))),
+                        new ArmPositionCommand(
+                            armSubsystem,
+                            new ArmState(102.5, Arm.Setpoints.Extensions.MIN_EXTENSION)))),
         new ScoreCommand(
             outtakeSubsystem,
             armSubsystem,
