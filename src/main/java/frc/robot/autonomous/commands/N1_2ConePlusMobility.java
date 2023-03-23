@@ -26,8 +26,8 @@ import frc.util.pathing.LoadMirrorPath;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class N3_2ConePlusMobility extends SequentialCommandGroup {
-  public N3_2ConePlusMobility(
+public class N1_2ConePlusMobility extends SequentialCommandGroup {
+  public N1_2ConePlusMobility(
       double maxVelocityMetersPerSecond,
       double maxAccelerationMetersPerSecondSq,
       OuttakeSubsystem outtakeSubsystem,
@@ -36,7 +36,7 @@ public class N3_2ConePlusMobility extends SequentialCommandGroup {
 
     List<Supplier<PathPlannerTrajectory>> paths =
         LoadMirrorPath.loadPathGroup(
-            "n3 2cone + mobility dock try engage",
+            "n1 2cone + mobility engage",
             maxVelocityMetersPerSecond,
             maxAccelerationMetersPerSecondSq);
 
