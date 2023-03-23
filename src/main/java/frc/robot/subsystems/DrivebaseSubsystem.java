@@ -30,11 +30,11 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.Config;
 import frc.robot.Constants.PoseEstimator;
 import frc.robot.subsystems.VisionSubsystem.VisionMeasurement;
 import frc.util.AdvancedSwerveTrajectoryFollower;
 import frc.util.Util;
-import java.util.List;
 import java.util.Optional;
 
 public class DrivebaseSubsystem extends SubsystemBase {
@@ -209,8 +209,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
     //     "angular difference",
     //     () -> -Util.relativeAngularDifference(targetAngle, getGyroscopeRotation().getDegrees()));
 
-    tab.addDouble("pitch", navx::getPitch);
-    tab.addDouble("roll", navx::getRoll);
+    if (Config.SHOW_SHUFFLEBOARD_DEBUG_DATA) {
+      tab.addDouble("pitch", navx::getPitch);
+      tab.addDouble("roll", navx::getRoll);
+    }
 
     Shuffleboard.getTab("DriverView").add(field).withPosition(0, 2).withSize(8, 4);
   }
@@ -341,23 +343,13 @@ public class DrivebaseSubsystem extends SubsystemBase {
     this.robotPose =
         swervePoseEstimator.update(getConsistentGyroscopeRotation(), getSwerveModulePositions());
 
-    List<VisionMeasurement> visionMeasurements = visionSubsystem.getEstimatedGlobalPose(robotPose);
-
-    for (VisionMeasurement measurement : visionMeasurements) {
+    VisionMeasurement measurement;
+    while ((measurement = visionSubsystem.drainVisionMeasurement()) != null) {
       swervePoseEstimator.addVisionMeasurement(
           measurement.estimation().estimatedPose.toPose2d(),
           measurement.estimation().timestampSeconds,
           measurement.confidence());
     }
-
-    // System.out.println(
-    //     "Vision measurement "
-    //         + cameraPoseSome.getFirst().toString()
-    //         + " from "
-    //         + cameraPoseSome.getSecond()
-    //         + " at time "
-    //         + Timer.getFPGATimestamp()
-    //         + " added to pose estimator");
   }
 
   private void drivePeriodic() {
@@ -467,13 +459,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
     Pose2d pose = getPose();
 
     field.setRobotPose(swervePoseEstimator.getEstimatedPosition());
-    SmartDashboard.putString(
-        "pose",
-        String.format(
-            "(%2f %2f %2f)",
-            swervePoseEstimator.getEstimatedPosition().getX(),
-            swervePoseEstimator.getEstimatedPosition().getY(),
-            swervePoseEstimator.getEstimatedPosition().getRotation().getDegrees()));
+    if (Config.SHOW_SHUFFLEBOARD_DEBUG_DATA) {
+      SmartDashboard.putString(
+          "pose",
+          String.format(
+              "(%2f %2f %2f)",
+              swervePoseEstimator.getEstimatedPosition().getX(),
+              swervePoseEstimator.getEstimatedPosition().getY(),
+              swervePoseEstimator.getEstimatedPosition().getRotation().getDegrees()));
+    }
 
     /*
      * See if there is a new drive signal from the trajectory follower object.
