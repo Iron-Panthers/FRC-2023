@@ -359,7 +359,7 @@ public final class Constants {
                 );
 
     /** Discard single tag readings with an ambiguity greater than this value */
-    public static final double POSE_AMBIGUITY_CUTOFF = .07;
+    public static final double POSE_AMBIGUITY_CUTOFF = .045;
 
     public static final List<TagCountDeviation> TAG_COUNT_DEVIATION_PARAMS =
         List.of(
