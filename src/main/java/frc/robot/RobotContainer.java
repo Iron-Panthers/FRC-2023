@@ -45,6 +45,7 @@ import frc.robot.commands.DriveToPlaceCommand;
 import frc.robot.commands.ForceOuttakeSubsystemModeCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
 import frc.robot.commands.HashMapCommand;
+import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.ScoreCommand;
@@ -54,6 +55,8 @@ import frc.robot.commands.VibrateHIDCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.CANWatchdogSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.IntakeSubsystem.Modes;
 import frc.robot.subsystems.NetworkWatchdogSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.RGBSubsystem;
@@ -96,6 +99,8 @@ public class RobotContainer {
   private final RubenManueverGenerator manueverGenerator = new RubenManueverGenerator();
 
   private final ArmSubsystem armSubsystem = new ArmSubsystem();
+
+  private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 
   private final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem(Optional.of(rgbSubsystem));
 
@@ -345,6 +350,9 @@ public class RobotContainer {
 
     jason.povRight().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(1))));
     jason.povLeft().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(-1))));
+
+    jason.povUp().onTrue(new IntakeCommand(intakeSubsystem, Modes.STOWED));
+    jason.povDown().onTrue(new IntakeCommand(intakeSubsystem, Modes.INTAKE));
 
     // control the lights
     currentNodeSelection.subscribe(
