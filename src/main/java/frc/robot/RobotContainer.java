@@ -144,6 +144,7 @@ public class RobotContainer {
             () -> ControllerUtil.deadband(jason.getRightY(), 0.2)));
 
     SmartDashboard.putBoolean("is comp bot", MacUtil.IS_COMP_BOT);
+    SmartDashboard.putBoolean("show debug data", Config.SHOW_SHUFFLEBOARD_DEBUG_DATA);
 
     // Configure the button bindings
     configureButtonBindings();
