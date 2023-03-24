@@ -441,7 +441,7 @@ public final class Constants {
           new OuttakeDetails(0.07, Optional.empty(), Optional.empty());
 
       public static final OuttakeDetails INTAKE =
-          new OuttakeDetails(.5, Optional.of(new OuttakeDetails.StatorLimit(100)), Optional.of(2d));
+          new OuttakeDetails(.5, Optional.of(new OuttakeDetails.StatorLimit(80)), Optional.of(2d));
 
       public static final OuttakeDetails OUTTAKE =
           new OuttakeDetails(-0.2, Optional.empty(), Optional.of(2d));
