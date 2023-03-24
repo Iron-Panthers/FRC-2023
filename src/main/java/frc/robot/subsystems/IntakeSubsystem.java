@@ -39,6 +39,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public enum Modes {
     INTAKE(Intake.IntakeModes.INTAKE),
+    OUTTAKE(Intake.IntakeModes.OUTTAKE),
     DOWN(Intake.IntakeModes.DOWN),
     STOWED(Intake.IntakeModes.STOWED);
 

@@ -110,7 +110,9 @@ public class RobotContainer {
   /** controller 1 */
   private final CommandXboxController jason = new CommandXboxController(1);
   /** controller 1 climb layer */
-  private final Layer jasonLayer = new Layer(jason.rightBumper());
+  private final Layer jasonLayer1 = new Layer(jason.rightBumper());
+  /** controller 1 intake layer */
+  private final Layer jasonLayer2 = new Layer(jason.leftBumper());
   /** controller 0 */
   private final CommandXboxController will = new CommandXboxController(0);
 
@@ -193,7 +195,7 @@ public class RobotContainer {
   private void configureButtonBindings() {
 
     // vibrate jason controller when in layer
-    jasonLayer.whenChanged(
+    jasonLayer1.whenChanged(
         (enabled) -> {
           final double power = enabled ? .1 : 0;
           jason.getHID().setRumble(RumbleType.kLeftRumble, power);
@@ -276,54 +278,67 @@ public class RobotContainer {
     will.x().whileTrue(new BalanceCommand(drivebaseSubsystem));
 
     // outtake states
-    jasonLayer
+    jasonLayer1
         .off(jason.leftTrigger())
         .whileTrue(
             new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
-    jasonLayer
+    jasonLayer1
         .off(jason.rightTrigger())
         .onTrue(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
-    jasonLayer
+    jasonLayer1
         .off(jason.x())
         .onTrue(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF));
 
     // intake presets
-    jasonLayer
+    jasonLayer1
         .off(jason.a())
         .onTrue(new ScoreCommand(outtakeSubsystem, armSubsystem, Setpoints.GROUND_INTAKE))
         .whileTrue(
             new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
 
-    jasonLayer
+    jasonLayer1
         .off(jason.b())
         .onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.SHELF_INTAKE))
         .whileTrue(
             new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
 
     // reset
-    jasonLayer.off(jason.y()).onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED));
+    jasonLayer1.off(jason.y()).onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED));
     jason.start().onTrue(new SetZeroModeCommand(armSubsystem));
+
+    jasonLayer2
+        .on(jason.b())
+        .whileTrue(new IntakeCommand(intakeSubsystem, Modes.INTAKE))
+        .onFalse(new IntakeCommand(intakeSubsystem, Modes.STOWED));
+
+    jasonLayer2.on(jason.y()).onTrue(new IntakeCommand(intakeSubsystem, Modes.STOWED));
+
+    jasonLayer2.on(jason.x()).onTrue(new IntakeCommand(intakeSubsystem, Modes.OUTTAKE));
+
+    // jasonLayer2.on(jason.b()).onTrue(new IntakeCommand(intakeSubsystem, Modes.INTAKE));
+
+    jasonLayer2.on(jason.a()).onTrue(new IntakeCommand(intakeSubsystem, Modes.DOWN));
 
     // scoring
     // jasonLayer
     //     .on(jason.a())
     // low
 
-    jasonLayer
+    jasonLayer1
         .on(jason.a())
         .onTrue(
             new InstantCommand(
                 () ->
                     currentNodeSelection.apply(n -> n.withHeight(NodeSelectorUtility.Height.LOW))));
 
-    jasonLayer
+    jasonLayer1
         .on(jason.b())
         .onTrue(
             new InstantCommand(
                 () -> currentNodeSelection.apply(n -> n.withHeight(NodeSelectorUtility.Height.MID)),
                 armSubsystem));
 
-    jasonLayer
+    jasonLayer1
         .on(jason.y())
         .onTrue(
             new InstantCommand(
@@ -342,7 +357,7 @@ public class RobotContainer {
               Constants.SCORE_STEP_MAP.get(scoreType),
               jason.leftBumper()));
 
-    jasonLayer
+    jasonLayer1
         .on(jason.x())
         .onTrue(
             new HashMapCommand<>(
@@ -350,9 +365,6 @@ public class RobotContainer {
 
     jason.povRight().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(1))));
     jason.povLeft().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(-1))));
-
-    jason.povUp().onTrue(new IntakeCommand(intakeSubsystem, Modes.STOWED));
-    jason.povDown().onTrue(new IntakeCommand(intakeSubsystem, Modes.INTAKE));
 
     // control the lights
     currentNodeSelection.subscribe(

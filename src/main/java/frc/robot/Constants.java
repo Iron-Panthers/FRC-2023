@@ -275,6 +275,7 @@ public final class Constants {
 
     public static final class IntakeModes {
       public static final IntakeDetails INTAKE = new IntakeDetails(-80, 0.7);
+      public static final IntakeDetails OUTTAKE = new IntakeDetails(-80, -0.5);
       public static final IntakeDetails DOWN = new IntakeDetails(-110, 0);
       public static final IntakeDetails STOWED = new IntakeDetails(0, 0);
     }
