@@ -1,5 +1,6 @@
 package frc.util.pathing;
 
+import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -38,6 +39,25 @@ public class LoadMirrorPath {
             pathName + ".path.mirror",
             maxVelocityMetersPerSecond,
             maxAccelerationMetersPerSecondSq);
+
+    return IntStream.range(0, bluePath.size())
+        .mapToObj(
+            i ->
+                (Supplier<PathPlannerTrajectory>)
+                    () ->
+                        DriverStation.getAlliance() == Alliance.Red
+                            ? redPath.get(i)
+                            : bluePath.get(i))
+        .collect(Collectors.toList());
+  }
+
+  public static List<Supplier<PathPlannerTrajectory>> loadPathGroup(
+      String pathName, PathConstraints constraint, PathConstraints... constraints) {
+    List<PathPlannerTrajectory> bluePath =
+        PathPlanner.loadPathGroup(pathName, constraint, constraints);
+
+    List<PathPlannerTrajectory> redPath =
+        PathPlanner.loadPathGroup(pathName + ".path.mirror", constraint, constraints);
 
     return IntStream.range(0, bluePath.size())
         .mapToObj(

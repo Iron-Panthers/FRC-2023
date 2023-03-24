@@ -325,7 +325,7 @@ public final class Constants {
                         ),
                     new Rotation3d(0, Math.toRadians(17), Math.PI))));
 
-    public static int THREAD_SLEEP_DURATION_MS = 5;
+    public static final int THREAD_SLEEP_DURATION_MS = 5;
   }
 
   public static final class PoseEstimator {
@@ -358,8 +358,7 @@ public final class Constants {
                 1 * Math.PI // theta
                 );
 
-    /** Discard single tag readings with an ambiguity greater than this value */
-    public static final double POSE_AMBIGUITY_CUTOFF = 0;
+    public static final double POSE_AMBIGUITY_CUTOFF = .05;
 
     public static final List<TagCountDeviation> TAG_COUNT_DEVIATION_PARAMS =
         List.of(
