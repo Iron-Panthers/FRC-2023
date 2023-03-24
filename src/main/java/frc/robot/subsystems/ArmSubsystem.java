@@ -305,8 +305,8 @@ public class ArmSubsystem extends SubsystemBase {
       angleMotor.set(ControlMode.PercentOutput, 0);
     } else {
       angleMotor.set(
-        ControlMode.PercentOutput, MathUtil.clamp(angleOutput + armGravityOffset, -.7, .7));
-    }    
+          ControlMode.PercentOutput, MathUtil.clamp(angleOutput + armGravityOffset, -.7, .7));
+    }
     extensionMotor.set(ControlMode.PercentOutput, MathUtil.clamp(extensionOutput, -.5, .5));
   }
 }
