@@ -86,6 +86,10 @@ public class IntakeSubsystem extends SubsystemBase {
     return angleMotor.getSelectedSensorPosition();
   }
 
+  public void zeroAngleEncoder() {
+    angleMotor.setSelectedSensorPosition(0);
+  }
+
   public double getCurrentRotation() {
     return getCurrentTicks() / Intake.TICKS / Intake.GEAR_RATIO;
   }

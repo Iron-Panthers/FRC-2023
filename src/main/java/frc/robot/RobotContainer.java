@@ -52,6 +52,7 @@ import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.SetOuttakeModeCommand;
 import frc.robot.commands.SetZeroModeCommand;
 import frc.robot.commands.VibrateHIDCommand;
+import frc.robot.commands.ZeroIntakeCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.CANWatchdogSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
@@ -318,6 +319,8 @@ public class RobotContainer {
     // jasonLayer2.on(jason.b()).onTrue(new IntakeCommand(intakeSubsystem, Modes.INTAKE));
 
     jasonLayer2.on(jason.a()).onTrue(new IntakeCommand(intakeSubsystem, Modes.DOWN));
+
+    jasonLayer2.on(jason.start()).onTrue(new ZeroIntakeCommand(intakeSubsystem));
 
     // scoring
     // jasonLayer
