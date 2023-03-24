@@ -4,6 +4,7 @@
 
 package frc.robot.autonomous.commands;
 
+import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -37,8 +38,9 @@ public class N1_2ConePlusMobility extends SequentialCommandGroup {
     List<Supplier<PathPlannerTrajectory>> paths =
         LoadMirrorPath.loadPathGroup(
             "n1 2cone + mobility engage",
-            maxVelocityMetersPerSecond,
-            maxAccelerationMetersPerSecondSq);
+            new PathConstraints(maxVelocityMetersPerSecond, 7),
+            new PathConstraints(maxVelocityMetersPerSecond, 7),
+            new PathConstraints(maxVelocityMetersPerSecond, maxAccelerationMetersPerSecondSq));
 
     addCommands(
         new SetZeroModeCommand(armSubsystem)
