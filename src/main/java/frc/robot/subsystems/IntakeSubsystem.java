@@ -75,26 +75,30 @@ public class IntakeSubsystem extends SubsystemBase {
     tab.add("angle pid", angleController);
     tab.addNumber("current angle", this::getCurrentAngleDegrees);
     tab.addNumber("target angle", () -> targetAngle);
-    tab.addString("mode", () -> mode.toString());
     tab.addNumber("angle ticks", angleMotor::getSelectedSensorPosition);
-    tab.addNumber("intake power", intakeMotor::getMotorOutputVoltage);
     tab.addBoolean("at target angle", this::atTargetAngle);
+    tab.addNumber("intake power", intakeMotor::getMotorOutputVoltage);
+    tab.addString("mode", () -> mode.toString());
   }
 
-  public double getCurrentAngleTicks() {
+  public double getCurrentTicks() {
     return angleMotor.getSelectedSensorPosition();
   }
 
+  public double getCurrentRotation() {
+    return getCurrentTicks() / Intake.TICKS / Intake.GEAR_RATIO;
+  }
+
   public double getCurrentAngleDegrees() {
-    return (getCurrentAngleTicks() / 2048) * 360; // TODO add these to constants
+    return getCurrentRotation() * Intake.DEGREES; // TODO add these to constants
   }
 
   private double ticksToAngleDegrees(double ticks) {
-    return (ticks / 2048) * 360; // TODO add these to constants
+    return (ticks / Intake.TICKS) * Intake.DEGREES; // TODO add these to constants
   }
 
-  private double degreesToAngleTicks(double degrees) {
-    return (degrees / 360) * 2048;
+  private double angleDegreesToTicks(double degrees) {
+    return (degrees / Intake.DEGREES) * Intake.TICKS * Intake.GEAR_RATIO;
   }
 
   public void setTargetAngle(double targetAngle) {

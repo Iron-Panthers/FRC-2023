@@ -259,6 +259,10 @@ public final class Constants {
 
     public static final double EPSILON = 5.0;
 
+    public static final double TICKS = 2048;
+    public static final double DEGREES = 360;
+    public static final double GEAR_RATIO = 12.83;
+
     public static final class Ports {
       public static final int INTAKE_MOTOR_PORT = 0; // FIXME find real port
       public static final int ANGLE_MOTOR_PORT = 1; // FIXME find real port
