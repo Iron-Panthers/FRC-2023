@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.Constants.Drive.Dims;
 import frc.robot.commands.ScoreCommand.ScoreStep;
 import frc.robot.subsystems.ArmSubsystem.ArmState;
+import frc.robot.subsystems.IntakeSubsystem.IntakeDetails;
 import frc.robot.subsystems.NetworkWatchdogSubsystem.IPv4;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem.OuttakeDetails;
@@ -251,6 +252,27 @@ public final class Constants {
 
         public static final double EPSILON = .5;
       }
+    }
+  }
+
+  public static final class Intake {
+
+    public static final double EPSILON = 5.0;
+
+    public static final class Ports {
+      public static final int INTAKE_MOTOR_PORT = 0; // FIXME find real port
+      public static final int ANGLE_MOTOR_PORT = 1; // FIXME find real port
+    }
+
+    public static final class Setpoints {
+      public static final double MIN_ANGLE = 0;
+      public static final double MAX_ANGLE = 200; // FIXME real value needed
+    }
+
+    public static final class IntakeModes {
+      public static final IntakeDetails INTAKE = new IntakeDetails(-80, 0.7);
+      public static final IntakeDetails DOWN = new IntakeDetails(-110, 0);
+      public static final IntakeDetails STOWED = new IntakeDetails(0, 0);
     }
   }
 
