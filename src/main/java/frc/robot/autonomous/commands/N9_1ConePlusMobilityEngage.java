@@ -45,7 +45,8 @@ public class N9_1ConePlusMobilityEngage extends SequentialCommandGroup {
         new ScoreCommand(
             outtakeSubsystem,
             armSubsystem,
-            Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH))),
+            Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH)),
+            1),
         (new FollowTrajectoryCommand(path, true, drivebaseSubsystem))
             .alongWith(
                 (new WaitCommand(1))

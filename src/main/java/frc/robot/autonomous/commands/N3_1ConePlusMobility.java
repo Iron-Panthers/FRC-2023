@@ -43,14 +43,15 @@ public class N3_1ConePlusMobility extends SequentialCommandGroup {
         new ScoreCommand(
             outtakeSubsystem,
             armSubsystem,
-            Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH))),
+            Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH)),
+            1),
         (new FollowTrajectoryCommand(path, true, drivebaseSubsystem))
             .alongWith(
                 (new WaitCommand(1))
                     .andThen(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))),
         (new WaitCommand(4))
             .deadlineWith(
-                new ScoreCommand(outtakeSubsystem, armSubsystem, Setpoints.GROUND_INTAKE)
+                new ScoreCommand(outtakeSubsystem, armSubsystem, Setpoints.GROUND_INTAKE, 1)
                     .alongWith(
                         new ForceOuttakeSubsystemModeCommand(
                             outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE))),
