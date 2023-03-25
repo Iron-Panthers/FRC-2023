@@ -94,8 +94,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
   public enum Modes {
     DRIVE,
     DRIVE_ANGLE,
-    DEFENSE,
-    BALANCE
+    DEFENSE
   }
 
   /** The current mode */
@@ -331,10 +330,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
     mode = Modes.DEFENSE;
   }
 
-  public void setBalanceMode() {
-    mode = Modes.BALANCE;
-  }
-
   /**
    * Updates the robot pose estimation for newly written module states. Should be called on every
    * periodic
@@ -401,32 +396,26 @@ public class DrivebaseSubsystem extends SubsystemBase {
     // No need to call odometry periodic
   }
 
-  private void balancePeriodic() {
-    // x direction
-    double roll = navx.getRoll();
-    double absRoll = Math.abs(roll);
-    // y direction
-    double pitch = navx.getPitch();
-    double absPitch = Math.abs(pitch);
-
-    if (Math.max(absRoll, absPitch) <= AutoBalance.THRESHOLD_ANGLE) {
-      defensePeriodic();
-      return;
+  public record RollPitch(double roll, double pitch) {
+    public static RollPitch fromAHRS(AHRS navx) {
+      return new RollPitch(navx.getRoll(), navx.getPitch());
     }
 
-    double control =
-        AutoBalance.P_SPEED_METERS_PER_SECOND
-            * Math.pow(
-                MathUtil.clamp(Math.max(absRoll, absPitch) / AutoBalance.MAX_ANGLE, 0, 1),
-                AutoBalance.E_EXPONENTIAL_FACTOR);
+    public double getAbsMax() {
+      return Math.max(absRoll(), absPitch());
+    }
 
-    // use bang bang to generate chassis speeds that will balance the robot
-    chassisSpeeds =
-        absRoll > absPitch
-            ? new ChassisSpeeds(Math.copySign(control, roll), 0, 0)
-            : new ChassisSpeeds(0, Math.copySign(control, pitch), 0);
+    public double absRoll() {
+      return Math.abs(roll);
+    }
 
-    drivePeriodic();
+    public double absPitch() {
+      return Math.abs(pitch);
+    }
+  }
+
+  public RollPitch getRollPitch() {
+    return RollPitch.fromAHRS(navx);
   }
 
   /**
@@ -440,7 +429,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
       case DRIVE -> drivePeriodic();
       case DRIVE_ANGLE -> driveAnglePeriodic();
       case DEFENSE -> defensePeriodic();
-      case BALANCE -> balancePeriodic();
     }
   }
 

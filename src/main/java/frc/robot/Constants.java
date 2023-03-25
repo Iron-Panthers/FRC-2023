@@ -100,14 +100,11 @@ public final class Constants {
     }
 
     public static final class AutoBalance {
-      /** the max speed to drive at when balancing */
-      public static final double P_SPEED_METERS_PER_SECOND = .9;
-      /** the angle to use for normalizing the range */
-      public static final double MAX_ANGLE = 15;
-      /** the angle to stop applying control */
-      public static final double THRESHOLD_ANGLE = 5;
-      /** the number to raise the [0, 1] error to */
-      public static final double E_EXPONENTIAL_FACTOR = 4.5;
+      public static final double DOCK_SPEED_METERS_PER_SECOND = .9;
+      public static final double DOCK_SPEED_UNTIL_ANGLE_DEGREES = 12;
+
+      public static final double ENGAGE_SPEED_METERS_PER_SECOND = .5;
+      public static final double ENGAGE_SPEED_UNTIL_ANGLE_DEGREES = 7;
     }
 
     /*
