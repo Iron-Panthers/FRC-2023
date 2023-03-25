@@ -68,9 +68,7 @@ public class EngageCommand extends CommandBase {
           new ChassisSpeeds(
               Math.copySign(AutoBalance.ENGAGE_SPEED_METERS_PER_SECOND, rollPitch.roll()), 0, 0));
     } else if (maxRoll < AutoBalance.DOCK_SPEED_UNTIL_ANGLE_DEGREES) {
-      drivebaseSubsystem.drive(
-          new ChassisSpeeds(
-              Math.copySign(AutoBalance.DOCK_SPEED_METERS_PER_SECOND, rollPitch.roll()), 0, 0));
+      drivebaseSubsystem.drive(new ChassisSpeeds(AutoBalance.DOCK_SPEED_METERS_PER_SECOND, 0, 0));
     } else {
       drivebaseSubsystem.setDefenseMode();
     }
