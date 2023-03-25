@@ -13,6 +13,8 @@ public class ZeroIntakeCommand extends CommandBase {
   public ZeroIntakeCommand(IntakeSubsystem intakeSubsystem) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.intakeSubsystem = intakeSubsystem;
+
+    addRequirements(intakeSubsystem);
   }
 
   // Called when the command is initially scheduled.

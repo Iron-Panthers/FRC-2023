@@ -9,13 +9,15 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.IntakeSubsystem.Modes;
 
 public class IntakeCommand extends CommandBase {
-  IntakeSubsystem intakeSubsystem;
-  Modes mode;
+  private IntakeSubsystem intakeSubsystem;
+  private Modes mode;
   /** Creates a new IntakeCommand. */
   public IntakeCommand(IntakeSubsystem intakeSubsystem, Modes mode) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.intakeSubsystem = intakeSubsystem;
     this.mode = mode;
+
+    addRequirements(intakeSubsystem);
   }
 
   // Called when the command is initially scheduled.

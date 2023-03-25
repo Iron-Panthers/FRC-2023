@@ -316,8 +316,6 @@ public class RobotContainer {
 
     jasonLayer2.on(jason.x()).onTrue(new IntakeCommand(intakeSubsystem, Modes.OUTTAKE));
 
-    // jasonLayer2.on(jason.b()).onTrue(new IntakeCommand(intakeSubsystem, Modes.INTAKE));
-
     jasonLayer2.on(jason.a()).onTrue(new IntakeCommand(intakeSubsystem, Modes.DOWN));
 
     jasonLayer2.on(jason.start()).onTrue(new ZeroIntakeCommand(intakeSubsystem));

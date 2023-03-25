@@ -112,8 +112,8 @@ public final class Constants {
 
     /*
      module layout:
-        ┌──────
-     ┌─►│#   ##steer motor
+        |──────
+     |->│#   ##steer motor
      │  │  ##cancoder
      │  │##drive motor
      module number
@@ -122,7 +122,7 @@ public final class Constants {
      from corner perspective
 
      robot visualization:
-    ┌──────────────────────┐
+    |──────────────────────|
     │2   10          04   1│
     │  25              24  │
     │11     S      D     03│
@@ -131,10 +131,10 @@ public final class Constants {
     │                      │
     │     S          D     │
     │       D      S       │
-    │12    ┌────────┐    02│
+    │12    |────────|    02│
     │  26  │        │  27  │
     │3   13│  batt  │01   4│
-    └──────┴───┬┬───┴──────┘
+    |──────┴───┬┬───┴──────|
                ││
                ││
                ▼▼
@@ -261,22 +261,22 @@ public final class Constants {
 
     public static final double TICKS = 2048;
     public static final double DEGREES = 360;
-    public static final double GEAR_RATIO = 12.83;
+    public static final double GEAR_RATIO = 0.08;
 
     public static final class Ports {
-      public static final int INTAKE_MOTOR_PORT = 0; // FIXME find real port
-      public static final int ANGLE_MOTOR_PORT = 1; // FIXME find real port
+      public static final int INTAKE_MOTOR_PORT = 18; // FIXME find real port
+      public static final int ANGLE_MOTOR_PORT = 19; // FIXME find real port
     }
 
     public static final class Setpoints {
       public static final double MIN_ANGLE = 0;
-      public static final double MAX_ANGLE = 200; // FIXME real value needed
+      public static final double MAX_ANGLE = -250; // FIXME real value needed
     }
 
     public static final class IntakeModes {
-      public static final IntakeDetails INTAKE = new IntakeDetails(-80, 0.7);
-      public static final IntakeDetails OUTTAKE = new IntakeDetails(-80, -0.5);
-      public static final IntakeDetails DOWN = new IntakeDetails(-110, 0);
+      public static final IntakeDetails INTAKE = new IntakeDetails(-180, 0.7);
+      public static final IntakeDetails OUTTAKE = new IntakeDetails(-180, -0.5);
+      public static final IntakeDetails DOWN = new IntakeDetails(-250, 0);
       public static final IntakeDetails STOWED = new IntakeDetails(0, 0);
     }
   }

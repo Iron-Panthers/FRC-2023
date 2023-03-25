@@ -60,10 +60,12 @@ public class IntakeSubsystem extends SubsystemBase {
 
     mode = Modes.STOWED;
 
-    angleController = new PIDController(0.01, 0, 0); // FIXME tune
+    angleController = new PIDController(0.005, 0, 0); // FIXME tune
 
     intakeMotor.setNeutralMode(NeutralMode.Brake);
     angleMotor.setNeutralMode(NeutralMode.Brake);
+
+    // angleMotor.setInverted(true);
 
     angleMotor.configForwardSoftLimitThreshold(
         ticksToAngleDegrees(Intake.Setpoints.MIN_ANGLE), 20); // this is the top
@@ -91,19 +93,19 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public double getCurrentRotation() {
-    return getCurrentTicks() / Intake.TICKS / Intake.GEAR_RATIO;
+    return (getCurrentTicks() / Intake.TICKS) * Intake.GEAR_RATIO;
   }
 
   public double getCurrentAngleDegrees() {
-    return getCurrentRotation() * Intake.DEGREES; // TODO add these to constants
+    return getCurrentRotation() * Intake.DEGREES;
   }
 
   private double ticksToAngleDegrees(double ticks) {
-    return (ticks / Intake.TICKS) * Intake.DEGREES; // TODO add these to constants
+    return (ticks / Intake.TICKS) * Intake.GEAR_RATIO * Intake.DEGREES;
   }
 
   private double angleDegreesToTicks(double degrees) {
-    return (degrees / Intake.DEGREES) * Intake.TICKS * Intake.GEAR_RATIO;
+    return (degrees / Intake.DEGREES) * Intake.TICKS / Intake.GEAR_RATIO;
   }
 
   public void setTargetAngle(double targetAngle) {
