@@ -401,10 +401,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
       return new RollPitch(navx.getRoll(), navx.getPitch());
     }
 
-    public double getAbsMax() {
-      return Math.max(absRoll(), absPitch());
-    }
-
     public double absRoll() {
       return Math.abs(roll);
     }
