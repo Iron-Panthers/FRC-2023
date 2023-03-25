@@ -70,11 +70,9 @@ public class N1_1ConePlusGrabConePlusMobilityEngage extends SequentialCommandGro
         new BalanceCommand(drivebaseSubsystem));
   }
 
-  public static SequentialCommandGroup produceDebugSequence(
+  public static SequentialCommandGroup produceEngageDebugSequence(
       double maxVelocityMetersPerSecond,
       double maxAccelerationMetersPerSecondSq,
-      OuttakeSubsystem outtakeSubsystem,
-      ArmSubsystem armSubsystem,
       DrivebaseSubsystem drivebaseSubsystem) {
 
     List<Supplier<PathPlannerTrajectory>> paths =
@@ -87,5 +85,18 @@ public class N1_1ConePlusGrabConePlusMobilityEngage extends SequentialCommandGro
     return new SequentialCommandGroup(
         new FollowTrajectoryCommand(paths.get(3), true, drivebaseSubsystem),
         new BalanceCommand(drivebaseSubsystem));
+  }
+
+  public static FollowTrajectoryCommand produceEngageSetupSequence(
+      double maxVelocityMetersPerSecond,
+      double maxAccelerationMetersPerSecondSq,
+      DrivebaseSubsystem drivebaseSubsystem) {
+    Supplier<PathPlannerTrajectory> path =
+        LoadMirrorPath.loadPath(
+            "TESTSEQ n1 backup for engage",
+            maxVelocityMetersPerSecond,
+            maxAccelerationMetersPerSecondSq);
+
+    return new FollowTrajectoryCommand(path, true, drivebaseSubsystem);
   }
 }
