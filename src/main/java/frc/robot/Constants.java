@@ -284,19 +284,19 @@ public final class Constants {
               new ScoreStep(new ArmState(95, 20)).canWaitHere(),
               new ScoreStep(
                   new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION),
-                  OuttakeSubsystem.Modes.OUTTAKE)),
+                  OuttakeSubsystem.Modes.OUTTAKE_FAST_CUBE)),
           NodeType.CUBE.atHeight(Height.MID),
           List.of(
               new ScoreStep(new ArmState(67.32, Arm.Setpoints.Extensions.MIN_EXTENSION)),
               new ScoreStep(new ArmState(67.32, 0.75)).canWaitHere(),
               new ScoreStep(
                   new ArmState(67.32, Arm.Setpoints.Extensions.MIN_EXTENSION),
-                  OuttakeSubsystem.Modes.OUTTAKE)),
+                  OuttakeSubsystem.Modes.OUTTAKE_FAST_CUBE)),
           NodeType.CUBE.atHeight(Height.LOW),
           List.of(
               new ScoreStep(new ArmState(29.7, Arm.Setpoints.Extensions.MIN_EXTENSION))
                   .canWaitHere(),
-              new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE)));
+              new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE_FAST_CUBE)));
 
   public static final class Vision {
     public static record VisionSource(String name, Transform3d robotToCamera) {}
@@ -445,6 +445,9 @@ public final class Constants {
 
       public static final OuttakeDetails OUTTAKE =
           new OuttakeDetails(-0.2, Optional.empty(), Optional.of(2d));
+
+      public static final OuttakeDetails OUTTAKE_FAST_CUBE =
+          new OuttakeDetails(-0.4, Optional.empty(), Optional.of(2d));
 
       public static final OuttakeDetails OFF =
           new OuttakeDetails(0.0, Optional.empty(), Optional.empty());

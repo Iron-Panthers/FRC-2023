@@ -50,6 +50,7 @@ public class OuttakeSubsystem extends SubsystemBase {
     HOLD(Outtake.OuttakeModes.HOLD),
     INTAKE(Outtake.OuttakeModes.INTAKE),
     OUTTAKE(Outtake.OuttakeModes.OUTTAKE),
+    OUTTAKE_FAST_CUBE(Outtake.OuttakeModes.OUTTAKE_FAST_CUBE),
     OFF(Outtake.OuttakeModes.OFF);
 
     public final OuttakeDetails outtakeDetails;
