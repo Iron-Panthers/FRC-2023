@@ -69,4 +69,23 @@ public class N1_1ConePlusGrabConePlusMobilityEngage extends SequentialCommandGro
         new FollowTrajectoryCommand(paths.get(3), drivebaseSubsystem),
         new BalanceCommand(drivebaseSubsystem));
   }
+
+  public static SequentialCommandGroup produceDebugSequence(
+      double maxVelocityMetersPerSecond,
+      double maxAccelerationMetersPerSecondSq,
+      OuttakeSubsystem outtakeSubsystem,
+      ArmSubsystem armSubsystem,
+      DrivebaseSubsystem drivebaseSubsystem) {
+
+    List<Supplier<PathPlannerTrajectory>> paths =
+        LoadMirrorPath.loadPathGroup(
+            "n1 1cone + grab cone + mobility engage",
+            new PathConstraints(maxVelocityMetersPerSecond, 7),
+            new PathConstraints(maxVelocityMetersPerSecond, 7),
+            new PathConstraints(maxVelocityMetersPerSecond, maxAccelerationMetersPerSecondSq));
+
+    return new SequentialCommandGroup(
+        new FollowTrajectoryCommand(paths.get(3), true, drivebaseSubsystem),
+        new BalanceCommand(drivebaseSubsystem));
+  }
 }
