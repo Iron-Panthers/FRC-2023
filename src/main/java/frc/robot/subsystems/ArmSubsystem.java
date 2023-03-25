@@ -4,14 +4,13 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.Arm;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.sensors.MagnetFieldStrength;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -219,6 +218,12 @@ public class ArmSubsystem extends SubsystemBase {
         || Math.signum(targetAngleDegrees) != Math.signum(getAngle());
   }
 
+  // Return true if encoder is bad
+  private boolean encoderIsBad() {
+    return angleEncoder.getMagnetFieldStrength() == MagnetFieldStrength.Invalid_Unknown
+        || angleEncoder.getMagnetFieldStrength() == MagnetFieldStrength.BadRange_RedLED;
+  }
+
   // Add the gravity offset as a function of sine
   private double computeArmGravityOffset() {
     return Math.sin(Math.toRadians(getAngle())) * Arm.GRAVITY_CONTROL_PERCENT;
@@ -298,8 +303,13 @@ public class ArmSubsystem extends SubsystemBase {
             getCurrentExtensionInches(), computeIntermediateExtensionGoal());
 
     angleOutput = angleController.calculate(currentAngle, computeIntermediateAngleGoal());
-    angleMotor.set(
-        ControlMode.PercentOutput, MathUtil.clamp(angleOutput + armGravityOffset, -.7, .7));
+
+    if (encoderIsBad()) {
+      angleMotor.set(ControlMode.PercentOutput, 0);
+    } else {
+      angleMotor.set(
+          ControlMode.PercentOutput, MathUtil.clamp(angleOutput + armGravityOffset, -.7, .7));
+    }
     extensionMotor.set(ControlMode.PercentOutput, MathUtil.clamp(extensionOutput, -.5, .5));
   }
 }
