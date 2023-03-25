@@ -119,6 +119,8 @@ public class OuttakeSubsystem extends SubsystemBase {
 
       tab.addString("Current Mode", () -> mode.toString());
 
+      tab.addNumber("velocity", this.outtake::getSelectedSensorVelocity);
+
       tab.addBoolean("mode locked", () -> this.modeLocked);
     }
   }
