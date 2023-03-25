@@ -66,7 +66,6 @@ public class N1_1ConePlusGrabConePlusMobilityEngage extends SequentialCommandGro
             .alongWith(
                 new ScoreCommand(
                     outtakeSubsystem, armSubsystem, Setpoints.GROUND_INTAKE.subList(2, 4), 1)),
-        new FollowTrajectoryCommand(paths.get(3), drivebaseSubsystem),
         new EngageCommand(drivebaseSubsystem));
   }
 
