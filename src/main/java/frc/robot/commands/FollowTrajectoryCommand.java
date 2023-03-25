@@ -9,8 +9,6 @@ import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory.State;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import java.util.function.Supplier;
@@ -70,12 +68,7 @@ public class FollowTrajectoryCommand extends CommandBase {
       State firstState = trajectory.get().sample(0);
       Pose2d pose = firstState.poseMeters;
       if (firstState instanceof PathPlannerState) {
-        Rotation2d holonomicRotation =
-            ((PathPlannerState) firstState)
-                .holonomicRotation.plus(
-                    DriverStation.getAlliance() == Alliance.Blue
-                        ? new Rotation2d()
-                        : Rotation2d.fromDegrees(180));
+        Rotation2d holonomicRotation = ((PathPlannerState) firstState).holonomicRotation;
         pose = new Pose2d(pose.getTranslation(), holonomicRotation);
       }
       // If it's not an instanceof PathPlanner State, we still need to zero to current position...
