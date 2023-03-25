@@ -40,10 +40,10 @@ import frc.robot.autonomous.commands.N9_1ConePlusMobility;
 import frc.robot.autonomous.commands.N9_1ConePlusMobilityEngage;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
-import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
+import frc.robot.commands.EngageCommand;
 import frc.robot.commands.ForceOuttakeSubsystemModeCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
 import frc.robot.commands.HashMapCommand;
@@ -271,7 +271,7 @@ public class RobotContainer {
                 Optional.of(rgbSubsystem),
                 Optional.of(will.getHID())));
 
-    will.x().whileTrue(new BalanceCommand(drivebaseSubsystem));
+    will.x().onTrue(new EngageCommand(drivebaseSubsystem));
 
     // outtake states
     jasonLayer
