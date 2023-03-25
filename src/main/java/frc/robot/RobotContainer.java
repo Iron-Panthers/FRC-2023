@@ -439,7 +439,7 @@ public class RobotContainer {
     autoSelector.addOption(
         "TESTSEQ N1 Engage Portion [DO NOT RUN IN MATCH]",
         N1_1ConePlusGrabConePlusMobilityEngage.produceEngageDebugSequence(
-            4.95, 4, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+            4.95, 4, drivebaseSubsystem));
 
     autoSelector.setDefaultOption(
         "N6 1Cone + Engage",
