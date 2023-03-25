@@ -28,6 +28,7 @@ import frc.robot.Constants.Arm.Setpoints;
 import frc.robot.Constants.Config;
 import frc.robot.Constants.Drive;
 import frc.robot.autonomous.commands.MobilityAuto;
+import frc.robot.autonomous.commands.N1_1ConePlusGrabConePlusMobilityEngage;
 import frc.robot.autonomous.commands.N1_2ConePlusMobility;
 import frc.robot.autonomous.commands.N1_2ConePlusMobilityEngage;
 import frc.robot.autonomous.commands.N1_Hybrid1ConePlus2ConePlusEngage;
@@ -423,6 +424,11 @@ public class RobotContainer {
     autoSelector.addOption(
         "N1 2Cone + Mobility Engage (dock?)",
         new N1_2ConePlusMobilityEngage(
+            4.95, 4, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+
+    autoSelector.addOption(
+        "N1 1Cone + Grab Cone + Mobility Engage",
+        new N1_1ConePlusGrabConePlusMobilityEngage(
             4.95, 4, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
 
     autoSelector.setDefaultOption(
