@@ -22,6 +22,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -255,7 +257,13 @@ public class DrivebaseSubsystem extends SubsystemBase {
   public void resetOdometryToPose(Pose2d pose) {
 
     // "Zero" the driver gyro heading
-    driverGyroOffset = getConsistentGyroscopeRotation().minus(pose.getRotation());
+    driverGyroOffset =
+        getConsistentGyroscopeRotation()
+            .minus(pose.getRotation())
+            .plus(
+                DriverStation.getAlliance() == Alliance.Blue
+                    ? new Rotation2d()
+                    : Rotation2d.fromDegrees(180));
 
     swervePoseEstimator.resetPosition(
         getConsistentGyroscopeRotation(), getSwerveModulePositions(), pose);
