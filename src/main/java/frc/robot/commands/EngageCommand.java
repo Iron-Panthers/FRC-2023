@@ -11,6 +11,9 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.Config;
 import frc.robot.Constants.Drive.AutoBalance;
 import frc.robot.subsystems.DrivebaseSubsystem;
+import frc.util.SmartBoard;
+import frc.util.SmartBoard.Range;
+import java.util.List;
 
 public class EngageCommand extends CommandBase {
   enum Mode {
@@ -22,6 +25,8 @@ public class EngageCommand extends CommandBase {
   DrivebaseSubsystem drivebaseSubsystem;
   boolean exceededDockingThreshold = false;
   Mode currentMode = Mode.DOCKING;
+
+  List<SmartBoard> boards;
 
   /** Creates a new EngageCommand. */
   public EngageCommand(DrivebaseSubsystem drivebaseSubsystem) {
@@ -38,6 +43,38 @@ public class EngageCommand extends CommandBase {
       ShuffleboardTab tab = Shuffleboard.getTab("EngageCommand");
       tab.addString("Mode", () -> currentMode.toString());
       tab.addDouble("Angle", () -> this.drivebaseSubsystem.getRollPitch().roll());
+      boards =
+          List.of(
+              new SmartBoard(
+                  tab,
+                  "dock speed ms",
+                  () -> AutoBalance.DOCK_SPEED_METERS_PER_SECOND,
+                  m -> AutoBalance.DOCK_SPEED_METERS_PER_SECOND = m,
+                  new Range(0, 1.5)),
+              new SmartBoard(
+                  tab,
+                  "dock min angle",
+                  () -> AutoBalance.DOCK_MIN_ANGLE_DEGREES,
+                  d -> AutoBalance.DOCK_MIN_ANGLE_DEGREES = d,
+                  new Range(0, 20)),
+              new SmartBoard(
+                  tab,
+                  "dock horizon angle",
+                  () -> AutoBalance.DOCK_HORIZON_ANGLE_DEGREES,
+                  d -> AutoBalance.DOCK_HORIZON_ANGLE_DEGREES = d,
+                  new Range(0, 20)),
+              new SmartBoard(
+                  tab,
+                  "engage speed ms",
+                  () -> AutoBalance.ENGAGE_SPEED_METERS_PER_SECOND,
+                  m -> AutoBalance.ENGAGE_SPEED_METERS_PER_SECOND = m,
+                  new Range(0, .7)),
+              new SmartBoard(
+                  tab,
+                  "engage min angle",
+                  () -> AutoBalance.ENGAGE_MIN_ANGLE_DEGREES,
+                  d -> AutoBalance.ENGAGE_MIN_ANGLE_DEGREES = d,
+                  new Range(0, 15)));
     }
   }
 
@@ -81,6 +118,9 @@ public class EngageCommand extends CommandBase {
   @Override
   public void execute() {
     currentMode = advanceState();
+    if (Config.SHOW_SHUFFLEBOARD_DEBUG_DATA) {
+      boards.forEach(SmartBoard::poll);
+    }
   }
 
   // Called once the command ends or is interrupted.
