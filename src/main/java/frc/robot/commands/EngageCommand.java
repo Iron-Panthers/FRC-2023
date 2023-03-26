@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -11,9 +12,6 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.Config;
 import frc.robot.Constants.Drive.AutoBalance;
 import frc.robot.subsystems.DrivebaseSubsystem;
-import frc.util.SmartBoard;
-import frc.util.SmartBoard.Range;
-import java.util.List;
 
 public class EngageCommand extends CommandBase {
   enum Mode {
@@ -22,11 +20,12 @@ public class EngageCommand extends CommandBase {
     DEFENSE
   }
 
-  DrivebaseSubsystem drivebaseSubsystem;
-  boolean exceededDockingThreshold = false;
-  Mode currentMode = Mode.DOCKING;
+  private DrivebaseSubsystem drivebaseSubsystem;
+  private boolean exceededDockingThreshold = false;
+  private Mode currentMode = Mode.DOCKING;
+  private LinearFilter filter = LinearFilter.movingAverage(20);
 
-  List<SmartBoard> boards;
+  // static List<SmartBoard> boards;
   static boolean inited = false;
 
   /** Creates a new EngageCommand. */
@@ -45,52 +44,52 @@ public class EngageCommand extends CommandBase {
       ShuffleboardTab tab = Shuffleboard.getTab("EngageCommand");
       tab.addString("Mode", () -> currentMode.toString());
       tab.addDouble("Angle", () -> this.drivebaseSubsystem.getRollPitch().roll());
-      boards =
-          List.of(
-              new SmartBoard(
-                  tab,
-                  "dock speed ms",
-                  () -> AutoBalance.DOCK_SPEED_METERS_PER_SECOND,
-                  m -> AutoBalance.DOCK_SPEED_METERS_PER_SECOND = m,
-                  new Range(0, 1.5)),
-              new SmartBoard(
-                  tab,
-                  "dock min angle",
-                  () -> AutoBalance.DOCK_MIN_ANGLE_DEGREES,
-                  d -> AutoBalance.DOCK_MIN_ANGLE_DEGREES = d,
-                  new Range(0, 20)),
-              new SmartBoard(
-                  tab,
-                  "dock horizon angle",
-                  () -> AutoBalance.DOCK_HORIZON_ANGLE_DEGREES,
-                  d -> AutoBalance.DOCK_HORIZON_ANGLE_DEGREES = d,
-                  new Range(0, 20)),
-              new SmartBoard(
-                  tab,
-                  "engage speed ms",
-                  () -> AutoBalance.ENGAGE_SPEED_METERS_PER_SECOND,
-                  m -> AutoBalance.ENGAGE_SPEED_METERS_PER_SECOND = m,
-                  new Range(0, .7)),
-              new SmartBoard(
-                  tab,
-                  "engage min angle",
-                  () -> AutoBalance.ENGAGE_MIN_ANGLE_DEGREES,
-                  d -> AutoBalance.ENGAGE_MIN_ANGLE_DEGREES = d,
-                  new Range(0, 15)));
+      // boards =
+      //     List.of(
+      //         new SmartBoard(
+      //             tab,
+      //             "dock speed ms",
+      //             () -> AutoBalance.DOCK_SPEED_METERS_PER_SECOND,
+      //             m -> AutoBalance.DOCK_SPEED_METERS_PER_SECOND = m,
+      //             new Range(0, 1.5)),
+      //         new SmartBoard(
+      //             tab,
+      //             "dock min angle",
+      //             () -> AutoBalance.DOCK_MIN_ANGLE_DEGREES,
+      //             d -> AutoBalance.DOCK_MIN_ANGLE_DEGREES = d,
+      //             new Range(0, 20)),
+      //         new SmartBoard(
+      //             tab,
+      //             "dock horizon angle",
+      //             () -> AutoBalance.DOCK_HORIZON_ANGLE_DEGREES,
+      //             d -> AutoBalance.DOCK_HORIZON_ANGLE_DEGREES = d,
+      //             new Range(0, 20)),
+      //         new SmartBoard(
+      //             tab,
+      //             "engage speed ms",
+      //             () -> AutoBalance.ENGAGE_SPEED_METERS_PER_SECOND,
+      //             m -> AutoBalance.ENGAGE_SPEED_METERS_PER_SECOND = m,
+      //             new Range(0, .7)),
+      //         new SmartBoard(
+      //             tab,
+      //             "engage min angle",
+      //             () -> AutoBalance.ENGAGE_MIN_ANGLE_DEGREES,
+      //             d -> AutoBalance.ENGAGE_MIN_ANGLE_DEGREES = d,
+      //             new Range(0, 15)));
     }
   }
 
   private Mode advanceState() {
     var rollPitch = drivebaseSubsystem.getRollPitch();
+    var filterAbsRoll = filter.calculate(rollPitch.absRoll());
 
     switch (currentMode) {
       case DOCKING -> {
-        if (rollPitch.absRoll() > AutoBalance.DOCK_HORIZON_ANGLE_DEGREES) {
+        if (filterAbsRoll > AutoBalance.DOCK_HORIZON_ANGLE_DEGREES) {
           exceededDockingThreshold = true;
         }
         drivebaseSubsystem.drive(new ChassisSpeeds(AutoBalance.DOCK_SPEED_METERS_PER_SECOND, 0, 0));
-        return (exceededDockingThreshold
-                && rollPitch.absRoll() < AutoBalance.DOCK_MIN_ANGLE_DEGREES)
+        return (exceededDockingThreshold && filterAbsRoll < AutoBalance.DOCK_MIN_ANGLE_DEGREES)
             ? Mode.ENGAGING
             : Mode.DOCKING;
       }
@@ -120,9 +119,9 @@ public class EngageCommand extends CommandBase {
   @Override
   public void execute() {
     currentMode = advanceState();
-    if (Config.SHOW_SHUFFLEBOARD_DEBUG_DATA) {
-      boards.forEach(SmartBoard::poll);
-    }
+    // if (Config.SHOW_SHUFFLEBOARD_DEBUG_DATA) {
+    //   boards.forEach(SmartBoard::poll);
+    // }
   }
 
   // Called once the command ends or is interrupted.
