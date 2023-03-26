@@ -27,6 +27,7 @@ public class EngageCommand extends CommandBase {
   Mode currentMode = Mode.DOCKING;
 
   List<SmartBoard> boards;
+  static boolean inited = false;
 
   /** Creates a new EngageCommand. */
   public EngageCommand(DrivebaseSubsystem drivebaseSubsystem) {
@@ -39,7 +40,8 @@ public class EngageCommand extends CommandBase {
   public void initialize() {
     exceededDockingThreshold = false;
     currentMode = Mode.DOCKING;
-    if (Config.SHOW_SHUFFLEBOARD_DEBUG_DATA) {
+    if (Config.SHOW_SHUFFLEBOARD_DEBUG_DATA && !inited) {
+      inited = true;
       ShuffleboardTab tab = Shuffleboard.getTab("EngageCommand");
       tab.addString("Mode", () -> currentMode.toString());
       tab.addDouble("Angle", () -> this.drivebaseSubsystem.getRollPitch().roll());
