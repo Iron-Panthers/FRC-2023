@@ -239,12 +239,19 @@ public class DrivebaseSubsystem extends SubsystemBase {
   }
 
   private SwerveModulePosition[] getSwerveModulePositions() {
-    return new SwerveModulePosition[] {
-      swerveModules[0].getPosition(),
-      swerveModules[1].getPosition(),
-      swerveModules[2].getPosition(),
-      swerveModules[3].getPosition()
-    };
+    return Config.DISABLE_SWERVE_MODULE_INIT
+        ? new SwerveModulePosition[] {
+          new SwerveModulePosition(),
+          new SwerveModulePosition(),
+          new SwerveModulePosition(),
+          new SwerveModulePosition(),
+        }
+        : new SwerveModulePosition[] {
+          swerveModules[0].getPosition(),
+          swerveModules[1].getPosition(),
+          swerveModules[2].getPosition(),
+          swerveModules[3].getPosition()
+        };
   }
 
   private Rotation2d driverGyroOffset = Rotation2d.fromDegrees(0);
