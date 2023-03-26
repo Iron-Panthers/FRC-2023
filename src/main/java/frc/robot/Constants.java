@@ -101,7 +101,7 @@ public final class Constants {
 
     public static final class AutoBalance {
       public static final double DOCK_SPEED_METERS_PER_SECOND = .9;
-      public static final double DOCK_MIN_ANGLE_DEGREES = 12;
+      public static final double DOCK_MIN_ANGLE_DEGREES = 10;
       public static final double DOCK_HORIZON_ANGLE_DEGREES = 14;
 
       public static final double ENGAGE_SPEED_METERS_PER_SECOND = .3;
