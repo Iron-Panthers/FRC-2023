@@ -82,7 +82,7 @@ public class N1_1ConePlusGrabConePlusMobilityEngage extends SequentialCommandGro
             new PathConstraints(maxVelocityMetersPerSecond, maxAccelerationMetersPerSecondSq));
 
     return new SequentialCommandGroup(
-        new FollowTrajectoryCommand(paths.get(3), true, drivebaseSubsystem),
+        new FollowTrajectoryCommand(paths.get(2), true, drivebaseSubsystem),
         new EngageCommand(drivebaseSubsystem));
   }
 
