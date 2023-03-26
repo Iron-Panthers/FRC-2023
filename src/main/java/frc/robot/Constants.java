@@ -57,6 +57,9 @@ public final class Constants {
     /** turn this off before comp. */
     public static final boolean SHOW_SHUFFLEBOARD_DEBUG_DATA = false;
 
+    /** turn this off! only use on practice eboard testing. */
+    public static final boolean DISABLE_SWERVE_MODULE_INIT = true;
+
     /** def turn this off unless you are using it, generates in excess of 100k rows for a match. */
     public static final boolean WRITE_APRILTAG_DATA = false;
 

@@ -148,44 +148,49 @@ public class DrivebaseSubsystem extends SubsystemBase {
   public DrivebaseSubsystem(VisionSubsystem visionSubsystem) {
     this.visionSubsystem = visionSubsystem;
 
-    final SwerveModule module1 =
-        createModule(
-            "Module #1",
-            0,
-            Modules.Module1.DRIVE_MOTOR,
-            Modules.Module1.STEER_MOTOR,
-            Modules.Module1.STEER_ENCODER,
-            Modules.Module1.STEER_OFFSET);
+    if (!Config.DISABLE_SWERVE_MODULE_INIT) {
 
-    final SwerveModule module2 =
-        createModule(
-            "Module #2",
-            1,
-            Modules.Module2.DRIVE_MOTOR,
-            Modules.Module2.STEER_MOTOR,
-            Modules.Module2.STEER_ENCODER,
-            Modules.Module2.STEER_OFFSET);
+      final SwerveModule module1 =
+          createModule(
+              "Module #1",
+              0,
+              Modules.Module1.DRIVE_MOTOR,
+              Modules.Module1.STEER_MOTOR,
+              Modules.Module1.STEER_ENCODER,
+              Modules.Module1.STEER_OFFSET);
 
-    final SwerveModule module3 =
-        createModule(
-            "Module #3",
-            2,
-            Modules.Module3.DRIVE_MOTOR,
-            Modules.Module3.STEER_MOTOR,
-            Modules.Module3.STEER_ENCODER,
-            Modules.Module3.STEER_OFFSET);
+      final SwerveModule module2 =
+          createModule(
+              "Module #2",
+              1,
+              Modules.Module2.DRIVE_MOTOR,
+              Modules.Module2.STEER_MOTOR,
+              Modules.Module2.STEER_ENCODER,
+              Modules.Module2.STEER_OFFSET);
 
-    final SwerveModule module4 =
-        createModule(
-            "Module #4",
-            3,
-            Modules.Module4.DRIVE_MOTOR,
-            Modules.Module4.STEER_MOTOR,
-            Modules.Module4.STEER_ENCODER,
-            Modules.Module4.STEER_OFFSET);
+      final SwerveModule module3 =
+          createModule(
+              "Module #3",
+              2,
+              Modules.Module3.DRIVE_MOTOR,
+              Modules.Module3.STEER_MOTOR,
+              Modules.Module3.STEER_ENCODER,
+              Modules.Module3.STEER_OFFSET);
 
-    swerveModules = // modules are always initialized and passed in this order
-        new SwerveModule[] {module1, module2, module3, module4};
+      final SwerveModule module4 =
+          createModule(
+              "Module #4",
+              3,
+              Modules.Module4.DRIVE_MOTOR,
+              Modules.Module4.STEER_MOTOR,
+              Modules.Module4.STEER_ENCODER,
+              Modules.Module4.STEER_OFFSET);
+
+      swerveModules = // modules are always initialized and passed in this order
+          new SwerveModule[] {module1, module2, module3, module4};
+    } else {
+      swerveModules = null;
+    }
 
     rotController = new PIDController(0.03, 0.001, 0.003);
     rotController.setSetpoint(0);
@@ -444,6 +449,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
    * @param mode The mode to use (should use the current mode value)
    */
   public void updateModules(Modes mode) {
+    if (Config.DISABLE_SWERVE_MODULE_INIT) return;
     switch (mode) {
       case DRIVE -> drivePeriodic();
       case DRIVE_ANGLE -> driveAnglePeriodic();
