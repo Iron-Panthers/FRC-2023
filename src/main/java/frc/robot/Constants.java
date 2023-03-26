@@ -104,7 +104,7 @@ public final class Constants {
       public static final double DOCK_MIN_ANGLE_DEGREES = 12;
       public static final double DOCK_HORIZON_ANGLE_DEGREES = 14;
 
-      public static final double ENGAGE_SPEED_METERS_PER_SECOND = .5;
+      public static final double ENGAGE_SPEED_METERS_PER_SECOND = .3;
       public static final double ENGAGE_MIN_ANGLE_DEGREES = 7;
     }
 
