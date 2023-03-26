@@ -71,7 +71,7 @@ public class EngageCommand extends CommandBase {
       }
       default -> {
         System.err.println("Engage command unknown mode: " + currentMode);
-        return Mode.DOCKING;
+        throw new IllegalStateException();
       }
     }
   }
