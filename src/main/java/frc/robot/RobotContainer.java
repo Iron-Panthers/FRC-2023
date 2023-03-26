@@ -29,6 +29,7 @@ import frc.robot.Constants.Config;
 import frc.robot.Constants.Drive;
 import frc.robot.autonomous.commands.MobilityAuto;
 import frc.robot.autonomous.commands.N1_1ConePlusGrabConePlusMobilityEngage;
+import frc.robot.autonomous.commands.N1_2ConePlusGrabOne;
 import frc.robot.autonomous.commands.N1_2ConePlusMobility;
 import frc.robot.autonomous.commands.N1_2ConePlusMobilityEngage;
 import frc.robot.autonomous.commands.N1_Hybrid1ConePlus2ConePlusEngage;
@@ -431,6 +432,10 @@ public class RobotContainer {
         "N1 1Cone + Grab Cone + Mobility Engage",
         new N1_1ConePlusGrabConePlusMobilityEngage(
             4.95, 4, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+
+    autoSelector.addOption(
+        "N1 2Cone + Grab 1",
+        new N1_2ConePlusGrabOne(4.95, 4, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
 
     autoSelector.addOption(
         "TESTSEQ N1 Engage Setup Portion [DO NOT RUN IN MATCH]",
