@@ -37,6 +37,7 @@ public class EngageCommand extends CommandBase {
     if (Config.SHOW_SHUFFLEBOARD_DEBUG_DATA) {
       ShuffleboardTab tab = Shuffleboard.getTab("EngageCommand");
       tab.addString("Mode", () -> currentMode.toString());
+      tab.addDouble("Angle", () -> this.drivebaseSubsystem.getRollPitch().roll());
     }
   }
 
