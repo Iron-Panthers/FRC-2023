@@ -11,6 +11,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.Config;
 import frc.robot.Constants.Intake;
 import frc.util.Util;
 
@@ -75,13 +76,16 @@ public class IntakeSubsystem extends SubsystemBase {
     angleMotor.configForwardSoftLimitEnable(true, 20);
     angleMotor.configReverseSoftLimitEnable(true, 20);
 
-    tab.add("angle pid", angleController);
-    tab.addNumber("current angle", this::getCurrentAngleDegrees);
-    tab.addNumber("target angle", () -> targetAngle);
-    tab.addNumber("angle ticks", angleMotor::getSelectedSensorPosition);
-    tab.addBoolean("at target angle", this::atTargetAngle);
-    tab.addNumber("intake power", intakeMotor::getMotorOutputVoltage);
-    tab.addString("mode", () -> mode.toString());
+    if (Config.SHOW_SHUFFLEBOARD_DEBUG_DATA) {
+
+      tab.add("angle pid", angleController);
+      tab.addNumber("current angle", this::getCurrentAngleDegrees);
+      tab.addNumber("target angle", () -> targetAngle);
+      tab.addNumber("angle ticks", angleMotor::getSelectedSensorPosition);
+      tab.addBoolean("at target angle", this::atTargetAngle);
+      tab.addNumber("intake power", intakeMotor::getMotorOutputVoltage);
+      tab.addString("mode", () -> mode.toString());
+    }
   }
 
   public double getCurrentTicks() {
