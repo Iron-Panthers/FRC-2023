@@ -7,19 +7,25 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Config;
 import frc.robot.Constants.Intake;
+import frc.util.SmartBoard;
+import frc.util.SmartBoard.Range;
 import frc.util.Util;
+import java.util.List;
 
 public class IntakeSubsystem extends SubsystemBase {
   private double currentAngle;
   private double targetAngle;
 
   private double angleOutput;
+  private double anglePidOutput;
+  private double angleGravityOutput;
 
   private final TalonFX intakeMotor;
   private final TalonFX angleMotor;
@@ -29,6 +35,17 @@ public class IntakeSubsystem extends SubsystemBase {
   private final PIDController angleController;
 
   private final ShuffleboardTab tab = Shuffleboard.getTab("Intake");
+
+  private final List<SmartBoard> smartBoards =
+      List.of(
+          new SmartBoard(
+              tab,
+              "gravity control percent",
+              () -> Intake.GRAVITY_CONTROL_PERCENT,
+              v -> {
+                Intake.GRAVITY_CONTROL_PERCENT = v;
+              },
+              new Range(0, .2)));
 
   public static class IntakeDetails {
     public final double angle;
@@ -54,7 +71,6 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   private void applyZeroConfig() {
-
     angleMotor.configForwardSoftLimitThreshold(ticksToAngleDegrees(Intake.Setpoints.MAX_ANGLE));
     angleMotor.configReverseSoftLimitThreshold(ticksToAngleDegrees(Intake.Setpoints.MIN_ANGLE));
 
@@ -74,10 +90,10 @@ public class IntakeSubsystem extends SubsystemBase {
 
     mode = Modes.STOWED;
 
-    angleController = new PIDController(0.001, 0, 0); // FIXME tune
+    angleController = new PIDController(0.003, 0, 0); // FIXME tune
 
-    intakeMotor.setNeutralMode(NeutralMode.Coast);
-    angleMotor.setNeutralMode(NeutralMode.Coast);
+    intakeMotor.setNeutralMode(NeutralMode.Brake);
+    angleMotor.setNeutralMode(NeutralMode.Brake);
 
     applyZeroConfig();
 
@@ -90,9 +106,17 @@ public class IntakeSubsystem extends SubsystemBase {
       tab.addBoolean("at target angle", this::atTargetAngle);
       tab.addNumber("intake power", intakeMotor::getMotorOutputVoltage);
       tab.addNumber("angle power", angleMotor::getMotorOutputPercent);
+      tab.addNumber("angle pid output", () -> this.anglePidOutput);
+      tab.addNumber("angle gravity output", () -> this.angleGravityOutput);
       tab.addNumber("angle output", () -> this.angleOutput);
       tab.addString("mode", () -> mode.toString());
     }
+  }
+
+  // Add the gravity offset as a function of sine
+  private double computeArmGravityOffset() {
+    return Math.cos(Math.toRadians(getCurrentAngleDegrees() + Intake.GRAVITY_ANGLE_OFFSET))
+        * Intake.GRAVITY_CONTROL_PERCENT;
   }
 
   public double getCurrentTicks() {
@@ -140,8 +164,14 @@ public class IntakeSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
     targetAngle = mode.intakeDetails.angle;
     currentAngle = getCurrentAngleDegrees();
-    angleOutput = angleController.calculate(currentAngle - targetAngle);
+    anglePidOutput = angleController.calculate(currentAngle - targetAngle);
+    angleGravityOutput = computeArmGravityOffset();
+    angleOutput = MathUtil.clamp(anglePidOutput + angleGravityOutput, -.3, .3);
     angleMotor.set(TalonFXControlMode.PercentOutput, angleOutput);
     intakeMotor.set(TalonFXControlMode.PercentOutput, mode.intakeDetails.intakePower);
+
+    if (Config.SHOW_SHUFFLEBOARD_DEBUG_DATA) {
+      smartBoards.forEach(SmartBoard::poll);
+    }
   }
 }
