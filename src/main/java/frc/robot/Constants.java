@@ -280,8 +280,8 @@ public final class Constants {
     }
 
     public static final class IntakeModes {
-      public static final IntakeDetails INTAKE = new IntakeDetails(-180, 0.2);
-      public static final IntakeDetails OUTTAKE = new IntakeDetails(-180, -0.1);
+      public static final IntakeDetails INTAKE = new IntakeDetails(-170, 1);
+      public static final IntakeDetails OUTTAKE = new IntakeDetails(-40, -0.5);
       public static final IntakeDetails DOWN = new IntakeDetails(-220, 0);
       public static final IntakeDetails STOWED = new IntakeDetails(0, 0);
     }
