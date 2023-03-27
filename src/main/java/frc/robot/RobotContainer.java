@@ -313,8 +313,8 @@ public class RobotContainer {
         .onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED));
 
     new Trigger(() -> jason.getLeftX() < -.7)
-        .onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.DOWN))
-        .whileTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE));
+        .onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.DOWN));
+    // .whileTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE));
 
     // jasonLayer2
     //     .on(jason.b())

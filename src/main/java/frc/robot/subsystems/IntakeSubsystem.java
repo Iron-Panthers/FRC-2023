@@ -19,6 +19,8 @@ public class IntakeSubsystem extends SubsystemBase {
   private double currentAngle;
   private double targetAngle;
 
+  private double angleOutput;
+
   private final TalonFX intakeMotor;
   private final TalonFX angleMotor;
 
@@ -51,6 +53,17 @@ public class IntakeSubsystem extends SubsystemBase {
     }
   }
 
+  private void applyZeroConfig() {
+
+    angleMotor.configForwardSoftLimitThreshold(ticksToAngleDegrees(Intake.Setpoints.MAX_ANGLE));
+    angleMotor.configReverseSoftLimitThreshold(ticksToAngleDegrees(Intake.Setpoints.MIN_ANGLE));
+
+    angleMotor.configForwardSoftLimitEnable(false);
+    angleMotor.configReverseSoftLimitEnable(false);
+
+    angleMotor.setSelectedSensorPosition(0);
+  }
+
   /** Creates a new IntakeSubsystem. */
   public IntakeSubsystem() {
     intakeMotor = new TalonFX(Intake.Ports.INTAKE_MOTOR_PORT);
@@ -61,20 +74,12 @@ public class IntakeSubsystem extends SubsystemBase {
 
     mode = Modes.STOWED;
 
-    angleController = new PIDController(0.003, 0, 0); // FIXME tune
+    angleController = new PIDController(0.001, 0, 0); // FIXME tune
 
-    intakeMotor.setNeutralMode(NeutralMode.Brake);
-    angleMotor.setNeutralMode(NeutralMode.Brake);
+    intakeMotor.setNeutralMode(NeutralMode.Coast);
+    angleMotor.setNeutralMode(NeutralMode.Coast);
 
-    // angleMotor.setInverted(true);
-
-    angleMotor.configForwardSoftLimitThreshold(
-        ticksToAngleDegrees(Intake.Setpoints.MIN_ANGLE), 20); // this is the top
-    angleMotor.configReverseSoftLimitThreshold(
-        ticksToAngleDegrees(Intake.Setpoints.MAX_ANGLE), 20); // this is the bottom limit
-
-    angleMotor.configForwardSoftLimitEnable(true, 20);
-    angleMotor.configReverseSoftLimitEnable(true, 20);
+    applyZeroConfig();
 
     if (Config.SHOW_SHUFFLEBOARD_DEBUG_DATA) {
 
@@ -85,6 +90,7 @@ public class IntakeSubsystem extends SubsystemBase {
       tab.addBoolean("at target angle", this::atTargetAngle);
       tab.addNumber("intake power", intakeMotor::getMotorOutputVoltage);
       tab.addNumber("angle power", angleMotor::getMotorOutputPercent);
+      tab.addNumber("angle output", () -> this.angleOutput);
       tab.addString("mode", () -> mode.toString());
     }
   }
@@ -94,7 +100,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void zeroAngleEncoder() {
-    angleMotor.setSelectedSensorPosition(0);
+    applyZeroConfig();
   }
 
   public double getCurrentRotation() {
@@ -134,7 +140,7 @@ public class IntakeSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
     targetAngle = mode.intakeDetails.angle;
     currentAngle = getCurrentAngleDegrees();
-    double angleOutput = angleController.calculate(currentAngle, targetAngle);
+    angleOutput = angleController.calculate(currentAngle - targetAngle);
     angleMotor.set(TalonFXControlMode.PercentOutput, angleOutput);
     intakeMotor.set(TalonFXControlMode.PercentOutput, mode.intakeDetails.intakePower);
   }
