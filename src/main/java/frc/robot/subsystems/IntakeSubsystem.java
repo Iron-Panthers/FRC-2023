@@ -61,7 +61,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     mode = Modes.STOWED;
 
-    angleController = new PIDController(0.00005, 0, 0); // FIXME tune
+    angleController = new PIDController(0.003, 0, 0); // FIXME tune
 
     intakeMotor.setNeutralMode(NeutralMode.Brake);
     angleMotor.setNeutralMode(NeutralMode.Brake);
