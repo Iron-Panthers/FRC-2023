@@ -103,6 +103,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
     angleController = new PIDController(0.006, 0, 0.0003);
     intakeMotor.setNeutralMode(NeutralMode.Brake);
+    intakeMotor.configVoltageCompSaturation(11);
+    intakeMotor.configVoltageCompSaturation(11);
     angleMotor.setNeutralMode(NeutralMode.Brake);
 
     applyZeroConfig();
