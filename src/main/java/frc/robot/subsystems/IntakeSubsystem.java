@@ -101,7 +101,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     mode = Modes.STOWED;
 
-    angleController = new PIDController(0.006, 0, 0.006);
+    angleController = new PIDController(0.006, 0, 0.0003);
     intakeMotor.setNeutralMode(NeutralMode.Brake);
     angleMotor.setNeutralMode(NeutralMode.Brake);
 
@@ -120,6 +120,7 @@ public class IntakeSubsystem extends SubsystemBase {
       tab.addNumber("angle gravity output", () -> this.angleGravityOutput);
       tab.addNumber("angle output", () -> this.angleOutput);
       tab.addString("mode", () -> mode.toString());
+      tab.addNumber("angle error", () -> targetAngle - getCurrentAngleDegrees());
     }
   }
 
