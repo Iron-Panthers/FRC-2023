@@ -60,7 +60,6 @@ import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.CANWatchdogSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.IntakeSubsystem.Modes;
 import frc.robot.subsystems.NetworkWatchdogSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.RGBSubsystem;
@@ -113,10 +112,8 @@ public class RobotContainer {
 
   /** controller 1 */
   private final CommandXboxController jason = new CommandXboxController(1);
-  /** controller 1 climb layer */
-  private final Layer jasonLayer1 = new Layer(jason.rightBumper());
-  /** controller 1 intake layer */
-  private final Layer jasonLayer2 = new Layer(jason.leftBumper());
+  /** controller 1 layer */
+  private final Layer jasonLayer = new Layer(jason.rightBumper());
   /** controller 0 */
   private final CommandXboxController will = new CommandXboxController(0);
 
@@ -201,7 +198,7 @@ public class RobotContainer {
   private void configureButtonBindings() {
 
     // vibrate jason controller when in layer
-    jasonLayer1.whenChanged(
+    jasonLayer.whenChanged(
         (enabled) -> {
           final double power = enabled ? .1 : 0;
           jason.getHID().setRumble(RumbleType.kLeftRumble, power);
@@ -284,67 +281,74 @@ public class RobotContainer {
     will.x().onTrue(new EngageCommand(drivebaseSubsystem));
 
     // outtake states
-    jasonLayer1
+    jasonLayer
         .off(jason.leftTrigger())
         .whileTrue(
             new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
-    jasonLayer1
+    jasonLayer
         .off(jason.rightTrigger())
         .onTrue(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
-    jasonLayer1
+    jasonLayer
         .off(jason.x())
         .onTrue(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF));
 
     // intake presets
-    jasonLayer1
+    jasonLayer
         .off(jason.a())
         .onTrue(new ScoreCommand(outtakeSubsystem, armSubsystem, Setpoints.GROUND_INTAKE))
         .whileTrue(
             new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
 
-    jasonLayer1
+    jasonLayer
         .off(jason.b())
         .onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.SHELF_INTAKE))
         .whileTrue(
             new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
 
     // reset
-    jasonLayer1.off(jason.y()).onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED));
+    jasonLayer.off(jason.y()).onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED));
     jason.start().onTrue(new SetZeroModeCommand(armSubsystem));
 
-    jasonLayer2
-        .on(jason.b())
-        .whileTrue(new IntakeCommand(intakeSubsystem, Modes.INTAKE))
-        .onFalse(new IntakeCommand(intakeSubsystem, Modes.STOWED));
+    new Trigger(() -> jason.getLeftX() > .7)
+        .onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED));
 
-    jasonLayer2.on(jason.y()).onTrue(new IntakeCommand(intakeSubsystem, Modes.STOWED));
+    new Trigger(() -> jason.getLeftX() < -.7)
+        .onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.DOWN))
+        .whileTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE));
 
-    jasonLayer2.on(jason.x()).onTrue(new IntakeCommand(intakeSubsystem, Modes.OUTTAKE));
+    // jasonLayer2
+    //     .on(jason.b())
+    //     .whileTrue(new IntakeCommand(intakeSubsystem, Modes.INTAKE))
+    //     .onFalse(new IntakeCommand(intakeSubsystem, Modes.STOWED));
 
-    jasonLayer2.on(jason.a()).onTrue(new IntakeCommand(intakeSubsystem, Modes.DOWN));
+    // jasonLayer2.on(jason.y()).onTrue(new IntakeCommand(intakeSubsystem, Modes.STOWED));
 
-    jasonLayer2.on(jason.start()).onTrue(new ZeroIntakeCommand(intakeSubsystem));
+    // jasonLayer2.on(jason.x()).onTrue(new IntakeCommand(intakeSubsystem, Modes.OUTTAKE));
+
+    // jasonLayer2.on(jason.a()).onTrue(new IntakeCommand(intakeSubsystem, Modes.DOWN));
+
+    jason.start().onTrue(new ZeroIntakeCommand(intakeSubsystem));
 
     // scoring
     // jasonLayer
     //     .on(jason.a())
     // low
 
-    jasonLayer1
+    jasonLayer
         .on(jason.a())
         .onTrue(
             new InstantCommand(
                 () ->
                     currentNodeSelection.apply(n -> n.withHeight(NodeSelectorUtility.Height.LOW))));
 
-    jasonLayer1
+    jasonLayer
         .on(jason.b())
         .onTrue(
             new InstantCommand(
                 () -> currentNodeSelection.apply(n -> n.withHeight(NodeSelectorUtility.Height.MID)),
                 armSubsystem));
 
-    jasonLayer1
+    jasonLayer
         .on(jason.y())
         .onTrue(
             new InstantCommand(
@@ -363,7 +367,7 @@ public class RobotContainer {
               Constants.SCORE_STEP_MAP.get(scoreType),
               jason.leftBumper()));
 
-    jasonLayer1
+    jasonLayer
         .on(jason.x())
         .onTrue(
             new HashMapCommand<>(
