@@ -28,6 +28,8 @@ import frc.robot.Constants.Arm.Setpoints;
 import frc.robot.Constants.Config;
 import frc.robot.Constants.Drive;
 import frc.robot.autonomous.commands.MobilityAuto;
+import frc.robot.autonomous.commands.N1_1ConePlusGrabConePlusMobilityEngage;
+import frc.robot.autonomous.commands.N1_2ConePlusGrabOne;
 import frc.robot.autonomous.commands.N1_2ConePlusMobility;
 import frc.robot.autonomous.commands.N1_2ConePlusMobilityEngage;
 import frc.robot.autonomous.commands.N1_Hybrid1ConePlus2ConePlusEngage;
@@ -35,13 +37,14 @@ import frc.robot.autonomous.commands.N2_Engage;
 import frc.robot.autonomous.commands.N3_1ConePlusMobility;
 import frc.robot.autonomous.commands.N3_1ConePlusMobilityEngage;
 import frc.robot.autonomous.commands.N6_1ConePlusEngage;
+import frc.robot.autonomous.commands.N9_1ConePlusMobility;
 import frc.robot.autonomous.commands.N9_1ConePlusMobilityEngage;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
-import frc.robot.commands.BalanceCommand;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
+import frc.robot.commands.EngageCommand;
 import frc.robot.commands.ForceOuttakeSubsystemModeCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
 import frc.robot.commands.HashMapCommand;
@@ -144,6 +147,8 @@ public class RobotContainer {
             () -> ControllerUtil.deadband(jason.getRightY(), 0.2)));
 
     SmartDashboard.putBoolean("is comp bot", MacUtil.IS_COMP_BOT);
+    SmartDashboard.putBoolean("show debug data", Config.SHOW_SHUFFLEBOARD_DEBUG_DATA);
+    SmartDashboard.putBoolean("don't init swerve modules", Config.DISABLE_SWERVE_MODULE_INIT);
 
     // Configure the button bindings
     configureButtonBindings();
@@ -259,8 +264,8 @@ public class RobotContainer {
             new DriveToPlaceCommand(
                 drivebaseSubsystem,
                 manueverGenerator,
-                (new AlliancePose2d(15.443 - 1.5, 7.410, Rotation2d.fromDegrees(0)))::get,
-                (new AlliancePose2d(15.443, 7.410, Rotation2d.fromDegrees(0)))::get,
+                (new AlliancePose2d(15.3639 - 1.5, 7.3965, Rotation2d.fromDegrees(0)))::get,
+                (new AlliancePose2d(15.3639, 7.3965, Rotation2d.fromDegrees(0)))::get,
                 0,
                 translationXSupplier,
                 translationYSupplier,
@@ -268,7 +273,7 @@ public class RobotContainer {
                 Optional.of(rgbSubsystem),
                 Optional.of(will.getHID())));
 
-    will.x().whileTrue(new BalanceCommand(drivebaseSubsystem));
+    will.x().onTrue(new EngageCommand(drivebaseSubsystem));
 
     // outtake states
     jasonLayer
@@ -424,6 +429,25 @@ public class RobotContainer {
         new N1_2ConePlusMobilityEngage(
             4.95, 4, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
 
+    autoSelector.addOption(
+        "N1 1Cone + Grab Cone + Mobility Engage",
+        new N1_1ConePlusGrabConePlusMobilityEngage(
+            4.95, 4, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+
+    autoSelector.addOption(
+        "N1 2Cone + Grab 1",
+        new N1_2ConePlusGrabOne(4.95, 4, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+
+    autoSelector.addOption(
+        "TESTSEQ N1 Engage Setup Portion [DO NOT RUN IN MATCH]",
+        N1_1ConePlusGrabConePlusMobilityEngage.produceEngageSetupSequence(
+            1, 2, drivebaseSubsystem));
+
+    autoSelector.addOption(
+        "TESTSEQ N1 Engage Portion [DO NOT RUN IN MATCH]",
+        N1_1ConePlusGrabConePlusMobilityEngage.produceEngageDebugSequence(
+            4.95, 4, drivebaseSubsystem));
+
     autoSelector.setDefaultOption(
         "N6 1Cone + Engage",
         new N6_1ConePlusEngage(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
@@ -431,6 +455,10 @@ public class RobotContainer {
     autoSelector.addOption(
         "N9 1Cone + Mobility Engage",
         new N9_1ConePlusMobilityEngage(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+
+    autoSelector.addOption(
+        "N9 1Cone + Mobility",
+        new N9_1ConePlusMobility(4.95, 3, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
 
     autoSelector.addOption(
         "Score High Cone [DOES NOT CALIBRATE]",

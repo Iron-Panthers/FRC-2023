@@ -51,10 +51,14 @@ public final class Constants {
     /** turn this off before comp. */
     public static final boolean RUN_PATHPLANNER_SERVER =
         // never run pathplanner server in simulation, it will fail unit tests (???)
-        HALUtil.getHALRuntimeType() != HALUtil.RUNTIME_SIMULATION;
+        Config.SHOW_SHUFFLEBOARD_DEBUG_DATA
+            && HALUtil.getHALRuntimeType() != HALUtil.RUNTIME_SIMULATION;
 
     /** turn this off before comp. */
     public static final boolean SHOW_SHUFFLEBOARD_DEBUG_DATA = false;
+
+    /** turn this off! only use on practice eboard testing. */
+    public static final boolean DISABLE_SWERVE_MODULE_INIT = false;
 
     /** def turn this off unless you are using it, generates in excess of 100k rows for a match. */
     public static final boolean WRITE_APRILTAG_DATA = false;
@@ -99,14 +103,12 @@ public final class Constants {
     }
 
     public static final class AutoBalance {
-      /** the max speed to drive at when balancing */
-      public static final double P_SPEED_METERS_PER_SECOND = .8;
-      /** the angle to use for normalizing the range */
-      public static final double MAX_ANGLE = 15;
-      /** the angle to stop applying control */
-      public static final double THRESHOLD_ANGLE = 5;
-      /** the number to raise the [0, 1] error to */
-      public static final double E_EXPONENTIAL_FACTOR = 4;
+      public static final double DOCK_SPEED_METERS_PER_SECOND = .798;
+      public static final double DOCK_MIN_ANGLE_DEGREES = 13.717;
+      public static final double DOCK_HORIZON_ANGLE_DEGREES = 17.532;
+
+      public static final double ENGAGE_SPEED_METERS_PER_SECOND = .403;
+      public static final double ENGAGE_MIN_ANGLE_DEGREES = 9.365;
     }
 
     /*
@@ -284,19 +286,19 @@ public final class Constants {
               new ScoreStep(new ArmState(95, 20)).canWaitHere(),
               new ScoreStep(
                   new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION),
-                  OuttakeSubsystem.Modes.OUTTAKE)),
+                  OuttakeSubsystem.Modes.OUTTAKE_FAST_CUBE)),
           NodeType.CUBE.atHeight(Height.MID),
           List.of(
               new ScoreStep(new ArmState(67.32, Arm.Setpoints.Extensions.MIN_EXTENSION)),
               new ScoreStep(new ArmState(67.32, 0.75)).canWaitHere(),
               new ScoreStep(
                   new ArmState(67.32, Arm.Setpoints.Extensions.MIN_EXTENSION),
-                  OuttakeSubsystem.Modes.OUTTAKE)),
+                  OuttakeSubsystem.Modes.OUTTAKE_FAST_CUBE)),
           NodeType.CUBE.atHeight(Height.LOW),
           List.of(
               new ScoreStep(new ArmState(29.7, Arm.Setpoints.Extensions.MIN_EXTENSION))
                   .canWaitHere(),
-              new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE)));
+              new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE_FAST_CUBE)));
 
   public static final class Vision {
     public static record VisionSource(String name, Transform3d robotToCamera) {}
@@ -438,13 +440,16 @@ public final class Constants {
 
     public static final class OuttakeModes {
       public static final OuttakeDetails HOLD =
-          new OuttakeDetails(0.07, Optional.empty(), Optional.empty());
+          new OuttakeDetails(0.11, Optional.empty(), Optional.empty());
 
       public static final OuttakeDetails INTAKE =
-          new OuttakeDetails(.5, Optional.of(new OuttakeDetails.StatorLimit(100)), Optional.of(2d));
+          new OuttakeDetails(.5, Optional.of(new OuttakeDetails.StatorLimit(80)), Optional.of(2d));
 
       public static final OuttakeDetails OUTTAKE =
           new OuttakeDetails(-0.2, Optional.empty(), Optional.of(2d));
+
+      public static final OuttakeDetails OUTTAKE_FAST_CUBE =
+          new OuttakeDetails(-0.4, Optional.empty(), Optional.of(2d));
 
       public static final OuttakeDetails OFF =
           new OuttakeDetails(0.0, Optional.empty(), Optional.empty());

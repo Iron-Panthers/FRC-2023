@@ -12,7 +12,6 @@ import frc.robot.Constants;
 import frc.robot.Constants.Arm;
 import frc.robot.Constants.Arm.Setpoints;
 import frc.robot.commands.ArmPositionCommand;
-import frc.robot.commands.EngageCommand;
 import frc.robot.commands.FollowTrajectoryCommand;
 import frc.robot.commands.ForceOuttakeSubsystemModeCommand;
 import frc.robot.commands.ScoreCommand;
@@ -28,8 +27,8 @@ import frc.util.pathing.LoadMirrorPath;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class N1_2ConePlusMobilityEngage extends SequentialCommandGroup {
-  public N1_2ConePlusMobilityEngage(
+public class N1_2ConePlusGrabOne extends SequentialCommandGroup {
+  public N1_2ConePlusGrabOne(
       double maxVelocityMetersPerSecond,
       double maxAccelerationMetersPerSecondSq,
       OuttakeSubsystem outtakeSubsystem,
@@ -38,7 +37,7 @@ public class N1_2ConePlusMobilityEngage extends SequentialCommandGroup {
 
     List<Supplier<PathPlannerTrajectory>> paths =
         LoadMirrorPath.loadPathGroup(
-            "n1 2cone + mobility engage",
+            "n1 2cone + grab 1",
             new PathConstraints(maxVelocityMetersPerSecond, 7),
             new PathConstraints(maxVelocityMetersPerSecond, 7),
             new PathConstraints(maxVelocityMetersPerSecond, maxAccelerationMetersPerSecondSq));
@@ -81,6 +80,9 @@ public class N1_2ConePlusMobilityEngage extends SequentialCommandGroup {
             .alongWith(
                 (new WaitCommand(1))
                     .andThen(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))),
-        new EngageCommand(drivebaseSubsystem));
+        new ScoreCommand(outtakeSubsystem, armSubsystem, Setpoints.GROUND_INTAKE, 1)
+            .deadlineWith(
+                new ForceOuttakeSubsystemModeCommand(
+                    outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)));
   }
 }

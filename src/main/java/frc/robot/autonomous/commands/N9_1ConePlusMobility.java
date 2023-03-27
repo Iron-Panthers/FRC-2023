@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.Arm;
 import frc.robot.commands.ArmPositionCommand;
-import frc.robot.commands.EngageCommand;
 import frc.robot.commands.FollowTrajectoryCommand;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.SetOuttakeModeCommand;
@@ -23,9 +22,9 @@ import frc.util.NodeSelectorUtility.NodeType;
 import frc.util.pathing.LoadMirrorPath;
 import java.util.function.Supplier;
 
-public class N9_1ConePlusMobilityEngage extends SequentialCommandGroup {
+public class N9_1ConePlusMobility extends SequentialCommandGroup {
   /** Creates a new N2MobilityEngage. */
-  public N9_1ConePlusMobilityEngage(
+  public N9_1ConePlusMobility(
       double maxVelocityMetersPerSecond,
       double maxAccelerationMetersPerSecondSq,
       OuttakeSubsystem outtakeSubsystem,
@@ -34,9 +33,7 @@ public class N9_1ConePlusMobilityEngage extends SequentialCommandGroup {
 
     Supplier<PathPlannerTrajectory> path =
         LoadMirrorPath.loadPath(
-            "n9 1cone + mobility engage",
-            maxVelocityMetersPerSecond,
-            maxAccelerationMetersPerSecondSq);
+            "n9 1cone + mobility", maxVelocityMetersPerSecond, maxAccelerationMetersPerSecondSq);
 
     addCommands(
         new SetZeroModeCommand(armSubsystem)
@@ -50,7 +47,6 @@ public class N9_1ConePlusMobilityEngage extends SequentialCommandGroup {
         (new FollowTrajectoryCommand(path, true, drivebaseSubsystem))
             .alongWith(
                 (new WaitCommand(1))
-                    .andThen(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))),
-        new EngageCommand(drivebaseSubsystem));
+                    .andThen(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))));
   }
 }

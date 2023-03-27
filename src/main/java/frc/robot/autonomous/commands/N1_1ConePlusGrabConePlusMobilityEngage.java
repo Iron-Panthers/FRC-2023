@@ -19,7 +19,6 @@ import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.SetOuttakeModeCommand;
 import frc.robot.commands.SetZeroModeCommand;
 import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.ArmSubsystem.ArmState;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.util.NodeSelectorUtility.Height;
@@ -28,8 +27,8 @@ import frc.util.pathing.LoadMirrorPath;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class N1_2ConePlusMobilityEngage extends SequentialCommandGroup {
-  public N1_2ConePlusMobilityEngage(
+public class N1_1ConePlusGrabConePlusMobilityEngage extends SequentialCommandGroup {
+  public N1_1ConePlusGrabConePlusMobilityEngage(
       double maxVelocityMetersPerSecond,
       double maxAccelerationMetersPerSecondSq,
       OuttakeSubsystem outtakeSubsystem,
@@ -38,7 +37,7 @@ public class N1_2ConePlusMobilityEngage extends SequentialCommandGroup {
 
     List<Supplier<PathPlannerTrajectory>> paths =
         LoadMirrorPath.loadPathGroup(
-            "n1 2cone + mobility engage",
+            "n1 1cone + grab cone + mobility engage",
             new PathConstraints(maxVelocityMetersPerSecond, 7),
             new PathConstraints(maxVelocityMetersPerSecond, 7),
             new PathConstraints(maxVelocityMetersPerSecond, maxAccelerationMetersPerSecondSq));
@@ -66,21 +65,37 @@ public class N1_2ConePlusMobilityEngage extends SequentialCommandGroup {
         new FollowTrajectoryCommand(paths.get(2), drivebaseSubsystem)
             .alongWith(
                 new ScoreCommand(
-                        // skip bringing it into the body
-                        outtakeSubsystem, armSubsystem, Setpoints.GROUND_INTAKE.subList(2, 3), 1)
-                    .andThen(
-                        new ArmPositionCommand(
-                            armSubsystem,
-                            new ArmState(102.5, Arm.Setpoints.Extensions.MIN_EXTENSION)))),
-        new ScoreCommand(
-            outtakeSubsystem,
-            armSubsystem,
-            Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH)),
-            1),
-        (new FollowTrajectoryCommand(paths.get(3), drivebaseSubsystem))
-            .alongWith(
-                (new WaitCommand(1))
-                    .andThen(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))),
+                    outtakeSubsystem, armSubsystem, Setpoints.GROUND_INTAKE.subList(2, 4), 1)),
         new EngageCommand(drivebaseSubsystem));
+  }
+
+  public static SequentialCommandGroup produceEngageDebugSequence(
+      double maxVelocityMetersPerSecond,
+      double maxAccelerationMetersPerSecondSq,
+      DrivebaseSubsystem drivebaseSubsystem) {
+
+    List<Supplier<PathPlannerTrajectory>> paths =
+        LoadMirrorPath.loadPathGroup(
+            "n1 1cone + grab cone + mobility engage",
+            new PathConstraints(maxVelocityMetersPerSecond, 7),
+            new PathConstraints(maxVelocityMetersPerSecond, 7),
+            new PathConstraints(maxVelocityMetersPerSecond, maxAccelerationMetersPerSecondSq));
+
+    return new SequentialCommandGroup(
+        new FollowTrajectoryCommand(paths.get(2), true, drivebaseSubsystem),
+        new EngageCommand(drivebaseSubsystem));
+  }
+
+  public static FollowTrajectoryCommand produceEngageSetupSequence(
+      double maxVelocityMetersPerSecond,
+      double maxAccelerationMetersPerSecondSq,
+      DrivebaseSubsystem drivebaseSubsystem) {
+    Supplier<PathPlannerTrajectory> path =
+        LoadMirrorPath.loadPath(
+            "TESTSEQ n1 backup for engage",
+            maxVelocityMetersPerSecond,
+            maxAccelerationMetersPerSecondSq);
+
+    return new FollowTrajectoryCommand(path, true, drivebaseSubsystem);
   }
 }
