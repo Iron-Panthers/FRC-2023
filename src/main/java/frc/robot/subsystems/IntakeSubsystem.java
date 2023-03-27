@@ -9,6 +9,7 @@ import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -18,11 +19,15 @@ import frc.util.SmartBoard;
 import frc.util.SmartBoard.Range;
 import frc.util.Util;
 import java.util.List;
+import java.util.Optional;
 
 public class IntakeSubsystem extends SubsystemBase {
   private double currentAngle;
   private double targetAngle;
+  private double lastPulseTime;
+  private boolean onHighCycle;
 
+  // logs
   private double angleOutput;
   private double anglePidOutput;
   private double angleGravityOutput;
@@ -47,13 +52,19 @@ public class IntakeSubsystem extends SubsystemBase {
               },
               new Range(0, .2)));
 
-  public static class IntakeDetails {
-    public final double angle;
-    public final double intakePower;
+  public record IntakeDetails(
+      double angle,
+      Optional<Double> highAngle,
+      Optional<Double> alternatingPeriod,
+      double intakePower) {
+    public static IntakeDetails simple(double angle, double intakePower) {
+      return new IntakeDetails(angle, Optional.empty(), Optional.empty(), intakePower);
+    }
 
-    public IntakeDetails(double angle, double intakePower) {
-      this.angle = angle;
-      this.intakePower = intakePower;
+    public static IntakeDetails alternating(
+        double lowAngle, double highAngle, double alternatingPeriod, double intakePower) {
+      return new IntakeDetails(
+          lowAngle, Optional.of(highAngle), Optional.of(alternatingPeriod), intakePower);
     }
   }
 
@@ -90,8 +101,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     mode = Modes.STOWED;
 
-    angleController = new PIDController(0.003, 0, 0); // FIXME tune
-
+    angleController = new PIDController(0.006, 0, 0.006);
     intakeMotor.setNeutralMode(NeutralMode.Brake);
     angleMotor.setNeutralMode(NeutralMode.Brake);
 
@@ -119,7 +129,7 @@ public class IntakeSubsystem extends SubsystemBase {
         * Intake.GRAVITY_CONTROL_PERCENT;
   }
 
-  public double getCurrentTicks() {
+  private double getCurrentTicks() {
     return angleMotor.getSelectedSensorPosition();
   }
 
@@ -143,10 +153,6 @@ public class IntakeSubsystem extends SubsystemBase {
     return (degrees / Intake.DEGREES) * Intake.TICKS / Intake.GEAR_RATIO;
   }
 
-  public void setTargetAngle(double targetAngle) {
-    this.targetAngle = targetAngle;
-  }
-
   public boolean atTargetAngle() {
     return Util.epsilonEquals(getCurrentAngleDegrees(), targetAngle, Intake.EPSILON);
   }
@@ -157,12 +163,26 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public void setMode(Modes mode) {
     this.mode = mode;
+    onHighCycle = false;
+    if (mode.intakeDetails.highAngle.isPresent()) {
+      lastPulseTime = Timer.getFPGATimestamp();
+    }
   }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
-    targetAngle = mode.intakeDetails.angle;
+
+    if (mode.intakeDetails.highAngle.isPresent()
+        && (Timer.getFPGATimestamp() - lastPulseTime)
+            > mode.intakeDetails.alternatingPeriod.orElseGet(() -> .5)) {
+      lastPulseTime = Timer.getFPGATimestamp();
+      onHighCycle = !onHighCycle;
+    }
+
+    targetAngle =
+        onHighCycle
+            ? mode.intakeDetails.angle
+            : mode.intakeDetails.highAngle.orElseGet(mode.intakeDetails::angle);
     currentAngle = getCurrentAngleDegrees();
     anglePidOutput = angleController.calculate(currentAngle - targetAngle);
     angleGravityOutput = computeArmGravityOffset();

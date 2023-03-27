@@ -280,10 +280,10 @@ public final class Constants {
     }
 
     public static final class IntakeModes {
-      public static final IntakeDetails INTAKE = new IntakeDetails(-170, 1);
-      public static final IntakeDetails OUTTAKE = new IntakeDetails(-40, -0.5);
-      public static final IntakeDetails DOWN = new IntakeDetails(-220, 0);
-      public static final IntakeDetails STOWED = new IntakeDetails(0, 0);
+      public static final IntakeDetails INTAKE = IntakeDetails.alternating(-175, -150, .3, 1);
+      public static final IntakeDetails OUTTAKE = IntakeDetails.simple(-40, -0.5);
+      public static final IntakeDetails DOWN = IntakeDetails.simple(-220, 0);
+      public static final IntakeDetails STOWED = IntakeDetails.simple(0, 0);
     }
   }
 
