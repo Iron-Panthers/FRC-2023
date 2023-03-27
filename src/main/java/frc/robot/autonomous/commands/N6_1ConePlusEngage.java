@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.Arm;
 import frc.robot.commands.ArmPositionCommand;
-import frc.robot.commands.BalanceCommand;
+import frc.robot.commands.EngageCommand;
 import frc.robot.commands.FollowTrajectoryCommand;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.SetOuttakeModeCommand;
@@ -43,11 +43,12 @@ public class N6_1ConePlusEngage extends SequentialCommandGroup {
         new ScoreCommand(
             outtakeSubsystem,
             armSubsystem,
-            Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH))),
+            Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH)),
+            1),
         (new FollowTrajectoryCommand(path, true, drivebaseSubsystem))
             .alongWith(
                 (new WaitCommand(1))
                     .andThen(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))),
-        new BalanceCommand(drivebaseSubsystem));
+        new EngageCommand(drivebaseSubsystem));
   }
 }

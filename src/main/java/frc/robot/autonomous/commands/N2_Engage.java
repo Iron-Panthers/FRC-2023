@@ -6,7 +6,7 @@ package frc.robot.autonomous.commands;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.BalanceCommand;
+import frc.robot.commands.EngageCommand;
 import frc.robot.commands.FollowTrajectoryCommand;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.util.pathing.LoadMirrorPath;
@@ -25,6 +25,6 @@ public class N2_Engage extends SequentialCommandGroup {
 
     addCommands(
         new FollowTrajectoryCommand(path, true, drivebaseSubsystem),
-        new BalanceCommand(drivebaseSubsystem));
+        new EngageCommand(drivebaseSubsystem));
   }
 }
