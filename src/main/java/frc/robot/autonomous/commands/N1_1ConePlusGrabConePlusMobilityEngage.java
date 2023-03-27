@@ -12,7 +12,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.Arm;
 import frc.robot.Constants.Arm.Setpoints;
 import frc.robot.commands.ArmPositionCommand;
-import frc.robot.commands.BalanceCommand;
+import frc.robot.commands.EngageCommand;
 import frc.robot.commands.FollowTrajectoryCommand;
 import frc.robot.commands.ForceOuttakeSubsystemModeCommand;
 import frc.robot.commands.ScoreCommand;
@@ -66,8 +66,7 @@ public class N1_1ConePlusGrabConePlusMobilityEngage extends SequentialCommandGro
             .alongWith(
                 new ScoreCommand(
                     outtakeSubsystem, armSubsystem, Setpoints.GROUND_INTAKE.subList(2, 4), 1)),
-        new FollowTrajectoryCommand(paths.get(3), drivebaseSubsystem),
-        new BalanceCommand(drivebaseSubsystem));
+        new EngageCommand(drivebaseSubsystem));
   }
 
   public static SequentialCommandGroup produceEngageDebugSequence(
@@ -83,8 +82,8 @@ public class N1_1ConePlusGrabConePlusMobilityEngage extends SequentialCommandGro
             new PathConstraints(maxVelocityMetersPerSecond, maxAccelerationMetersPerSecondSq));
 
     return new SequentialCommandGroup(
-        new FollowTrajectoryCommand(paths.get(3), true, drivebaseSubsystem),
-        new BalanceCommand(drivebaseSubsystem));
+        new FollowTrajectoryCommand(paths.get(2), true, drivebaseSubsystem),
+        new EngageCommand(drivebaseSubsystem));
   }
 
   public static FollowTrajectoryCommand produceEngageSetupSequence(
