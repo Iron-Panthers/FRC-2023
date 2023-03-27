@@ -59,7 +59,7 @@ public final class Constants {
     public static final boolean SHOW_SHUFFLEBOARD_DEBUG_DATA = true;
 
     /** turn this off! only use on practice eboard testing. */
-    public static final boolean DISABLE_SWERVE_MODULE_INIT = false;
+    public static final boolean DISABLE_SWERVE_MODULE_INIT = true;
 
     /** def turn this off unless you are using it, generates in excess of 100k rows for a match. */
     public static final boolean WRITE_APRILTAG_DATA = false;
@@ -276,9 +276,9 @@ public final class Constants {
     }
 
     public static final class IntakeModes {
-      public static final IntakeDetails INTAKE = new IntakeDetails(-180, 0.7);
-      public static final IntakeDetails OUTTAKE = new IntakeDetails(-180, -0.5);
-      public static final IntakeDetails DOWN = new IntakeDetails(-250, 0);
+      public static final IntakeDetails INTAKE = new IntakeDetails(-180, 0.2);
+      public static final IntakeDetails OUTTAKE = new IntakeDetails(-180, -0.1);
+      public static final IntakeDetails DOWN = new IntakeDetails(-220, 0);
       public static final IntakeDetails STOWED = new IntakeDetails(0, 0);
     }
   }

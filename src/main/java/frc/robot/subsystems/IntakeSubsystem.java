@@ -61,7 +61,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     mode = Modes.STOWED;
 
-    angleController = new PIDController(0.005, 0, 0); // FIXME tune
+    angleController = new PIDController(0.00005, 0, 0); // FIXME tune
 
     intakeMotor.setNeutralMode(NeutralMode.Brake);
     angleMotor.setNeutralMode(NeutralMode.Brake);
@@ -84,6 +84,7 @@ public class IntakeSubsystem extends SubsystemBase {
       tab.addNumber("angle ticks", angleMotor::getSelectedSensorPosition);
       tab.addBoolean("at target angle", this::atTargetAngle);
       tab.addNumber("intake power", intakeMotor::getMotorOutputVoltage);
+      tab.addNumber("angle power", angleMotor::getMotorOutputPercent);
       tab.addString("mode", () -> mode.toString());
     }
   }
