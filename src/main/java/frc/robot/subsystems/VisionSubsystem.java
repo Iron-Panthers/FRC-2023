@@ -12,6 +12,7 @@ import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
@@ -72,10 +73,10 @@ public class VisionSubsystem {
       cameraEstimators.add(new CameraEstimator(camera, estimator));
     }
 
-    // if (useShuffleboard)
-    //   cameraStatusList.addString(
-    //       "time since apriltag detection",
-    //       () -> String.format("%3.0f seconds", Timer.getFPGATimestamp() - lastDetection));
+    if (useShuffleboard)
+      cameraStatusList.addString(
+          "time since apriltag detection",
+          () -> String.format("%3.0f seconds", Timer.getFPGATimestamp() - lastDetection));
 
     var thread =
         new Thread(
@@ -220,6 +221,7 @@ public class VisionSubsystem {
       //         smallestDistance,
       //         poseAmbiguityFactor,
       //         confidenceMultiplier));
+      lastDetection = estimation.timestampSeconds;
       logMeasurement(
           estimation.targetsUsed.size(),
           avgDistance,
