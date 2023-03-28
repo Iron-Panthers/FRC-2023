@@ -98,7 +98,7 @@ public class OuttakeSubsystem extends SubsystemBase {
     // this.outtake.setInverted(true);
 
     this.outtake.configVoltageCompSaturation(11);
-    this.outtake.enableVoltageCompensation(true);
+    this.outtake.enableVoltageCompensation(false);
 
     this.outtake.setNeutralMode(NeutralMode.Brake);
 

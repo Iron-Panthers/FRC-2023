@@ -411,10 +411,15 @@ public class RobotContainer {
                 1),
             "outtake",
             new ScoreCommand(
-                outtakeSubsystem,
-                armSubsystem,
-                Constants.SCORE_STEP_MAP.get(NodeType.CUBE.atHeight(Height.LOW)).subList(1, 2),
-                1));
+                    outtakeSubsystem,
+                    armSubsystem,
+                    Constants.SCORE_STEP_MAP.get(NodeType.CUBE.atHeight(Height.LOW)).subList(1, 2),
+                    1)
+                .andThen(
+                    new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)
+                        .andThen(
+                            new SetOuttakeModeCommand(
+                                outtakeSubsystem, OuttakeSubsystem.Modes.OFF))));
 
     autoSelector.addOption(
         "Just Zero Arm [DOES NOT CALIBRATE]", new SetZeroModeCommand(armSubsystem));
