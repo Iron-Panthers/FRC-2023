@@ -317,7 +317,7 @@ public class RobotContainer {
         .off(jason.a())
         .onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE))
         .onTrue(new ArmPositionCommand(armSubsystem, Setpoints.HANDOFF))
-        .whileTrue(
+        .onTrue(
             new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)
                 .andThen(
                     new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)
