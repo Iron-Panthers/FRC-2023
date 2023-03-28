@@ -219,6 +219,9 @@ public final class Constants {
 
       public static final ArmState STOWED = new ArmState(0, Arm.Setpoints.Extensions.MIN_EXTENSION);
 
+      public static final ArmState HANDOFF =
+          new ArmState(Thresholds.Angles.BACKWARD_ANGLE_LIMIT, 0);
+
       public static final class Extensions {
         public static final double MAX_EXTENSION = 20.3;
         public static final double MIN_EXTENSION = 0.0;
@@ -242,7 +245,7 @@ public final class Constants {
         public static final double FORWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD =
             20; // FIXME: real value needed
         public static final double FORWARD_ANGLE_LIMIT = 120;
-        public static final double BACKWARD_ANGLE_LIMIT = -30;
+        public static final double BACKWARD_ANGLE_LIMIT = BACKWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD;
         public static final double EPSILON = 5;
       }
 
@@ -281,7 +284,7 @@ public final class Constants {
     }
 
     public static final class IntakeModes {
-      public static final IntakeDetails INTAKE = IntakeDetails.alternating(-175, -165, .45, .35);
+      public static final IntakeDetails INTAKE = IntakeDetails.alternating(-175, -173, .45, .2);
       public static final IntakeDetails OUTTAKE = IntakeDetails.simple(-40, -0.5);
       public static final IntakeDetails DOWN = IntakeDetails.simple(-220, 0);
       public static final IntakeDetails STOWED = IntakeDetails.simple(0, 0);
