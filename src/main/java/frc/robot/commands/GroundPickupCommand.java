@@ -4,7 +4,7 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.Arm;
 import frc.robot.Constants.Arm.Setpoints;
 import frc.robot.subsystems.ArmSubsystem;
@@ -14,7 +14,7 @@ import frc.robot.subsystems.OuttakeSubsystem;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class GroundPickupCommand extends ParallelCommandGroup {
+public class GroundPickupCommand extends SequentialCommandGroup {
   /** Creates a new GroundPickupCommand. */
   public GroundPickupCommand(
       IntakeSubsystem intakeSubsystem,
@@ -23,13 +23,12 @@ public class GroundPickupCommand extends ParallelCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE).asProxy(),
-        new ArmPositionCommand(armSubsystem, Setpoints.HANDOFF).asProxy(),
-        (new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)
-                .andThen(
-                    new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)
-                        .alongWith(
-                            new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED))))
-            .asProxy());
+        new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)
+            .deadlineWith(
+                new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE)
+                    .alongWith(new ArmPositionCommand(armSubsystem, Setpoints.HANDOFF)))
+            .andThen(
+                new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)
+                    .alongWith(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED))));
   }
 }
