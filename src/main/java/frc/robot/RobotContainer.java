@@ -318,9 +318,11 @@ public class RobotContainer {
         .onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE))
         .onTrue(new ArmPositionCommand(armSubsystem, new ArmState(-30, 0)))
         .whileTrue(
-            new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE))
-        .onFalse(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))
-        .onFalse(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED));
+            new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)
+                .andThen(
+                    new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)
+                        .alongWith(
+                            new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED))));
 
     jason.povUp().onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.OUTTAKE));
 
