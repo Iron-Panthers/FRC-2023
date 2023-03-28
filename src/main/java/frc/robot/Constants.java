@@ -238,10 +238,11 @@ public final class Constants {
        * negative sign of their angle in degrees
        */
       public static final class Angles {
-        public static final double BACKWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD = -40;
+        public static final double BACKWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD = -30;
         public static final double FORWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD =
             20; // FIXME: real value needed
-        public static final double UPPER_ANGLE_LIMIT = 120;
+        public static final double FORWARD_ANGLE_LIMIT = 120;
+        public static final double BACKWARD_ANGLE_LIMIT = -30;
         public static final double EPSILON = 5;
       }
 
