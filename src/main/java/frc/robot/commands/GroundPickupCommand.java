@@ -23,11 +23,13 @@ public class GroundPickupCommand extends ParallelCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE),
-        new ArmPositionCommand(armSubsystem, Setpoints.HANDOFF),
-        new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)
-            .andThen(
-                new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)
-                    .alongWith(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED))));
+        new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE).asProxy(),
+        new ArmPositionCommand(armSubsystem, Setpoints.HANDOFF).asProxy(),
+        (new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)
+                .andThen(
+                    new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)
+                        .alongWith(
+                            new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED))))
+            .asProxy());
   }
 }
