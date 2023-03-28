@@ -24,7 +24,6 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
-import frc.robot.Constants.Arm.Setpoints;
 import frc.robot.Constants.Config;
 import frc.robot.Constants.Drive;
 import frc.robot.autonomous.commands.MobilityAuto;
@@ -57,6 +56,7 @@ import frc.robot.commands.SetZeroModeCommand;
 import frc.robot.commands.VibrateHIDCommand;
 import frc.robot.commands.ZeroIntakeCommand;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ArmSubsystem.ArmState;
 import frc.robot.subsystems.CANWatchdogSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -293,11 +293,12 @@ public class RobotContainer {
         .onTrue(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF));
 
     // intake presets
-    jasonLayer
-        .off(jason.a())
-        .onTrue(new ScoreCommand(outtakeSubsystem, armSubsystem, Setpoints.GROUND_INTAKE))
-        .whileTrue(
-            new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+    // jasonLayer
+    //     .off(jason.a())
+    //     .onTrue(new ScoreCommand(outtakeSubsystem, armSubsystem, Setpoints.GROUND_INTAKE))
+    //     .whileTrue(
+    //         new ForceOuttakeSubsystemModeCommand(outtakeSubsystem,
+    // OuttakeSubsystem.Modes.INTAKE));
 
     jasonLayer
         .off(jason.b())
@@ -312,8 +313,12 @@ public class RobotContainer {
     new Trigger(() -> jason.getLeftX() > .7)
         .onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED));
 
-    new Trigger(() -> jason.getLeftX() < -.7)
-        .onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE));
+    jasonLayer
+        .off(jason.a())
+        .onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE))
+        .onTrue(new ArmPositionCommand(armSubsystem, new ArmState(-30, 0)))
+        .whileTrue(
+            new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
 
     jason.povUp().onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.OUTTAKE));
 
