@@ -107,7 +107,7 @@ public class OuttakeSubsystem extends SubsystemBase {
     modeLocked = false;
 
     // FIXME: Change the tap rate to get a better average
-    filter = LinearFilter.movingAverage(20);
+    filter = LinearFilter.movingAverage(13);
 
     filterOutput = 0;
 
