@@ -265,6 +265,10 @@ public final class Constants {
 
     public static final double GRAVITY_ANGLE_OFFSET = 180;
 
+    public static final double ZERO_PERCENT = .3;
+
+    public static final double ZEROING_STATOR_LIMIT = 40;
+
     public static final class Ports {
       public static final int INTAKE_MOTOR_PORT = CAN.at(18);
       public static final int ANGLE_MOTOR_PORT = CAN.at(19);

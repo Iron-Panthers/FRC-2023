@@ -9,6 +9,7 @@ import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -35,6 +36,9 @@ public class IntakeSubsystem extends SubsystemBase {
   private final TalonFX angleMotor;
 
   private Modes mode;
+  private ControlTypes controlType;
+
+  private LinearFilter statorFilter = LinearFilter.movingAverage(20);
 
   private final PIDController angleController;
 
@@ -79,6 +83,11 @@ public class IntakeSubsystem extends SubsystemBase {
     private Modes(IntakeDetails intakeDetails) {
       this.intakeDetails = intakeDetails;
     }
+  }
+
+  public enum ControlTypes {
+    MODE,
+    ZEROING
   }
 
   private void applyZeroConfig() {
@@ -141,10 +150,6 @@ public class IntakeSubsystem extends SubsystemBase {
     return angleMotor.getSelectedSensorPosition();
   }
 
-  public void zeroAngleEncoder() {
-    applyZeroConfig();
-  }
-
   public double getCurrentRotation() {
     return (getCurrentTicks() / Intake.TICKS) * Intake.GEAR_RATIO;
   }
@@ -171,32 +176,50 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public void setMode(Modes mode) {
     this.mode = mode;
+    controlType = ControlTypes.MODE;
     onHighCycle = false;
     if (mode.intakeDetails.highAngle.isPresent()) {
       lastPulseTime = Timer.getFPGATimestamp();
     }
   }
 
+  public void startZeroing() {
+    controlType = ControlTypes.ZEROING;
+  }
+
   @Override
   public void periodic() {
 
-    if (mode.intakeDetails.highAngle.isPresent()
-        && (Timer.getFPGATimestamp() - lastPulseTime)
-            > mode.intakeDetails.alternatingPeriod.orElseGet(() -> .5)) {
-      lastPulseTime = Timer.getFPGATimestamp();
-      onHighCycle = !onHighCycle;
-    }
+    double filteredCurrent = statorFilter.calculate(angleMotor.getStatorCurrent());
 
-    targetAngle =
-        onHighCycle
-            ? mode.intakeDetails.angle
-            : mode.intakeDetails.highAngle.orElseGet(mode.intakeDetails::angle);
-    currentAngle = getCurrentAngleDegrees();
-    anglePidOutput = angleController.calculate(currentAngle - targetAngle);
-    angleGravityOutput = computeArmGravityOffset();
-    angleOutput = MathUtil.clamp(anglePidOutput + angleGravityOutput, -.3, .3);
-    angleMotor.set(TalonFXControlMode.PercentOutput, angleOutput);
-    intakeMotor.set(TalonFXControlMode.PercentOutput, mode.intakeDetails.intakePower);
+    if (controlType == ControlTypes.MODE) {
+
+      if (mode.intakeDetails.highAngle.isPresent()
+          && (Timer.getFPGATimestamp() - lastPulseTime)
+              > mode.intakeDetails.alternatingPeriod.orElseGet(() -> .5)) {
+        lastPulseTime = Timer.getFPGATimestamp();
+        onHighCycle = !onHighCycle;
+      }
+
+      targetAngle =
+          onHighCycle
+              ? mode.intakeDetails.angle
+              : mode.intakeDetails.highAngle.orElseGet(mode.intakeDetails::angle);
+      currentAngle = getCurrentAngleDegrees();
+      anglePidOutput = angleController.calculate(currentAngle - targetAngle);
+      angleGravityOutput = computeArmGravityOffset();
+      angleOutput = MathUtil.clamp(anglePidOutput + angleGravityOutput, -.3, .3);
+      angleMotor.set(TalonFXControlMode.PercentOutput, angleOutput);
+      intakeMotor.set(TalonFXControlMode.PercentOutput, mode.intakeDetails.intakePower);
+    } else if (controlType == ControlTypes.ZEROING) {
+      angleMotor.set(TalonFXControlMode.PercentOutput, Intake.ZERO_PERCENT);
+      intakeMotor.set(TalonFXControlMode.PercentOutput, 0);
+      if (filteredCurrent > Intake.ZEROING_STATOR_LIMIT) {
+        controlType = ControlTypes.MODE;
+        applyZeroConfig();
+        setMode(Modes.STOWED);
+      }
+    }
 
     if (Config.SHOW_SHUFFLEBOARD_DEBUG_DATA) {
       smartBoards.forEach(SmartBoard::poll);
