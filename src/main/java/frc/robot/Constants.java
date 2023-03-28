@@ -207,14 +207,6 @@ public final class Constants {
     public static final double ANGULAR_OFFSET = -4.835;
 
     public static final class Setpoints {
-
-      public static final List<ScoreStep> GROUND_INTAKE =
-          List.of(
-              new ScoreStep(new ArmState(-46, Arm.Setpoints.Extensions.MIN_EXTENSION)),
-              new ScoreStep(new ArmState(-46, 19.5)),
-              new ScoreStep(new ArmState(-60, Arm.Setpoints.Extensions.MIN_EXTENSION)),
-              new ScoreStep(new ArmState(0, Arm.Setpoints.Extensions.MIN_EXTENSION)));
-
       public static final ArmState SHELF_INTAKE = new ArmState(85, 0);
 
       public static final ArmState STOWED = new ArmState(0, Arm.Setpoints.Extensions.MIN_EXTENSION);
@@ -269,7 +261,7 @@ public final class Constants {
     public static final double DEGREES = 360;
     public static final double GEAR_RATIO = 0.08;
 
-    public static double GRAVITY_CONTROL_PERCENT = .07;
+    public static final double GRAVITY_CONTROL_PERCENT = .07;
 
     public static final double GRAVITY_ANGLE_OFFSET = 180;
 
