@@ -491,7 +491,7 @@ public final class Constants {
   public static final class NetworkWatchdog {
     /** The IP addresses to ping for testing bridging, on the second vlan. */
     public static final List<IPv4> TEST_IP_ADDRESSES =
-        List.of(IPv4.internal(17), IPv4.internal(18), IPv4.internal(19));
+        List.of(IPv4.internal(1), IPv4.internal(17), IPv4.internal(18), IPv4.internal(19));
 
     /**
      * The number of ms (sleep delta using oshi system uptime) to wait before beginning to ping the
