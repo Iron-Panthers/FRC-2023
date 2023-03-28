@@ -280,11 +280,11 @@ public final class Constants {
 
     public static final class Setpoints {
       public static final double MIN_ANGLE = 0;
-      public static final double MAX_ANGLE = -250; // FIXME real value needed
+      public static final double MAX_ANGLE = -182;
     }
 
     public static final class IntakeModes {
-      public static final IntakeDetails INTAKE = IntakeDetails.alternating(-175, -173, .45, .2);
+      public static final IntakeDetails INTAKE = IntakeDetails.alternating(-182, -170, .5, .3);
       public static final IntakeDetails OUTTAKE = IntakeDetails.simple(-40, -0.5);
       public static final IntakeDetails DOWN = IntakeDetails.simple(-220, 0);
       public static final IntakeDetails STOWED = IntakeDetails.simple(0, 0);
