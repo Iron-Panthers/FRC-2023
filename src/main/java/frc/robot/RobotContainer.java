@@ -24,7 +24,6 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
-import frc.robot.Constants.Arm.Setpoints;
 import frc.robot.Constants.Config;
 import frc.robot.Constants.Drive;
 import frc.robot.autonomous.commands.MobilityAuto;
@@ -41,6 +40,7 @@ import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
 import frc.robot.commands.EngageCommand;
 import frc.robot.commands.ForceOuttakeSubsystemModeCommand;
+import frc.robot.commands.GroundPickupCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
 import frc.robot.commands.HashMapCommand;
 import frc.robot.commands.IntakeCommand;
@@ -311,14 +311,7 @@ public class RobotContainer {
 
     jasonLayer
         .off(jason.a())
-        .onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE))
-        .onTrue(new ArmPositionCommand(armSubsystem, Setpoints.HANDOFF))
-        .onTrue(
-            new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)
-                .andThen(
-                    new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)
-                        .alongWith(
-                            new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED))));
+        .onTrue(new GroundPickupCommand(intakeSubsystem, outtakeSubsystem, armSubsystem));
 
     jason.povUp().onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.OUTTAKE));
 
