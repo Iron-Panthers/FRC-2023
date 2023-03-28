@@ -1,0 +1,189 @@
+{
+  "waypoints": [
+    {
+      "anchorPoint": {
+        "x": 1.8120135666047703,
+        "y": 0.462131199408171
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.8120135666047696,
+        "y": 0.462131199408171
+      },
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 6.512766814091782,
+        "y": 0.9269947341045243
+      },
+      "prevControl": {
+        "x": 5.512766814091782,
+        "y": 0.9269947341045243
+      },
+      "nextControl": {
+        "x": 7.512766814091782,
+        "y": 0.9269947341045243
+      },
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 1.8021284847388979,
+        "y": 1.0507185623030395
+      },
+      "prevControl": {
+        "x": 4.492754310093022,
+        "y": 0.8555574156227184
+      },
+      "nextControl": {
+        "x": 4.492754310093022,
+        "y": 0.8555574156227184
+      },
+      "holonomicAngle": 180.0,
+      "isReversal": true,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 6.743980895096838,
+        "y": 1.703689408703135
+      },
+      "prevControl": {
+        "x": 5.732763867342734,
+        "y": 0.947755529405464
+      },
+      "nextControl": {
+        "x": 5.732763867342734,
+        "y": 0.947755529405464
+      },
+      "holonomicAngle": -122.97237512891957,
+      "isReversal": true,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 2.5740058138840833,
+        "y": 1.0419357472702089
+      },
+      "prevControl": {
+        "x": 3.0154132682927024,
+        "y": 0.6504743809488083
+      },
+      "nextControl": {
+        "x": 2.216008762073686,
+        "y": 1.359424755761215
+      },
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 1.786814481181317,
+        "y": 1.6154374227968311
+      },
+      "prevControl": {
+        "x": 2.1183297983314913,
+        "y": 1.6056698628000547
+      },
+      "nextControl": null,
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    }
+  ],
+  "maxVelocity": 4.95,
+  "maxAcceleration": 8.0,
+  "isReversed": null,
+  "markers": [
+    {
+      "position": 1.0125843394886362,
+      "names": [
+        "intake"
+      ]
+    },
+    {
+      "position": 1.857277610085227,
+      "names": [
+        "stage outtake"
+      ]
+    },
+    {
+      "position": 2.018998579545455,
+      "names": [
+        "outtake"
+      ]
+    },
+    {
+      "position": 2.9549338600852275,
+      "names": [
+        "intake"
+      ]
+    },
+    {
+      "position": 3.75348455255682,
+      "names": [
+        "event"
+      ]
+    },
+    {
+      "position": 4.789306640625,
+      "names": [
+        "outtake"
+      ]
+    }
+  ]
+}

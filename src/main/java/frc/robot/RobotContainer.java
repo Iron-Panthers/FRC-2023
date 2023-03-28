@@ -31,6 +31,7 @@ import frc.robot.autonomous.commands.N2_Engage;
 import frc.robot.autonomous.commands.N3_1ConePlusMobility;
 import frc.robot.autonomous.commands.N3_1ConePlusMobilityEngage;
 import frc.robot.autonomous.commands.N6_1ConePlusEngage;
+import frc.robot.autonomous.commands.N9_1ConePlus2CubeMobility;
 import frc.robot.autonomous.commands.N9_1ConePlusMobility;
 import frc.robot.autonomous.commands.N9_1ConePlusMobilityEngage;
 import frc.robot.commands.ArmManualCommand;
@@ -65,6 +66,7 @@ import frc.util.MacUtil;
 import frc.util.NodeSelectorUtility;
 import frc.util.NodeSelectorUtility.Height;
 import frc.util.NodeSelectorUtility.NodeSelection;
+import frc.util.NodeSelectorUtility.NodeType;
 import frc.util.SharedReference;
 import frc.util.Util;
 import frc.util.pathing.AlliancePose2d;
@@ -398,7 +400,21 @@ public class RobotContainer {
             "stow arm",
             new ArmPositionCommand(armSubsystem, Constants.Arm.Setpoints.STOWED),
             "zero telescope",
-            new SetZeroModeCommand(armSubsystem));
+            new SetZeroModeCommand(armSubsystem),
+            "intake",
+            new GroundPickupCommand(intakeSubsystem, outtakeSubsystem, armSubsystem),
+            "stage outtake",
+            new ScoreCommand(
+                outtakeSubsystem,
+                armSubsystem,
+                Constants.SCORE_STEP_MAP.get(NodeType.CUBE.atHeight(Height.LOW)).subList(0, 1),
+                1),
+            "outtake",
+            new ScoreCommand(
+                outtakeSubsystem,
+                armSubsystem,
+                Constants.SCORE_STEP_MAP.get(NodeType.CUBE.atHeight(Height.LOW)).subList(1, 2),
+                1));
 
     autoSelector.addOption(
         "Just Zero Arm [DOES NOT CALIBRATE]", new SetZeroModeCommand(armSubsystem));
@@ -455,6 +471,11 @@ public class RobotContainer {
                     armSubsystem,
                     Constants.SCORE_STEP_MAP.get(
                         NodeSelectorUtility.NodeType.CONE.atHeight(Height.HIGH)))));
+
+    autoSelector.addOption(
+        "N9 1Cone + 2Cube Low Mobility",
+        new N9_1ConePlus2CubeMobility(
+            4.95, 6, eventMap, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
 
     driverView.add("auto selector", autoSelector).withSize(4, 1).withPosition(7, 0);
 
