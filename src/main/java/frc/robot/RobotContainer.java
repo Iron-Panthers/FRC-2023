@@ -28,7 +28,6 @@ import frc.robot.Constants.Arm.Setpoints;
 import frc.robot.Constants.Config;
 import frc.robot.Constants.Drive;
 import frc.robot.autonomous.commands.MobilityAuto;
-import frc.robot.autonomous.commands.N1_Hybrid1ConePlus2ConePlusEngage;
 import frc.robot.autonomous.commands.N2_Engage;
 import frc.robot.autonomous.commands.N3_1ConePlusMobility;
 import frc.robot.autonomous.commands.N3_1ConePlusMobilityEngage;
@@ -463,22 +462,6 @@ public class RobotContainer {
                     armSubsystem,
                     Constants.SCORE_STEP_MAP.get(
                         NodeSelectorUtility.NodeType.CONE.atHeight(Height.HIGH)))));
-
-    // autoSelector.addOption(
-    //     "AutoTest",
-    //     new AutoTestSequence(
-    //         2, // m/s
-    //         1, // m/s2
-    //         drivebaseSubsystem));
-
-    // autoSelector.addOption(
-    //     "N2 1Cube (not yet) + 1Cone Engage",
-    //     new N2_1CubePlus1ConeEngage(
-    //         5, 3.5, eventMap, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
-
-    autoSelector.addOption(
-        "N1 Hybrid 1Cone + 2Cone + Engage",
-        new N1_Hybrid1ConePlus2ConePlusEngage(5, 3.5, armSubsystem, drivebaseSubsystem));
 
     driverView.add("auto selector", autoSelector).withSize(4, 1).withPosition(7, 0);
 
