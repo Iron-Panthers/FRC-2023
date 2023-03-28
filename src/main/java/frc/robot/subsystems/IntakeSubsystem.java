@@ -4,11 +4,13 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -38,6 +40,10 @@ public class IntakeSubsystem extends SubsystemBase {
   private Modes mode;
 
   private final PIDController angleController;
+
+  private LinearFilter filter;
+  
+  private double filterOutput;
 
   private final ShuffleboardTab tab = Shuffleboard.getTab("Intake");
 
@@ -72,7 +78,8 @@ public class IntakeSubsystem extends SubsystemBase {
     INTAKE(Intake.IntakeModes.INTAKE),
     OUTTAKE(Intake.IntakeModes.OUTTAKE),
     DOWN(Intake.IntakeModes.DOWN),
-    STOWED(Intake.IntakeModes.STOWED);
+    STOWED(Intake.IntakeModes.STOWED),
+    ZERO(Intake.IntakeModes.ZERO);
 
     public final IntakeDetails intakeDetails;
 
@@ -84,10 +91,6 @@ public class IntakeSubsystem extends SubsystemBase {
   private void applyZeroConfig() {
     angleMotor.configForwardSoftLimitThreshold(ticksToAngleDegrees(Intake.Setpoints.MAX_ANGLE));
     angleMotor.configReverseSoftLimitThreshold(ticksToAngleDegrees(Intake.Setpoints.MIN_ANGLE));
-
-    angleMotor.configForwardSoftLimitEnable(false);
-    angleMotor.configReverseSoftLimitEnable(false);
-
     angleMotor.setSelectedSensorPosition(0);
   }
 
@@ -100,6 +103,10 @@ public class IntakeSubsystem extends SubsystemBase {
     targetAngle = 0;
 
     mode = Modes.STOWED;
+
+    filter = LinearFilter.movingAverage(35);
+
+    filterOutput = 0;
 
     angleController = new PIDController(0.006, 0, 0.0003);
     intakeMotor.setNeutralMode(NeutralMode.Brake);
@@ -172,9 +179,24 @@ public class IntakeSubsystem extends SubsystemBase {
     }
   }
 
-  @Override
-  public void periodic() {
+  public void setZeroMode() {
+    angleMotor.configForwardSoftLimitEnable(false, 20);
+    angleMotor.configReverseSoftLimitEnable(false, 20);
+    mode = Modes.ZERO;
+  }
 
+  private void zeroPeriodic() {
+    angleMotor.set(ControlMode.PercentOutput, Intake.ZERO_POWER);
+    intakeMotor.set(ControlMode.PercentOutput, 0);
+    if (filterOutput > Intake.ZERO_STATOR_LIMIT) {
+      zeroAngleEncoder();
+      mode = Modes.STOWED;
+      angleMotor.configForwardSoftLimitEnable(true, 20);
+      angleMotor.configReverseSoftLimitEnable(true, 20);
+    }
+  }
+
+  private void defaultPeriodic() {
     if (mode.intakeDetails.highAngle.isPresent()
         && (Timer.getFPGATimestamp() - lastPulseTime)
             > mode.intakeDetails.alternatingPeriod.orElseGet(() -> .5)) {
@@ -192,6 +214,21 @@ public class IntakeSubsystem extends SubsystemBase {
     angleOutput = MathUtil.clamp(anglePidOutput + angleGravityOutput, -.3, .3);
     angleMotor.set(TalonFXControlMode.PercentOutput, angleOutput);
     intakeMotor.set(TalonFXControlMode.PercentOutput, mode.intakeDetails.intakePower);
+  }
+
+  @Override
+  public void periodic() {
+
+    filterOutput = filter.calculate(angleMotor.getStatorCurrent());
+
+    switch(mode) {
+      case ZERO:
+        zeroPeriodic();
+        break;
+      default: 
+        defaultPeriodic(); 
+        break;
+    }  
 
     if (Config.SHOW_SHUFFLEBOARD_DEBUG_DATA) {
       smartBoards.forEach(SmartBoard::poll);

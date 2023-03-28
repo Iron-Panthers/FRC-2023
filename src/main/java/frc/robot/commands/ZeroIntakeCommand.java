@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.IntakeSubsystem.Modes;
 
 public class ZeroIntakeCommand extends CommandBase {
   private IntakeSubsystem intakeSubsystem;
@@ -20,7 +21,7 @@ public class ZeroIntakeCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    intakeSubsystem.zeroAngleEncoder();
+    intakeSubsystem.setZeroMode();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -34,6 +35,6 @@ public class ZeroIntakeCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return intakeSubsystem.getMode() != Modes.ZERO;
   }
 }

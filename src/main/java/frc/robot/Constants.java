@@ -273,6 +273,10 @@ public final class Constants {
 
     public static final double GRAVITY_ANGLE_OFFSET = 180;
 
+    public static final double ZERO_POWER = 0.15;
+
+    public static final double ZERO_STATOR_LIMIT = 30;
+
     public static final class Ports {
       public static final int INTAKE_MOTOR_PORT = CAN.at(18);
       public static final int ANGLE_MOTOR_PORT = CAN.at(19);
@@ -288,6 +292,7 @@ public final class Constants {
       public static final IntakeDetails OUTTAKE = IntakeDetails.simple(-40, -0.5);
       public static final IntakeDetails DOWN = IntakeDetails.simple(-220, 0);
       public static final IntakeDetails STOWED = IntakeDetails.simple(0, 0);
+      public static final IntakeDetails ZERO = null;
     }
   }
 
