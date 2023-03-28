@@ -290,7 +290,8 @@ public class RobotContainer {
         .onTrue(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
     jasonLayer
         .off(jason.x())
-        .onTrue(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF));
+        .onTrue(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF))
+        .onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED));
 
     // intake presets
     // jasonLayer
@@ -307,11 +308,11 @@ public class RobotContainer {
             new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
 
     // reset
-    jasonLayer.off(jason.y()).onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED));
-    jason.start().onTrue(new SetZeroModeCommand(armSubsystem));
-
-    new Trigger(() -> jason.getLeftX() > .7)
+    jasonLayer
+        .off(jason.y())
+        .onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))
         .onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED));
+    jason.start().onTrue(new SetZeroModeCommand(armSubsystem));
 
     jasonLayer
         .off(jason.a())
