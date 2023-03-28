@@ -72,19 +72,25 @@ public class IntakeSubsystem extends SubsystemBase {
       return new IntakeDetails(
           lowAngle, Optional.of(highAngle), Optional.of(alternatingPeriod), intakePower);
     }
+
+    public static IntakeDetails zero(double motorPower, double intakePower) {
+      return new IntakeDetails(motorPower, Optional.empty(), Optional.empty(), intakePower);
+    }
   }
 
   public enum Modes {
-    INTAKE(Intake.IntakeModes.INTAKE),
-    OUTTAKE(Intake.IntakeModes.OUTTAKE),
-    DOWN(Intake.IntakeModes.DOWN),
-    STOWED(Intake.IntakeModes.STOWED),
-    ZERO(Intake.IntakeModes.ZERO);
+    INTAKE(Intake.IntakeModes.INTAKE, true),
+    OUTTAKE(Intake.IntakeModes.OUTTAKE,true),
+    DOWN(Intake.IntakeModes.DOWN, true),
+    STOWED(Intake.IntakeModes.STOWED, true),
+    ZERO(Intake.IntakeModes.ZERO, false);
 
     public final IntakeDetails intakeDetails;
+    public final Boolean isDefaultMode;
 
-    private Modes(IntakeDetails intakeDetails) {
+    private Modes(IntakeDetails intakeDetails, Boolean isDefaultMode) {
       this.intakeDetails = intakeDetails;
+      this.isDefaultMode = isDefaultMode;
     }
   }
 
@@ -186,8 +192,8 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   private void zeroPeriodic() {
-    angleMotor.set(ControlMode.PercentOutput, Intake.ZERO_POWER);
-    intakeMotor.set(ControlMode.PercentOutput, 0);
+    angleMotor.set(ControlMode.PercentOutput, Intake.IntakeModes.ZERO.angle);
+    intakeMotor.set(ControlMode.PercentOutput, Intake.IntakeModes.ZERO.intakePower);
     if (filterOutput > Intake.ZERO_STATOR_LIMIT) {
       zeroAngleEncoder();
       mode = Modes.STOWED;
@@ -221,14 +227,11 @@ public class IntakeSubsystem extends SubsystemBase {
 
     filterOutput = filter.calculate(angleMotor.getStatorCurrent());
 
-    switch(mode) {
-      case ZERO:
-        zeroPeriodic();
-        break;
-      default: 
-        defaultPeriodic(); 
-        break;
-    }  
+    if (mode.isDefaultMode) {
+      defaultPeriodic();
+    } else {
+      zeroPeriodic();
+    }
 
     if (Config.SHOW_SHUFFLEBOARD_DEBUG_DATA) {
       smartBoards.forEach(SmartBoard::poll);
