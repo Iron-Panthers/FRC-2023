@@ -528,9 +528,9 @@ public final class Constants {
   public static final class Lights {
     public static final int CANDLE_ID = 34;
     public static final int NUM_LEDS =
-        91
-            // 8 inside the candle
-            + 8;
+        89
+            // 8 inside the candle, 8 more for balance
+            + 8 * 2;
 
     public static final class Colors {
       public static final RGBColor YELLOW = new RGBColor(255, 107, 0);
