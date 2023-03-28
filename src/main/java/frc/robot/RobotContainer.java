@@ -318,20 +318,11 @@ public class RobotContainer {
         .onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE))
         .onTrue(new ArmPositionCommand(armSubsystem, new ArmState(-30, 0)))
         .whileTrue(
-            new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+            new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE))
+        .onFalse(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))
+        .onFalse(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED));
 
     jason.povUp().onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.OUTTAKE));
-
-    // jasonLayer2
-    //     .on(jason.b())
-    //     .whileTrue(new IntakeCommand(intakeSubsystem, Modes.INTAKE))
-    //     .onFalse(new IntakeCommand(intakeSubsystem, Modes.STOWED));
-
-    // jasonLayer2.on(jason.y()).onTrue(new IntakeCommand(intakeSubsystem, Modes.STOWED));
-
-    // jasonLayer2.on(jason.x()).onTrue(new IntakeCommand(intakeSubsystem, Modes.OUTTAKE));
-
-    // jasonLayer2.on(jason.a()).onTrue(new IntakeCommand(intakeSubsystem, Modes.DOWN));
 
     jason.start().onTrue(new ZeroIntakeCommand(intakeSubsystem));
 
