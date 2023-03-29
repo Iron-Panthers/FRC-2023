@@ -41,7 +41,7 @@ public class EngageCommand extends CommandBase {
   }
 
   /** Creates a new EngageCommand. */
-  public EngageCommand(DrivebaseSubsystem drivebaseSubsystem, EngageDirection direction) {
+  public EngageCommand(DrivebaseSubsystem drivebaseSubsystem, EngageDirection engageDirection) {
     this.drivebaseSubsystem = drivebaseSubsystem;
     this.engageDirection = engageDirection;
     addRequirements(drivebaseSubsystem);
