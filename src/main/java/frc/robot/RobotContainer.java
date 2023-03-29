@@ -27,11 +27,11 @@ import frc.robot.Constants.Arm;
 import frc.robot.Constants.Config;
 import frc.robot.Constants.Drive;
 import frc.robot.autonomous.commands.MobilityAuto;
+import frc.robot.autonomous.commands.N1_1ConePlus2CubeMobility;
 import frc.robot.autonomous.commands.N2_Engage;
 import frc.robot.autonomous.commands.N3_1ConePlusMobility;
 import frc.robot.autonomous.commands.N3_1ConePlusMobilityEngage;
 import frc.robot.autonomous.commands.N6_1ConePlusEngage;
-import frc.robot.autonomous.commands.N9_1ConePlus2CubeMobility;
 import frc.robot.autonomous.commands.N9_1ConePlusMobility;
 import frc.robot.autonomous.commands.N9_1ConePlusMobilityEngage;
 import frc.robot.commands.ArmManualCommand;
@@ -486,8 +486,8 @@ public class RobotContainer {
                         NodeSelectorUtility.NodeType.CONE.atHeight(Height.HIGH)))));
 
     autoSelector.addOption(
-        "N9 1Cone + 2Cube Low Mobility",
-        new N9_1ConePlus2CubeMobility(
+        "N1 1Cone + 2Cube Low Mobility",
+        new N1_1ConePlus2CubeMobility(
             2, 3, eventMap, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
 
     driverView.add("auto selector", autoSelector).withSize(4, 1).withPosition(7, 0);
