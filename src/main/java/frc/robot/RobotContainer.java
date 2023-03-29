@@ -448,7 +448,7 @@ public class RobotContainer {
         "N9 1Cone + 1Cube + Grab Cube Mobility",
         new N9_1ConePlus2CubeMobility(
             4.95,
-            3,
+            2,
             eventMap,
             intakeSubsystem,
             outtakeSubsystem,
