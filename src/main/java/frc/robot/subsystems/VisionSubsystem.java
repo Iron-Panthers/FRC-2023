@@ -40,7 +40,18 @@ public class VisionSubsystem {
           .withPosition(11, 0)
           .withSize(2, 3);
 
-  record CameraEstimator(PhotonCamera camera, PhotonPoseEstimator estimator) {}
+  private class DuplicateTracker {
+    private double lastTimeStamp;
+
+    public boolean isDuplicate(PhotonPipelineResult frame) {
+      boolean isDuplicate = frame.getTimestampSeconds() == lastTimeStamp;
+      lastTimeStamp = frame.getTimestampSeconds();
+      return isDuplicate;
+    }
+  }
+
+  record CameraEstimator(
+      PhotonCamera camera, PhotonPoseEstimator estimator, DuplicateTracker duplicateTracker) {}
 
   private final List<CameraEstimator> cameraEstimators = new ArrayList<>();
 
@@ -70,7 +81,7 @@ public class VisionSubsystem {
               visionSource.robotToCamera());
       estimator.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
       cameraStatusList.addBoolean(visionSource.name(), camera::isConnected);
-      cameraEstimators.add(new CameraEstimator(camera, estimator));
+      cameraEstimators.add(new CameraEstimator(camera, estimator, new DuplicateTracker()));
     }
 
     if (useShuffleboard)
@@ -186,7 +197,7 @@ public class VisionSubsystem {
       PhotonPipelineResult frame = cameraEstimator.camera().getLatestResult();
 
       // determine if result should be ignored
-      if (ignoreFrame(frame)) continue;
+      if (cameraEstimator.duplicateTracker().isDuplicate(frame) || ignoreFrame(frame)) continue;
 
       var optEstimation = cameraEstimator.estimator().update(frame);
       if (optEstimation.isEmpty()) continue;
