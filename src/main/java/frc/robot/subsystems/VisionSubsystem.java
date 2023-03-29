@@ -12,6 +12,7 @@ import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
@@ -39,7 +40,18 @@ public class VisionSubsystem {
           .withPosition(11, 0)
           .withSize(2, 3);
 
-  record CameraEstimator(PhotonCamera camera, PhotonPoseEstimator estimator) {}
+  private class DuplicateTracker {
+    private double lastTimeStamp;
+
+    public boolean isDuplicate(PhotonPipelineResult frame) {
+      boolean isDuplicate = frame.getTimestampSeconds() == lastTimeStamp;
+      lastTimeStamp = frame.getTimestampSeconds();
+      return isDuplicate;
+    }
+  }
+
+  record CameraEstimator(
+      PhotonCamera camera, PhotonPoseEstimator estimator, DuplicateTracker duplicateTracker) {}
 
   private final List<CameraEstimator> cameraEstimators = new ArrayList<>();
 
@@ -69,13 +81,13 @@ public class VisionSubsystem {
               visionSource.robotToCamera());
       estimator.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
       cameraStatusList.addBoolean(visionSource.name(), camera::isConnected);
-      cameraEstimators.add(new CameraEstimator(camera, estimator));
+      cameraEstimators.add(new CameraEstimator(camera, estimator, new DuplicateTracker()));
     }
 
-    // if (useShuffleboard)
-    //   cameraStatusList.addString(
-    //       "time since apriltag detection",
-    //       () -> String.format("%3.0f seconds", Timer.getFPGATimestamp() - lastDetection));
+    if (useShuffleboard)
+      cameraStatusList.addString(
+          "time since apriltag detection",
+          () -> String.format("%3.0f seconds", Timer.getFPGATimestamp() - lastDetection));
 
     var thread =
         new Thread(
@@ -185,7 +197,7 @@ public class VisionSubsystem {
       PhotonPipelineResult frame = cameraEstimator.camera().getLatestResult();
 
       // determine if result should be ignored
-      if (ignoreFrame(frame)) continue;
+      if (cameraEstimator.duplicateTracker().isDuplicate(frame) || ignoreFrame(frame)) continue;
 
       var optEstimation = cameraEstimator.estimator().update(frame);
       if (optEstimation.isEmpty()) continue;
@@ -220,6 +232,7 @@ public class VisionSubsystem {
       //         smallestDistance,
       //         poseAmbiguityFactor,
       //         confidenceMultiplier));
+      lastDetection = estimation.timestampSeconds;
       logMeasurement(
           estimation.targetsUsed.size(),
           avgDistance,

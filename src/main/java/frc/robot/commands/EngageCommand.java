@@ -21,6 +21,7 @@ public class EngageCommand extends CommandBase {
   }
 
   private DrivebaseSubsystem drivebaseSubsystem;
+  private EngageDirection engageDirection;
   private boolean exceededDockingThreshold = false;
   private Mode currentMode = Mode.DOCKING;
   private LinearFilter filter = LinearFilter.movingAverage(20);
@@ -28,9 +29,21 @@ public class EngageCommand extends CommandBase {
   // static List<SmartBoard> boards;
   static boolean inited = false;
 
+  public enum EngageDirection {
+    GO_FORWARD(1),
+    GO_BACKWARD(-1);
+
+    private int driveSign;
+
+    EngageDirection(int driveSign) {
+      this.driveSign = driveSign;
+    }
+  }
+
   /** Creates a new EngageCommand. */
-  public EngageCommand(DrivebaseSubsystem drivebaseSubsystem) {
+  public EngageCommand(DrivebaseSubsystem drivebaseSubsystem, EngageDirection engageDirection) {
     this.drivebaseSubsystem = drivebaseSubsystem;
+    this.engageDirection = engageDirection;
     addRequirements(drivebaseSubsystem);
   }
 
@@ -88,7 +101,9 @@ public class EngageCommand extends CommandBase {
         if (filterAbsRoll > AutoBalance.DOCK_HORIZON_ANGLE_DEGREES) {
           exceededDockingThreshold = true;
         }
-        drivebaseSubsystem.drive(new ChassisSpeeds(AutoBalance.DOCK_SPEED_METERS_PER_SECOND, 0, 0));
+        drivebaseSubsystem.drive(
+            new ChassisSpeeds(
+                AutoBalance.DOCK_SPEED_METERS_PER_SECOND * engageDirection.driveSign, 0, 0));
         return (exceededDockingThreshold && filterAbsRoll < AutoBalance.DOCK_MIN_ANGLE_DEGREES)
             ? Mode.ENGAGING
             : Mode.DOCKING;
