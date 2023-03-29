@@ -276,7 +276,8 @@ public class RobotContainer {
                 Optional.of(rgbSubsystem),
                 Optional.of(will.getHID())));
 
-    will.x().onTrue(new EngageCommand(drivebaseSubsystem));
+    will.x()
+        .onTrue(new EngageCommand(drivebaseSubsystem, EngageCommand.EngageDirection.GO_FORWARD));
 
     // outtake states
     jasonLayer

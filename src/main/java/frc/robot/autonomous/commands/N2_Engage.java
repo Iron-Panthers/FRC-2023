@@ -25,6 +25,6 @@ public class N2_Engage extends SequentialCommandGroup {
 
     addCommands(
         new FollowTrajectoryCommand(path, true, drivebaseSubsystem),
-        new EngageCommand(drivebaseSubsystem));
+        new EngageCommand(drivebaseSubsystem, EngageCommand.EngageDirection.GO_FORWARD));
   }
 }

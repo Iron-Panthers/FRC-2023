@@ -38,7 +38,7 @@ public class N1_1ConePlus2CubeMobility extends SequentialCommandGroup {
             new FollowTrajectoryCommand(path, true, drivebaseSubsystem),
             path.get().getMarkers(),
             eventMap),
-        new EngageCommand(drivebaseSubsystem)
+        new EngageCommand(drivebaseSubsystem, EngageCommand.EngageDirection.GO_BACKWARD)
             .alongWith(new SetOuttakeModeCommand(outtakeSubsystem, Modes.OFF))
             .alongWith(new SetZeroModeCommand(armSubsystem)));
   }

@@ -51,6 +51,6 @@ public class N3_1ConePlusMobilityEngage extends SequentialCommandGroup {
             .alongWith(
                 (new WaitCommand(1))
                     .andThen(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))),
-        new EngageCommand(drivebaseSubsystem));
+        new EngageCommand(drivebaseSubsystem, EngageCommand.EngageDirection.GO_FORWARD));
   }
 }
