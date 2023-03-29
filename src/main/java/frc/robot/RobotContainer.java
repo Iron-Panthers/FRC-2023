@@ -69,6 +69,7 @@ import frc.util.MacUtil;
 import frc.util.NodeSelectorUtility;
 import frc.util.NodeSelectorUtility.Height;
 import frc.util.NodeSelectorUtility.NodeSelection;
+import frc.util.NodeSelectorUtility.NodeType;
 import frc.util.SharedReference;
 import frc.util.Util;
 import frc.util.pathing.AlliancePose2d;
@@ -422,6 +423,11 @@ public class RobotContainer {
             new GroundPickupCommand(intakeSubsystem, outtakeSubsystem, armSubsystem),
             "stage outtake",
             new ScoreCommand(outtakeSubsystem, armSubsystem, drivingCubeOuttake.subList(0, 1), 1),
+            "stage outtake high",
+            new ScoreCommand(
+                outtakeSubsystem,
+                armSubsystem,
+                Constants.SCORE_STEP_MAP.get(NodeType.CUBE.atHeight(Height.HIGH)).subList(0, 1)),
             "outtake",
             new ScoreCommand(outtakeSubsystem, armSubsystem, drivingCubeOuttake.subList(1, 2), 1)
                 .andThen(

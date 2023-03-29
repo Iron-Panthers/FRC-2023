@@ -96,7 +96,38 @@
     }
   ],
   "maxVelocity": 4.95,
-  "maxAcceleration": 2.0,
+  "maxAcceleration": 3.0,
   "isReversed": null,
-  "markers": []
+  "markers": [
+    {
+      "position": 0.1467307350852273,
+      "names": [
+        "stow arm"
+      ]
+    },
+    {
+      "position": 0.7063543146306817,
+      "names": [
+        "intake"
+      ]
+    },
+    {
+      "position": 1.6826060901988633,
+      "names": [
+        "stage outtake high"
+      ]
+    },
+    {
+      "position": 2.2542147549715903,
+      "names": [
+        "stow arm"
+      ]
+    },
+    {
+      "position": 2.7086891867897727,
+      "names": [
+        "intake"
+      ]
+    }
+  ]
 }
