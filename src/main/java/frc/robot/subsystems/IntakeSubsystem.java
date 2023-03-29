@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Config;
 import frc.robot.Constants.Intake;
 import frc.util.SmartBoard;
-import frc.util.SmartBoard.Range;
 import frc.util.Util;
 import java.util.List;
 import java.util.Optional;
@@ -48,14 +47,15 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private final List<SmartBoard> smartBoards =
       List.of(
-          new SmartBoard(
-              tab,
-              "gravity control percent",
-              () -> Intake.GRAVITY_CONTROL_PERCENT,
-              v -> {
-                Intake.GRAVITY_CONTROL_PERCENT = v;
-              },
-              new Range(0, .2)));
+          // new SmartBoard(
+          //     tab,
+          //     "gravity control percent",
+          //     () -> Intake.GRAVITY_CONTROL_PERCENT,
+          //     v -> {
+          //       Intake.GRAVITY_CONTROL_PERCENT = v;
+          //     },
+          //     new Range(0, .2))
+          );
 
   public record IntakeDetails(
       double angle,
