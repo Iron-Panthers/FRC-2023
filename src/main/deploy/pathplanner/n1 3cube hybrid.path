@@ -181,9 +181,21 @@
       ]
     },
     {
+      "position": 0.2715154474431818,
+      "names": [
+        "zero everything"
+      ]
+    },
+    {
       "position": 0.7359841086647723,
       "names": [
         "intake"
+      ]
+    },
+    {
+      "position": 0.9868252840909092,
+      "names": [
+        "squeeze intake"
       ]
     },
     {
@@ -205,6 +217,12 @@
       ]
     },
     {
+      "position": 3.0006525213068196,
+      "names": [
+        "squeeze intake"
+      ]
+    },
+    {
       "position": 3.9705699573863606,
       "names": [
         "stage outtake"
@@ -214,12 +232,6 @@
       "position": 5.003373579545452,
       "names": [
         "outtake"
-      ]
-    },
-    {
-      "position": 0.2715154474431818,
-      "names": [
-        "zero everything"
       ]
     }
   ]
