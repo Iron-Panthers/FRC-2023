@@ -414,8 +414,9 @@ public class RobotContainer {
         Map.of(
             "stow arm",
             new ArmPositionCommand(armSubsystem, Constants.Arm.Setpoints.STOWED),
-            "zero telescope",
-            new SetZeroModeCommand(armSubsystem),
+            "zero everything",
+            (new SetZeroModeCommand(armSubsystem))
+                .alongWith(new ZeroIntakeCommand(intakeSubsystem)),
             "intake",
             new GroundPickupCommand(intakeSubsystem, outtakeSubsystem, armSubsystem),
             "stage outtake",
