@@ -456,6 +456,11 @@ public class RobotContainer {
                 outtakeSubsystem,
                 armSubsystem,
                 Constants.SCORE_STEP_MAP.get(NodeType.CUBE.atHeight(Height.HIGH)).subList(0, 1)),
+            "stage outtake mid",
+            new ScoreCommand(
+                outtakeSubsystem,
+                armSubsystem,
+                Constants.SCORE_STEP_MAP.get(NodeType.CUBE.atHeight(Height.MID)).subList(0, 1)),
             "outtake",
             new ScoreCommand(outtakeSubsystem, armSubsystem, drivingCubeOuttake.subList(1, 2), 1)
                 .andThen(
