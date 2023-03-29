@@ -488,7 +488,7 @@ public class RobotContainer {
     autoSelector.addOption(
         "N1 1Cone + 2Cube Low Mobility",
         new N1_1ConePlus2CubeMobility(
-            2, 3, eventMap, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+            4.95, 4, eventMap, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
 
     driverView.add("auto selector", autoSelector).withSize(4, 1).withPosition(7, 0);
 
