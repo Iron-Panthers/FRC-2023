@@ -53,6 +53,7 @@ import frc.robot.commands.SetZeroModeCommand;
 import frc.robot.commands.VibrateHIDCommand;
 import frc.robot.commands.ZeroIntakeCommand;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ArmSubsystem.ArmState;
 import frc.robot.subsystems.CANWatchdogSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -427,7 +428,10 @@ public class RobotContainer {
                     new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)
                         .andThen(
                             new SetOuttakeModeCommand(
-                                outtakeSubsystem, OuttakeSubsystem.Modes.OFF))));
+                                outtakeSubsystem, OuttakeSubsystem.Modes.OFF))),
+            "armbat preload",
+            new ArmPositionCommand(armSubsystem, new ArmState(30, 0))
+                .andThen(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)));
 
     autoSelector.addOption(
         "Just Zero Arm [DOES NOT CALIBRATE]", new SetZeroModeCommand(armSubsystem));
