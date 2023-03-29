@@ -81,8 +81,33 @@
         "x": 6.114285685854794,
         "y": 0.7588884251526826
       },
-      "nextControl": null,
+      "nextControl": {
+        "x": 6.114285685854794,
+        "y": 0.7588884251526826
+      },
       "holonomicAngle": -124.46641224373431,
+      "isReversal": true,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 1.784677643475608,
+        "y": 1.0392876158513666
+      },
+      "prevControl": {
+        "x": 3.1213013740177185,
+        "y": 0.5542220928810082
+      },
+      "nextControl": null,
+      "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -127,6 +152,12 @@
       "position": 2.7086891867897727,
       "names": [
         "intake"
+      ]
+    },
+    {
+      "position": 3.7576260653409097,
+      "names": [
+        "stage outtake mid"
       ]
     }
   ]
