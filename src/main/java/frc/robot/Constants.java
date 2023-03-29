@@ -259,11 +259,11 @@ public final class Constants {
 
     public static final double TICKS = 2048;
     public static final double DEGREES = 360;
-    public static final double GEAR_RATIO = 0.08;
+    public static final double GEAR_RATIO = 0.061;
 
-    public static final double GRAVITY_CONTROL_PERCENT = .07;
+    public static double GRAVITY_CONTROL_PERCENT = .04;
 
-    public static final double GRAVITY_ANGLE_OFFSET = 180;
+    public static final double GRAVITY_ANGLE_OFFSET = 41;
 
     public static final double ZERO_PERCENT = .3;
 
@@ -275,16 +275,15 @@ public final class Constants {
     }
 
     public static final class Setpoints {
-      public static final double MIN_ANGLE = 0;
-      public static final double MAX_ANGLE = -235;
+      public static final double MIN_ANGLE = -8;
+      public static final double MAX_ANGLE = -200;
     }
 
     public static final class IntakeModes {
-      public static final IntakeDetails INTAKE =
-          IntakeDetails.simple(Intake.Setpoints.MAX_ANGLE, .3);
-      public static final IntakeDetails OUTTAKE = IntakeDetails.simple(-40, -0.5);
-      public static final IntakeDetails DOWN = IntakeDetails.simple(-220, 0);
-      public static final IntakeDetails STOWED = IntakeDetails.simple(0, 0);
+      public static final IntakeDetails INTAKE = IntakeDetails.simple(-160, .3);
+      public static final IntakeDetails OUTTAKE = IntakeDetails.simple(-30, -0.5);
+      public static final IntakeDetails DOWN = IntakeDetails.simple(-200, 0);
+      public static final IntakeDetails STOWED = IntakeDetails.simple(Setpoints.MIN_ANGLE, 0);
     }
   }
 

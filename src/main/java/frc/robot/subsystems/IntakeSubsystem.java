@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Config;
 import frc.robot.Constants.Intake;
 import frc.util.SmartBoard;
+import frc.util.SmartBoard.Range;
 import frc.util.Util;
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +32,7 @@ public class IntakeSubsystem extends SubsystemBase {
   private double angleOutput;
   private double anglePidOutput;
   private double angleGravityOutput;
+  private double filteredCurrent;
 
   private final TalonFX intakeMotor;
   private final TalonFX angleMotor;
@@ -38,7 +40,7 @@ public class IntakeSubsystem extends SubsystemBase {
   private Modes mode;
   private ControlTypes controlType;
 
-  private LinearFilter statorFilter = LinearFilter.movingAverage(20);
+  private LinearFilter statorFilter = LinearFilter.movingAverage(30);
 
   private final PIDController angleController;
 
@@ -46,15 +48,14 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private final List<SmartBoard> smartBoards =
       List.of(
-          // new SmartBoard(
-          //     tab,
-          //     "gravity control percent",
-          //     () -> Intake.GRAVITY_CONTROL_PERCENT,
-          //     v -> {
-          //       Intake.GRAVITY_CONTROL_PERCENT = v;
-          //     },
-          //     new Range(0, .2))
-          );
+          new SmartBoard(
+              tab,
+              "gravity control percent",
+              () -> Intake.GRAVITY_CONTROL_PERCENT,
+              v -> {
+                Intake.GRAVITY_CONTROL_PERCENT = v;
+              },
+              new Range(0, .2)));
 
   public record IntakeDetails(
       double angle,
@@ -135,14 +136,17 @@ public class IntakeSubsystem extends SubsystemBase {
       tab.addNumber("angle pid output", () -> this.anglePidOutput);
       tab.addNumber("angle gravity output", () -> this.angleGravityOutput);
       tab.addNumber("angle output", () -> this.angleOutput);
+      tab.addNumber(
+          "angle ff degree", () -> getCurrentAngleDegrees() + Intake.GRAVITY_ANGLE_OFFSET);
       tab.addString("mode", () -> mode.toString());
       tab.addNumber("angle error", () -> targetAngle - getCurrentAngleDegrees());
+      tab.addNumber("filtered current", () -> this.filteredCurrent);
     }
   }
 
   // Add the gravity offset as a function of sine
   private double computeArmGravityOffset() {
-    return Math.cos(Math.toRadians(getCurrentAngleDegrees() + Intake.GRAVITY_ANGLE_OFFSET))
+    return -Math.sin(Math.toRadians(getCurrentAngleDegrees() + Intake.GRAVITY_ANGLE_OFFSET))
         * Intake.GRAVITY_CONTROL_PERCENT;
   }
 
@@ -174,6 +178,10 @@ public class IntakeSubsystem extends SubsystemBase {
     return mode;
   }
 
+  public ControlTypes getControlType() {
+    return controlType;
+  }
+
   public void setMode(Modes mode) {
     this.mode = mode;
     controlType = ControlTypes.MODE;
@@ -190,7 +198,7 @@ public class IntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
 
-    double filteredCurrent = statorFilter.calculate(angleMotor.getStatorCurrent());
+    filteredCurrent = statorFilter.calculate(angleMotor.getStatorCurrent());
 
     if (controlType == ControlTypes.MODE) {
 
