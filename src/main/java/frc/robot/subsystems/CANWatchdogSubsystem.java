@@ -89,8 +89,10 @@ public class CANWatchdogSubsystem extends SubsystemBase {
         }
 
         System.out.println(
-            "[can watchdog] missing can ids "
-                + CAN.getIds().stream().filter(id -> !(ids.contains(id))).toList());
+            "[can watchdog] missing can devices:\n\t"
+                + CAN.getDevices().stream()
+                    .filter(device -> !(ids.contains(device.id())))
+                    .toList());
 
         if (lastMsg.isPresent()) continue;
 

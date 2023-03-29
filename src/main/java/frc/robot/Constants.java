@@ -145,9 +145,9 @@ public final class Constants {
 
     public static final class Modules {
       public static final class Module1 { // historically front right
-        public static final int DRIVE_MOTOR = CAN.at(4);
-        public static final int STEER_MOTOR = CAN.at(3);
-        public static final int STEER_ENCODER = CAN.at(24);
+        public static final int DRIVE_MOTOR = CAN.at(4, "module 1 drive motor");
+        public static final int STEER_MOTOR = CAN.at(3, "module 1 steer motor");
+        public static final int STEER_ENCODER = CAN.at(24, "module 1 steer encoder");
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
@@ -156,9 +156,9 @@ public final class Constants {
       }
 
       public static final class Module2 { // historically front left
-        public static final int DRIVE_MOTOR = CAN.at(11);
-        public static final int STEER_MOTOR = CAN.at(10);
-        public static final int STEER_ENCODER = CAN.at(25);
+        public static final int DRIVE_MOTOR = CAN.at(11, "module 2 drive motor");
+        public static final int STEER_MOTOR = CAN.at(10, "module 2 steer motor");
+        public static final int STEER_ENCODER = CAN.at(25, "module 2 steer encoder");
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
@@ -167,9 +167,9 @@ public final class Constants {
       }
 
       public static final class Module3 { // historically back left
-        public static final int DRIVE_MOTOR = CAN.at(13);
-        public static final int STEER_MOTOR = CAN.at(12);
-        public static final int STEER_ENCODER = CAN.at(26);
+        public static final int DRIVE_MOTOR = CAN.at(13, "module 3 drive motor");
+        public static final int STEER_MOTOR = CAN.at(12, "module 3 steer motor");
+        public static final int STEER_ENCODER = CAN.at(26, "module 3 steer encoder");
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
@@ -178,9 +178,9 @@ public final class Constants {
       }
 
       public static final class Module4 { // historically back right
-        public static final int DRIVE_MOTOR = CAN.at(2);
-        public static final int STEER_MOTOR = CAN.at(1);
-        public static final int STEER_ENCODER = CAN.at(27);
+        public static final int DRIVE_MOTOR = CAN.at(2, "module 4 drive motor");
+        public static final int STEER_MOTOR = CAN.at(1, "module 4 steer motor");
+        public static final int STEER_ENCODER = CAN.at(27, "module 4 steer encoder");
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
@@ -192,9 +192,9 @@ public final class Constants {
 
   public static final class Arm {
     public static final class Ports {
-      public static final int ARM_MOTOR_PORT = CAN.at(16);
-      public static final int TELESCOPING_MOTOR_PORT = CAN.at(17);
-      public static final int ENCODER_PORT = CAN.at(28);
+      public static final int ARM_MOTOR_PORT = CAN.at(16, "arm motor");
+      public static final int TELESCOPING_MOTOR_PORT = CAN.at(17, "telescoping motor");
+      public static final int ENCODER_PORT = CAN.at(28, "arm encoder");
     }
 
     public static final class ExtensionGains {
@@ -270,8 +270,8 @@ public final class Constants {
     public static final double ZEROING_STATOR_LIMIT = 40;
 
     public static final class Ports {
-      public static final int INTAKE_MOTOR_PORT = CAN.at(18);
-      public static final int ANGLE_MOTOR_PORT = CAN.at(19);
+      public static final int INTAKE_MOTOR_PORT = CAN.at(18, "intake motor");
+      public static final int ANGLE_MOTOR_PORT = CAN.at(19, "intake angle motor");
     }
 
     public static final class Setpoints {
@@ -467,7 +467,7 @@ public final class Constants {
 
   public static final class Outtake {
     public static final class Ports {
-      public static final int OUTTAKE_MOTOR = CAN.at(8);
+      public static final int OUTTAKE_MOTOR = CAN.at(8, "outtake motor");
     }
 
     public static final class OuttakeModes {
