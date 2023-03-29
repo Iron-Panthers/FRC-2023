@@ -48,6 +48,7 @@ import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.ScoreCommand;
+import frc.robot.commands.ScoreCommand.ScoreStep;
 import frc.robot.commands.SetOuttakeModeCommand;
 import frc.robot.commands.SetZeroModeCommand;
 import frc.robot.commands.VibrateHIDCommand;
@@ -67,12 +68,12 @@ import frc.util.MacUtil;
 import frc.util.NodeSelectorUtility;
 import frc.util.NodeSelectorUtility.Height;
 import frc.util.NodeSelectorUtility.NodeSelection;
-import frc.util.NodeSelectorUtility.NodeType;
 import frc.util.SharedReference;
 import frc.util.Util;
 import frc.util.pathing.AlliancePose2d;
 import frc.util.pathing.RubenManueverGenerator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
@@ -405,6 +406,10 @@ public class RobotContainer {
 
     driverView.addString("NOTES", () -> "...win?").withSize(3, 1).withPosition(0, 0);
 
+    final List<ScoreStep> drivingCubeOuttake =
+        List.of(
+            new ScoreStep(new ArmState(35, Arm.Setpoints.Extensions.MIN_EXTENSION)).canWaitHere(),
+            new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE));
     final Map<String, Command> eventMap =
         Map.of(
             "stow arm",
@@ -414,17 +419,9 @@ public class RobotContainer {
             "intake",
             new GroundPickupCommand(intakeSubsystem, outtakeSubsystem, armSubsystem),
             "stage outtake",
-            new ScoreCommand(
-                outtakeSubsystem,
-                armSubsystem,
-                Constants.SCORE_STEP_MAP.get(NodeType.CUBE.atHeight(Height.LOW)).subList(0, 1),
-                1),
+            new ScoreCommand(outtakeSubsystem, armSubsystem, drivingCubeOuttake.subList(0, 1), 1),
             "outtake",
-            new ScoreCommand(
-                    outtakeSubsystem,
-                    armSubsystem,
-                    Constants.SCORE_STEP_MAP.get(NodeType.CUBE.atHeight(Height.LOW)).subList(1, 2),
-                    1)
+            new ScoreCommand(outtakeSubsystem, armSubsystem, drivingCubeOuttake.subList(1, 2), 1)
                 .andThen(
                     new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)
                         .andThen(
