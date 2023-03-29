@@ -56,7 +56,7 @@ public final class Constants {
             && HALUtil.getHALRuntimeType() != HALUtil.RUNTIME_SIMULATION;
 
     /** turn this off before comp. */
-    public static final boolean SHOW_SHUFFLEBOARD_DEBUG_DATA = true;
+    public static final boolean SHOW_SHUFFLEBOARD_DEBUG_DATA = false;
 
     /** turn this off! only use on practice eboard testing. */
     public static final boolean DISABLE_SWERVE_MODULE_INIT = false;
