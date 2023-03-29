@@ -75,6 +75,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public enum Modes {
     INTAKE(Intake.IntakeModes.INTAKE),
+    INTAKE_LOW(Intake.IntakeModes.INTAKE_LOW),
     OUTTAKE(Intake.IntakeModes.OUTTAKE),
     DOWN(Intake.IntakeModes.DOWN),
     STOWED(Intake.IntakeModes.STOWED);
@@ -183,6 +184,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void setMode(Modes mode) {
+    if (mode == this.mode) return;
     this.mode = mode;
     controlType = ControlTypes.MODE;
     onHighCycle = false;

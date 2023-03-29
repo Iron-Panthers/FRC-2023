@@ -313,7 +313,15 @@ public class RobotContainer {
 
     jasonLayer
         .off(jason.a())
-        .onTrue(new GroundPickupCommand(intakeSubsystem, outtakeSubsystem, armSubsystem));
+        .onTrue(
+            new GroundPickupCommand(
+                intakeSubsystem,
+                outtakeSubsystem,
+                armSubsystem,
+                () ->
+                    jason.getHID().getPOV() == 180
+                        ? IntakeSubsystem.Modes.INTAKE_LOW
+                        : IntakeSubsystem.Modes.INTAKE));
 
     jason.povUp().onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.OUTTAKE));
 
