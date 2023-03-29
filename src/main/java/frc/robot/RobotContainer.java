@@ -27,11 +27,12 @@ import frc.robot.Constants.Arm;
 import frc.robot.Constants.Config;
 import frc.robot.Constants.Drive;
 import frc.robot.autonomous.commands.MobilityAuto;
-import frc.robot.autonomous.commands.N1_1ConePlus2CubeHybridMobility;
+import frc.robot.autonomous.commands.N1_1ConePlus2CubeHybridMobilityEngage;
 import frc.robot.autonomous.commands.N2_Engage;
 import frc.robot.autonomous.commands.N3_1ConePlusMobility;
 import frc.robot.autonomous.commands.N3_1ConePlusMobilityEngage;
 import frc.robot.autonomous.commands.N6_1ConePlusEngage;
+import frc.robot.autonomous.commands.N9_1ConePlus2CubeMobility;
 import frc.robot.autonomous.commands.N9_1ConePlusMobility;
 import frc.robot.autonomous.commands.N9_1ConePlusMobilityEngage;
 import frc.robot.commands.ArmManualCommand;
@@ -432,6 +433,22 @@ public class RobotContainer {
             new ArmPositionCommand(armSubsystem, new ArmState(30, 0))
                 .andThen(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)));
 
+    autoSelector.setDefaultOption(
+        "N1 1Cone + 2Cube Low Mobility Engage",
+        new N1_1ConePlus2CubeHybridMobilityEngage(
+            4.95, 4, eventMap, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+
+    autoSelector.setDefaultOption(
+        "N9 1Cone + 1Cube + Grab Cube Mobility",
+        new N9_1ConePlus2CubeMobility(
+            4.95,
+            3,
+            eventMap,
+            intakeSubsystem,
+            outtakeSubsystem,
+            armSubsystem,
+            drivebaseSubsystem));
+
     autoSelector.addOption(
         "Just Zero Arm [DOES NOT CALIBRATE]", new SetZeroModeCommand(armSubsystem));
 
@@ -457,7 +474,7 @@ public class RobotContainer {
 
     autoSelector.addOption("N2 Engage", new N2_Engage(5, 3.5, drivebaseSubsystem));
 
-    autoSelector.setDefaultOption(
+    autoSelector.addOption(
         "N3 1Cone + Mobility Engage",
         new N3_1ConePlusMobilityEngage(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
 
@@ -487,11 +504,6 @@ public class RobotContainer {
                     armSubsystem,
                     Constants.SCORE_STEP_MAP.get(
                         NodeSelectorUtility.NodeType.CONE.atHeight(Height.HIGH)))));
-
-    autoSelector.addOption(
-        "N1 1Cone + 2Cube Low Mobility",
-        new N1_1ConePlus2CubeHybridMobility(
-            4.95, 4, eventMap, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
 
     driverView.add("auto selector", autoSelector).withSize(4, 1).withPosition(7, 0);
 
