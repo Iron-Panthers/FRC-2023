@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -18,6 +19,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -412,6 +414,7 @@ public class RobotContainer {
         List.of(
             new ScoreStep(new ArmState(35, Arm.Setpoints.Extensions.MIN_EXTENSION)).canWaitHere(),
             new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE));
+    final boolean[] intakeLow = {false};
     final Map<String, Command> eventMap =
         Map.of(
             "stow arm",
@@ -420,7 +423,32 @@ public class RobotContainer {
             (new SetZeroModeCommand(armSubsystem))
                 .alongWith(new ZeroIntakeCommand(intakeSubsystem)),
             "intake",
-            new GroundPickupCommand(intakeSubsystem, outtakeSubsystem, armSubsystem),
+            new GroundPickupCommand(
+                intakeSubsystem,
+                outtakeSubsystem,
+                armSubsystem,
+                () ->
+                    intakeLow[0] ? IntakeSubsystem.Modes.INTAKE_LOW : IntakeSubsystem.Modes.INTAKE),
+            "squeeze intake",
+            new CommandBase() {
+              private double lastTime = Timer.getFPGATimestamp();
+
+              @Override
+              public void initialize() {
+                lastTime = Timer.getFPGATimestamp();
+                intakeLow[0] = true;
+              }
+
+              @Override
+              public boolean isFinished() {
+                return Timer.getFPGATimestamp() - lastTime > 0.5;
+              }
+
+              @Override
+              public void end(boolean interrupted) {
+                intakeLow[0] = false;
+              }
+            },
             "stage outtake",
             new ScoreCommand(outtakeSubsystem, armSubsystem, drivingCubeOuttake.subList(0, 1), 1),
             "stage outtake high",
