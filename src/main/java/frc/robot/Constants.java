@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.Constants.Drive.Dims;
 import frc.robot.commands.ScoreCommand.ScoreStep;
 import frc.robot.subsystems.ArmSubsystem.ArmState;
+import frc.robot.subsystems.IntakeSubsystem.IntakeDetails;
 import frc.robot.subsystems.NetworkWatchdogSubsystem.IPv4;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem.OuttakeDetails;
@@ -51,10 +52,14 @@ public final class Constants {
     /** turn this off before comp. */
     public static final boolean RUN_PATHPLANNER_SERVER =
         // never run pathplanner server in simulation, it will fail unit tests (???)
-        HALUtil.getHALRuntimeType() != HALUtil.RUNTIME_SIMULATION;
+        Config.SHOW_SHUFFLEBOARD_DEBUG_DATA
+            && HALUtil.getHALRuntimeType() != HALUtil.RUNTIME_SIMULATION;
 
     /** turn this off before comp. */
-    public static final boolean SHOW_SHUFFLEBOARD_DEBUG_DATA = false;
+    public static final boolean SHOW_SHUFFLEBOARD_DEBUG_DATA = true;
+
+    /** turn this off! only use on practice eboard testing. */
+    public static final boolean DISABLE_SWERVE_MODULE_INIT = false;
 
     /** def turn this off unless you are using it, generates in excess of 100k rows for a match. */
     public static final boolean WRITE_APRILTAG_DATA = false;
@@ -99,20 +104,18 @@ public final class Constants {
     }
 
     public static final class AutoBalance {
-      /** the max speed to drive at when balancing */
-      public static final double P_SPEED_METERS_PER_SECOND = .8;
-      /** the angle to use for normalizing the range */
-      public static final double MAX_ANGLE = 15;
-      /** the angle to stop applying control */
-      public static final double THRESHOLD_ANGLE = 5;
-      /** the number to raise the [0, 1] error to */
-      public static final double E_EXPONENTIAL_FACTOR = 4;
+      public static final double DOCK_SPEED_METERS_PER_SECOND = .798;
+      public static final double DOCK_MIN_ANGLE_DEGREES = 13.717;
+      public static final double DOCK_HORIZON_ANGLE_DEGREES = 17.532 - 2;
+
+      public static final double ENGAGE_SPEED_METERS_PER_SECOND = .403;
+      public static final double ENGAGE_MIN_ANGLE_DEGREES = 9.365;
     }
 
     /*
      module layout:
-        ┌──────
-     ┌─►│#   ##steer motor
+        |──────
+     |->│#   ##steer motor
      │  │  ##cancoder
      │  │##drive motor
      module number
@@ -121,7 +124,7 @@ public final class Constants {
      from corner perspective
 
      robot visualization:
-    ┌──────────────────────┐
+    |──────────────────────|
     │2   10          04   1│
     │  25              24  │
     │11     S      D     03│
@@ -130,10 +133,10 @@ public final class Constants {
     │                      │
     │     S          D     │
     │       D      S       │
-    │12    ┌────────┐    02│
+    │12    |────────|    02│
     │  26  │        │  27  │
     │3   13│  batt  │01   4│
-    └──────┴───┬┬───┴──────┘
+    |──────┴───┬┬───┴──────|
                ││
                ││
                ▼▼
@@ -142,9 +145,9 @@ public final class Constants {
 
     public static final class Modules {
       public static final class Module1 { // historically front right
-        public static final int DRIVE_MOTOR = CAN.at(4);
-        public static final int STEER_MOTOR = CAN.at(3);
-        public static final int STEER_ENCODER = CAN.at(24);
+        public static final int DRIVE_MOTOR = CAN.at(4, "module 1 drive motor");
+        public static final int STEER_MOTOR = CAN.at(3, "module 1 steer motor");
+        public static final int STEER_ENCODER = CAN.at(24, "module 1 steer encoder");
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
@@ -153,9 +156,9 @@ public final class Constants {
       }
 
       public static final class Module2 { // historically front left
-        public static final int DRIVE_MOTOR = CAN.at(11);
-        public static final int STEER_MOTOR = CAN.at(10);
-        public static final int STEER_ENCODER = CAN.at(25);
+        public static final int DRIVE_MOTOR = CAN.at(11, "module 2 drive motor");
+        public static final int STEER_MOTOR = CAN.at(10, "module 2 steer motor");
+        public static final int STEER_ENCODER = CAN.at(25, "module 2 steer encoder");
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
@@ -164,9 +167,9 @@ public final class Constants {
       }
 
       public static final class Module3 { // historically back left
-        public static final int DRIVE_MOTOR = CAN.at(13);
-        public static final int STEER_MOTOR = CAN.at(12);
-        public static final int STEER_ENCODER = CAN.at(26);
+        public static final int DRIVE_MOTOR = CAN.at(13, "module 3 drive motor");
+        public static final int STEER_MOTOR = CAN.at(12, "module 3 steer motor");
+        public static final int STEER_ENCODER = CAN.at(26, "module 3 steer encoder");
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
@@ -175,9 +178,9 @@ public final class Constants {
       }
 
       public static final class Module4 { // historically back right
-        public static final int DRIVE_MOTOR = CAN.at(2);
-        public static final int STEER_MOTOR = CAN.at(1);
-        public static final int STEER_ENCODER = CAN.at(27);
+        public static final int DRIVE_MOTOR = CAN.at(2, "module 4 drive motor");
+        public static final int STEER_MOTOR = CAN.at(1, "module 4 steer motor");
+        public static final int STEER_ENCODER = CAN.at(27, "module 4 steer encoder");
 
         public static final double STEER_OFFSET =
             IS_COMP_BOT
@@ -189,9 +192,9 @@ public final class Constants {
 
   public static final class Arm {
     public static final class Ports {
-      public static final int ARM_MOTOR_PORT = CAN.at(16);
-      public static final int TELESCOPING_MOTOR_PORT = CAN.at(17);
-      public static final int ENCODER_PORT = CAN.at(28);
+      public static final int ARM_MOTOR_PORT = CAN.at(16, "arm motor");
+      public static final int TELESCOPING_MOTOR_PORT = CAN.at(17, "telescoping motor");
+      public static final int ENCODER_PORT = CAN.at(28, "arm encoder");
     }
 
     public static final class ExtensionGains {
@@ -204,17 +207,12 @@ public final class Constants {
     public static final double ANGULAR_OFFSET = -4.835;
 
     public static final class Setpoints {
-
-      public static final List<ScoreStep> GROUND_INTAKE =
-          List.of(
-              new ScoreStep(new ArmState(-46, Arm.Setpoints.Extensions.MIN_EXTENSION)),
-              new ScoreStep(new ArmState(-46, 19.5)),
-              new ScoreStep(new ArmState(-60, Arm.Setpoints.Extensions.MIN_EXTENSION)),
-              new ScoreStep(new ArmState(0, Arm.Setpoints.Extensions.MIN_EXTENSION)));
-
       public static final ArmState SHELF_INTAKE = new ArmState(85, 0);
 
       public static final ArmState STOWED = new ArmState(0, Arm.Setpoints.Extensions.MIN_EXTENSION);
+
+      public static final ArmState HANDOFF =
+          new ArmState(Thresholds.Angles.BACKWARD_ANGLE_LIMIT, 0);
 
       public static final class Extensions {
         public static final double MAX_EXTENSION = 20.3;
@@ -235,10 +233,11 @@ public final class Constants {
        * negative sign of their angle in degrees
        */
       public static final class Angles {
-        public static final double BACKWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD = -40;
+        public static final double BACKWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD = -30;
         public static final double FORWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD =
             20; // FIXME: real value needed
-        public static final double UPPER_ANGLE_LIMIT = 120;
+        public static final double FORWARD_ANGLE_LIMIT = 120;
+        public static final double BACKWARD_ANGLE_LIMIT = BACKWARD_UNSAFE_EXTENSION_ANGLE_THRESHOLD;
         public static final double EPSILON = 5;
       }
 
@@ -251,6 +250,41 @@ public final class Constants {
 
         public static final double EPSILON = .5;
       }
+    }
+  }
+
+  public static final class Intake {
+
+    public static final double EPSILON = 5.0;
+
+    public static final double TICKS = 2048;
+    public static final double DEGREES = 360;
+    public static final double GEAR_RATIO = 0.061;
+
+    public static final double GRAVITY_CONTROL_PERCENT = .04;
+
+    public static final double GRAVITY_ANGLE_OFFSET = 41;
+
+    public static final double ZERO_PERCENT = .3;
+
+    public static final double ZEROING_STATOR_LIMIT = 40;
+
+    public static final class Ports {
+      public static final int INTAKE_MOTOR_PORT = CAN.at(18, "intake motor");
+      public static final int ANGLE_MOTOR_PORT = CAN.at(19, "intake angle motor");
+    }
+
+    public static final class Setpoints {
+      public static final double MIN_ANGLE = -8;
+      public static final double MAX_ANGLE = -200;
+    }
+
+    public static final class IntakeModes {
+      public static final IntakeDetails INTAKE = IntakeDetails.simple(-158, .3);
+      public static final IntakeDetails INTAKE_LOW = IntakeDetails.simple(-170, .3);
+      public static final IntakeDetails OUTTAKE = IntakeDetails.simple(-30, -0.5);
+      public static final IntakeDetails DOWN = IntakeDetails.simple(-200, 0);
+      public static final IntakeDetails STOWED = IntakeDetails.simple(Setpoints.MIN_ANGLE, 0);
     }
   }
 
@@ -284,19 +318,19 @@ public final class Constants {
               new ScoreStep(new ArmState(95, 20)).canWaitHere(),
               new ScoreStep(
                   new ArmState(95, Arm.Setpoints.Extensions.MIN_EXTENSION),
-                  OuttakeSubsystem.Modes.OUTTAKE)),
+                  OuttakeSubsystem.Modes.OUTTAKE_FAST_CUBE)),
           NodeType.CUBE.atHeight(Height.MID),
           List.of(
               new ScoreStep(new ArmState(67.32, Arm.Setpoints.Extensions.MIN_EXTENSION)),
               new ScoreStep(new ArmState(67.32, 0.75)).canWaitHere(),
               new ScoreStep(
                   new ArmState(67.32, Arm.Setpoints.Extensions.MIN_EXTENSION),
-                  OuttakeSubsystem.Modes.OUTTAKE)),
+                  OuttakeSubsystem.Modes.OUTTAKE_FAST_CUBE)),
           NodeType.CUBE.atHeight(Height.LOW),
           List.of(
               new ScoreStep(new ArmState(29.7, Arm.Setpoints.Extensions.MIN_EXTENSION))
                   .canWaitHere(),
-              new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE)));
+              new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE_FAST_CUBE)));
 
   public static final class Vision {
     public static record VisionSource(String name, Transform3d robotToCamera) {}
@@ -325,7 +359,7 @@ public final class Constants {
                         ),
                     new Rotation3d(0, Math.toRadians(17), Math.PI))));
 
-    public static int THREAD_SLEEP_DURATION_MS = 5;
+    public static final int THREAD_SLEEP_DURATION_MS = 5;
   }
 
   public static final class PoseEstimator {
@@ -358,8 +392,7 @@ public final class Constants {
                 1 * Math.PI // theta
                 );
 
-    /** Discard single tag readings with an ambiguity greater than this value */
-    public static final double POSE_AMBIGUITY_CUTOFF = 0;
+    public static final double POSE_AMBIGUITY_CUTOFF = .05;
 
     public static final List<TagCountDeviation> TAG_COUNT_DEVIATION_PARAMS =
         List.of(
@@ -434,7 +467,7 @@ public final class Constants {
 
   public static final class Outtake {
     public static final class Ports {
-      public static final int OUTTAKE_MOTOR = CAN.at(8);
+      public static final int OUTTAKE_MOTOR = CAN.at(8, "outtake motor");
     }
 
     public static final class OuttakeModes {
@@ -442,10 +475,13 @@ public final class Constants {
           new OuttakeDetails(0.07, Optional.empty(), Optional.empty());
 
       public static final OuttakeDetails INTAKE =
-          new OuttakeDetails(.5, Optional.of(new OuttakeDetails.StatorLimit(100)), Optional.of(2d));
+          new OuttakeDetails(.5, Optional.of(new OuttakeDetails.StatorLimit(80)), Optional.of(.5));
 
       public static final OuttakeDetails OUTTAKE =
           new OuttakeDetails(-0.2, Optional.empty(), Optional.of(2d));
+
+      public static final OuttakeDetails OUTTAKE_FAST_CUBE =
+          new OuttakeDetails(-0.4, Optional.empty(), Optional.of(2d));
 
       public static final OuttakeDetails OFF =
           new OuttakeDetails(0.0, Optional.empty(), Optional.empty());
@@ -489,9 +525,9 @@ public final class Constants {
   public static final class Lights {
     public static final int CANDLE_ID = 34;
     public static final int NUM_LEDS =
-        91
-            // 8 inside the candle
-            + 8;
+        89
+            // 8 inside the candle, 8 more for balance
+            + 8 * 2;
 
     public static final class Colors {
       public static final RGBColor YELLOW = new RGBColor(255, 107, 0);

@@ -9,10 +9,8 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.Arm;
-import frc.robot.Constants.Arm.Setpoints;
 import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.FollowTrajectoryCommand;
-import frc.robot.commands.ForceOuttakeSubsystemModeCommand;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.SetOuttakeModeCommand;
 import frc.robot.commands.SetZeroModeCommand;
@@ -38,21 +36,16 @@ public class N3_1ConePlusMobility extends SequentialCommandGroup {
 
     addCommands(
         new SetZeroModeCommand(armSubsystem)
-            .raceWith(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)),
+            .deadlineWith(
+                new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)),
         new ScoreCommand(
             outtakeSubsystem,
             armSubsystem,
-            Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH))),
+            Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH)),
+            1),
         (new FollowTrajectoryCommand(path, true, drivebaseSubsystem))
             .alongWith(
                 (new WaitCommand(1))
-                    .andThen(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))),
-        (new WaitCommand(4))
-            .deadlineWith(
-                new ScoreCommand(outtakeSubsystem, armSubsystem, Setpoints.GROUND_INTAKE)
-                    .alongWith(
-                        new ForceOuttakeSubsystemModeCommand(
-                            outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE))),
-        new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED));
+                    .andThen(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))));
   }
 }

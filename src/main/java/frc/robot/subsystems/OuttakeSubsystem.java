@@ -50,6 +50,7 @@ public class OuttakeSubsystem extends SubsystemBase {
     HOLD(Outtake.OuttakeModes.HOLD),
     INTAKE(Outtake.OuttakeModes.INTAKE),
     OUTTAKE(Outtake.OuttakeModes.OUTTAKE),
+    OUTTAKE_FAST_CUBE(Outtake.OuttakeModes.OUTTAKE_FAST_CUBE),
     OFF(Outtake.OuttakeModes.OFF);
 
     public final OuttakeDetails outtakeDetails;
@@ -106,7 +107,7 @@ public class OuttakeSubsystem extends SubsystemBase {
     modeLocked = false;
 
     // FIXME: Change the tap rate to get a better average
-    filter = LinearFilter.movingAverage(30);
+    filter = LinearFilter.movingAverage(13);
 
     filterOutput = 0;
 
@@ -117,6 +118,8 @@ public class OuttakeSubsystem extends SubsystemBase {
       tab.addNumber("voltage", this.outtake::getMotorOutputVoltage);
 
       tab.addString("Current Mode", () -> mode.toString());
+
+      tab.addNumber("velocity", this.outtake::getSelectedSensorVelocity);
 
       tab.addBoolean("mode locked", () -> this.modeLocked);
     }

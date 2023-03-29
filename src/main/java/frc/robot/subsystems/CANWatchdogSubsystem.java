@@ -20,6 +20,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -78,14 +79,20 @@ public class CANWatchdogSubsystem extends SubsystemBase {
         if (body == null) continue;
 
         // parse the json and check if all the ids we expect are present
-        boolean allCanDevicesPresent =
-            getIds(body).collect(Collectors.toCollection(HashSet::new)).containsAll(CAN.getIds());
+        Set<Integer> ids = getIds(body).collect(Collectors.toCollection(HashSet::new));
+        boolean allCanDevicesPresent = ids.containsAll(CAN.getIds());
 
         if (allCanDevicesPresent) {
           lastMsg.ifPresent(RGBMessage::expire);
           lastMsg = Optional.empty();
           continue;
         }
+
+        System.out.println(
+            "[can watchdog] missing can devices:\n\t"
+                + CAN.getDevices().stream()
+                    .filter(device -> !(ids.contains(device.id())))
+                    .toList());
 
         if (lastMsg.isPresent()) continue;
 
