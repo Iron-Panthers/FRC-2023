@@ -49,6 +49,31 @@
     },
     {
       "anchorPoint": {
+        "x": 3.9113149134660024,
+        "y": 0.8590750827313299
+      },
+      "prevControl": {
+        "x": 5.111116118674311,
+        "y": 0.8842125690355614
+      },
+      "nextControl": {
+        "x": 2.711513708257692,
+        "y": 0.8339375964270984
+      },
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": 0.5,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
         "x": 1.7934976702630545,
         "y": 1.0256870348933067
       },
@@ -193,31 +218,31 @@
       ]
     },
     {
-      "position": 1.6826060901988633,
+      "position": 2.3903253728693175,
       "names": [
         "stage outtake high"
       ]
     },
     {
-      "position": 2.2542147549715903,
+      "position": 3.317713512073863,
       "names": [
         "stow arm"
       ]
     },
     {
-      "position": 3.33467684659091,
+      "position": 4.4206298828124995,
       "names": [
         "intake"
       ]
     },
     {
-      "position": 4.0,
+      "position": 5.002461381392045,
       "names": [
         "squeeze intake"
       ]
     },
     {
-      "position": 5.508771306818185,
+      "position": 6.606451970880684,
       "names": [
         "stage outtake mid"
       ]
