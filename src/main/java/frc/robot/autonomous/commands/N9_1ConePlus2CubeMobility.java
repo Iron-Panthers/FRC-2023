@@ -5,39 +5,42 @@
 package frc.robot.autonomous.commands;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.FollowPathWithEvents;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
-import frc.robot.Constants.Arm;
-import frc.robot.commands.ArmPositionCommand;
-import frc.robot.commands.EngageCommand;
 import frc.robot.commands.FollowTrajectoryCommand;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.SetOuttakeModeCommand;
 import frc.robot.commands.SetZeroModeCommand;
+import frc.robot.commands.ZeroIntakeCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.util.NodeSelectorUtility.Height;
 import frc.util.NodeSelectorUtility.NodeType;
 import frc.util.pathing.LoadMirrorPath;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
-public class N6_1ConePlusEngage extends SequentialCommandGroup {
-  /** Creates a new N2MobilityEngage. */
-  public N6_1ConePlusEngage(
+public class N9_1ConePlus2CubeMobility extends SequentialCommandGroup {
+  public N9_1ConePlus2CubeMobility(
       double maxVelocityMetersPerSecond,
       double maxAccelerationMetersPerSecondSq,
+      Map<String, Command> eventMap,
+      IntakeSubsystem intakeSubsystem,
       OuttakeSubsystem outtakeSubsystem,
       ArmSubsystem armSubsystem,
       DrivebaseSubsystem drivebaseSubsystem) {
 
-    Supplier<PathPlannerTrajectory> path =
-        LoadMirrorPath.loadPath(
-            "n6 1cone + engage", maxVelocityMetersPerSecond, maxAccelerationMetersPerSecondSq);
+    List<Supplier<PathPlannerTrajectory>> paths =
+        LoadMirrorPath.loadPathGroup(
+            "n9 1cone + 2cube", maxVelocityMetersPerSecond, maxAccelerationMetersPerSecondSq);
 
     addCommands(
-        new SetZeroModeCommand(armSubsystem)
+        (new SetZeroModeCommand(armSubsystem).alongWith(new ZeroIntakeCommand(intakeSubsystem)))
             .deadlineWith(
                 new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)),
         new ScoreCommand(
@@ -45,10 +48,21 @@ public class N6_1ConePlusEngage extends SequentialCommandGroup {
             armSubsystem,
             Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH)),
             1),
-        (new FollowTrajectoryCommand(path, true, drivebaseSubsystem))
-            .alongWith(
-                (new WaitCommand(1))
-                    .andThen(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))),
-        new EngageCommand(drivebaseSubsystem, EngageCommand.EngageDirection.GO_BACKWARD));
+        new FollowPathWithEvents(
+            new FollowTrajectoryCommand(paths.get(0), true, drivebaseSubsystem),
+            paths.get(0).get().getMarkers(),
+            eventMap),
+        new ScoreCommand(
+            outtakeSubsystem,
+            armSubsystem,
+            Constants.SCORE_STEP_MAP.get(NodeType.CUBE.atHeight(Height.HIGH))),
+        new FollowPathWithEvents(
+            new FollowTrajectoryCommand(paths.get(1), drivebaseSubsystem),
+            paths.get(1).get().getMarkers(),
+            eventMap),
+        new ScoreCommand(
+            outtakeSubsystem,
+            armSubsystem,
+            Constants.SCORE_STEP_MAP.get(NodeType.CUBE.atHeight(Height.MID))));
   }
 }

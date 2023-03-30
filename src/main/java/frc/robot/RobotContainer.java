@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -18,6 +19,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -27,11 +29,12 @@ import frc.robot.Constants.Arm;
 import frc.robot.Constants.Config;
 import frc.robot.Constants.Drive;
 import frc.robot.autonomous.commands.MobilityAuto;
-import frc.robot.autonomous.commands.N1_1ConePlus2CubeMobility;
+import frc.robot.autonomous.commands.N1_1ConePlus2CubeHybridMobilityEngage;
 import frc.robot.autonomous.commands.N2_Engage;
 import frc.robot.autonomous.commands.N3_1ConePlusMobility;
 import frc.robot.autonomous.commands.N3_1ConePlusMobilityEngage;
 import frc.robot.autonomous.commands.N6_1ConePlusEngage;
+import frc.robot.autonomous.commands.N9_1ConePlus2CubeMobility;
 import frc.robot.autonomous.commands.N9_1ConePlusMobility;
 import frc.robot.autonomous.commands.N9_1ConePlusMobilityEngage;
 import frc.robot.commands.ArmManualCommand;
@@ -68,6 +71,7 @@ import frc.util.MacUtil;
 import frc.util.NodeSelectorUtility;
 import frc.util.NodeSelectorUtility.Height;
 import frc.util.NodeSelectorUtility.NodeSelection;
+import frc.util.NodeSelectorUtility.NodeType;
 import frc.util.SharedReference;
 import frc.util.Util;
 import frc.util.pathing.AlliancePose2d;
@@ -410,6 +414,7 @@ public class RobotContainer {
         List.of(
             new ScoreStep(new ArmState(35, Arm.Setpoints.Extensions.MIN_EXTENSION)).canWaitHere(),
             new ScoreStep(OuttakeSubsystem.Modes.OUTTAKE));
+    final boolean[] intakeLow = {false};
     final Map<String, Command> eventMap =
         Map.of(
             "stow arm",
@@ -418,9 +423,44 @@ public class RobotContainer {
             (new SetZeroModeCommand(armSubsystem))
                 .alongWith(new ZeroIntakeCommand(intakeSubsystem)),
             "intake",
-            new GroundPickupCommand(intakeSubsystem, outtakeSubsystem, armSubsystem),
+            new GroundPickupCommand(
+                intakeSubsystem,
+                outtakeSubsystem,
+                armSubsystem,
+                () ->
+                    intakeLow[0] ? IntakeSubsystem.Modes.INTAKE_LOW : IntakeSubsystem.Modes.INTAKE),
+            "squeeze intake",
+            new CommandBase() {
+              private double lastTime = Timer.getFPGATimestamp();
+
+              @Override
+              public void initialize() {
+                lastTime = Timer.getFPGATimestamp();
+                intakeLow[0] = true;
+              }
+
+              @Override
+              public boolean isFinished() {
+                return Timer.getFPGATimestamp() - lastTime > 0.5;
+              }
+
+              @Override
+              public void end(boolean interrupted) {
+                intakeLow[0] = false;
+              }
+            },
             "stage outtake",
             new ScoreCommand(outtakeSubsystem, armSubsystem, drivingCubeOuttake.subList(0, 1), 1),
+            "stage outtake high",
+            new ScoreCommand(
+                outtakeSubsystem,
+                armSubsystem,
+                Constants.SCORE_STEP_MAP.get(NodeType.CUBE.atHeight(Height.HIGH)).subList(0, 1)),
+            "stage outtake mid",
+            new ScoreCommand(
+                outtakeSubsystem,
+                armSubsystem,
+                Constants.SCORE_STEP_MAP.get(NodeType.CUBE.atHeight(Height.MID)).subList(0, 1)),
             "outtake",
             new ScoreCommand(outtakeSubsystem, armSubsystem, drivingCubeOuttake.subList(1, 2), 1)
                 .andThen(
@@ -431,6 +471,22 @@ public class RobotContainer {
             "armbat preload",
             new ArmPositionCommand(armSubsystem, new ArmState(30, 0))
                 .andThen(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)));
+
+    autoSelector.setDefaultOption(
+        "N1 1Cone + 2Cube Low Mobility Engage",
+        new N1_1ConePlus2CubeHybridMobilityEngage(
+            4.95, 4, eventMap, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+
+    autoSelector.setDefaultOption(
+        "N9 1Cone + 1Cube + Grab Cube Mobility",
+        new N9_1ConePlus2CubeMobility(
+            4.95,
+            2,
+            eventMap,
+            intakeSubsystem,
+            outtakeSubsystem,
+            armSubsystem,
+            drivebaseSubsystem));
 
     autoSelector.addOption(
         "Just Zero Arm [DOES NOT CALIBRATE]", new SetZeroModeCommand(armSubsystem));
@@ -457,7 +513,7 @@ public class RobotContainer {
 
     autoSelector.addOption("N2 Engage", new N2_Engage(5, 3.5, drivebaseSubsystem));
 
-    autoSelector.setDefaultOption(
+    autoSelector.addOption(
         "N3 1Cone + Mobility Engage",
         new N3_1ConePlusMobilityEngage(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
 
@@ -487,11 +543,6 @@ public class RobotContainer {
                     armSubsystem,
                     Constants.SCORE_STEP_MAP.get(
                         NodeSelectorUtility.NodeType.CONE.atHeight(Height.HIGH)))));
-
-    autoSelector.addOption(
-        "N1 1Cone + 2Cube Low Mobility",
-        new N1_1ConePlus2CubeMobility(
-            4.95, 4, eventMap, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
 
     driverView.add("auto selector", autoSelector).withSize(4, 1).withPosition(7, 0);
 

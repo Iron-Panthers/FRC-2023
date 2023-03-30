@@ -20,8 +20,8 @@ import frc.util.pathing.LoadMirrorPath;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public class N1_1ConePlus2CubeMobility extends SequentialCommandGroup {
-  public N1_1ConePlus2CubeMobility(
+public class N1_1ConePlus2CubeHybridMobilityEngage extends SequentialCommandGroup {
+  public N1_1ConePlus2CubeHybridMobilityEngage(
       double maxVelocityMetersPerSecond,
       double maxAccelerationMetersPerSecondSq,
       Map<String, Command> eventMap,
