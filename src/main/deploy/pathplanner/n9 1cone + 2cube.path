@@ -53,12 +53,12 @@
         "y": 1.0256870348933067
       },
       "prevControl": {
-        "x": 2.895346554331632,
-        "y": 0.5202740404049115
+        "x": 2.7386732941904817,
+        "y": 0.8359255871143456
       },
       "nextControl": {
-        "x": 2.895346554331632,
-        "y": 0.5202740404049115
+        "x": 2.7386732941904817,
+        "y": 0.8359255871143456
       },
       "holonomicAngle": 180.0,
       "isReversal": true,
@@ -74,19 +74,69 @@
     },
     {
       "anchorPoint": {
-        "x": 7.437493632796512,
-        "y": 2.385341057296091
+        "x": 5.0538091248978345,
+        "y": 0.7791728259001862
       },
       "prevControl": {
-        "x": 6.2791198832313055,
-        "y": 0.7606144619063109
+        "x": 4.043101708969648,
+        "y": 0.48656817968766647
       },
       "nextControl": {
-        "x": 6.2791198832313055,
-        "y": 0.7606144619063109
+        "x": 6.160904229192151,
+        "y": 1.09968217035588
       },
-      "holonomicAngle": -124.46641224373431,
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 7.4386608625232045,
+        "y": 2.195399647585205
+      },
+      "prevControl": {
+        "x": 5.488262036401468,
+        "y": 2.2161074634388958
+      },
+      "nextControl": {
+        "x": 5.488262036401468,
+        "y": 2.2161074634388958
+      },
+      "holonomicAngle": 180.0,
       "isReversal": true,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 4.594883913483206,
+        "y": 0.6835735156984158
+      },
+      "prevControl": {
+        "x": 5.7930897979435745,
+        "y": 0.7354437583295981
+      },
+      "nextControl": {
+        "x": 3.388134160301062,
+        "y": 0.6313334096327815
+      },
+      "holonomicAngle": 180.0,
+      "isReversal": false,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
@@ -103,8 +153,8 @@
         "y": 1.2811909310466116
       },
       "prevControl": {
-        "x": 2.8704150992111463,
-        "y": 0.43823326398084433
+        "x": 3.027338540075417,
+        "y": 0.7707339568026702
       },
       "nextControl": null,
       "holonomicAngle": 180.0,
@@ -121,7 +171,7 @@
     }
   ],
   "maxVelocity": 4.95,
-  "maxAcceleration": 2.0,
+  "maxAcceleration": 3.0,
   "isReversed": null,
   "markers": [
     {
@@ -155,19 +205,19 @@
       ]
     },
     {
-      "position": 2.7086891867897727,
+      "position": 3.33467684659091,
       "names": [
         "intake"
       ]
     },
     {
-      "position": 3.0018110795454533,
+      "position": 4.0,
       "names": [
         "squeeze intake"
       ]
     },
     {
-      "position": 3.7576260653409097,
+      "position": 5.508771306818185,
       "names": [
         "stage outtake mid"
       ]

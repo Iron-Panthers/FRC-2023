@@ -330,9 +330,25 @@ public class RobotContainer {
                         ? IntakeSubsystem.Modes.INTAKE_LOW
                         : IntakeSubsystem.Modes.INTAKE));
 
-    jason.povUp().onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.OUTTAKE));
+    jason
+        .povUp()
+        .onTrue(
+            new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.OUTTAKE)
+                .alongWith(new ArmPositionCommand(armSubsystem, Arm.Setpoints.HANDOFF)));
 
     jason.start().onTrue(new ZeroIntakeCommand(intakeSubsystem));
+
+    jason
+        .back()
+        .whileTrue(
+            new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE)
+                .alongWith(new ArmPositionCommand(armSubsystem, Arm.Setpoints.HANDOFF))
+                .alongWith(
+                    new ForceOuttakeSubsystemModeCommand(
+                        outtakeSubsystem, OuttakeSubsystem.Modes.OFF)))
+        .onFalse(
+            new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)
+                .alongWith(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED)));
 
     // scoring
     // jasonLayer
@@ -481,7 +497,7 @@ public class RobotContainer {
         "N9 1Cone + 1Cube + Grab Cube Mobility",
         new N9_1ConePlus2CubeMobility(
             4.95,
-            2,
+            3,
             eventMap,
             intakeSubsystem,
             outtakeSubsystem,
