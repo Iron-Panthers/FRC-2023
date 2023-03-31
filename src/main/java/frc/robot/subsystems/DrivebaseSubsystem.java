@@ -406,7 +406,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
   @SuppressWarnings("java:S1121")
   private void defensePeriodic() {
-    int angle = 45;
+    int angle = -45;
     for (SwerveModule module : swerveModules) {
       // the *= -1 operation multiplies the current variable by -1, stores it, and also returns
       // the value. We can use this to alternate between 45 and -45 for each module.
