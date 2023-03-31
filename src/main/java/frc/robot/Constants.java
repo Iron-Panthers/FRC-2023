@@ -281,7 +281,7 @@ public final class Constants {
 
     public static final class IntakeModes {
       public static final IntakeDetails INTAKE = IntakeDetails.simple(-158, .3);
-      public static final IntakeDetails INTAKE_LOW = IntakeDetails.simple(-170, .3);
+      public static final IntakeDetails INTAKE_LOW = IntakeDetails.simple(-175, .3);
       public static final IntakeDetails OUTTAKE = IntakeDetails.simple(-30, -0.5);
       public static final IntakeDetails DOWN = IntakeDetails.simple(-200, 0);
       public static final IntakeDetails STOWED = IntakeDetails.simple(Setpoints.MIN_ANGLE, 0);
