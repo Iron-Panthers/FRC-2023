@@ -269,7 +269,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
             .plus(
                 DriverStation.getAlliance() == Alliance.Blue
                     ? new Rotation2d()
-                    : Rotation2d.fromDegrees(180));
+                    : Rotation2d.fromDegrees(180))
+            // flip heading??
+            .plus(Rotation2d.fromDegrees(180));
   }
 
   /**
