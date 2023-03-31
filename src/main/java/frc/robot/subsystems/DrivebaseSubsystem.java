@@ -260,6 +260,18 @@ public class DrivebaseSubsystem extends SubsystemBase {
     driverGyroOffset = getConsistentGyroscopeRotation();
   }
 
+  /** Aligns gyro heading with pose estimation */
+  public void smartZeroGyroscope() {
+    driverGyroOffset =
+        swervePoseEstimator
+            .getEstimatedPosition()
+            .getRotation()
+            .plus(
+                DriverStation.getAlliance() == Alliance.Blue
+                    ? new Rotation2d()
+                    : Rotation2d.fromDegrees(180));
+  }
+
   /**
    * Resets the odometry estimate to a specific pose.
    *
