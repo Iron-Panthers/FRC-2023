@@ -14,6 +14,7 @@ import frc.robot.commands.SetOuttakeModeCommand;
 import frc.robot.commands.SetZeroModeCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivebaseSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem.Modes;
 import frc.util.pathing.LoadMirrorPath;
@@ -25,6 +26,7 @@ public class N1_1ConePlus2CubeHybridMobilityEngage extends SequentialCommandGrou
       double maxVelocityMetersPerSecond,
       double maxAccelerationMetersPerSecondSq,
       Map<String, Command> eventMap,
+      IntakeSubsystem intakeSubsystem,
       OuttakeSubsystem outtakeSubsystem,
       ArmSubsystem armSubsystem,
       DrivebaseSubsystem drivebaseSubsystem) {
@@ -38,7 +40,8 @@ public class N1_1ConePlus2CubeHybridMobilityEngage extends SequentialCommandGrou
             new FollowTrajectoryCommand(path, true, drivebaseSubsystem),
             path.get().getMarkers(),
             eventMap),
-        new EngageCommand(drivebaseSubsystem, EngageCommand.EngageDirection.GO_BACKWARD)
+        new EngageCommand(
+                drivebaseSubsystem, intakeSubsystem, EngageCommand.EngageDirection.GO_BACKWARD)
             .alongWith(new SetOuttakeModeCommand(outtakeSubsystem, Modes.OFF))
             .alongWith(new SetZeroModeCommand(armSubsystem)));
   }

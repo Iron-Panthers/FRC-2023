@@ -492,7 +492,13 @@ public class RobotContainer {
     autoSelector.setDefaultOption(
         "N1 1Cone + 2Cube Low Mobility Engage",
         new N1_1ConePlus2CubeHybridMobilityEngage(
-            4.95, 4, eventMap, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
+            4.95,
+            4,
+            eventMap,
+            intakeSubsystem,
+            outtakeSubsystem,
+            armSubsystem,
+            drivebaseSubsystem));
 
     autoSelector.setDefaultOption(
         "N1 1Cone + 2Cube Low Mobility NO ENGAGE",
