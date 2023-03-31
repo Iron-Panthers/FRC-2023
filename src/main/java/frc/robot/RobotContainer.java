@@ -274,8 +274,6 @@ public class RobotContainer {
                 drivebaseSubsystem,
                 manueverGenerator,
                 (new AlliancePose2d(15.3639 - 1.5, 7.3965, Rotation2d.fromDegrees(0)))::get,
-                (new AlliancePose2d(15.3639, 7.3965, Rotation2d.fromDegrees(0)))::get,
-                0,
                 translationXSupplier,
                 translationYSupplier,
                 will.rightBumper(),
