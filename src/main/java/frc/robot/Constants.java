@@ -217,6 +217,7 @@ public final class Constants {
       public static final class Extensions {
         public static final double MAX_EXTENSION = 20.3;
         public static final double MIN_EXTENSION = 0.0;
+        public static final double SKETCHY_BODY_EXTENSION = 3.5;
       }
     }
 

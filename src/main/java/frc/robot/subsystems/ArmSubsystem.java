@@ -246,7 +246,11 @@ public class ArmSubsystem extends SubsystemBase {
 
   private double computeIntermediateExtensionGoal() {
     if (currentOrTargetAnglePassesUnsafeRange()) {
-      return Arm.Setpoints.Extensions.MIN_EXTENSION;
+      // sketchy arm save code
+
+      return withinAngleRange(getAngle()) && withinAngleRange(targetAngleDegrees)
+          ? Math.min(Arm.Setpoints.Extensions.SKETCHY_BODY_EXTENSION, targetExtensionInches)
+          : Arm.Setpoints.Extensions.MIN_EXTENSION;
     }
     return targetExtensionInches;
   }
