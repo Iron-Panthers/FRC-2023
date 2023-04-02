@@ -29,6 +29,7 @@ import frc.robot.Constants.Arm;
 import frc.robot.Constants.Config;
 import frc.robot.Constants.Drive;
 import frc.robot.autonomous.commands.MobilityAuto;
+import frc.robot.autonomous.commands.N1_1ConePlus2CubeHybridMobility;
 import frc.robot.autonomous.commands.N1_1ConePlus2CubeHybridMobilityEngage;
 import frc.robot.autonomous.commands.N2_Engage;
 import frc.robot.autonomous.commands.N3_1ConePlusMobility;
@@ -209,6 +210,8 @@ public class RobotContainer {
         });
 
     will.start().onTrue(new InstantCommand(drivebaseSubsystem::zeroGyroscope, drivebaseSubsystem));
+    will.back()
+        .onTrue(new InstantCommand(drivebaseSubsystem::smartZeroGyroscope, drivebaseSubsystem));
 
     // pov(-1) is the case when no pov is pressed, so doing while false will bind this command to
     // any pov angle
@@ -273,8 +276,6 @@ public class RobotContainer {
                 drivebaseSubsystem,
                 manueverGenerator,
                 (new AlliancePose2d(15.3639 - 1.5, 7.3965, Rotation2d.fromDegrees(0)))::get,
-                (new AlliancePose2d(15.3639, 7.3965, Rotation2d.fromDegrees(0)))::get,
-                0,
                 translationXSupplier,
                 translationYSupplier,
                 will.rightBumper(),
@@ -282,7 +283,9 @@ public class RobotContainer {
                 Optional.of(will.getHID())));
 
     will.x()
-        .onTrue(new EngageCommand(drivebaseSubsystem, EngageCommand.EngageDirection.GO_FORWARD));
+        .onTrue(
+            new EngageCommand(
+                drivebaseSubsystem, intakeSubsystem, EngageCommand.EngageDirection.GO_BACKWARD));
 
     // outtake states
     jasonLayer
@@ -330,9 +333,25 @@ public class RobotContainer {
                         ? IntakeSubsystem.Modes.INTAKE_LOW
                         : IntakeSubsystem.Modes.INTAKE));
 
-    jason.povUp().onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.OUTTAKE));
+    jason
+        .povUp()
+        .onTrue(
+            new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.OUTTAKE)
+                .alongWith(new ArmPositionCommand(armSubsystem, Arm.Setpoints.HANDOFF)));
 
     jason.start().onTrue(new ZeroIntakeCommand(intakeSubsystem));
+
+    jason
+        .back()
+        .whileTrue(
+            new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE)
+                .alongWith(new ArmPositionCommand(armSubsystem, Arm.Setpoints.HANDOFF))
+                .alongWith(
+                    new ForceOuttakeSubsystemModeCommand(
+                        outtakeSubsystem, OuttakeSubsystem.Modes.OFF)))
+        .onFalse(
+            new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)
+                .alongWith(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED)));
 
     // scoring
     // jasonLayer
@@ -475,13 +494,24 @@ public class RobotContainer {
     autoSelector.setDefaultOption(
         "N1 1Cone + 2Cube Low Mobility Engage",
         new N1_1ConePlus2CubeHybridMobilityEngage(
+            4.95,
+            4,
+            eventMap,
+            intakeSubsystem,
+            outtakeSubsystem,
+            armSubsystem,
+            drivebaseSubsystem));
+
+    autoSelector.setDefaultOption(
+        "N1 1Cone + 2Cube Low Mobility NO ENGAGE",
+        new N1_1ConePlus2CubeHybridMobility(
             4.95, 4, eventMap, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
 
     autoSelector.setDefaultOption(
         "N9 1Cone + 1Cube + Grab Cube Mobility",
         new N9_1ConePlus2CubeMobility(
             4.95,
-            2,
+            3,
             eventMap,
             intakeSubsystem,
             outtakeSubsystem,

@@ -55,7 +55,8 @@ public class N9_1ConePlus2CubeMobility extends SequentialCommandGroup {
         new ScoreCommand(
             outtakeSubsystem,
             armSubsystem,
-            Constants.SCORE_STEP_MAP.get(NodeType.CUBE.atHeight(Height.HIGH))),
+            Constants.SCORE_STEP_MAP.get(NodeType.CUBE.atHeight(Height.HIGH)),
+            1),
         new FollowPathWithEvents(
             new FollowTrajectoryCommand(paths.get(1), drivebaseSubsystem),
             paths.get(1).get().getMarkers(),
@@ -63,6 +64,7 @@ public class N9_1ConePlus2CubeMobility extends SequentialCommandGroup {
         new ScoreCommand(
             outtakeSubsystem,
             armSubsystem,
-            Constants.SCORE_STEP_MAP.get(NodeType.CUBE.atHeight(Height.MID))));
+            Constants.SCORE_STEP_MAP.get(NodeType.CUBE.atHeight(Height.MID)),
+            1));
   }
 }

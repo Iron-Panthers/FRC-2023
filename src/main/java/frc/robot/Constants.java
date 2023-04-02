@@ -281,10 +281,11 @@ public final class Constants {
 
     public static final class IntakeModes {
       public static final IntakeDetails INTAKE = IntakeDetails.simple(-158, .3);
-      public static final IntakeDetails INTAKE_LOW = IntakeDetails.simple(-170, .3);
+      public static final IntakeDetails INTAKE_LOW = IntakeDetails.simple(-175, .3);
       public static final IntakeDetails OUTTAKE = IntakeDetails.simple(-30, -0.5);
       public static final IntakeDetails DOWN = IntakeDetails.simple(-200, 0);
       public static final IntakeDetails STOWED = IntakeDetails.simple(Setpoints.MIN_ANGLE, 0);
+      public static final IntakeDetails CLIMB = IntakeDetails.simple(-158, 0);
     }
   }
 
@@ -472,7 +473,7 @@ public final class Constants {
 
     public static final class OuttakeModes {
       public static final OuttakeDetails HOLD =
-          new OuttakeDetails(0.07, Optional.empty(), Optional.empty());
+          new OuttakeDetails(0.11, Optional.empty(), Optional.empty());
 
       public static final OuttakeDetails INTAKE =
           new OuttakeDetails(.5, Optional.of(new OuttakeDetails.StatorLimit(80)), Optional.of(.5));
