@@ -161,3 +161,10 @@ bin/
 
 # Simulation GUI and other tools window save file
 *-window.json
+
+*.snap.debug
+
+# recording of matches
+*.mkv
+
+*.mirror.path

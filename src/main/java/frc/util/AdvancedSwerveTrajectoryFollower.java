@@ -5,12 +5,14 @@
 package frc.util;
 
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
+import com.pathplanner.lib.server.PathPlannerServer;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
-import frc.robot.Constants.PoseEstimator;
+import frc.robot.Constants.Config;
 import frc.robot.autonomous.TrajectoryFollower;
 
 /**
@@ -45,25 +47,6 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
     return new ChassisSpeeds();
   }
 
-  public static boolean poseWithinErrorMarginOfTrajectoryFinalGoal(
-      Pose2d currentPose, Trajectory trajectory) {
-    var finalState =
-        ((PathPlannerState)
-            trajectory
-                // sample the final position using the time greater than total time behavior
-                .sample(trajectory.getTotalTimeSeconds() + 1));
-    return (
-        // xy error
-        currentPose.getTranslation().getDistance(finalState.poseMeters.getTranslation())
-            <= PoseEstimator.DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS)
-        && (
-        // theta error
-        Math.abs(
-                Util.relativeAngularDifference(
-                    currentPose.getRotation(), finalState.holonomicRotation))
-            <= PoseEstimator.DRIVE_TO_POSE_THETA_ERROR_MARGIN_DEGREES);
-  }
-
   @Override
   protected ChassisSpeeds calculateDriveSignal(
       Pose2d currentPose, Trajectory trajectory, double time, double dt) {
@@ -89,6 +72,10 @@ public class AdvancedSwerveTrajectoryFollower extends TrajectoryFollower<Chassis
         lastState instanceof PathPlannerState
             ? ((360 - ((PathPlannerState) lastState).holonomicRotation.getDegrees()) % 360)
             : ((360 - poseRef.getRotation().getDegrees()) % 360);
+
+    if (Config.RUN_PATHPLANNER_SERVER)
+      PathPlannerServer.sendPathFollowingData(
+          new Pose2d(poseRef.getTranslation(), Rotation2d.fromDegrees(targetDegrees)), currentPose);
 
     // scope current and target angles
     double angularDifferenceDeg = Util.relativeAngularDifference(currentDegrees, targetDegrees);
