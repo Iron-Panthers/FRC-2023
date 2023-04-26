@@ -269,6 +269,9 @@ public final class Constants {
 
     public static final double ZEROING_STATOR_LIMIT = 40;
 
+    /** Distance away until cube is considered to be held. Measured in millimeters */
+    public static final int CUBE_THRESHOLD_DISTANCE = 50; // FIXME: Not real value!
+
     public static final class Ports {
       public static final int INTAKE_MOTOR_PORT = CAN.at(18, "intake motor");
       public static final int ANGLE_MOTOR_PORT = CAN.at(19, "intake angle motor");

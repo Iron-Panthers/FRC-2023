@@ -332,6 +332,24 @@ public class RobotContainer {
                     jason.getHID().getPOV() == 180
                         ? IntakeSubsystem.Modes.INTAKE_LOW
                         : IntakeSubsystem.Modes.INTAKE));
+    jasonLayer
+        .off(jason.leftBumper())
+        .onTrue(
+            new IntakeCommand(
+                    intakeSubsystem,
+                    () ->
+                        jason.getHID().getPOV() == 180
+                            ? IntakeSubsystem.Modes.INTAKE_LOW
+                            : IntakeSubsystem.Modes.INTAKE)
+                .until(intakeSubsystem::cubeGrabbed)
+                .andThen(new IntakeCommand(intakeSubsystem, () -> IntakeSubsystem.Modes.STOWED)))
+        .onFalse(
+            intakeSubsystem.cubeGrabbed()
+                ? new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.OUTTAKE)
+                    .until(() -> !(intakeSubsystem.cubeGrabbed()))
+                    .raceWith(new WaitCommand(3))
+                    .andThen(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED))
+                : new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED));
 
     jason
         .povUp()

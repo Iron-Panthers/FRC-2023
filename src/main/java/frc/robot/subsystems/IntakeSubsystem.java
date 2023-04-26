@@ -190,6 +190,14 @@ public class IntakeSubsystem extends SubsystemBase {
     return controlType;
   }
 
+  public double getCubeDistance() {
+    return timeOfFlightSensor.getRange();
+  }
+
+  public boolean cubeGrabbed() {
+    return getCubeDistance() < Intake.CUBE_THRESHOLD_DISTANCE;
+  }
+
   public void setMode(Modes mode) {
     if (mode == this.mode) return;
     this.mode = mode;
