@@ -7,6 +7,8 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.playingwithfusion.TimeOfFlight;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.LinearFilter;
@@ -35,6 +37,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private final TalonFX intakeMotor;
   private final TalonFX angleMotor;
+
+  private final TimeOfFlight zappyThing;
 
   private Modes mode;
   private ControlTypes controlType;
@@ -108,6 +112,8 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeMotor = new TalonFX(Intake.Ports.INTAKE_MOTOR_PORT);
     angleMotor = new TalonFX(Intake.Ports.ANGLE_MOTOR_PORT);
 
+    zappyThing = new TimeOfFlight(Intake.Ports.ZAPPY_THING_PORT);
+
     currentAngle = 0;
     targetAngle = 0;
 
@@ -174,6 +180,10 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public boolean atTargetAngle() {
     return Util.epsilonEquals(getCurrentAngleDegrees(), targetAngle, Intake.EPSILON);
+  }
+
+  public double getSensorDistance() {
+    return zappyThing.getRange(); //don't know if this is the right method, have to check docs
   }
 
   public Modes getMode() {
