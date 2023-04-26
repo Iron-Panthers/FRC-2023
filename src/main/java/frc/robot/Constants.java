@@ -47,6 +47,8 @@ public final class Constants {
     public static final boolean RUN_PATHPLANNER_SERVER =
         // never run pathplanner server in simulation, it will fail unit tests (???)
         HALUtil.getHALRuntimeType() != HALUtil.RUNTIME_SIMULATION;
+
+   
   }
 
   public static final class Drive {

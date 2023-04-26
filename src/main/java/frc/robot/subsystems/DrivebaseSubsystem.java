@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.PoseEstimator;
 import frc.robot.subsystems.VisionSubsystem.VisionMeasurement;
 import frc.util.AdvancedSwerveTrajectoryFollower;
@@ -146,6 +147,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
   public DrivebaseSubsystem(VisionSubsystem visionSubsystem) {
     this.visionSubsystem = visionSubsystem;
 
+  
+
     final SwerveModule module1 =
         createModule(
             "Module #1",
@@ -157,6 +160,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     final SwerveModule module2 =
         createModule(
+
             "Module #2",
             1,
             Modules.Module2.DRIVE_MOTOR,
@@ -184,6 +188,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     swerveModules = // modules are always initialized and passed in this order
         new SwerveModule[] {module1, module2, module3, module4};
+
+    
 
     rotController = new PIDController(0.03, 0.001, 0.003);
     rotController.setSetpoint(0);
@@ -230,12 +236,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
   }
 
   private SwerveModulePosition[] getSwerveModulePositions() {
+
+  if (Constants.Config.SWERVE_MODULES_FOUND){
     return new SwerveModulePosition[] {
       swerveModules[0].getPosition(),
       swerveModules[1].getPosition(),
       swerveModules[2].getPosition(),
       swerveModules[3].getPosition()
     };
+  }
   }
 
   private Rotation2d driverGyroOffset = Rotation2d.fromDegrees(0);
@@ -474,6 +483,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
             swervePoseEstimator.getEstimatedPosition().getX(),
             swervePoseEstimator.getEstimatedPosition().getY(),
             swervePoseEstimator.getEstimatedPosition().getRotation().getDegrees()));
+
+    
 
     /*
      * See if there is a new drive signal from the trajectory follower object.
