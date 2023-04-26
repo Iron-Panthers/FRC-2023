@@ -272,6 +272,9 @@ public final class Constants {
     public static final class Ports {
       public static final int INTAKE_MOTOR_PORT = CAN.at(18, "intake motor");
       public static final int ANGLE_MOTOR_PORT = CAN.at(19, "intake angle motor");
+
+      public static final int TIME_OF_FLIGHT_PORT =
+          CAN.at(5026, "time of flight sensor"); // FIXME: actual port needed plz
     }
 
     public static final class Setpoints {

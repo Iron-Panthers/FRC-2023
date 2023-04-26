@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.playingwithfusion.TimeOfFlight;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.LinearFilter;
@@ -35,6 +36,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private final TalonFX intakeMotor;
   private final TalonFX angleMotor;
+
+  private final TimeOfFlight timeOfFlightSensor;
 
   private Modes mode;
   private ControlTypes controlType;
@@ -105,6 +108,9 @@ public class IntakeSubsystem extends SubsystemBase {
 
   /** Creates a new IntakeSubsystem. */
   public IntakeSubsystem() {
+
+    timeOfFlightSensor = new TimeOfFlight(Intake.Ports.TIME_OF_FLIGHT_PORT);
+
     intakeMotor = new TalonFX(Intake.Ports.INTAKE_MOTOR_PORT);
     angleMotor = new TalonFX(Intake.Ports.ANGLE_MOTOR_PORT);
 
