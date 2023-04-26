@@ -3,21 +3,9 @@ package frc.robot;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import frc.RobotTest;
-import frc.util.NodeSelectorUtility;
 import java.lang.reflect.Field;
 
 public class ConstantsTest {
-  @RobotTest
-  public void scoreStepMapHasEveryType() {
-    for (var type : NodeSelectorUtility.NodeType.values()) {
-      for (var height : NodeSelectorUtility.Height.values()) {
-        var id = type.atHeight(height);
-        assertTrue(
-            Constants.SCORE_STEP_MAP.containsKey(id),
-            String.format("Missing %s %s %s in SCORE_STEP_MAP", type, height, id));
-      }
-    }
-  }
 
   private void recursiveFinalCheck(Class<?> clazz) {
     // iterate internal classes

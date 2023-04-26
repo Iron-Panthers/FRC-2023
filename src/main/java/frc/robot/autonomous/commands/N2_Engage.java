@@ -6,8 +6,6 @@ package frc.robot.autonomous.commands;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.EngageCommand;
-import frc.robot.commands.FollowTrajectoryCommand;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.util.pathing.LoadMirrorPath;
 import java.util.function.Supplier;
@@ -22,9 +20,5 @@ public class N2_Engage extends SequentialCommandGroup {
     Supplier<PathPlannerTrajectory> path =
         LoadMirrorPath.loadPath(
             "n2 engage", maxVelocityMetersPerSecond, maxAccelerationMetersPerSecondSq);
-
-    addCommands(
-        new FollowTrajectoryCommand(path, true, drivebaseSubsystem),
-        new EngageCommand(drivebaseSubsystem, EngageCommand.EngageDirection.GO_FORWARD));
   }
 }

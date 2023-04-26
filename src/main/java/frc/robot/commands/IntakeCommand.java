@@ -4,46 +4,23 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.IntakeSubsystem.Modes;
-import java.util.function.Supplier;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.subsystems.GripperSubsystem;
 
-public class IntakeCommand extends CommandBase {
-  private IntakeSubsystem intakeSubsystem;
-  private Supplier<Modes> modeSupplier;
-  /** Creates a new IntakeCommand. */
-  public IntakeCommand(IntakeSubsystem intakeSubsystem, Modes mode) {
-    // Use addRequirements() here to declare subsystem dependencies.
-    this(intakeSubsystem, () -> mode);
-  }
+// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
+// information, see:
+// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
+public class IntakeCommand extends InstantCommand {
 
-  public IntakeCommand(IntakeSubsystem intakeSubsystem, Supplier<Modes> modeSupplier) {
-    this.intakeSubsystem = intakeSubsystem;
-    this.modeSupplier = modeSupplier;
+  private final GripperSubsystem gripperSubsystem;
 
-    addRequirements(intakeSubsystem);
+  public IntakeCommand(GripperSubsystem gripperSubsystem) {
+    this.gripperSubsystem = gripperSubsystem;
+    
+    addRequirements(gripperSubsystem);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-    intakeSubsystem.setMode(modeSupplier.get());
-  }
-
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
-    intakeSubsystem.setMode(modeSupplier.get());
-  }
-
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {}
-
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return false;
-  }
+  public void initialize() {}
 }
