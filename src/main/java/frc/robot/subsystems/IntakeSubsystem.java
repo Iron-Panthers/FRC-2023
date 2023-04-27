@@ -186,6 +186,10 @@ public class IntakeSubsystem extends SubsystemBase {
     return zappyThing.getRange(); //don't know if this is the right method, have to check docs
   }
 
+  public boolean isCubeInRange() {
+    return getSensorDistance() <= Intake.CUBE_DISTANCE_THRESHOLD;
+  }
+
   public Modes getMode() {
     return mode;
   }

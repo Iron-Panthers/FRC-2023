@@ -269,7 +269,7 @@ public final class Constants {
 
     public static final double ZEROING_STATOR_LIMIT = 40;
 
-    public static final double CUBE_DISTANCE_THRESHOLD = 10; //FIXME need real value
+    public static final double CUBE_DISTANCE_THRESHOLD = 50; //FIXME need real value
 
     public static final class Ports {
       public static final int INTAKE_MOTOR_PORT = CAN.at(18, "intake motor");
