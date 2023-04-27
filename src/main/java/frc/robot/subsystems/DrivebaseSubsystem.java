@@ -22,6 +22,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -30,12 +32,12 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.Config;
 import frc.robot.Constants;
 import frc.robot.Constants.PoseEstimator;
 import frc.robot.subsystems.VisionSubsystem.VisionMeasurement;
 import frc.util.AdvancedSwerveTrajectoryFollower;
 import frc.util.Util;
-import java.util.List;
 import java.util.Optional;
 
 public class DrivebaseSubsystem extends SubsystemBase {
@@ -95,8 +97,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
   public enum Modes {
     DRIVE,
     DRIVE_ANGLE,
-    DEFENSE,
-    BALANCE
+    DEFENSE
   }
 
   /** The current mode */
@@ -147,49 +148,49 @@ public class DrivebaseSubsystem extends SubsystemBase {
   public DrivebaseSubsystem(VisionSubsystem visionSubsystem) {
     this.visionSubsystem = visionSubsystem;
 
-  
+    if (!Config.DISABLE_SWERVE_MODULE_INIT) {
 
-    final SwerveModule module1 =
-        createModule(
-            "Module #1",
-            0,
-            Modules.Module1.DRIVE_MOTOR,
-            Modules.Module1.STEER_MOTOR,
-            Modules.Module1.STEER_ENCODER,
-            Modules.Module1.STEER_OFFSET);
+      final SwerveModule module1 =
+          createModule(
+              "Module #1",
+              0,
+              Modules.Module1.DRIVE_MOTOR,
+              Modules.Module1.STEER_MOTOR,
+              Modules.Module1.STEER_ENCODER,
+              Modules.Module1.STEER_OFFSET);
 
-    final SwerveModule module2 =
-        createModule(
+      final SwerveModule module2 =
+          createModule(
+              "Module #2",
+              1,
+              Modules.Module2.DRIVE_MOTOR,
+              Modules.Module2.STEER_MOTOR,
+              Modules.Module2.STEER_ENCODER,
+              Modules.Module2.STEER_OFFSET);
 
-            "Module #2",
-            1,
-            Modules.Module2.DRIVE_MOTOR,
-            Modules.Module2.STEER_MOTOR,
-            Modules.Module2.STEER_ENCODER,
-            Modules.Module2.STEER_OFFSET);
+      final SwerveModule module3 =
+          createModule(
+              "Module #3",
+              2,
+              Modules.Module3.DRIVE_MOTOR,
+              Modules.Module3.STEER_MOTOR,
+              Modules.Module3.STEER_ENCODER,
+              Modules.Module3.STEER_OFFSET);
 
-    final SwerveModule module3 =
-        createModule(
-            "Module #3",
-            2,
-            Modules.Module3.DRIVE_MOTOR,
-            Modules.Module3.STEER_MOTOR,
-            Modules.Module3.STEER_ENCODER,
-            Modules.Module3.STEER_OFFSET);
+      final SwerveModule module4 =
+          createModule(
+              "Module #4",
+              3,
+              Modules.Module4.DRIVE_MOTOR,
+              Modules.Module4.STEER_MOTOR,
+              Modules.Module4.STEER_ENCODER,
+              Modules.Module4.STEER_OFFSET);
 
-    final SwerveModule module4 =
-        createModule(
-            "Module #4",
-            3,
-            Modules.Module4.DRIVE_MOTOR,
-            Modules.Module4.STEER_MOTOR,
-            Modules.Module4.STEER_ENCODER,
-            Modules.Module4.STEER_OFFSET);
-
-    swerveModules = // modules are always initialized and passed in this order
-        new SwerveModule[] {module1, module2, module3, module4};
-
-    
+      swerveModules = // modules are always initialized and passed in this order
+          new SwerveModule[] {module1, module2, module3, module4};
+    } else {
+      swerveModules = null;
+    }
 
     rotController = new PIDController(0.03, 0.001, 0.003);
     rotController.setSetpoint(0);
@@ -215,8 +216,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
     //     "angular difference",
     //     () -> -Util.relativeAngularDifference(targetAngle, getGyroscopeRotation().getDegrees()));
 
-    tab.addDouble("pitch", navx::getPitch);
-    tab.addDouble("roll", navx::getRoll);
+    if (Config.SHOW_SHUFFLEBOARD_DEBUG_DATA) {
+      tab.addDouble("pitch", navx::getPitch);
+      tab.addDouble("roll", navx::getRoll);
+    }
 
     Shuffleboard.getTab("DriverView").add(field).withPosition(0, 2).withSize(8, 4);
   }
@@ -236,14 +239,19 @@ public class DrivebaseSubsystem extends SubsystemBase {
   }
 
   private SwerveModulePosition[] getSwerveModulePositions() {
-
-  if (Constants.Config.SWERVE_MODULES_FOUND){
-    return new SwerveModulePosition[] {
-      swerveModules[0].getPosition(),
-      swerveModules[1].getPosition(),
-      swerveModules[2].getPosition(),
-      swerveModules[3].getPosition()
-    };
+    return Config.DISABLE_SWERVE_MODULE_INIT
+        ? new SwerveModulePosition[] {
+          new SwerveModulePosition(),
+          new SwerveModulePosition(),
+          new SwerveModulePosition(),
+          new SwerveModulePosition(),
+        }
+        : new SwerveModulePosition[] {
+          swerveModules[0].getPosition(),
+          swerveModules[1].getPosition(),
+          swerveModules[2].getPosition(),
+          swerveModules[3].getPosition()
+        };
   }
   }
 
@@ -254,6 +262,20 @@ public class DrivebaseSubsystem extends SubsystemBase {
     driverGyroOffset = getConsistentGyroscopeRotation();
   }
 
+  /** Aligns gyro heading with pose estimation */
+  public void smartZeroGyroscope() {
+    driverGyroOffset =
+        getConsistentGyroscopeRotation()
+            .minus(
+                swervePoseEstimator
+                    .getEstimatedPosition()
+                    .getRotation()
+                    .plus(
+                        DriverStation.getAlliance() == Alliance.Blue
+                            ? new Rotation2d()
+                            : Rotation2d.fromDegrees(180)));
+  }
+
   /**
    * Resets the odometry estimate to a specific pose.
    *
@@ -262,7 +284,13 @@ public class DrivebaseSubsystem extends SubsystemBase {
   public void resetOdometryToPose(Pose2d pose) {
 
     // "Zero" the driver gyro heading
-    driverGyroOffset = getConsistentGyroscopeRotation().minus(pose.getRotation());
+    driverGyroOffset =
+        getConsistentGyroscopeRotation()
+            .minus(pose.getRotation())
+            .plus(
+                DriverStation.getAlliance() == Alliance.Blue
+                    ? new Rotation2d()
+                    : Rotation2d.fromDegrees(180));
 
     swervePoseEstimator.resetPosition(
         getConsistentGyroscopeRotation(), getSwerveModulePositions(), pose);
@@ -338,10 +366,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
     mode = Modes.DEFENSE;
   }
 
-  public void setBalanceMode() {
-    mode = Modes.BALANCE;
-  }
-
   /**
    * Updates the robot pose estimation for newly written module states. Should be called on every
    * periodic
@@ -350,23 +374,13 @@ public class DrivebaseSubsystem extends SubsystemBase {
     this.robotPose =
         swervePoseEstimator.update(getConsistentGyroscopeRotation(), getSwerveModulePositions());
 
-    List<VisionMeasurement> visionMeasurements = visionSubsystem.getEstimatedGlobalPose(robotPose);
-
-    for (VisionMeasurement measurement : visionMeasurements) {
+    VisionMeasurement measurement;
+    while ((measurement = visionSubsystem.drainVisionMeasurement()) != null) {
       swervePoseEstimator.addVisionMeasurement(
           measurement.estimation().estimatedPose.toPose2d(),
           measurement.estimation().timestampSeconds,
           measurement.confidence());
     }
-
-    // System.out.println(
-    //     "Vision measurement "
-    //         + cameraPoseSome.getFirst().toString()
-    //         + " from "
-    //         + cameraPoseSome.getSecond()
-    //         + " at time "
-    //         + Timer.getFPGATimestamp()
-    //         + " added to pose estimator");
   }
 
   private void drivePeriodic() {
@@ -418,32 +432,22 @@ public class DrivebaseSubsystem extends SubsystemBase {
     // No need to call odometry periodic
   }
 
-  private void balancePeriodic() {
-    // x direction
-    double roll = navx.getRoll();
-    double absRoll = Math.abs(roll);
-    // y direction
-    double pitch = navx.getPitch();
-    double absPitch = Math.abs(pitch);
-
-    if (Math.max(absRoll, absPitch) <= AutoBalance.THRESHOLD_ANGLE) {
-      defensePeriodic();
-      return;
+  public record RollPitch(double roll, double pitch) {
+    public static RollPitch fromAHRS(AHRS navx) {
+      return new RollPitch(navx.getRoll(), navx.getPitch());
     }
 
-    double control =
-        AutoBalance.P_SPEED_METERS_PER_SECOND
-            * Math.pow(
-                MathUtil.clamp(Math.max(absRoll, absPitch) / AutoBalance.MAX_ANGLE, 0, 1),
-                AutoBalance.E_EXPONENTIAL_FACTOR);
+    public double absRoll() {
+      return Math.abs(roll);
+    }
 
-    // use bang bang to generate chassis speeds that will balance the robot
-    chassisSpeeds =
-        absRoll > absPitch
-            ? new ChassisSpeeds(Math.copySign(control, roll), 0, 0)
-            : new ChassisSpeeds(0, Math.copySign(control, pitch), 0);
+    public double absPitch() {
+      return Math.abs(pitch);
+    }
+  }
 
-    drivePeriodic();
+  public RollPitch getRollPitch() {
+    return RollPitch.fromAHRS(navx);
   }
 
   /**
@@ -453,11 +457,11 @@ public class DrivebaseSubsystem extends SubsystemBase {
    * @param mode The mode to use (should use the current mode value)
    */
   public void updateModules(Modes mode) {
+    if (Config.DISABLE_SWERVE_MODULE_INIT) return;
     switch (mode) {
       case DRIVE -> drivePeriodic();
       case DRIVE_ANGLE -> driveAnglePeriodic();
       case DEFENSE -> defensePeriodic();
-      case BALANCE -> balancePeriodic();
     }
   }
 
@@ -476,13 +480,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
     Pose2d pose = getPose();
 
     field.setRobotPose(swervePoseEstimator.getEstimatedPosition());
-    SmartDashboard.putString(
-        "pose",
-        String.format(
-            "(%2f %2f %2f)",
-            swervePoseEstimator.getEstimatedPosition().getX(),
-            swervePoseEstimator.getEstimatedPosition().getY(),
-            swervePoseEstimator.getEstimatedPosition().getRotation().getDegrees()));
+    if (Config.SHOW_SHUFFLEBOARD_DEBUG_DATA) {
+      SmartDashboard.putString(
+          "pose",
+          String.format(
+              "(%2f %2f %2f)",
+              swervePoseEstimator.getEstimatedPosition().getX(),
+              swervePoseEstimator.getEstimatedPosition().getY(),
+              swervePoseEstimator.getEstimatedPosition().getRotation().getDegrees()));
+    }
 
     
 
@@ -504,5 +510,17 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     /* Update odometry */
     odometryPeriodic();
+  }
+
+  public static ChassisSpeeds produceChassisSpeeds(
+      boolean isRobotRelativeForward,
+      boolean isRobotRelativeBackward,
+      double x,
+      double y,
+      double rotationVelocity,
+      Rotation2d currentGyroAngle) {
+    if (isRobotRelativeForward) return new ChassisSpeeds(x, y, rotationVelocity);
+    if (isRobotRelativeBackward) return new ChassisSpeeds(-x, -y, rotationVelocity);
+    return ChassisSpeeds.fromFieldRelativeSpeeds(x, y, rotationVelocity, currentGyroAngle);
   }
 }

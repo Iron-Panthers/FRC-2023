@@ -4,14 +4,13 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.Arm;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.sensors.MagnetFieldStrength;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -21,6 +20,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Arm;
 import frc.robot.Constants.Arm.Thresholds;
+import frc.robot.Constants.Config;
 import frc.util.Util;
 
 /** Add your docs here. */
@@ -107,25 +107,27 @@ public class ArmSubsystem extends SubsystemBase {
 
     extensionMotor.setSelectedSensorPosition(0);
 
-    tab.addDouble("current angle", this::getAngle);
-    tab.addDouble("Desired Angle", () -> targetAngleDegrees);
-    tab.add("Angle Arm PID", angleController);
-    tab.add("Telescoping Arm PID", extensionController);
-    tab.addNumber("current telescope PID P term", () -> extensionController.getP());
-    tab.addNumber("Current Extension", this::getCurrentExtensionInches);
-    tab.addNumber("Target Extension", () -> targetExtensionInches);
-    tab.addNumber("extension error", () -> targetExtensionInches - getCurrentExtensionInches());
-    tab.addNumber("Telescoping PID Output", () -> extensionOutput);
-    tab.addBoolean(
-        "Current or Target Angle within Unsafe Threshold",
-        this::currentOrTargetAnglePassesUnsafeRange);
-    tab.addNumber("Arm Gravity Offset", this::computeArmGravityOffset);
-    tab.addNumber("Angle Output", () -> angleOutput);
-    tab.addNumber("Angle Error", () -> targetAngleDegrees - getAngle());
-    tab.addBoolean("At target", this::atTarget);
-    tab.addString("Current Mode", () -> mode.toString());
-    tab.addNumber("Stator current", this.extensionMotor::getStatorCurrent);
-    tab.addNumber("filtered stator current", () -> this.filterOutput);
+    if (Config.SHOW_SHUFFLEBOARD_DEBUG_DATA) {
+      tab.addDouble("current angle", this::getAngle);
+      tab.addDouble("Desired Angle", () -> targetAngleDegrees);
+      tab.add("Angle Arm PID", angleController);
+      tab.add("Telescoping Arm PID", extensionController);
+      tab.addNumber("current telescope PID P term", () -> extensionController.getP());
+      tab.addNumber("Current Extension", this::getCurrentExtensionInches);
+      tab.addNumber("Target Extension", () -> targetExtensionInches);
+      tab.addNumber("extension error", () -> targetExtensionInches - getCurrentExtensionInches());
+      tab.addNumber("Telescoping PID Output", () -> extensionOutput);
+      tab.addBoolean(
+          "Current or Target Angle within Unsafe Threshold",
+          this::currentOrTargetAnglePassesUnsafeRange);
+      tab.addNumber("Arm Gravity Offset", this::computeArmGravityOffset);
+      tab.addNumber("Angle Output", () -> angleOutput);
+      tab.addNumber("Angle Error", () -> targetAngleDegrees - getAngle());
+      tab.addBoolean("At target", this::atTarget);
+      tab.addString("Current Mode", () -> mode.toString());
+      tab.addNumber("Stator current", this.extensionMotor::getStatorCurrent);
+      tab.addNumber("filtered stator current", () -> this.filterOutput);
+    }
   }
 
   public enum Modes {
@@ -157,8 +159,8 @@ public class ArmSubsystem extends SubsystemBase {
     this.targetAngleDegrees =
         MathUtil.clamp(
             targetAngleDegrees,
-            -Arm.Thresholds.Angles.UPPER_ANGLE_LIMIT,
-            Arm.Thresholds.Angles.UPPER_ANGLE_LIMIT);
+            Arm.Thresholds.Angles.BACKWARD_ANGLE_LIMIT,
+            Arm.Thresholds.Angles.FORWARD_ANGLE_LIMIT);
   }
 
   public double getTargetAngleDegrees() {
@@ -214,6 +216,12 @@ public class ArmSubsystem extends SubsystemBase {
         withinAngleRange(targetAngleDegrees)
         // if the signs are opposite, arm must pass through bottom
         || Math.signum(targetAngleDegrees) != Math.signum(getAngle());
+  }
+
+  // Return true if encoder is bad
+  private boolean encoderIsBad() {
+    return angleEncoder.getMagnetFieldStrength() == MagnetFieldStrength.Invalid_Unknown
+        || angleEncoder.getMagnetFieldStrength() == MagnetFieldStrength.BadRange_RedLED;
   }
 
   // Add the gravity offset as a function of sine
@@ -295,8 +303,13 @@ public class ArmSubsystem extends SubsystemBase {
             getCurrentExtensionInches(), computeIntermediateExtensionGoal());
 
     angleOutput = angleController.calculate(currentAngle, computeIntermediateAngleGoal());
-    angleMotor.set(
-        ControlMode.PercentOutput, MathUtil.clamp(angleOutput + armGravityOffset, -.7, .7));
+
+    if (encoderIsBad()) {
+      angleMotor.set(ControlMode.PercentOutput, 0);
+    } else {
+      angleMotor.set(
+          ControlMode.PercentOutput, MathUtil.clamp(angleOutput + armGravityOffset, -.7, .7));
+    }
     extensionMotor.set(ControlMode.PercentOutput, MathUtil.clamp(extensionOutput, -.5, .5));
   }
 }

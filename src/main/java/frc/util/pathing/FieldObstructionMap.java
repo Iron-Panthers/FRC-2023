@@ -178,13 +178,12 @@ public class FieldObstructionMap {
         new Translation2d(0, 0),
         new Translation2d(1.37795, 5.6388));
 
-    // add the barrier (eyeballed, and inaccurately thin to allow for scoring)
-    // if your graph is less than .1m per tile, you'll need to make this thicker
+    // add the barrier (eyeballed, and inaccurately to allow for scoring but avoid element)
     addAndMirrorRectangleObstruction(
         obstructions,
         AllianceColor.RED,
         "Barrier",
-        new Translation2d(1.17, 5.51),
+        new Translation2d(1.17, 5.35),
         new Translation2d(3.31, 5.61));
 
     // add the double substation

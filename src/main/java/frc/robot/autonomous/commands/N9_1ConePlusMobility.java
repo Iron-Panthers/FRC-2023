@@ -11,7 +11,6 @@ import frc.robot.Constants;
 import frc.robot.Constants.Arm;
 import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.FollowTrajectoryCommand;
-import frc.robot.commands.ForceOuttakeSubsystemModeCommand;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.SetOuttakeModeCommand;
 import frc.robot.commands.SetZeroModeCommand;
@@ -21,43 +20,33 @@ import frc.robot.subsystems.OuttakeSubsystem;
 import frc.util.NodeSelectorUtility.Height;
 import frc.util.NodeSelectorUtility.NodeType;
 import frc.util.pathing.LoadMirrorPath;
-import java.util.List;
 import java.util.function.Supplier;
 
-public class N3_2ConePlusMobility extends SequentialCommandGroup {
-  public N3_2ConePlusMobility(
+public class N9_1ConePlusMobility extends SequentialCommandGroup {
+  /** Creates a new N2MobilityEngage. */
+  public N9_1ConePlusMobility(
       double maxVelocityMetersPerSecond,
       double maxAccelerationMetersPerSecondSq,
       OuttakeSubsystem outtakeSubsystem,
       ArmSubsystem armSubsystem,
       DrivebaseSubsystem drivebaseSubsystem) {
 
-    List<Supplier<PathPlannerTrajectory>> paths =
-        LoadMirrorPath.loadPathGroup(
-            "n3 2cone + mobility", maxVelocityMetersPerSecond, maxAccelerationMetersPerSecondSq);
+    Supplier<PathPlannerTrajectory> path =
+        LoadMirrorPath.loadPath(
+            "n9 1cone + mobility", maxVelocityMetersPerSecond, maxAccelerationMetersPerSecondSq);
 
     addCommands(
         new SetZeroModeCommand(armSubsystem)
-            .raceWith(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)),
+            .deadlineWith(
+                new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE)),
         new ScoreCommand(
             outtakeSubsystem,
             armSubsystem,
-            Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH))),
-        (new FollowTrajectoryCommand(paths.get(0), true, drivebaseSubsystem))
+            Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH)),
+            1),
+        (new FollowTrajectoryCommand(path, true, drivebaseSubsystem))
             .alongWith(
                 (new WaitCommand(1))
-                    .andThen(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))),
-        (new WaitCommand(4))
-            .deadlineWith(
-                new ArmPositionCommand(armSubsystem, Arm.Setpoints.GROUND_INTAKE)
-                    .alongWith(
-                        new ForceOuttakeSubsystemModeCommand(
-                            outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE))),
-        new FollowTrajectoryCommand(paths.get(1), drivebaseSubsystem)
-            .alongWith(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)),
-        new ScoreCommand(
-            outtakeSubsystem,
-            armSubsystem,
-            Constants.SCORE_STEP_MAP.get(NodeType.CONE.atHeight(Height.HIGH))));
+                    .andThen(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))));
   }
 }

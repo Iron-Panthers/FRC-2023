@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.Constants.Config;
 import frc.robot.Constants.Lights.Colors;
 import frc.robot.Constants.Outtake;
 import frc.robot.subsystems.RGBSubsystem.MessagePriority;
@@ -49,6 +50,7 @@ public class OuttakeSubsystem extends SubsystemBase {
     HOLD(Outtake.OuttakeModes.HOLD),
     INTAKE(Outtake.OuttakeModes.INTAKE),
     OUTTAKE(Outtake.OuttakeModes.OUTTAKE),
+    OUTTAKE_FAST_CUBE(Outtake.OuttakeModes.OUTTAKE_FAST_CUBE),
     OFF(Outtake.OuttakeModes.OFF);
 
     public final OuttakeDetails outtakeDetails;
@@ -105,18 +107,22 @@ public class OuttakeSubsystem extends SubsystemBase {
     modeLocked = false;
 
     // FIXME: Change the tap rate to get a better average
-    filter = LinearFilter.movingAverage(30);
+    filter = LinearFilter.movingAverage(13);
 
     filterOutput = 0;
 
-    tab.addNumber("Stator Current", this.outtake::getStatorCurrent);
-    tab.addNumber("Filter Output", () -> this.filterOutput);
+    if (Config.SHOW_SHUFFLEBOARD_DEBUG_DATA) {
+      tab.addNumber("Stator Current", this.outtake::getStatorCurrent);
+      tab.addNumber("Filter Output", () -> this.filterOutput);
 
-    tab.addNumber("voltage", this.outtake::getMotorOutputVoltage);
+      tab.addNumber("voltage", this.outtake::getMotorOutputVoltage);
 
-    tab.addString("Current Mode", () -> mode.toString());
+      tab.addString("Current Mode", () -> mode.toString());
 
-    tab.addBoolean("mode locked", () -> this.modeLocked);
+      tab.addNumber("velocity", this.outtake::getSelectedSensorVelocity);
+
+      tab.addBoolean("mode locked", () -> this.modeLocked);
+    }
   }
 
   /**

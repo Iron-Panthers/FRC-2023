@@ -92,30 +92,31 @@ public class NetworkWatchdogSubsystem extends SubsystemBase {
     }
   }
 
-  private boolean canPingAny() {
+  private boolean canPingAll() {
     for (IPv4 ip : NetworkWatchdog.TEST_IP_ADDRESSES) {
       // fail fast if the thread is interrupted
       if (Thread.currentThread().isInterrupted()) return false;
       if (canPing(ip)) {
         System.out.println("[network watchdog] Pinged " + ip.address + " successfully.");
-        return true;
+      } else {
+        System.out.println("[network watchdog] Failed to ping " + ip.address);
+        return false;
       }
-      System.out.println("[network watchdog] Failed to ping " + ip.address);
     }
-    return false;
+    return true;
   }
 
   private void rebootSwitch() {
-    System.out.println("[network watchdog] Rebooting switch");
+    // System.out.println("[network watchdog] Rebooting switch");
     showColor(Lights.Colors.RED, MessagePriority.A_CRITICAL_NETWORK_FAILURE);
     // pdh.setSwitchableChannel(false);
     sleep(NetworkWatchdog.REBOOT_DURATION_MS);
-    pdh.setSwitchableChannel(true);
-    System.out.println("[network watchdog] Finished rebooting switch");
+    // pdh.setSwitchableChannel(true);
+    // System.out.println("[network watchdog] Finished rebooting switch");
   }
 
   private boolean pingAttemptStep() {
-    if (!canPingAny()) return false;
+    if (!canPingAll()) return false;
     System.out.println("[network watchdog] Network is up.");
     showColor(Lights.Colors.MINT, MessagePriority.H_NETWORK_HEALTHY);
     sleep(NetworkWatchdog.HEALTHY_CHECK_INTERVAL_MS);

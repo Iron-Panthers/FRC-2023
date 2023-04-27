@@ -8,7 +8,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.Pathing;
 import frc.robot.Constants.Pathing.Costs;
 import frc.util.Graph;
@@ -24,6 +23,7 @@ public class RubenManueverGenerator {
 
   private final BoolGrid dangerGrid = new BoolGrid(Pathing.CELL_X_MAX, Pathing.CELL_Y_MAX);
   private final BoolGrid collisionGrid = new BoolGrid(Pathing.CELL_X_MAX, Pathing.CELL_Y_MAX);
+  private final BoolGrid noPriorityFlowGrid = new BoolGrid(Pathing.CELL_X_MAX, Pathing.CELL_Y_MAX);
 
   /**
    * Determine if a given coordinate is valid for the pathing grid. Factors the robot's width into
@@ -63,14 +63,19 @@ public class RubenManueverGenerator {
       return 1;
     }
 
+    if (direction == LinkDirection.COMBO) {
+      return Costs.DIAGONAL_BAD_FLOW_PENALTY;
+    }
+
     if (flowTypeStart == FlowType.X_AXIS_PREFERRED || flowTypeEnd == FlowType.X_AXIS_PREFERRED) {
-      return direction == LinkDirection.PURE_X ? 1 : Costs.BAD_FLOW_PENALTY;
+      return direction == LinkDirection.PURE_X ? 1 : Costs.PERPENDICULAR_BAD_FLOW_PENALTY;
     }
 
     if (flowTypeStart == FlowType.Y_AXIS_PREFERRED || flowTypeEnd == FlowType.Y_AXIS_PREFERRED) {
-      return direction == LinkDirection.PURE_Y ? 1 : Costs.BAD_FLOW_PENALTY;
+      return direction == LinkDirection.PURE_Y ? 1 : Costs.PERPENDICULAR_BAD_FLOW_PENALTY;
     }
 
+    // we should never actually get here
     return 1;
   }
 
@@ -132,8 +137,13 @@ public class RubenManueverGenerator {
     for (int x = 0; x < Pathing.CELL_X_MAX; x++) {
       for (int y = 0; y < Pathing.CELL_Y_MAX; y++) {
 
+        var t = new GridCoord(x, y).toTranslation2d();
+
+        noPriorityFlowGrid.set(
+            x, y, FieldObstructionMap.getPriorityFlow(t) == FlowType.NO_PREFERENCE);
+
         // if the cell is inside an obstruction, mark it as a collision
-        if (FieldObstructionMap.isInsideObstruction(new GridCoord(x, y).toTranslation2d())) {
+        if (FieldObstructionMap.isInsideObstruction(t)) {
           collisionGrid.set(x, y, true);
           dangerGrid.set(x, y, true);
           continue;
@@ -373,18 +383,20 @@ public class RubenManueverGenerator {
           // make a new line between the previous and next point
           List<GridCoord> line = GridCoord.line(p1, p3);
           // and ensure that new line does not have any points in the danger grid
-          boolean hasDanger = false;
+          // and ensure that all points in the new line are in the same priority flow field
+          boolean hasDangerOrPriorityFlow = false;
           for (GridCoord point : line) {
-            if (dangerGrid.get(point)) {
-              hasDanger = true;
+            if (dangerGrid.get(point) || !noPriorityFlowGrid.get(point)) {
+              hasDangerOrPriorityFlow = true;
               break;
             }
           }
-          // if it does not, then the point is our new best candidate to remove
-          if (!hasDanger) {
-            bestCandidate = i;
-            bestDistance = d;
-          }
+
+          if (hasDangerOrPriorityFlow) continue;
+
+          // if the entire new segment is safe, then the point is our new best candidate to remove
+          bestCandidate = i;
+          bestDistance = d;
         }
       }
       // if we found a point to remove
@@ -410,6 +422,11 @@ public class RubenManueverGenerator {
 
   public static List<PathPoint> computePathPointsFromCriticalPoints(
       List<GridCoord> criticalPoints, Pose2d start, ChassisSpeeds chassisSpeeds, Pose2d end) {
+    if (criticalPoints.size() < 2) {
+      throw new IllegalArgumentException(
+          "Cannot compute path with less than 2 critical points, as the first and last points are replaced with real poses.");
+    }
+
     List<PathPoint> pathPoints = new ArrayList<>();
 
     pathPoints.add(
@@ -469,15 +486,25 @@ public class RubenManueverGenerator {
     // System.out.println("start: " + new GridCoord(start.getTranslation()));
     // System.out.println("projected: " + startCoord);
     // System.out.println("chassis speeds: " + chassisSpeeds);
-    var t1 = Timer.getFPGATimestamp();
+    // var t1 = Timer.getFPGATimestamp();
     var path = findFullPath(startCoord, endCoord);
     // System.out.println("path solve time: " + (Timer.getFPGATimestamp() - t1));
     if (path.isEmpty()) return Optional.empty();
     var criticalPoints = findCriticalPoints(path.get());
     var neededCriticalPoints = simplifyCriticalPoints(criticalPoints);
     var pathPoints =
-        computePathPointsFromCriticalPoints(
-            neededCriticalPoints, projectedStart, chassisSpeeds, end);
+        neededCriticalPoints.size() < 2
+            ? List.of(
+                new PathPoint(
+                    start.getTranslation(),
+                    straightLineAngle(start.getTranslation(), end.getTranslation()),
+                    start.getRotation()),
+                new PathPoint(
+                    end.getTranslation(),
+                    straightLineAngle(end.getTranslation(), start.getTranslation()),
+                    end.getRotation()))
+            : computePathPointsFromCriticalPoints(
+                neededCriticalPoints, projectedStart, chassisSpeeds, end);
 
     PathPlannerTrajectory trajectory = PathPlanner.generatePath(constraints, pathPoints);
 
