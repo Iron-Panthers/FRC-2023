@@ -6,8 +6,9 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -38,7 +40,18 @@ public class VisionSubsystem {
           .withPosition(11, 0)
           .withSize(2, 3);
 
-  record CameraEstimator(PhotonCamera camera, PhotonPoseEstimator estimator) {}
+  private class DuplicateTracker {
+    private double lastTimeStamp;
+
+    public boolean isDuplicate(PhotonPipelineResult frame) {
+      boolean isDuplicate = frame.getTimestampSeconds() == lastTimeStamp;
+      lastTimeStamp = frame.getTimestampSeconds();
+      return isDuplicate;
+    }
+  }
+
+  record CameraEstimator(
+      PhotonCamera camera, PhotonPoseEstimator estimator, DuplicateTracker duplicateTracker) {}
 
   private final List<CameraEstimator> cameraEstimators = new ArrayList<>();
 
@@ -68,13 +81,29 @@ public class VisionSubsystem {
               visionSource.robotToCamera());
       estimator.setMultiTagFallbackStrategy(PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
       cameraStatusList.addBoolean(visionSource.name(), camera::isConnected);
-      cameraEstimators.add(new CameraEstimator(camera, estimator));
+      cameraEstimators.add(new CameraEstimator(camera, estimator, new DuplicateTracker()));
     }
 
     if (useShuffleboard)
       cameraStatusList.addString(
           "time since apriltag detection",
           () -> String.format("%3.0f seconds", Timer.getFPGATimestamp() - lastDetection));
+
+    var thread =
+        new Thread(
+            () -> {
+              if (fieldLayout == null) return;
+              while (!Thread.currentThread().isInterrupted()) {
+                this.findVisionMeasurements();
+                try {
+                  Thread.sleep(Vision.THREAD_SLEEP_DURATION_MS);
+                } catch (InterruptedException e) {
+                  Thread.currentThread().interrupt();
+                }
+              }
+            });
+    thread.setDaemon(true);
+    thread.start();
   }
 
   record MeasurementRow(
@@ -117,8 +146,33 @@ public class VisionSubsystem {
             est.toPose2d().getRotation().getRadians()));
   }
 
+  public static record UnitDeviationParams(
+      double distanceMultiplier, double eulerMultiplier, double minimum) {
+    private double computeUnitDeviation(double averageDistance) {
+      return Math.max(minimum, eulerMultiplier * Math.exp(averageDistance * distanceMultiplier));
+    }
+  }
+
+  public static record TagCountDeviation(
+      UnitDeviationParams xParams, UnitDeviationParams yParams, UnitDeviationParams thetaParams) {
+    private Matrix<N3, N1> computeDeviation(double averageDistance) {
+      return Matrix.mat(Nat.N3(), Nat.N1())
+          .fill(
+              xParams.computeUnitDeviation(averageDistance),
+              yParams.computeUnitDeviation(averageDistance),
+              thetaParams.computeUnitDeviation(averageDistance));
+    }
+
+    public TagCountDeviation(UnitDeviationParams xyParams, UnitDeviationParams thetaParams) {
+      this(xyParams, xyParams, thetaParams);
+    }
+  }
+
   public static record VisionMeasurement(
       EstimatedRobotPose estimation, Matrix<N3, N1> confidence) {}
+
+  private ConcurrentLinkedQueue<VisionMeasurement> visionMeasurements =
+      new ConcurrentLinkedQueue<>();
 
   private static boolean ignoreFrame(PhotonPipelineResult frame) {
     if (!frame.hasTargets() || frame.getTargets().size() > PoseEstimator.MAX_FRAME_FIDS)
@@ -134,48 +188,42 @@ public class VisionSubsystem {
     return !possibleCombination;
   }
 
-  public List<VisionMeasurement> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
-    if (fieldLayout == null) {
-      return List.of();
-    }
+  public VisionMeasurement drainVisionMeasurement() {
+    return visionMeasurements.poll();
+  }
 
-    List<VisionMeasurement> estimations = new ArrayList<>();
-
+  private void findVisionMeasurements() {
     for (CameraEstimator cameraEstimator : cameraEstimators) {
-      cameraEstimator.estimator().setReferencePose(prevEstimatedRobotPose);
       PhotonPipelineResult frame = cameraEstimator.camera().getLatestResult();
 
       // determine if result should be ignored
-      if (ignoreFrame(frame)) continue;
+      if (cameraEstimator.duplicateTracker().isDuplicate(frame) || ignoreFrame(frame)) continue;
 
       var optEstimation = cameraEstimator.estimator().update(frame);
       if (optEstimation.isEmpty()) continue;
       var estimation = optEstimation.get();
-      double smallestDistance = Double.POSITIVE_INFINITY;
+
+      if (estimation.targetsUsed.size() == 1
+          && (estimation.targetsUsed.get(0).getPoseAmbiguity() > PoseEstimator.POSE_AMBIGUITY_CUTOFF
+              || estimation.targetsUsed.get(0).getPoseAmbiguity() == -1)) continue;
+
+      double sumDistance = 0;
       for (var target : estimation.targetsUsed) {
         var t3d = target.getBestCameraToTarget();
-        var distance =
+        sumDistance +=
             Math.sqrt(Math.pow(t3d.getX(), 2) + Math.pow(t3d.getY(), 2) + Math.pow(t3d.getZ(), 2));
-        if (distance < smallestDistance) smallestDistance = distance;
       }
-      double poseAmbiguityFactor =
-          estimation.targetsUsed.size() != 1
-              ? 1
-              : Math.max(
-                  1,
-                  (estimation.targetsUsed.get(0).getPoseAmbiguity()
-                          + PoseEstimator.POSE_AMBIGUITY_SHIFTER)
-                      * PoseEstimator.POSE_AMBIGUITY_MULTIPLIER);
-      double confidenceMultiplier =
-          Math.max(
-              1,
-              (Math.max(
-                          1,
-                          Math.max(0, smallestDistance - PoseEstimator.NOISY_DISTANCE_METERS)
-                              * PoseEstimator.DISTANCE_WEIGHT)
-                      * poseAmbiguityFactor)
-                  / (1
-                      + ((estimation.targetsUsed.size() - 1) * PoseEstimator.TAG_PRESENCE_WEIGHT)));
+      double avgDistance = sumDistance / estimation.targetsUsed.size();
+
+      var deviation =
+          PoseEstimator.TAG_COUNT_DEVIATION_PARAMS
+              .get(
+                  MathUtil.clamp(
+                      estimation.targetsUsed.size() - 1,
+                      0,
+                      PoseEstimator.TAG_COUNT_DEVIATION_PARAMS.size() - 1))
+              .computeDeviation(avgDistance);
+
       // System.out.println(
       //     String.format(
       //         "with %d tags at smallest distance %f and pose ambiguity factor %f, confidence
@@ -184,21 +232,13 @@ public class VisionSubsystem {
       //         smallestDistance,
       //         poseAmbiguityFactor,
       //         confidenceMultiplier));
+      lastDetection = estimation.timestampSeconds;
       logMeasurement(
           estimation.targetsUsed.size(),
-          smallestDistance,
+          avgDistance,
           estimation.targetsUsed.get(0).getPoseAmbiguity(),
           estimation.estimatedPose);
-      estimations.add(
-          new VisionMeasurement(
-              estimation,
-              PoseEstimator.VISION_MEASUREMENT_STANDARD_DEVIATIONS.times(confidenceMultiplier)));
+      visionMeasurements.add(new VisionMeasurement(estimation, deviation));
     }
-
-    if (!estimations.isEmpty()) {
-      lastDetection = Timer.getFPGATimestamp();
-    }
-
-    return estimations;
   }
 }

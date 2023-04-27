@@ -5,20 +5,23 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.DrivebaseSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.IntakeSubsystem.ControlTypes;
 
-public class BalanceCommand extends CommandBase {
-  private final DrivebaseSubsystem drivebaseSubsystem;
-  /** Creates a new BalanceCommand. */
-  public BalanceCommand(DrivebaseSubsystem drivebaseSubsystem) {
-    this.drivebaseSubsystem = drivebaseSubsystem;
-    addRequirements(drivebaseSubsystem);
+public class ZeroIntakeCommand extends CommandBase {
+  private IntakeSubsystem intakeSubsystem;
+  /** Creates a new ZeroIntakeCommand. */
+  public ZeroIntakeCommand(IntakeSubsystem intakeSubsystem) {
+    // Use addRequirements() here to declare subsystem dependencies.
+    this.intakeSubsystem = intakeSubsystem;
+
+    addRequirements(intakeSubsystem);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    drivebaseSubsystem.setBalanceMode();
+    intakeSubsystem.startZeroing();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -32,6 +35,6 @@ public class BalanceCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return intakeSubsystem.getControlType() != ControlTypes.ZEROING;
   }
 }

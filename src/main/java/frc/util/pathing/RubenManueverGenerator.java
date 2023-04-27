@@ -8,7 +8,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.Pathing;
 import frc.robot.Constants.Pathing.Costs;
 import frc.util.Graph;
@@ -423,6 +422,11 @@ public class RubenManueverGenerator {
 
   public static List<PathPoint> computePathPointsFromCriticalPoints(
       List<GridCoord> criticalPoints, Pose2d start, ChassisSpeeds chassisSpeeds, Pose2d end) {
+    if (criticalPoints.size() < 2) {
+      throw new IllegalArgumentException(
+          "Cannot compute path with less than 2 critical points, as the first and last points are replaced with real poses.");
+    }
+
     List<PathPoint> pathPoints = new ArrayList<>();
 
     pathPoints.add(
@@ -482,15 +486,25 @@ public class RubenManueverGenerator {
     // System.out.println("start: " + new GridCoord(start.getTranslation()));
     // System.out.println("projected: " + startCoord);
     // System.out.println("chassis speeds: " + chassisSpeeds);
-    var t1 = Timer.getFPGATimestamp();
+    // var t1 = Timer.getFPGATimestamp();
     var path = findFullPath(startCoord, endCoord);
     // System.out.println("path solve time: " + (Timer.getFPGATimestamp() - t1));
     if (path.isEmpty()) return Optional.empty();
     var criticalPoints = findCriticalPoints(path.get());
     var neededCriticalPoints = simplifyCriticalPoints(criticalPoints);
     var pathPoints =
-        computePathPointsFromCriticalPoints(
-            neededCriticalPoints, projectedStart, chassisSpeeds, end);
+        neededCriticalPoints.size() < 2
+            ? List.of(
+                new PathPoint(
+                    start.getTranslation(),
+                    straightLineAngle(start.getTranslation(), end.getTranslation()),
+                    start.getRotation()),
+                new PathPoint(
+                    end.getTranslation(),
+                    straightLineAngle(end.getTranslation(), start.getTranslation()),
+                    end.getRotation()))
+            : computePathPointsFromCriticalPoints(
+                neededCriticalPoints, projectedStart, chassisSpeeds, end);
 
     PathPlannerTrajectory trajectory = PathPlanner.generatePath(constraints, pathPoints);
 
