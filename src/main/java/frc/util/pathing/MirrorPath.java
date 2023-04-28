@@ -171,6 +171,6 @@ public class MirrorPath {
 
     double holonomicAngle = ((Number) objectPoint.get("holonomicAngle")).doubleValue();
 
-    objectPoint.put("holonomicAngle", (holonomicAngle % 360) + 180d);
+    objectPoint.put("holonomicAngle", ((holonomicAngle + 180d)%360));
   }
 }
