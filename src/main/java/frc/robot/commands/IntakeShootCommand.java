@@ -14,8 +14,9 @@ public class IntakeShootCommand extends SequentialCommandGroup {
             new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE_LOW)
                 .until(() -> intakeSubsystem.isCubeInRange()),
             new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED)
-                .raceWith(new WaitCommand(1)),
-            new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.OUTTAKE)
+                .until(() -> !isButtonPressed.getAsBoolean()),
+            new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.SHOOT)
+                .raceWith(new WaitCommand(0.75))
         );
     }
 }

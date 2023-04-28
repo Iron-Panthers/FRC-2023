@@ -289,6 +289,7 @@ public final class Constants {
       public static final IntakeDetails DOWN = IntakeDetails.simple(-200, 0);
       public static final IntakeDetails STOWED = IntakeDetails.simple(Setpoints.MIN_ANGLE, 0);
       public static final IntakeDetails CLIMB = IntakeDetails.simple(-158, 0);
+      public static final IntakeDetails SHOOT = IntakeDetails.simple(Setpoints.MIN_ANGLE, -0.5);
     }
   }
 

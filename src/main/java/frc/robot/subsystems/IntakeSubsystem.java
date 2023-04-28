@@ -83,7 +83,8 @@ public class IntakeSubsystem extends SubsystemBase {
     OUTTAKE(Intake.IntakeModes.OUTTAKE),
     DOWN(Intake.IntakeModes.DOWN),
     STOWED(Intake.IntakeModes.STOWED),
-    CLIMB(Intake.IntakeModes.CLIMB);
+    CLIMB(Intake.IntakeModes.CLIMB),
+    SHOOT(Intake.IntakeModes.SHOOT);
 
     public final IntakeDetails intakeDetails;
 

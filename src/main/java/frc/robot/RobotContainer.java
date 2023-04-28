@@ -49,6 +49,7 @@ import frc.robot.commands.GroundPickupCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
 import frc.robot.commands.HashMapCommand;
 import frc.robot.commands.IntakeCommand;
+import frc.robot.commands.IntakeShootCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.ScoreCommand;
@@ -286,6 +287,9 @@ public class RobotContainer {
         .onTrue(
             new EngageCommand(
                 drivebaseSubsystem, intakeSubsystem, EngageCommand.EngageDirection.GO_BACKWARD));
+
+    jasonLayer.off(jason.leftBumper())
+        .whileTrue(new IntakeShootCommand(intakeSubsystem, jason.leftBumper()));
 
     // outtake states
     jasonLayer
