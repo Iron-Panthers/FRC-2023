@@ -288,8 +288,9 @@ public class RobotContainer {
             new EngageCommand(
                 drivebaseSubsystem, intakeSubsystem, EngageCommand.EngageDirection.GO_BACKWARD));
 
-    jasonLayer.off(jason.leftBumper())
-        .whileTrue(new IntakeShootCommand(intakeSubsystem, jason.leftBumper()));
+    jasonLayer
+        .off(jason.leftBumper())
+            .onTrue(new IntakeShootCommand(intakeSubsystem, jason.leftBumper()));
 
     // outtake states
     jasonLayer
