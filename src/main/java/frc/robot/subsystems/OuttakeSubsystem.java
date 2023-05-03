@@ -11,8 +11,15 @@ import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.Constants.Config;
+import frc.robot.Constants.Lights.Colors;
 import frc.robot.Constants.Outtake;
+import frc.robot.subsystems.RGBSubsystem.MessagePriority;
+import frc.robot.subsystems.RGBSubsystem.PatternTypes;
 import java.util.Optional;
 
 public class OuttakeSubsystem extends SubsystemBase {
@@ -43,6 +50,7 @@ public class OuttakeSubsystem extends SubsystemBase {
     HOLD(Outtake.OuttakeModes.HOLD),
     INTAKE(Outtake.OuttakeModes.INTAKE),
     OUTTAKE(Outtake.OuttakeModes.OUTTAKE),
+    OUTTAKE_FAST_CUBE(Outtake.OuttakeModes.OUTTAKE_FAST_CUBE),
     OFF(Outtake.OuttakeModes.OFF);
 
     public final OuttakeDetails outtakeDetails;
@@ -57,13 +65,10 @@ public class OuttakeSubsystem extends SubsystemBase {
           outtakeDetails.minTimeSeconds.isEmpty()
               || Timer.getFPGATimestamp() - lastTransitionTime
                   > outtakeDetails.minTimeSeconds.get();
-      // if time likmit is exceedd and mode is not locked
-      if (exceededTimeLimit && !modeLocked) return true;
-      // if time limit is exceeded and stator limit is exceeded, even if locked
-      if (exceededTimeLimit
-          && outtakeDetails.statorLimit.isPresent()
-          && outtakeDetails.statorLimit.get().statorTransitionCurrent <= filterOutput) return true;
-      return false;
+      if (!exceededTimeLimit) return false;
+      if (outtakeDetails.statorLimit.isEmpty()) return !modeLocked;
+
+      return outtakeDetails.statorLimit.get().statorTransitionCurrent <= filterOutput;
     }
   }
 
@@ -79,11 +84,16 @@ public class OuttakeSubsystem extends SubsystemBase {
 
   private final ShuffleboardTab tab = Shuffleboard.getTab("Claw");
 
-  public OuttakeSubsystem() {
+  private final Optional<RGBSubsystem> rgbSubsystem;
+
+  public OuttakeSubsystem(Optional<RGBSubsystem> rgbSubsystem) {
+
+    this.rgbSubsystem = rgbSubsystem;
 
     this.mode = Modes.OFF;
 
     this.outtake = new TalonFX(Outtake.Ports.OUTTAKE_MOTOR);
+    outtake.setInverted(true);
 
     // this.outtake.setInverted(true);
 
@@ -97,16 +107,22 @@ public class OuttakeSubsystem extends SubsystemBase {
     modeLocked = false;
 
     // FIXME: Change the tap rate to get a better average
-    filter = LinearFilter.movingAverage(30);
+    filter = LinearFilter.movingAverage(13);
 
     filterOutput = 0;
 
-    tab.addNumber("Stator Current", this.outtake::getStatorCurrent);
-    tab.addNumber("Filter Output", () -> this.filterOutput);
+    if (Config.SHOW_SHUFFLEBOARD_DEBUG_DATA) {
+      tab.addNumber("Stator Current", this.outtake::getStatorCurrent);
+      tab.addNumber("Filter Output", () -> this.filterOutput);
 
-    tab.addNumber("voltage", this.outtake::getMotorOutputVoltage);
+      tab.addNumber("voltage", this.outtake::getMotorOutputVoltage);
 
-    tab.addString("Current Mode", () -> mode.toString());
+      tab.addString("Current Mode", () -> mode.toString());
+
+      tab.addNumber("velocity", this.outtake::getSelectedSensorVelocity);
+
+      tab.addBoolean("mode locked", () -> this.modeLocked);
+    }
   }
 
   /**
@@ -140,6 +156,15 @@ public class OuttakeSubsystem extends SubsystemBase {
 
     switch (mode) {
       case INTAKE:
+        if (rgbSubsystem.isPresent()) {
+          var msg =
+              rgbSubsystem
+                  .get()
+                  .showMessage(
+                      Colors.WHITE, PatternTypes.PULSE, MessagePriority.C_INTAKE_STATE_CHANGE);
+          CommandScheduler.getInstance()
+              .schedule(new WaitCommand(.7).andThen(new InstantCommand(msg::expire)));
+        }
         return Modes.HOLD;
       case OUTTAKE:
         return Modes.OFF;

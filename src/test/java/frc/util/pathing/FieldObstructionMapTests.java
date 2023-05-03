@@ -46,12 +46,16 @@ public class FieldObstructionMapTests {
 
     for (int x = 0; x < Pathing.CELL_X_MAX; x++) {
       for (int y = 0; y < Pathing.CELL_Y_MAX; y++) {
-        final double xCoord = x * Pathing.CELL_SIZE_METERS;
-        final double yCoord = y * Pathing.CELL_SIZE_METERS;
+        final Translation2d point =
+            new Translation2d(x * Pathing.CELL_SIZE_METERS, y * Pathing.CELL_SIZE_METERS);
         obstructionMap[x][y] =
-            FieldObstructionMap.isInsideObstruction(new Translation2d(xCoord, yCoord))
+            FieldObstructionMap.isInsideObstruction(point)
                 ? FieldSquare.OBSTRUCTION
-                : FieldSquare.EMPTY;
+                : switch (FieldObstructionMap.getPriorityFlow(point)) {
+                  case X_AXIS_PREFERRED -> FieldSquare.X_AXIS_FLOW;
+                  case Y_AXIS_PREFERRED -> FieldSquare.Y_AXIS_FLOW;
+                  case NO_PREFERENCE -> FieldSquare.EMPTY;
+                };
       }
     }
 
@@ -77,6 +81,15 @@ public class FieldObstructionMapTests {
       } catch (Exception e) {
         sb.append("Error writing obstruction to string: ");
         sb.append(obstruction.getName());
+      }
+    }
+
+    for (FieldObstructionMap.PriorityFlow flow : FieldObstructionMap.priorityFlows) {
+      try {
+        sb.append(mapper.writeValueAsString(flow));
+      } catch (Exception e) {
+        sb.append("Error writing flow to string: ");
+        sb.append(flow.getName());
       }
     }
 

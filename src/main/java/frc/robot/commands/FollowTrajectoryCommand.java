@@ -4,17 +4,19 @@
 
 package frc.robot.commands;
 
+import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DrivebaseSubsystem;
+import java.util.function.Supplier;
 
+/** Command to interface with the advanced trajectory follower, with automatic path mirroring. */
 public class FollowTrajectoryCommand extends CommandBase {
   private final DrivebaseSubsystem drivebaseSubsystem;
-  private final Trajectory trajectory;
+  private final Supplier<PathPlannerTrajectory> trajectory;
   /**
    * True if the swerve drive subsystem should localize to the trajectory's starting point in the
    * initialization block. Calls the underlying SwerveDriveOdometry.resetOdometry(pose, angle).
@@ -29,7 +31,8 @@ public class FollowTrajectoryCommand extends CommandBase {
    * @param drivebaseSubsystem The instance of the Drivebase subsystem (should come from
    *     RobotContainer)
    */
-  public FollowTrajectoryCommand(Trajectory trajectory, DrivebaseSubsystem drivebaseSubsystem) {
+  public FollowTrajectoryCommand(
+      Supplier<PathPlannerTrajectory> trajectory, DrivebaseSubsystem drivebaseSubsystem) {
     this.trajectory = trajectory;
     this.drivebaseSubsystem = drivebaseSubsystem;
     this.localizeToStartPose = false;
@@ -46,7 +49,9 @@ public class FollowTrajectoryCommand extends CommandBase {
    *     RobotContainer)
    */
   public FollowTrajectoryCommand(
-      Trajectory trajectory, boolean localizeToStartPose, DrivebaseSubsystem drivebaseSubsystem) {
+      Supplier<PathPlannerTrajectory> trajectory,
+      boolean localizeToStartPose,
+      DrivebaseSubsystem drivebaseSubsystem) {
     this.trajectory = trajectory;
     this.drivebaseSubsystem = drivebaseSubsystem;
     this.localizeToStartPose = localizeToStartPose;
@@ -56,17 +61,17 @@ public class FollowTrajectoryCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    drivebaseSubsystem.getFollower().follow(trajectory);
+    drivebaseSubsystem.getFollower().follow(trajectory.get());
 
     if (localizeToStartPose) {
       // sample the trajectory at 0 seconds (its beginning)
-      State firstState = trajectory.sample(0);
+      State firstState = trajectory.get().sample(0);
       Pose2d pose = firstState.poseMeters;
       if (firstState instanceof PathPlannerState) {
         Rotation2d holonomicRotation = ((PathPlannerState) firstState).holonomicRotation;
         pose = new Pose2d(pose.getTranslation(), holonomicRotation);
       }
-      // If it's not an instanceof Pathplanner State, we still need to zero to current position...
+      // If it's not an instanceof PathPlanner State, we still need to zero to current position...
       drivebaseSubsystem.resetOdometryToPose(pose);
     }
   }
