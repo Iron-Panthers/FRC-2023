@@ -64,7 +64,7 @@ public class VisionSubsystem {
     // loading the 2023 field arrangement
     try {
       fieldLayout =
-          AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
+          AprilTagFieldLayout.loadFromResource(AprilTagFields.k2022RapidReact.m_resourceFile);
     } catch (IOException e) {
       System.err.println("Failed to load field layout.");
       e.printStackTrace();
