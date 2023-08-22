@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import static frc.robot.Constants.Drive.*;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.playingwithfusion.TimeOfFlight;
 import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 import edu.wpi.first.math.MathUtil;
@@ -32,6 +33,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.Config;
 import frc.robot.Constants.PoseEstimator;
 import frc.robot.subsystems.VisionSubsystem.VisionMeasurement;
@@ -110,6 +112,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
   private final PIDController rotController;
 
   private double targetAngle = 0; // default target angle to zero
+
+  private final TimeOfFlight zappyThing;
 
   private Pair<Double, Double> xyInput = new Pair<>(0d, 0d); // the x and y for using target angles
   /**
@@ -208,6 +212,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
             PoseEstimator.VISION_MEASUREMENT_STANDARD_DEVIATIONS);
 
     zeroGyroscope();
+
+    zappyThing = new TimeOfFlight(Constants.Drive.ZAPPY_THING_PORT);
 
     // tab.addNumber("target angle", () -> targetAngle);
     // tab.addNumber("current angle", () -> getGyroscopeRotation().getDegrees());
@@ -345,6 +351,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
     this.targetAngle = targetAngle;
     if (mode != Modes.DRIVE_ANGLE) rotController.reset();
     mode = Modes.DRIVE_ANGLE;
+  }
+
+  public double getSensorDistance() {
+    return zappyThing.getRange();
   }
 
   /**
