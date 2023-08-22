@@ -8,6 +8,8 @@ import static frc.robot.Constants.Drive.*;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.playingwithfusion.TimeOfFlight;
+import com.playingwithfusion.TimeOfFlight.RangingMode;
+import com.playingwithfusion.TimeOfFlight.Status;
 import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 import edu.wpi.first.math.MathUtil;
@@ -224,6 +226,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     if (Config.SHOW_SHUFFLEBOARD_DEBUG_DATA) {
       tab.addDouble("pitch", navx::getPitch);
       tab.addDouble("roll", navx::getRoll);
+      tab.addDouble("sensorDistance", this::getSensorDistance);
     }
 
     Shuffleboard.getTab("DriverView").add(field).withPosition(0, 2).withSize(8, 4);
@@ -355,6 +358,39 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
   public double getSensorDistance() {
     return zappyThing.getRange();
+  }
+
+  public Status getSensorStatus() {
+    return zappyThing.getStatus();
+  }
+
+  public RangingMode getSensorRangingMode() {
+    return zappyThing.getRangingMode();
+  }
+
+  /*
+   * Configure the ranging mode as well as the sample rate of the 
+   * time of flight sensor The ranging mode specifies the 
+   * trade off between maximum measure distance verses 
+   * reliablity in bright situations.
+   * -from docs
+   */
+  public void setSensorRangingMode(RangingMode mode, double sampleTime) {
+    zappyThing.setRangingMode(mode, sampleTime);
+  }
+
+  //makes the sensor flash red and green
+  public void flashSensor() {
+    zappyThing.identifySensor();
+  }
+
+  //is last measurement valid
+  public boolean isSensorRangeValid() {
+    return zappyThing.isRangeValid();
+  }
+
+  public void setSensorRangeOfInterest(int topLeftX, int topLeftY, int bottomRightX, int bottomRightY) {
+    zappyThing.setRangeOfInterest(topLeftX, topLeftY, bottomRightX, bottomRightY);
   }
 
   /**
