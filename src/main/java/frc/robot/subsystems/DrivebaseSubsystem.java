@@ -428,13 +428,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
   }
 
 
-  /** Returns how far away the game piece is from the center of the robot (maybe the node?)*/
-  public double getAlignDistance() {
-
-    // Generate distance away or something lol
-    return 1.3;
-  }
-
   private void drivePeriodic() {
     SwerveModuleState[] states = kinematics.toSwerveModuleStates(chassisSpeeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);

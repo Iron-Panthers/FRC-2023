@@ -51,15 +51,15 @@ public class AlignGamepieceCommand extends SequentialCommandGroup {
           var alliance = DriverStation.getAlliance();
 
           return switch (alliance) {
-            case Blue -> translationYSupplier.getAsDouble() - drivebaseSubsystem.getAlignDistance();
-            case Red -> translationYSupplier.getAsDouble() + drivebaseSubsystem.getAlignDistance();
+            case Blue -> translationYSupplier.getAsDouble() - drivebaseSubsystem.getSensorDistance();
+            case Red -> translationYSupplier.getAsDouble() + drivebaseSubsystem.getSensorDistance();
             case Invalid -> {
               System.out.println("Invalid alliance, defaulting to blue align");
-              yield  translationYSupplier.getAsDouble() - drivebaseSubsystem.getAlignDistance();
+              yield  translationYSupplier.getAsDouble() - drivebaseSubsystem.getSensorDistance();
             }
             default -> {
               System.out.printf("Unknown alliance %s, defaulting to blue align", alliance);
-              yield  translationYSupplier.getAsDouble() - drivebaseSubsystem.getAlignDistance();
+              yield  translationYSupplier.getAsDouble() - drivebaseSubsystem.getSensorDistance();
             }
           };
         },       
