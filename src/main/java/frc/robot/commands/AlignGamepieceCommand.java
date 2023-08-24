@@ -43,26 +43,10 @@ public class AlignGamepieceCommand extends SequentialCommandGroup {
         drivebaseSubsystem, 
         manueverGenerator, 
         observationPose, 
-        finalPose, 
+        () -> createFinalPose(finalPose.get(), drivebaseSubsystem.getSensorDistance()), 
         observationTime, 
         translationXSupplier,
-        () -> {
-
-          var alliance = DriverStation.getAlliance();
-
-          return switch (alliance) {
-            case Blue -> translationYSupplier.getAsDouble() - drivebaseSubsystem.getSensorDistance();
-            case Red -> translationYSupplier.getAsDouble() + drivebaseSubsystem.getSensorDistance();
-            case Invalid -> {
-              System.out.println("Invalid alliance, defaulting to blue align");
-              yield  translationYSupplier.getAsDouble() - drivebaseSubsystem.getSensorDistance();
-            }
-            default -> {
-              System.out.printf("Unknown alliance %s, defaulting to blue align", alliance);
-              yield  translationYSupplier.getAsDouble() - drivebaseSubsystem.getSensorDistance();
-            }
-          };
-        },       
+        translationYSupplier, 
         isRobotRelativeRelativeSupplier,
         rgbSubsystem,
         failureRumbleDevice)
@@ -70,8 +54,31 @@ public class AlignGamepieceCommand extends SequentialCommandGroup {
 
   }
 
+  public Pose2d createFinalPose(Pose2d currentPose, double offset) {
 
-  
+    double yPos =  currentPose.getY();
+
+    var alliance = DriverStation.getAlliance();
+
+    switch (alliance) {
+      case Blue -> yPos -= offset;
+      case Red -> yPos += offset;
+      case Invalid -> {
+        System.out.println("Invalid alliance, defaulting to blue align");
+        yPos -= offset;
+      }
+      default -> {
+        System.out.printf("Unknown alliance %s, defaulting to blue align", alliance);
+        yPos -= offset;
+      }
+    };
+
+    
+
+    return new Pose2d(currentPose.getX(), yPos, currentPose.getRotation());
+  }
+
+
   /**
    * Creates a new DriveToPlaceCommand without an observation pose.
    *
