@@ -71,6 +71,9 @@ public final class Constants {
   }
 
   public static final class Drive {
+
+    public static final int ZAPPY_THING_PORT = 0; // FIXME Placeholder
+
     // max voltage delivered to drivebase
     // supposedly useful to limit speed for testing
     public static final double MAX_VOLTAGE = 12.0;
