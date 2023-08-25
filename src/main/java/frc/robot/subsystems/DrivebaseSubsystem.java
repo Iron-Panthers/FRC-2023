@@ -369,9 +369,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
   }
 
   /*
-   * Configure the ranging mode as well as the sample rate of the 
-   * time of flight sensor The ranging mode specifies the 
-   * trade off between maximum measure distance verses 
+   * Configure the ranging mode as well as the sample rate of the
+   * time of flight sensor The ranging mode specifies the
+   * trade off between maximum measure distance verses
    * reliablity in bright situations.
    * -from docs
    */
@@ -379,17 +379,18 @@ public class DrivebaseSubsystem extends SubsystemBase {
     zappyThing.setRangingMode(mode, sampleTime);
   }
 
-  //makes the sensor flash red and green
+  // makes the sensor flash red and green
   public void flashSensor() {
     zappyThing.identifySensor();
   }
 
-  //is last measurement valid
+  // is last measurement valid
   public boolean isSensorRangeValid() {
     return zappyThing.isRangeValid();
   }
 
-  public void setSensorRangeOfInterest(int topLeftX, int topLeftY, int bottomRightX, int bottomRightY) {
+  public void setSensorRangeOfInterest(
+      int topLeftX, int topLeftY, int bottomRightX, int bottomRightY) {
     zappyThing.setRangeOfInterest(topLeftX, topLeftY, bottomRightX, bottomRightY);
   }
 
@@ -426,7 +427,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
           measurement.confidence());
     }
   }
-
 
   private void drivePeriodic() {
     SwerveModuleState[] states = kinematics.toSwerveModuleStates(chassisSpeeds);

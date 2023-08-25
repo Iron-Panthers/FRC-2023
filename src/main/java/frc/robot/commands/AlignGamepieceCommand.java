@@ -11,20 +11,17 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.RGBSubsystem;
 import frc.util.pathing.RubenManueverGenerator;
-
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
-
-
 public class AlignGamepieceCommand extends SequentialCommandGroup {
 
   DriveToPlaceCommand driveToPlace;
 
-    /** Creates a new DriveToPlaceCommand. */
-   public AlignGamepieceCommand(
+  /** Creates a new DriveToPlaceCommand. */
+  public AlignGamepieceCommand(
       DrivebaseSubsystem drivebaseSubsystem,
       RubenManueverGenerator manueverGenerator,
       Supplier<Pose2d> observationPose,
@@ -37,26 +34,23 @@ public class AlignGamepieceCommand extends SequentialCommandGroup {
       Optional<GenericHID> failureRumbleDevice) {
     // Use addRequirements() here to declare subsystem dependencies.
 
-
     addCommands(
-      new DriveToPlaceCommand(
-        drivebaseSubsystem, 
-        manueverGenerator, 
-        observationPose, 
-        () -> createFinalPose(finalPose.get(), drivebaseSubsystem.getSensorDistance()), 
-        observationTime, 
-        translationXSupplier,
-        translationYSupplier, 
-        isRobotRelativeRelativeSupplier,
-        rgbSubsystem,
-        failureRumbleDevice)
-    );
-
+        new DriveToPlaceCommand(
+            drivebaseSubsystem,
+            manueverGenerator,
+            observationPose,
+            () -> createFinalPose(finalPose.get(), drivebaseSubsystem.getSensorDistance()),
+            observationTime,
+            translationXSupplier,
+            translationYSupplier,
+            isRobotRelativeRelativeSupplier,
+            rgbSubsystem,
+            failureRumbleDevice));
   }
 
   public Pose2d createFinalPose(Pose2d currentPose, double offset) {
 
-    double yPos =  currentPose.getY();
+    double yPos = currentPose.getY();
 
     var alliance = DriverStation.getAlliance();
 
@@ -71,13 +65,11 @@ public class AlignGamepieceCommand extends SequentialCommandGroup {
         System.out.printf("Unknown alliance %s, defaulting to blue align", alliance);
         yPos -= offset;
       }
-    };
-
-    
+    }
+    ;
 
     return new Pose2d(currentPose.getX(), yPos, currentPose.getRotation());
   }
-
 
   /**
    * Creates a new DriveToPlaceCommand without an observation pose.

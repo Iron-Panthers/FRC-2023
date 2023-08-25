@@ -7,11 +7,7 @@ package frc.robot;
 import static frc.robot.Constants.Drive;
 
 import com.pathplanner.lib.server.PathPlannerServer;
-
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -274,17 +270,16 @@ public class RobotContainer {
                     will.rightBumper(),
                     Optional.of(rgbSubsystem),
                     Optional.of(will.getHID()))
-                .andThen(    
+                .andThen(
                     new AlignGamepieceCommand(
-                    drivebaseSubsystem,
-                    manueverGenerator,
-                    () -> currentNodeSelection.get().nodeStack().position().get(),
-                    translationXSupplier,
-                    translationYSupplier,
-                    will.rightBumper(),
-                    Optional.of(rgbSubsystem),
-                    Optional.of(will.getHID())
-                )));
+                        drivebaseSubsystem,
+                        manueverGenerator,
+                        () -> currentNodeSelection.get().nodeStack().position().get(),
+                        translationXSupplier,
+                        translationYSupplier,
+                        will.rightBumper(),
+                        Optional.of(rgbSubsystem),
+                        Optional.of(will.getHID()))));
 
     will.y()
         .onTrue(
