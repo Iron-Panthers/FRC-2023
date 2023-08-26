@@ -7,6 +7,9 @@ package frc.robot.subsystems;
 import static frc.robot.Constants.Drive.*;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.playingwithfusion.TimeOfFlight;
+import com.playingwithfusion.TimeOfFlight.RangingMode;
+import com.playingwithfusion.TimeOfFlight.Status;
 import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 import edu.wpi.first.math.MathUtil;
@@ -32,6 +35,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.Config;
 import frc.robot.Constants.PoseEstimator;
 import frc.robot.subsystems.VisionSubsystem.VisionMeasurement;
@@ -110,6 +114,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
   private final PIDController rotController;
 
   private double targetAngle = 0; // default target angle to zero
+
+  private final TimeOfFlight zappyThing;
 
   private Pair<Double, Double> xyInput = new Pair<>(0d, 0d); // the x and y for using target angles
   /**
@@ -209,6 +215,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     zeroGyroscope();
 
+    zappyThing = new TimeOfFlight(Constants.Drive.ZAPPY_THING_PORT);
+
     // tab.addNumber("target angle", () -> targetAngle);
     // tab.addNumber("current angle", () -> getGyroscopeRotation().getDegrees());
     // tab.addNumber(
@@ -218,6 +226,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     if (Config.SHOW_SHUFFLEBOARD_DEBUG_DATA) {
       tab.addDouble("pitch", navx::getPitch);
       tab.addDouble("roll", navx::getRoll);
+      tab.addDouble("sensorDistance", this::getSensorDistance);
     }
 
     Shuffleboard.getTab("DriverView").add(field).withPosition(0, 2).withSize(8, 4);
@@ -345,6 +354,44 @@ public class DrivebaseSubsystem extends SubsystemBase {
     this.targetAngle = targetAngle;
     if (mode != Modes.DRIVE_ANGLE) rotController.reset();
     mode = Modes.DRIVE_ANGLE;
+  }
+
+  public double getSensorDistance() {
+    return zappyThing.getRange();
+  }
+
+  public Status getSensorStatus() {
+    return zappyThing.getStatus();
+  }
+
+  public RangingMode getSensorRangingMode() {
+    return zappyThing.getRangingMode();
+  }
+
+  /*
+   * Configure the ranging mode as well as the sample rate of the
+   * time of flight sensor The ranging mode specifies the
+   * trade off between maximum measure distance verses
+   * reliablity in bright situations.
+   * -from docs
+   */
+  public void setSensorRangingMode(RangingMode mode, double sampleTime) {
+    zappyThing.setRangingMode(mode, sampleTime);
+  }
+
+  // makes the sensor flash red and green
+  public void flashSensor() {
+    zappyThing.identifySensor();
+  }
+
+  // is last measurement valid
+  public boolean isSensorRangeValid() {
+    return zappyThing.isRangeValid();
+  }
+
+  public void setSensorRangeOfInterest(
+      int topLeftX, int topLeftY, int bottomRightX, int bottomRightY) {
+    zappyThing.setRangeOfInterest(topLeftX, topLeftY, bottomRightX, bottomRightY);
   }
 
   /**

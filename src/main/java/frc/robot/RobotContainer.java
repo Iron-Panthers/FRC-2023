@@ -38,6 +38,7 @@ import frc.robot.autonomous.commands.N6_1ConePlusEngage;
 import frc.robot.autonomous.commands.N9_1ConePlus2CubeMobility;
 import frc.robot.autonomous.commands.N9_1ConePlusMobility;
 import frc.robot.autonomous.commands.N9_1ConePlusMobilityEngage;
+import frc.robot.commands.AlignGamepieceCommand;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.DefaultDriveCommand;
@@ -261,14 +262,24 @@ public class RobotContainer {
     will.b()
         .onTrue(
             new DriveToPlaceCommand(
-                drivebaseSubsystem,
-                manueverGenerator,
-                () -> currentNodeSelection.get().nodeStack().position().get(),
-                translationXSupplier,
-                translationYSupplier,
-                will.rightBumper(),
-                Optional.of(rgbSubsystem),
-                Optional.of(will.getHID())));
+                    drivebaseSubsystem,
+                    manueverGenerator,
+                    () -> currentNodeSelection.get().nodeStack().position().get(),
+                    translationXSupplier,
+                    translationYSupplier,
+                    will.rightBumper(),
+                    Optional.of(rgbSubsystem),
+                    Optional.of(will.getHID()))
+                .andThen(
+                    new AlignGamepieceCommand(
+                        drivebaseSubsystem,
+                        manueverGenerator,
+                        () -> currentNodeSelection.get().nodeStack().position().get(),
+                        translationXSupplier,
+                        translationYSupplier,
+                        will.rightBumper(),
+                        Optional.of(rgbSubsystem),
+                        Optional.of(will.getHID()))));
 
     will.y()
         .onTrue(
