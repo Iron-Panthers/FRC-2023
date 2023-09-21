@@ -216,7 +216,7 @@ public class RobotContainer {
 
     // pov(-1) is the case when no pov is pressed, so doing while false will bind this command to
     // any pov angle
-    will.pov(-1).whileFalse(new DefenseModeCommand(drivebaseSubsystem));
+    will.rightStick().onTrue(new DefenseModeCommand(drivebaseSubsystem));
 
     will.leftStick().onTrue(new HaltDriveCommandsCommand(drivebaseSubsystem));
     jason.leftStick().onTrue(new InstantCommand(() -> {}, armSubsystem));
@@ -319,8 +319,7 @@ public class RobotContainer {
     //         new ForceOuttakeSubsystemModeCommand(outtakeSubsystem,
     // OuttakeSubsystem.Modes.INTAKE));
 
-    jasonLayer
-        .off(jason.b())
+    will.povUp()
         .onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.SHELF_INTAKE))
         .whileTrue(
             new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
@@ -332,8 +331,7 @@ public class RobotContainer {
         .onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED));
     jason.start().onTrue(new SetZeroModeCommand(armSubsystem));
 
-    jasonLayer
-        .off(jason.a())
+    will.povDown()
         .onTrue(
             new GroundPickupCommand(
                 intakeSubsystem,
@@ -400,10 +398,9 @@ public class RobotContainer {
               outtakeSubsystem,
               armSubsystem,
               Constants.SCORE_STEP_MAP.get(scoreType),
-              jason.leftBumper()));
+              will.povLeft()));
 
-    jasonLayer
-        .on(jason.x())
+    will.povRight()
         .onTrue(
             new HashMapCommand<>(
                 scoreCommandMap, () -> currentNodeSelection.get().getScoreTypeIdentifier()));
