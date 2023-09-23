@@ -34,18 +34,18 @@ public class AlignGamepieceCommand extends SequentialCommandGroup {
       Optional<GenericHID> failureRumbleDevice) {
     // Use addRequirements() here to declare subsystem dependencies.
 
-    addCommands(
-        new DriveToPlaceCommand(
-            drivebaseSubsystem,
-            manueverGenerator,
-            observationPose,
-            () -> createFinalPose(finalPose.get(), drivebaseSubsystem.getSensorDistance()),
-            observationTime,
-            translationXSupplier,
-            translationYSupplier,
-            isRobotRelativeRelativeSupplier,
-            rgbSubsystem,
-            failureRumbleDevice));
+    // addCommands(
+    //     new DriveToPlaceCommand(
+    //         drivebaseSubsystem,
+    //         manueverGenerator,
+    //         observationPose,
+    //         () -> createFinalPose(finalPose.get(), drivebaseSubsystem.getSensorDistance()),
+    //         observationTime,
+    //         translationXSupplier,
+    //         translationYSupplier,
+    //         isRobotRelativeRelativeSupplier,
+    //         rgbSubsystem,
+    //         failureRumbleDevice));
   }
 
   public Pose2d createFinalPose(Pose2d currentPose, double offset) {

@@ -38,7 +38,6 @@ import frc.robot.autonomous.commands.N6_1ConePlusEngage;
 import frc.robot.autonomous.commands.N9_1ConePlus2CubeMobility;
 import frc.robot.autonomous.commands.N9_1ConePlusMobility;
 import frc.robot.autonomous.commands.N9_1ConePlusMobilityEngage;
-import frc.robot.commands.AlignGamepieceCommand;
 import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.DefaultDriveCommand;
@@ -214,8 +213,6 @@ public class RobotContainer {
     will.back()
         .onTrue(new InstantCommand(drivebaseSubsystem::smartZeroGyroscope, drivebaseSubsystem));
 
-    // pov(-1) is the case when no pov is pressed, so doing while false will bind this command to
-    // any pov angle
     will.rightStick().onTrue(new DefenseModeCommand(drivebaseSubsystem));
 
     will.leftStick().onTrue(new HaltDriveCommandsCommand(drivebaseSubsystem));
@@ -262,24 +259,14 @@ public class RobotContainer {
     will.b()
         .onTrue(
             new DriveToPlaceCommand(
-                    drivebaseSubsystem,
-                    manueverGenerator,
-                    () -> currentNodeSelection.get().nodeStack().position().get(),
-                    translationXSupplier,
-                    translationYSupplier,
-                    will.rightBumper(),
-                    Optional.of(rgbSubsystem),
-                    Optional.of(will.getHID()))
-                .andThen(
-                    new AlignGamepieceCommand(
-                        drivebaseSubsystem,
-                        manueverGenerator,
-                        () -> currentNodeSelection.get().nodeStack().position().get(),
-                        translationXSupplier,
-                        translationYSupplier,
-                        will.rightBumper(),
-                        Optional.of(rgbSubsystem),
-                        Optional.of(will.getHID()))));
+                drivebaseSubsystem,
+                manueverGenerator,
+                () -> currentNodeSelection.get().nodeStack().position().get(),
+                translationXSupplier,
+                translationYSupplier,
+                will.rightBumper(),
+                Optional.of(rgbSubsystem),
+                Optional.of(will.getHID())));
 
     will.y()
         .onTrue(
@@ -330,6 +317,10 @@ public class RobotContainer {
         .onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))
         .onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED));
     jason.start().onTrue(new SetZeroModeCommand(armSubsystem));
+
+    will.povLeft()
+        .onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))
+        .onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED));
 
     will.povDown()
         .onTrue(
@@ -398,7 +389,7 @@ public class RobotContainer {
               outtakeSubsystem,
               armSubsystem,
               Constants.SCORE_STEP_MAP.get(scoreType),
-              will.povLeft()));
+              will.povRight()));
 
     will.povRight()
         .onTrue(
