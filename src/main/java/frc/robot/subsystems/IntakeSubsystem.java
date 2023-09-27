@@ -10,6 +10,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -35,6 +36,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private final TalonFX intakeMotor;
   private final TalonFX angleMotor;
+
+  private final DigitalInput beamBreakSensor;
 
   private Modes mode;
   private ControlTypes controlType;
@@ -107,6 +110,8 @@ public class IntakeSubsystem extends SubsystemBase {
   public IntakeSubsystem() {
     intakeMotor = new TalonFX(Intake.Ports.INTAKE_MOTOR_PORT);
     angleMotor = new TalonFX(Intake.Ports.ANGLE_MOTOR_PORT);
+
+    beamBreakSensor = new DigitalInput(0);
 
     currentAngle = 0;
     targetAngle = 0;
@@ -201,7 +206,7 @@ public class IntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
 
-    filteredCurrent = statorFilter.calculate(angleMotor.getStatorCurrent());
+    // filteredCurrent = statorFilter.calculate(angleMotor.getStatorCurrent());
 
     if (controlType == ControlTypes.MODE) {
 
@@ -225,11 +230,21 @@ public class IntakeSubsystem extends SubsystemBase {
     } else if (controlType == ControlTypes.ZEROING) {
       angleMotor.set(TalonFXControlMode.PercentOutput, Intake.ZERO_PERCENT);
       intakeMotor.set(TalonFXControlMode.PercentOutput, 0);
+
+      if (beamBreakSensor.get()) {
+        controlType = ControlTypes.MODE;
+        applyZeroConfig();
+        setMode(Modes.STOWED);
+      }
+
+      /*
       if (filteredCurrent > Intake.ZEROING_STATOR_LIMIT) {
         controlType = ControlTypes.MODE;
         applyZeroConfig();
         setMode(Modes.STOWED);
       }
+        */
+
     }
 
     if (Config.SHOW_SHUFFLEBOARD_DEBUG_DATA) {
