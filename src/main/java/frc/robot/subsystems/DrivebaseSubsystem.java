@@ -556,13 +556,11 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
   public static ChassisSpeeds produceChassisSpeeds(
       boolean isRobotRelativeForward,
-      boolean isRobotRelativeBackward,
       double x,
       double y,
       double rotationVelocity,
       Rotation2d currentGyroAngle) {
     if (isRobotRelativeForward) return new ChassisSpeeds(x, y, rotationVelocity);
-    if (isRobotRelativeBackward) return new ChassisSpeeds(-x, -y, rotationVelocity);
     return ChassisSpeeds.fromFieldRelativeSpeeds(x, y, rotationVelocity, currentGyroAngle);
   }
 }

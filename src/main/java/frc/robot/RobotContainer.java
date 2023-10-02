@@ -147,7 +147,8 @@ public class RobotContainer {
             translationXSupplier,
             translationYSupplier,
             will.rightBumper(),
-            will.leftBumper()));
+            () -> false));
+    // will.leftBumper()));
 
     armSubsystem.setDefaultCommand(
         new ArmManualCommand(
@@ -239,8 +240,7 @@ public class RobotContainer {
                 translationXSupplier,
                 translationYSupplier,
                 rotationVelocity,
-                will.rightBumper(),
-                will.leftBumper()));
+                will.rightBumper()));
 
     new Trigger(
             () ->
