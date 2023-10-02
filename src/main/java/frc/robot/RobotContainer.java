@@ -143,12 +143,7 @@ public class RobotContainer {
     // Right stick X axis -> rotation
     drivebaseSubsystem.setDefaultCommand(
         new DefaultDriveCommand(
-            drivebaseSubsystem,
-            translationXSupplier,
-            translationYSupplier,
-            will.rightBumper(),
-            () -> false));
-    // will.leftBumper()));
+            drivebaseSubsystem, translationXSupplier, translationYSupplier, will.rightBumper()));
 
     armSubsystem.setDefaultCommand(
         new ArmManualCommand(
@@ -214,7 +209,7 @@ public class RobotContainer {
     will.back()
         .onTrue(new InstantCommand(drivebaseSubsystem::smartZeroGyroscope, drivebaseSubsystem));
 
-    will.rightStick().onTrue(new DefenseModeCommand(drivebaseSubsystem));
+    will.leftBumper().onTrue(new DefenseModeCommand(drivebaseSubsystem));
 
     will.leftStick().onTrue(new HaltDriveCommandsCommand(drivebaseSubsystem));
     jason.leftStick().onTrue(new InstantCommand(() -> {}, armSubsystem));
