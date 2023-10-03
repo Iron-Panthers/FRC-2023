@@ -155,7 +155,7 @@ public final class Constants {
         public static final double STEER_OFFSET =
             IS_COMP_BOT
                 ? -Math.toRadians(8.07400 + 180) // comp bot offset
-                : -Math.toRadians(358.85742187500006 + 180); // practice bot offset
+                : -Math.toRadians(179.47265625); // practice bot offset
       }
 
       public static final class Module2 { // historically front left
@@ -166,7 +166,7 @@ public final class Constants {
         public static final double STEER_OFFSET =
             IS_COMP_BOT
                 ? -Math.toRadians(274.562 + 180) // comp bot offset
-                : -Math.toRadians(306.650390625); // practice bot offset
+                : -Math.toRadians(307.6171875); // practice bot offset
       }
 
       public static final class Module3 { // historically back left
@@ -177,7 +177,7 @@ public final class Constants {
         public static final double STEER_OFFSET =
             IS_COMP_BOT
                 ? -Math.toRadians(225.082 + 180) // comp bot offset
-                : -Math.toRadians(296.806640625); // practice bot offset
+                : -Math.toRadians(297.509765625); // practice bot offset
       }
 
       public static final class Module4 { // historically back right
@@ -188,7 +188,7 @@ public final class Constants {
         public static final double STEER_OFFSET =
             IS_COMP_BOT
                 ? -Math.toRadians(335.124 + 180) // comp bot offset
-                : -Math.toRadians(276.943359375); // practice bot offset
+                : -Math.toRadians(276.240234375); // practice bot offset
       }
     }
   }
