@@ -463,27 +463,37 @@ public class RobotContainer {
               }
             },
             "stage outtake",
-            new ScoreCommand(outtakeSubsystem, armSubsystem, drivingCubeOuttake.subList(0, 1), 1),
+            new ScoreCommand(outtakeSubsystem, armSubsystem, drivingCubeOuttake.subList(0, 1), 1)
+                .andThen(
+                    new SetZeroModeCommand(armSubsystem)),
             "stage outtake high",
             new ScoreCommand(
                 outtakeSubsystem,
                 armSubsystem,
-                Constants.SCORE_STEP_MAP.get(NodeType.CUBE.atHeight(Height.HIGH)).subList(0, 1)),
+                Constants.SCORE_STEP_MAP.get(NodeType.CUBE.atHeight(Height.HIGH)).subList(0, 1))
+                .andThen(
+                    new SetZeroModeCommand(armSubsystem)),
             "stage outtake mid",
             new ScoreCommand(
                 outtakeSubsystem,
                 armSubsystem,
-                Constants.SCORE_STEP_MAP.get(NodeType.CUBE.atHeight(Height.MID)).subList(0, 1)),
+                Constants.SCORE_STEP_MAP.get(NodeType.CUBE.atHeight(Height.MID)).subList(0, 1))
+                .andThen(
+                    new SetZeroModeCommand(armSubsystem)),
             "outtake",
             new ScoreCommand(outtakeSubsystem, armSubsystem, drivingCubeOuttake.subList(1, 2), 1)
                 .andThen(
                     new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)
                         .andThen(
                             new SetOuttakeModeCommand(
-                                outtakeSubsystem, OuttakeSubsystem.Modes.OFF))),
+                                outtakeSubsystem, OuttakeSubsystem.Modes.OFF)))
+                                .andThen(
+                                    new SetZeroModeCommand(armSubsystem)),
             "armbat preload",
             new ArmPositionCommand(armSubsystem, new ArmState(30, 0))
-                .andThen(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)));
+                .andThen(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)) 
+                    .andThen(
+                        new SetZeroModeCommand(armSubsystem)));
 
     autoSelector.setDefaultOption(
         "N1 1Cone + 2Cube Low Mobility Engage",
