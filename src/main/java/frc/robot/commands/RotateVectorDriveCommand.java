@@ -69,7 +69,7 @@ public class RotateVectorDriveCommand extends CommandBase {
     double rotY = rotationYSupplier.getAsDouble();
     boolean isRobotRelative = isRobotRelativeSupplier.getAsBoolean();
 
-    double targetAngle = Math.tan(rotY / rotX);
+    double targetAngle = Util.vectorToAngle(-rotX, -rotY);
 
     // if stick magnitude is greater then rotate angle mag
     if (Util.vectorMagnitude(rotX, rotY) > Drive.ROTATE_VECTOR_MAGNITUDE) {
