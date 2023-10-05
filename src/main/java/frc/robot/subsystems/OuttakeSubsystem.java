@@ -93,6 +93,9 @@ public class OuttakeSubsystem extends SubsystemBase {
     this.mode = Modes.OFF;
 
     this.outtake = new TalonFX(Outtake.Ports.OUTTAKE_MOTOR);
+
+    outtake.configFactoryDefault();
+
     outtake.setInverted(true);
 
     // this.outtake.setInverted(true);
