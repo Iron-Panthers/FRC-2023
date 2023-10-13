@@ -211,7 +211,7 @@ public class RobotContainer {
 
     will.leftBumper().onTrue(new DefenseModeCommand(drivebaseSubsystem));
 
-    will.leftStick().onTrue(new HaltDriveCommandsCommand(drivebaseSubsystem));
+    will.y().onTrue(new HaltDriveCommandsCommand(drivebaseSubsystem));
     jason.leftStick().onTrue(new InstantCommand(() -> {}, armSubsystem));
 
     DoubleSupplier rotation =
@@ -263,17 +263,17 @@ public class RobotContainer {
                 Optional.of(rgbSubsystem),
                 Optional.of(will.getHID())));
 
-    will.y()
-        .onTrue(
-            new DriveToPlaceCommand(
-                drivebaseSubsystem,
-                manueverGenerator,
-                (new AlliancePose2d(15.3639 - 1.5, 7.3965, Rotation2d.fromDegrees(0)))::get,
-                translationXSupplier,
-                translationYSupplier,
-                will.rightBumper(),
-                Optional.of(rgbSubsystem),
-                Optional.of(will.getHID())));
+    // will.y()
+    //     .onTrue(
+    //         new DriveToPlaceCommand(
+    //             drivebaseSubsystem,
+    //             manueverGenerator,
+    //             (new AlliancePose2d(15.3639 - 1.5, 7.3965, Rotation2d.fromDegrees(0)))::get,
+    //             translationXSupplier,
+    //             translationYSupplier,
+    //             will.rightBumper(),
+    //             Optional.of(rgbSubsystem),
+    //             Optional.of(will.getHID())));
 
     will.x()
         .onTrue(
