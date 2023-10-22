@@ -8,7 +8,6 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.playingwithfusion.TimeOfFlight;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.LinearFilter;
@@ -150,6 +149,9 @@ public class IntakeSubsystem extends SubsystemBase {
       tab.addString("mode", () -> mode.toString());
       tab.addNumber("angle error", () -> targetAngle - getCurrentAngleDegrees());
       tab.addNumber("filtered current", () -> this.filteredCurrent);
+      tab.addNumber("zappy distance", this::getSensorDistance);
+      tab.addString("sensor status", this::getSenserStatus);
+      tab.addBoolean("range valid", this::isRangeValid);
     }
   }
 
@@ -184,11 +186,19 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public double getSensorDistance() {
-    return zappyThing.getRange(); //don't know if this is the right method, have to check docs
+    return zappyThing.getRange(); // don't know if this is the right method, have to check docs
   }
 
   public boolean isCubeInRange() {
     return getSensorDistance() <= Intake.CUBE_DISTANCE_THRESHOLD;
+  }
+
+  public String getSenserStatus() {
+    return zappyThing.getStatus().toString();
+  }
+
+  public boolean isRangeValid() {
+    return zappyThing.isRangeValid();
   }
 
   public Modes getMode() {

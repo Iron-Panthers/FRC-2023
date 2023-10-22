@@ -7,7 +7,6 @@ package frc.robot;
 import static frc.robot.Constants.Drive;
 
 import com.pathplanner.lib.server.PathPlannerServer;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -24,34 +23,15 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
 import frc.robot.Constants.Config;
 import frc.robot.Constants.Drive;
-import frc.robot.autonomous.commands.MobilityAuto;
-import frc.robot.autonomous.commands.N1_1ConePlus2CubeHybridMobility;
-import frc.robot.autonomous.commands.N1_1ConePlus2CubeHybridMobilityEngage;
-import frc.robot.autonomous.commands.N2_Engage;
-import frc.robot.autonomous.commands.N3_1ConePlusMobility;
-import frc.robot.autonomous.commands.N3_1ConePlusMobilityEngage;
-import frc.robot.autonomous.commands.N6_1ConePlusEngage;
-import frc.robot.autonomous.commands.N9_1ConePlus2CubeMobility;
-import frc.robot.autonomous.commands.N9_1ConePlusMobility;
-import frc.robot.autonomous.commands.N9_1ConePlusMobilityEngage;
-import frc.robot.commands.ArmManualCommand;
 import frc.robot.commands.ArmPositionCommand;
-import frc.robot.commands.DefaultDriveCommand;
-import frc.robot.commands.DefenseModeCommand;
-import frc.robot.commands.DriveToPlaceCommand;
-import frc.robot.commands.EngageCommand;
 import frc.robot.commands.ForceOuttakeSubsystemModeCommand;
 import frc.robot.commands.GroundPickupCommand;
-import frc.robot.commands.HaltDriveCommandsCommand;
 import frc.robot.commands.HashMapCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.IntakeShootCommand;
-import frc.robot.commands.RotateVectorDriveCommand;
-import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.ScoreCommand.ScoreStep;
 import frc.robot.commands.SetOuttakeModeCommand;
@@ -61,12 +41,10 @@ import frc.robot.commands.ZeroIntakeCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ArmSubsystem.ArmState;
 import frc.robot.subsystems.CANWatchdogSubsystem;
-import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.NetworkWatchdogSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.RGBSubsystem;
-import frc.robot.subsystems.VisionSubsystem;
 import frc.util.ControllerUtil;
 import frc.util.Layer;
 import frc.util.MacUtil;
@@ -75,8 +53,6 @@ import frc.util.NodeSelectorUtility.Height;
 import frc.util.NodeSelectorUtility.NodeSelection;
 import frc.util.NodeSelectorUtility.NodeType;
 import frc.util.SharedReference;
-import frc.util.Util;
-import frc.util.pathing.AlliancePose2d;
 import frc.util.pathing.RubenManueverGenerator;
 import java.util.HashMap;
 import java.util.List;
@@ -92,10 +68,6 @@ import java.util.function.DoubleSupplier;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-
-  private final VisionSubsystem visionSubsystem = new VisionSubsystem();
-
-  private final DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem(visionSubsystem);
 
   private final RGBSubsystem rgbSubsystem = new RGBSubsystem();
 
@@ -142,19 +114,6 @@ public class RobotContainer {
     // Left stick Y axis -> forward and backwards movement
     // Left stick X axis -> left and right movement
     // Right stick X axis -> rotation
-    drivebaseSubsystem.setDefaultCommand(
-        new DefaultDriveCommand(
-            drivebaseSubsystem,
-            translationXSupplier,
-            translationYSupplier,
-            will.rightBumper(),
-            will.leftBumper()));
-
-    armSubsystem.setDefaultCommand(
-        new ArmManualCommand(
-            armSubsystem,
-            () -> ControllerUtil.deadband(-jason.getLeftY(), 0.2),
-            () -> ControllerUtil.deadband(jason.getRightY(), 0.2)));
 
     SmartDashboard.putBoolean("is comp bot", MacUtil.IS_COMP_BOT);
     SmartDashboard.putBoolean("show debug data", Config.SHOW_SHUFFLEBOARD_DEBUG_DATA);
@@ -210,87 +169,9 @@ public class RobotContainer {
           jason.getHID().setRumble(RumbleType.kRightRumble, power);
         });
 
-    will.start().onTrue(new InstantCommand(drivebaseSubsystem::zeroGyroscope, drivebaseSubsystem));
-    will.back()
-        .onTrue(new InstantCommand(drivebaseSubsystem::smartZeroGyroscope, drivebaseSubsystem));
-
-    // pov(-1) is the case when no pov is pressed, so doing while false will bind this command to
-    // any pov angle
-    will.pov(-1).whileFalse(new DefenseModeCommand(drivebaseSubsystem));
-
-    will.leftStick().onTrue(new HaltDriveCommandsCommand(drivebaseSubsystem));
-    jason.leftStick().onTrue(new InstantCommand(() -> {}, armSubsystem));
-
-    DoubleSupplier rotation =
-        exponential(
-            () ->
-                ControllerUtil.deadband(
-                    (will.getRightTriggerAxis() + -will.getLeftTriggerAxis()), .1),
-            2);
-    DoubleSupplier rotationVelocity =
-        () ->
-            rotation.getAsDouble()
-                * Drive.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
-                *
-                /** percent of fraction power */
-                (will.getHID().getAButton() ? .3 : .8);
-
-    new Trigger(() -> Math.abs(rotation.getAsDouble()) > 0)
-        .whileTrue(
-            new RotateVelocityDriveCommand(
-                drivebaseSubsystem,
-                translationXSupplier,
-                translationYSupplier,
-                rotationVelocity,
-                will.rightBumper(),
-                will.leftBumper()));
-
-    new Trigger(
-            () ->
-                Util.vectorMagnitude(will.getRightY(), will.getRightX())
-                    > Drive.ROTATE_VECTOR_MAGNITUDE)
-        .onTrue(
-            new RotateVectorDriveCommand(
-                drivebaseSubsystem,
-                translationXSupplier,
-                translationYSupplier,
-                will::getRightY,
-                will::getRightX,
-                will.rightBumper()));
-
-    // start driving to score
-    will.b()
-        .onTrue(
-            new DriveToPlaceCommand(
-                drivebaseSubsystem,
-                manueverGenerator,
-                () -> currentNodeSelection.get().nodeStack().position().get(),
-                translationXSupplier,
-                translationYSupplier,
-                will.rightBumper(),
-                Optional.of(rgbSubsystem),
-                Optional.of(will.getHID())));
-
-    will.y()
-        .onTrue(
-            new DriveToPlaceCommand(
-                drivebaseSubsystem,
-                manueverGenerator,
-                (new AlliancePose2d(15.3639 - 1.5, 7.3965, Rotation2d.fromDegrees(0)))::get,
-                translationXSupplier,
-                translationYSupplier,
-                will.rightBumper(),
-                Optional.of(rgbSubsystem),
-                Optional.of(will.getHID())));
-
-    will.x()
-        .onTrue(
-            new EngageCommand(
-                drivebaseSubsystem, intakeSubsystem, EngageCommand.EngageDirection.GO_BACKWARD));
-
     jasonLayer
         .off(jason.leftBumper())
-            .onTrue(new IntakeShootCommand(intakeSubsystem, jason.leftBumper()));
+        .onTrue(new IntakeShootCommand(intakeSubsystem, jason.leftBumper()));
 
     // outtake states
     jasonLayer
@@ -495,89 +376,6 @@ public class RobotContainer {
             "armbat preload",
             new ArmPositionCommand(armSubsystem, new ArmState(30, 0))
                 .andThen(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)));
-
-    autoSelector.setDefaultOption(
-        "N1 1Cone + 2Cube Low Mobility Engage",
-        new N1_1ConePlus2CubeHybridMobilityEngage(
-            4.95,
-            4,
-            eventMap,
-            intakeSubsystem,
-            outtakeSubsystem,
-            armSubsystem,
-            drivebaseSubsystem));
-
-    autoSelector.setDefaultOption(
-        "N1 1Cone + 2Cube Low Mobility NO ENGAGE",
-        new N1_1ConePlus2CubeHybridMobility(
-            4.95, 4, eventMap, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
-
-    autoSelector.setDefaultOption(
-        "N9 1Cone + 1Cube + Grab Cube Mobility",
-        new N9_1ConePlus2CubeMobility(
-            4.95,
-            3,
-            eventMap,
-            intakeSubsystem,
-            outtakeSubsystem,
-            armSubsystem,
-            drivebaseSubsystem));
-
-    autoSelector.addOption(
-        "Just Zero Arm [DOES NOT CALIBRATE]", new SetZeroModeCommand(armSubsystem));
-
-    autoSelector.addOption(
-        "Near Substation Mobility [APRILTAG]",
-        new MobilityAuto(
-            manueverGenerator,
-            drivebaseSubsystem,
-            outtakeSubsystem,
-            armSubsystem,
-            rgbSubsystem,
-            new AlliancePose2d(4.88, 6.05, Rotation2d.fromDegrees(0))));
-
-    autoSelector.addOption(
-        "Far Substation Mobility [APRILTAG]",
-        new MobilityAuto(
-            manueverGenerator,
-            drivebaseSubsystem,
-            outtakeSubsystem,
-            armSubsystem,
-            rgbSubsystem,
-            new AlliancePose2d(6, .6, Rotation2d.fromDegrees(0))));
-
-    autoSelector.addOption("N2 Engage", new N2_Engage(5, 3.5, drivebaseSubsystem));
-
-    autoSelector.addOption(
-        "N3 1Cone + Mobility Engage",
-        new N3_1ConePlusMobilityEngage(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
-
-    autoSelector.setDefaultOption(
-        "N3 1Cone + Mobility",
-        new N3_1ConePlusMobility(4.95, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
-
-    autoSelector.setDefaultOption(
-        "N6 1Cone + Engage",
-        new N6_1ConePlusEngage(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
-
-    autoSelector.addOption(
-        "N9 1Cone + Mobility Engage",
-        new N9_1ConePlusMobilityEngage(5, 3.5, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
-
-    autoSelector.addOption(
-        "N9 1Cone + Mobility",
-        new N9_1ConePlusMobility(4.95, 3, outtakeSubsystem, armSubsystem, drivebaseSubsystem));
-
-    autoSelector.addOption(
-        "Score High Cone [DOES NOT CALIBRATE]",
-        new SetZeroModeCommand(armSubsystem)
-            .raceWith(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE))
-            .andThen(
-                new ScoreCommand(
-                    outtakeSubsystem,
-                    armSubsystem,
-                    Constants.SCORE_STEP_MAP.get(
-                        NodeSelectorUtility.NodeType.CONE.atHeight(Height.HIGH)))));
 
     driverView.add("auto selector", autoSelector).withSize(4, 1).withPosition(7, 0);
 

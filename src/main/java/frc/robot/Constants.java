@@ -24,8 +24,6 @@ import frc.robot.subsystems.NetworkWatchdogSubsystem.IPv4;
 import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem.OuttakeDetails;
 import frc.robot.subsystems.RGBSubsystem.RGBColor;
-import frc.robot.subsystems.VisionSubsystem.TagCountDeviation;
-import frc.robot.subsystems.VisionSubsystem.UnitDeviationParams;
 import frc.util.CAN;
 import frc.util.NodeSelectorUtility.Height;
 import frc.util.NodeSelectorUtility.NodeType;
@@ -56,7 +54,7 @@ public final class Constants {
             && HALUtil.getHALRuntimeType() != HALUtil.RUNTIME_SIMULATION;
 
     /** turn this off before comp. */
-    public static final boolean SHOW_SHUFFLEBOARD_DEBUG_DATA = false;
+    public static final boolean SHOW_SHUFFLEBOARD_DEBUG_DATA = true;
 
     /** turn this off! only use on practice eboard testing. */
     public static final boolean DISABLE_SWERVE_MODULE_INIT = false;
@@ -269,12 +267,12 @@ public final class Constants {
 
     public static final double ZEROING_STATOR_LIMIT = 40;
 
-    public static final double CUBE_DISTANCE_THRESHOLD = 50; //FIXME need real value
+    public static final double CUBE_DISTANCE_THRESHOLD = 50; // FIXME need real value
 
     public static final class Ports {
       public static final int INTAKE_MOTOR_PORT = CAN.at(18, "intake motor");
       public static final int ANGLE_MOTOR_PORT = CAN.at(19, "intake angle motor");
-      public static final int ZAPPY_THING_PORT = 0; //placeholder
+      public static final int ZAPPY_THING_PORT = 0; // placeholder
     }
 
     public static final class Setpoints {
@@ -398,22 +396,6 @@ public final class Constants {
                 );
 
     public static final double POSE_AMBIGUITY_CUTOFF = .05;
-
-    public static final List<TagCountDeviation> TAG_COUNT_DEVIATION_PARAMS =
-        List.of(
-            // 1 tag
-            new TagCountDeviation(
-                new UnitDeviationParams(.25, .4, .9),
-                new UnitDeviationParams(.35, .5, 1.2),
-                new UnitDeviationParams(.5, .7, 1.5)),
-
-            // 2 tags
-            new TagCountDeviation(
-                new UnitDeviationParams(.35, .1, .4), new UnitDeviationParams(.5, .7, 1.5)),
-
-            // 3+ tags
-            new TagCountDeviation(
-                new UnitDeviationParams(.25, .07, .25), new UnitDeviationParams(.15, 1, 1.5)));
 
     /** about one inch */
     public static final double DRIVE_TO_POSE_XY_ERROR_MARGIN_METERS = .025;
