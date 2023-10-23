@@ -59,10 +59,12 @@ public class ArmSubsystem extends SubsystemBase {
     this.angleMotor = new TalonFX(Arm.Ports.ARM_MOTOR_PORT);
     extensionMotor = new TalonFX(Arm.Ports.TELESCOPING_MOTOR_PORT);
 
+    extensionMotor.configFactoryDefault();
+    angleMotor.configFactoryDefault();
+
     angleMotor.setNeutralMode(NeutralMode.Brake);
     extensionMotor.setNeutralMode(NeutralMode.Brake);
 
-    extensionMotor.configFactoryDefault();
     extensionMotor.setInverted(false);
     angleMotor.setInverted(true);
 

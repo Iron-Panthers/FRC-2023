@@ -22,7 +22,6 @@ public class RotateVelocityDriveCommand extends CommandBase {
   private final DoubleSupplier rotationSupplier;
 
   private final BooleanSupplier isRobotRelativeForwardSupplier;
-  private final BooleanSupplier isRobotRelativeBackwardSupplier;
 
   /** Creates a new RotateVelocityDriveCommand. */
   public RotateVelocityDriveCommand(
@@ -30,15 +29,13 @@ public class RotateVelocityDriveCommand extends CommandBase {
       DoubleSupplier translationXSupplier,
       DoubleSupplier translationYSupplier,
       DoubleSupplier rotationSupplier,
-      BooleanSupplier isRobotRelativeForwardSupplier,
-      BooleanSupplier isRobotRelativeBackwardSupplier) {
+      BooleanSupplier isRobotRelativeForwardSupplier) {
 
     this.drivebaseSubsystem = drivebaseSubsystem;
     this.translationXSupplier = translationXSupplier;
     this.translationYSupplier = translationYSupplier;
     this.rotationSupplier = rotationSupplier;
     this.isRobotRelativeForwardSupplier = isRobotRelativeForwardSupplier;
-    this.isRobotRelativeBackwardSupplier = isRobotRelativeBackwardSupplier;
 
     addRequirements(drivebaseSubsystem);
   }
@@ -59,7 +56,6 @@ public class RotateVelocityDriveCommand extends CommandBase {
     drivebaseSubsystem.drive(
         DrivebaseSubsystem.produceChassisSpeeds(
             isRobotRelativeForwardSupplier.getAsBoolean(),
-            isRobotRelativeBackwardSupplier.getAsBoolean(),
             x,
             y,
             rot,

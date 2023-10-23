@@ -23,21 +23,18 @@ public class DefaultDriveCommand extends CommandBase {
   private final DoubleSupplier translationYSupplier;
 
   private final BooleanSupplier isRobotRelativeForwardSupplier;
-  private final BooleanSupplier isRobotRelativeBackwardSupplier;
 
   /** Creates a new DefaultDriveCommand. */
   public DefaultDriveCommand(
       DrivebaseSubsystem drivebaseSubsystem,
       DoubleSupplier translationXSupplier,
       DoubleSupplier translationYSupplier,
-      BooleanSupplier isRobotRelativeForwardSupplier,
-      BooleanSupplier isRobotRelativeBackwardSupplier) {
+      BooleanSupplier isRobotRelativeForwardSupplier) {
 
     this.drivebaseSubsystem = drivebaseSubsystem;
     this.translationXSupplier = translationXSupplier;
     this.translationYSupplier = translationYSupplier;
     this.isRobotRelativeForwardSupplier = isRobotRelativeForwardSupplier;
-    this.isRobotRelativeBackwardSupplier = isRobotRelativeBackwardSupplier;
 
     addRequirements(drivebaseSubsystem);
   }
@@ -48,16 +45,10 @@ public class DefaultDriveCommand extends CommandBase {
     double x = translationXSupplier.getAsDouble();
     double y = translationYSupplier.getAsDouble();
     Boolean forwardRelative = isRobotRelativeForwardSupplier.getAsBoolean();
-    Boolean backwardRelative = isRobotRelativeBackwardSupplier.getAsBoolean();
 
     drivebaseSubsystem.drive(
         DrivebaseSubsystem.produceChassisSpeeds(
-            forwardRelative,
-            backwardRelative,
-            x,
-            y,
-            0,
-            drivebaseSubsystem.getDriverGyroscopeRotation()));
+            forwardRelative, x, y, 0, drivebaseSubsystem.getDriverGyroscopeRotation()));
   }
 
   // Called once the command ends or is interrupted.

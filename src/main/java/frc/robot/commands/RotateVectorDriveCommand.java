@@ -35,8 +35,7 @@ public class RotateVectorDriveCommand extends CommandBase {
 
   private double angle = 0;
 
-  // private static final double[] angles = {0, 45, 90, 135, 180, 225, 270, 315};
-  private static final double[] angles = {0, 90, 180, 270};
+  private static final double[] angles = {0, 45, 90, 135, 180, 225, 270, 315};
 
   /** Creates a new DefaultDriveCommand. */
   public RotateVectorDriveCommand(
