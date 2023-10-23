@@ -36,11 +36,13 @@ import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.ScoreCommand.ScoreStep;
 import frc.robot.commands.SetOuttakeModeCommand;
 import frc.robot.commands.SetZeroModeCommand;
+import frc.robot.commands.TestElevatorCommand;
 import frc.robot.commands.VibrateHIDCommand;
 import frc.robot.commands.ZeroIntakeCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ArmSubsystem.ArmState;
 import frc.robot.subsystems.CANWatchdogSubsystem;
+import frc.robot.subsystems.ElevatorTestSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.NetworkWatchdogSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
@@ -69,6 +71,8 @@ import java.util.function.DoubleSupplier;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
+
+  private final ElevatorTestSubsystem elevatorSubsystem = new ElevatorTestSubsystem();
   private final RGBSubsystem rgbSubsystem = new RGBSubsystem();
 
   private final NetworkWatchdogSubsystem networkWatchdogSubsystem =
@@ -87,11 +91,6 @@ public class RobotContainer {
   private final SharedReference<NodeSelection> currentNodeSelection =
       new SharedReference<>(new NodeSelection(NodeSelectorUtility.defaultNodeStack, Height.HIGH));
 
-  /** controller 1 */
-  private final CommandXboxController jason = new CommandXboxController(1);
-  /** controller 1 layer */
-  private final Layer jasonLayer = new Layer(jason.rightBumper());
-  /** controller 0 */
   private final CommandXboxController will = new CommandXboxController(0);
 
   /** the sendable chooser to select which auto to run. */
@@ -101,11 +100,6 @@ public class RobotContainer {
 
   private final ShuffleboardTab driverView = Shuffleboard.getTab("DriverView");
 
-  /* drive joystick "y" is passed to x because controller is inverted */
-  private final DoubleSupplier translationXSupplier =
-      () -> (-modifyAxis(will.getLeftY()) * Drive.MAX_VELOCITY_METERS_PER_SECOND);
-  private final DoubleSupplier translationYSupplier =
-      () -> (-modifyAxis(will.getLeftX()) * Drive.MAX_VELOCITY_METERS_PER_SECOND);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -134,7 +128,6 @@ public class RobotContainer {
    */
   public void containerTeleopInit() {
     // runs when teleop happens
-    CommandScheduler.getInstance().schedule(new VibrateHIDCommand(jason.getHID(), 5, .5));
   }
 
   /**
@@ -161,148 +154,9 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
 
-    // vibrate jason controller when in layer
-    jasonLayer.whenChanged(
-        (enabled) -> {
-          final double power = enabled ? .1 : 0;
-          jason.getHID().setRumble(RumbleType.kLeftRumble, power);
-          jason.getHID().setRumble(RumbleType.kRightRumble, power);
-        });
-
-    jasonLayer
-        .off(jason.leftBumper())
-        .onTrue(new IntakeShootCommand(intakeSubsystem, jason.leftBumper()));
-
-    // outtake states
-    jasonLayer
-        .off(jason.leftTrigger())
-        .whileTrue(
-            new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
-    jasonLayer
-        .off(jason.rightTrigger())
-        .onTrue(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
-    jasonLayer
-        .off(jason.x())
-        .onTrue(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF))
-        .onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED));
-
-    // intake presets
-    // jasonLayer
-    //     .off(jason.a())
-    //     .onTrue(new ScoreCommand(outtakeSubsystem, armSubsystem, Setpoints.GROUND_INTAKE))
-    //     .whileTrue(
-    //         new ForceOuttakeSubsystemModeCommand(outtakeSubsystem,
-    // OuttakeSubsystem.Modes.INTAKE));
-
-    jasonLayer
-        .off(jason.b())
-        .onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.SHELF_INTAKE))
-        .whileTrue(
-            new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
-
-    // reset
-    jasonLayer
-        .off(jason.y())
-        .onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))
-        .onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED));
-    jason.start().onTrue(new SetZeroModeCommand(armSubsystem));
-
-    jasonLayer
-        .off(jason.a())
-        .onTrue(
-            new GroundPickupCommand(
-                intakeSubsystem,
-                outtakeSubsystem,
-                armSubsystem,
-                () ->
-                    jason.getHID().getPOV() == 180
-                        ? IntakeSubsystem.Modes.INTAKE_LOW
-                        : IntakeSubsystem.Modes.INTAKE));
-
-    jason
-        .povUp()
-        .onTrue(
-            new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.OUTTAKE)
-                .alongWith(new ArmPositionCommand(armSubsystem, Arm.Setpoints.HANDOFF)));
-
-    jason.start().onTrue(new ZeroIntakeCommand(intakeSubsystem));
-
-    jason
-        .back()
-        .whileTrue(
-            new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.INTAKE)
-                .alongWith(new ArmPositionCommand(armSubsystem, Arm.Setpoints.HANDOFF))
-                .alongWith(
-                    new ForceOuttakeSubsystemModeCommand(
-                        outtakeSubsystem, OuttakeSubsystem.Modes.OFF)))
-        .onFalse(
-            new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)
-                .alongWith(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED)));
-
-    // scoring
-    // jasonLayer
-    //     .on(jason.a())
-    // low
-
-    jasonLayer
-        .on(jason.a())
-        .onTrue(
-            new InstantCommand(
-                () ->
-                    currentNodeSelection.apply(n -> n.withHeight(NodeSelectorUtility.Height.LOW))));
-
-    jasonLayer
-        .on(jason.b())
-        .onTrue(
-            new InstantCommand(
-                () -> currentNodeSelection.apply(n -> n.withHeight(NodeSelectorUtility.Height.MID)),
-                armSubsystem));
-
-    jasonLayer
-        .on(jason.y())
-        .onTrue(
-            new InstantCommand(
-                () ->
-                    currentNodeSelection.apply(n -> n.withHeight(NodeSelectorUtility.Height.HIGH)),
-                armSubsystem));
-
-    var scoreCommandMap = new HashMap<NodeSelectorUtility.ScoreTypeIdentifier, Command>();
-
-    for (var scoreType : Constants.SCORE_STEP_MAP.keySet())
-      scoreCommandMap.put(
-          scoreType,
-          new ScoreCommand(
-              outtakeSubsystem,
-              armSubsystem,
-              Constants.SCORE_STEP_MAP.get(scoreType),
-              jason.leftBumper()));
-
-    jasonLayer
-        .on(jason.x())
-        .onTrue(
-            new HashMapCommand<>(
-                scoreCommandMap, () -> currentNodeSelection.get().getScoreTypeIdentifier()));
-
-    jason.povRight().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(1))));
-    jason.povLeft().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(-1))));
-
-    // control the lights
-    currentNodeSelection.subscribe(
-        nodeSelection ->
-            currentNodeSelection.subscribeOnce(
-                rgbSubsystem.showMessage(
-                        nodeSelection.nodeStack().type() == NodeSelectorUtility.NodeType.CUBE
-                            ? Constants.Lights.Colors.PURPLE
-                            : Constants.Lights.Colors.YELLOW,
-                        RGBSubsystem.PatternTypes.PULSE,
-                        RGBSubsystem.MessagePriority.F_NODE_SELECTION_COLOR)
-                    ::expire));
-
-    // show the current node selection
-    driverView
-        .addString("Node Selection", () -> currentNodeSelection.get().toString())
-        .withPosition(0, 1)
-        .withSize(2, 1);
+    will.povUp().onTrue(new TestElevatorCommand(elevatorSubsystem, 1));
+    will.povRight().onTrue(new TestElevatorCommand(elevatorSubsystem, 0.5));
+    will.povDown().onTrue(new TestElevatorCommand(elevatorSubsystem, 0));
   }
 
   /**
