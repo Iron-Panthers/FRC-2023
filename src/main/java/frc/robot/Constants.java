@@ -268,7 +268,7 @@ public final class Constants {
 
     public static final double GRAVITY_ANGLE_OFFSET = 41;
 
-    public static final double ZERO_PERCENT = .3;
+    public static final double ZERO_PERCENT = .15;
 
     public static final double ZEROING_STATOR_LIMIT = 40;
 
