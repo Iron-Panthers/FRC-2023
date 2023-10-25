@@ -209,7 +209,7 @@ public class RobotContainer {
     will.back()
         .onTrue(new InstantCommand(drivebaseSubsystem::smartZeroGyroscope, drivebaseSubsystem));
 
-    will.leftBumper().onTrue(new DefenseModeCommand(drivebaseSubsystem));
+    will.x().onTrue(new DefenseModeCommand(drivebaseSubsystem));
 
     will.y().onTrue(new HaltDriveCommandsCommand(drivebaseSubsystem));
     jason.leftStick().onTrue(new InstantCommand(() -> {}, armSubsystem));
@@ -251,7 +251,7 @@ public class RobotContainer {
                 will.rightBumper()));
 
     // start driving to score
-    will.b()
+    will.leftBumper()
         .onTrue(
             new DriveToPlaceCommand(
                 drivebaseSubsystem,
@@ -301,7 +301,7 @@ public class RobotContainer {
     //         new ForceOuttakeSubsystemModeCommand(outtakeSubsystem,
     // OuttakeSubsystem.Modes.INTAKE));
 
-    will.povUp()
+    will.rightTrigger()
         .onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.SHELF_INTAKE))
         .whileTrue(
             new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
@@ -318,8 +318,8 @@ public class RobotContainer {
         .onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED))
         .onTrue(new SetZeroModeCommand(armSubsystem));
 
-    will.povDown()
-        .onTrue(
+    will.rightBumper()
+        .whileTrue(
             new GroundPickupCommand(
                 intakeSubsystem,
                 outtakeSubsystem,
@@ -327,7 +327,11 @@ public class RobotContainer {
                 () ->
                     jason.getHID().getPOV() == 180
                         ? IntakeSubsystem.Modes.INTAKE_LOW
-                        : IntakeSubsystem.Modes.INTAKE));
+                        : IntakeSubsystem.Modes.INTAKE))
+                        
+        .whileFalse(
+            new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)
+                .alongWith(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED)));
 
     jason
         .leftBumper()
@@ -399,7 +403,7 @@ public class RobotContainer {
               Constants.SCORE_STEP_MAP.get(scoreType),
               will.povRight()));
 
-    will.povRight()
+    will.leftTrigger()
         .onTrue(
             new HashMapCommand<>(
                 scoreCommandMap, () -> currentNodeSelection.get().getScoreTypeIdentifier()));
