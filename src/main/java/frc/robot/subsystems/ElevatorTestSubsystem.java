@@ -12,9 +12,10 @@ private TalonFX testMotor, testMotor2;
     private double motorPower = 0;
 
     public ElevatorTestSubsystem() {
-        testMotor = new TalonFX(1000);
-        testMotor2 = new TalonFX(1001); //FIXME Placeholder
+        testMotor = new TalonFX(10);
+        testMotor2 = new TalonFX(11); //FIXME Placeholder
 
+        testMotor.configFactoryDefault();
     }
 
 
