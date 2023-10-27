@@ -207,9 +207,9 @@ public class RobotContainer {
           jason.getHID().setRumble(RumbleType.kRightRumble, power);
         });
 
-    will.start().onTrue(new InstantCommand(drivebaseSubsystem::zeroGyroscope, drivebaseSubsystem));
+    will.start().onTrue(new InstantCommand(drivebaseSubsystem::smartZeroGyroscope, drivebaseSubsystem));
     will.back()
-        .onTrue(new InstantCommand(drivebaseSubsystem::smartZeroGyroscope, drivebaseSubsystem));
+        .onTrue(new InstantCommand(drivebaseSubsystem::zeroGyroscope, drivebaseSubsystem));
 
     will.x().onTrue(new DefenseModeCommand(drivebaseSubsystem));
 
