@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
 import frc.robot.Constants.Config;
@@ -49,6 +50,7 @@ import frc.robot.commands.GroundPickupCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
 import frc.robot.commands.HashMapCommand;
 import frc.robot.commands.IntakeCommand;
+import frc.robot.commands.RotateAngleDriveCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
 import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.ScoreCommand;
@@ -205,11 +207,11 @@ public class RobotContainer {
           jason.getHID().setRumble(RumbleType.kRightRumble, power);
         });
 
-    will.start().onTrue(new InstantCommand(drivebaseSubsystem::zeroGyroscope, drivebaseSubsystem));
+    will.start().onTrue(new InstantCommand(drivebaseSubsystem::smartZeroGyroscope, drivebaseSubsystem));
     will.back()
-        .onTrue(new InstantCommand(drivebaseSubsystem::smartZeroGyroscope, drivebaseSubsystem));
+        .onTrue(new InstantCommand(drivebaseSubsystem::zeroGyroscope, drivebaseSubsystem));
 
-    will.leftBumper().onTrue(new DefenseModeCommand(drivebaseSubsystem));
+    will.x().onTrue(new DefenseModeCommand(drivebaseSubsystem));
 
     will.y().onTrue(new HaltDriveCommandsCommand(drivebaseSubsystem));
     jason.leftStick().onTrue(new InstantCommand(() -> {}, armSubsystem));
@@ -237,21 +239,24 @@ public class RobotContainer {
                 rotationVelocity,
                 will.rightBumper()));
 
-    new Trigger(
-            () ->
-                Util.vectorMagnitude(will.getRightY(), will.getRightX())
-                    > Drive.ROTATE_VECTOR_MAGNITUDE)
-        .onTrue(
-            new RotateVectorDriveCommand(
-                drivebaseSubsystem,
-                translationXSupplier,
-                translationYSupplier,
-                will::getRightY,
-                will::getRightX,
-                will.rightBumper()));
+
+    will.povUp()
+        .onTrue(new RotateAngleDriveCommand(drivebaseSubsystem, translationXSupplier, translationYSupplier, 0));
+    will.povUpRight()
+        .onTrue(new RotateAngleDriveCommand(drivebaseSubsystem, translationXSupplier, translationYSupplier, 45));
+    will.povRight()
+        .onTrue(new RotateAngleDriveCommand(drivebaseSubsystem, translationXSupplier, translationYSupplier, 90));
+    will.povDownRight()
+        .onTrue(new RotateAngleDriveCommand(drivebaseSubsystem, translationXSupplier, translationYSupplier, 135));
+    will.povDownLeft()
+        .onTrue(new RotateAngleDriveCommand(drivebaseSubsystem, translationXSupplier, translationYSupplier, 180));
+    will.povLeft()
+        .onTrue(new RotateAngleDriveCommand(drivebaseSubsystem, translationXSupplier, translationYSupplier, 225));
+    will.povUpLeft()
+        .onTrue(new RotateAngleDriveCommand(drivebaseSubsystem, translationXSupplier, translationYSupplier, 270));
 
     // start driving to score
-    will.b()
+    will.leftBumper()
         .onTrue(
             new DriveToPlaceCommand(
                 drivebaseSubsystem,
@@ -290,8 +295,7 @@ public class RobotContainer {
         .onTrue(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OUTTAKE));
     jasonLayer
         .off(jason.x())
-        .onTrue(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF))
-        .onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED));
+        .onTrue(new SetOuttakeModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.OFF));
 
     // intake presets
     // jasonLayer
@@ -301,10 +305,11 @@ public class RobotContainer {
     //         new ForceOuttakeSubsystemModeCommand(outtakeSubsystem,
     // OuttakeSubsystem.Modes.INTAKE));
 
-    will.povUp()
-        .onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.SHELF_INTAKE))
-        .whileTrue(
-            new ForceOuttakeSubsystemModeCommand(outtakeSubsystem, OuttakeSubsystem.Modes.INTAKE));
+    will.rightTrigger()
+        .whileTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.SHELF_INTAKE))
+        .onFalse(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED));
+        
+    
 
     // reset
     jasonLayer
@@ -313,13 +318,8 @@ public class RobotContainer {
         .onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED));
     jason.start().onTrue(new SetZeroModeCommand(armSubsystem));
 
-    will.povLeft()
-        .onTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED))
-        .onTrue(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED))
-        .onTrue(new SetZeroModeCommand(armSubsystem));
-
-    will.povDown()
-        .onTrue(
+    will.rightBumper()
+        .whileTrue(
             new GroundPickupCommand(
                 intakeSubsystem,
                 outtakeSubsystem,
@@ -327,7 +327,11 @@ public class RobotContainer {
                 () ->
                     jason.getHID().getPOV() == 180
                         ? IntakeSubsystem.Modes.INTAKE_LOW
-                        : IntakeSubsystem.Modes.INTAKE));
+                        : IntakeSubsystem.Modes.INTAKE))
+                        
+        .whileFalse(
+            new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)
+                .alongWith(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED)));
 
     jason
         .leftBumper()
@@ -397,15 +401,15 @@ public class RobotContainer {
               outtakeSubsystem,
               armSubsystem,
               Constants.SCORE_STEP_MAP.get(scoreType),
-              will.povRight()));
+              will.rightTrigger()));
 
-    will.povRight()
+    will.leftTrigger()
         .onTrue(
             new HashMapCommand<>(
                 scoreCommandMap, () -> currentNodeSelection.get().getScoreTypeIdentifier()));
 
-    jason.povRight().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(1))));
-    jason.povLeft().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(-1))));
+    will.leftTrigger().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(1))));
+    jason.b().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(-1))));
 
     // control the lights
     currentNodeSelection.subscribe(
