@@ -239,6 +239,19 @@ public class RobotContainer {
                 rotationVelocity,
                 will.rightBumper()));
 
+    new Trigger(
+            () ->
+                Util.vectorMagnitude(will.getRightY(), will.getRightX())
+                    > Drive.ROTATE_VECTOR_MAGNITUDE)
+        .onTrue(
+            new RotateVectorDriveCommand(
+                drivebaseSubsystem,
+                translationXSupplier,
+                translationYSupplier,
+                will::getRightY,
+                will::getRightX,
+                will.rightBumper()));
+
 
     will.povUp()
         .onTrue(new RotateAngleDriveCommand(drivebaseSubsystem, translationXSupplier, translationYSupplier, 0));
@@ -305,9 +318,9 @@ public class RobotContainer {
     //         new ForceOuttakeSubsystemModeCommand(outtakeSubsystem,
     // OuttakeSubsystem.Modes.INTAKE));
 
-    will.rightTrigger()
-        .whileTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.SHELF_INTAKE))
-        .onFalse(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED));
+    // will.rightTrigger()
+    //     .whileTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.SHELF_INTAKE))
+    //     .onFalse(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED));
         
     
 
@@ -403,12 +416,12 @@ public class RobotContainer {
               Constants.SCORE_STEP_MAP.get(scoreType),
               will.rightTrigger()));
 
-    will.leftTrigger()
-        .onTrue(
-            new HashMapCommand<>(
-                scoreCommandMap, () -> currentNodeSelection.get().getScoreTypeIdentifier()));
+    // will.leftTrigger()
+    //     .onTrue(
+    //         new HashMapCommand<>(
+    //             scoreCommandMap, () -> currentNodeSelection.get().getScoreTypeIdentifier()));
 
-    will.leftTrigger().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(1))));
+    // will.leftTrigger().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(1))));
     jason.b().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(-1))));
 
     // control the lights
