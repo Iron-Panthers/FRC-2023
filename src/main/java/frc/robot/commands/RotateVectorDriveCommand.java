@@ -71,11 +71,12 @@ public class RotateVectorDriveCommand extends CommandBase {
     double rotY = rotationYSupplier.getAsDouble();
     boolean isRobotRelative = isRobotRelativeSupplier.getAsBoolean();
 
-    double targetAngle = Util.angleSnap(Util.vectorToAngle(-rotX, -rotY), angles);
+    double targetAngle = Util.normalizeDegrees(Util.vectorToAngle(-rotX, -rotY));
+    //Util.vectorToAngle(-rotX, -rotY);
 
     // if stick magnitude is greater then rotate angle mag
     if (Util.vectorMagnitude(rotX, rotY) > Drive.ROTATE_VECTOR_MAGNITUDE) {
-      angle = isRobotRelative ? Util.normalizeDegrees(targetAngle + initialAngle) : targetAngle;
+      angle = targetAngle;
     }
 
     drivebaseSubsystem.driveAngle(new Pair<>(x, y), angle);
@@ -92,13 +93,14 @@ public class RotateVectorDriveCommand extends CommandBase {
   @Override
   public boolean isFinished() {
     // are we at the angle we want
-    return Util.epsilonZero(
-            Util.relativeAngularDifference(drivebaseSubsystem.getDriverGyroscopeRotation(), angle),
-            Drive.ANGULAR_ERROR)
-        // is our rotational velocity low
-        && Util.epsilonEquals(drivebaseSubsystem.getRotVelocity(), 0, 10)
-        // are we not intentionally running pid to hold an angle
-        && Util.vectorMagnitude(rotationXSupplier.getAsDouble(), rotationYSupplier.getAsDouble())
-            <= Drive.ROTATE_VECTOR_MAGNITUDE;
+    // return Util.epsilonZero(
+    //         Util.relativeAngularDifference(drivebaseSubsystem.getDriverGyroscopeRotation(), angle),
+    //         Drive.ANGULAR_ERROR)
+    //     // is our rotational velocity low
+    //     && Util.epsilonEquals(drivebaseSubsystem.getRotVelocity(), 0, 10)
+    //     // are we not intentionally running pid to hold an angle
+    //     && Util.vectorMagnitude(rotationXSupplier.getAsDouble(), rotationYSupplier.getAsDouble())
+    //         <= Drive.ROTATE_VECTOR_MAGNITUDE;
+    return false;
   }
 }
