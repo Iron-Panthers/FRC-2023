@@ -216,28 +216,28 @@ public class RobotContainer {
     will.y().onTrue(new HaltDriveCommandsCommand(drivebaseSubsystem));
     jason.leftStick().onTrue(new InstantCommand(() -> {}, armSubsystem));
 
-    DoubleSupplier rotation =
-        exponential(
-            () ->
-                ControllerUtil.deadband(
-                    (will.getRightTriggerAxis() + -will.getLeftTriggerAxis()), .1),
-            2);
-    DoubleSupplier rotationVelocity =
-        () ->
-            rotation.getAsDouble()
-                * Drive.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
-                *
-                /** percent of fraction power */
-                (will.getHID().getAButton() ? .3 : .8);
+    // DoubleSupplier rotation =
+    //     exponential(
+    //         () ->
+    //             ControllerUtil.deadband(
+    //                 (will.getRightTriggerAxis() + -will.getLeftTriggerAxis()), .1),
+    //         2);
+    // DoubleSupplier rotationVelocity =
+    //     () ->
+    //         rotation.getAsDouble()
+    //             * Drive.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
+    //             *
+    //             /** percent of fraction power */
+    //             (will.getHID().getAButton() ? .3 : .8);
 
-    new Trigger(() -> Math.abs(rotation.getAsDouble()) > 0)
-        .whileTrue(
-            new RotateVelocityDriveCommand(
-                drivebaseSubsystem,
-                translationXSupplier,
-                translationYSupplier,
-                rotationVelocity,
-                will.rightBumper()));
+    // new Trigger(() -> Math.abs(rotation.getAsDouble()) > 0)
+    //     .whileTrue(
+    //         new RotateVelocityDriveCommand(
+    //             drivebaseSubsystem,
+    //             translationXSupplier,
+    //             translationYSupplier,
+    //             rotationVelocity,
+    //             will.rightBumper()));
 
 
     will.povUp()
@@ -401,7 +401,7 @@ public class RobotContainer {
               outtakeSubsystem,
               armSubsystem,
               Constants.SCORE_STEP_MAP.get(scoreType),
-              will.rightTrigger()));
+              will.leftTrigger()));
 
     will.leftTrigger()
         .onTrue(
