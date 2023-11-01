@@ -64,6 +64,7 @@ import frc.robot.subsystems.DrivebaseSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.NetworkWatchdogSubsystem;
 import frc.robot.subsystems.OuttakeSubsystem;
+import frc.robot.subsystems.OuttakeSubsystem.Modes;
 import frc.robot.subsystems.RGBSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.util.ControllerUtil;
@@ -331,6 +332,8 @@ public class RobotContainer {
 
     will.rightTrigger()
         .whileTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.SHELF_INTAKE))
+        .whileTrue(
+            new WaitCommand(0.4).andThen(new SetOuttakeModeCommand(outtakeSubsystem, Modes.INTAKE)))
         .onFalse(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED));
 
     // reset
