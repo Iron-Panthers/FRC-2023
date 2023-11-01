@@ -72,7 +72,7 @@ public class RotateVectorDriveCommand extends CommandBase {
     boolean isRobotRelative = isRobotRelativeSupplier.getAsBoolean();
 
     double targetAngle = Util.normalizeDegrees(Util.vectorToAngle(-rotX, -rotY));
-    //Util.vectorToAngle(-rotX, -rotY);
+    // Util.vectorToAngle(-rotX, -rotY);
 
     // if stick magnitude is greater then rotate angle mag
     if (Util.vectorMagnitude(rotX, rotY) > Drive.ROTATE_VECTOR_MAGNITUDE) {
@@ -94,7 +94,8 @@ public class RotateVectorDriveCommand extends CommandBase {
   public boolean isFinished() {
     // are we at the angle we want
     // return Util.epsilonZero(
-    //         Util.relativeAngularDifference(drivebaseSubsystem.getDriverGyroscopeRotation(), angle),
+    //         Util.relativeAngularDifference(drivebaseSubsystem.getDriverGyroscopeRotation(),
+    // angle),
     //         Drive.ANGULAR_ERROR)
     //     // is our rotational velocity low
     //     && Util.epsilonEquals(drivebaseSubsystem.getRotVelocity(), 0, 10)
