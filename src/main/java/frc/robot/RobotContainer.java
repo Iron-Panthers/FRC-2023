@@ -24,7 +24,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
 import frc.robot.Constants.Config;
@@ -52,7 +51,6 @@ import frc.robot.commands.HashMapCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.RotateAngleDriveCommand;
 import frc.robot.commands.RotateVectorDriveCommand;
-import frc.robot.commands.RotateVelocityDriveCommand;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.ScoreCommand.ScoreStep;
 import frc.robot.commands.SetOuttakeModeCommand;
@@ -207,9 +205,9 @@ public class RobotContainer {
           jason.getHID().setRumble(RumbleType.kRightRumble, power);
         });
 
-    will.start().onTrue(new InstantCommand(drivebaseSubsystem::smartZeroGyroscope, drivebaseSubsystem));
-    will.back()
-        .onTrue(new InstantCommand(drivebaseSubsystem::zeroGyroscope, drivebaseSubsystem));
+    will.start()
+        .onTrue(new InstantCommand(drivebaseSubsystem::smartZeroGyroscope, drivebaseSubsystem));
+    will.back().onTrue(new InstantCommand(drivebaseSubsystem::zeroGyroscope, drivebaseSubsystem));
 
     will.x().onTrue(new DefenseModeCommand(drivebaseSubsystem));
 
@@ -252,21 +250,34 @@ public class RobotContainer {
                 will::getRightX,
                 will.rightBumper()));
 
-
     will.povUp()
-        .onTrue(new RotateAngleDriveCommand(drivebaseSubsystem, translationXSupplier, translationYSupplier, 0));
+        .onTrue(
+            new RotateAngleDriveCommand(
+                drivebaseSubsystem, translationXSupplier, translationYSupplier, 0));
     will.povUpRight()
-        .onTrue(new RotateAngleDriveCommand(drivebaseSubsystem, translationXSupplier, translationYSupplier, 45));
+        .onTrue(
+            new RotateAngleDriveCommand(
+                drivebaseSubsystem, translationXSupplier, translationYSupplier, 45));
     will.povRight()
-        .onTrue(new RotateAngleDriveCommand(drivebaseSubsystem, translationXSupplier, translationYSupplier, 90));
+        .onTrue(
+            new RotateAngleDriveCommand(
+                drivebaseSubsystem, translationXSupplier, translationYSupplier, 90));
     will.povDownRight()
-        .onTrue(new RotateAngleDriveCommand(drivebaseSubsystem, translationXSupplier, translationYSupplier, 135));
+        .onTrue(
+            new RotateAngleDriveCommand(
+                drivebaseSubsystem, translationXSupplier, translationYSupplier, 135));
     will.povDownLeft()
-        .onTrue(new RotateAngleDriveCommand(drivebaseSubsystem, translationXSupplier, translationYSupplier, 180));
+        .onTrue(
+            new RotateAngleDriveCommand(
+                drivebaseSubsystem, translationXSupplier, translationYSupplier, 180));
     will.povLeft()
-        .onTrue(new RotateAngleDriveCommand(drivebaseSubsystem, translationXSupplier, translationYSupplier, 225));
+        .onTrue(
+            new RotateAngleDriveCommand(
+                drivebaseSubsystem, translationXSupplier, translationYSupplier, 225));
     will.povUpLeft()
-        .onTrue(new RotateAngleDriveCommand(drivebaseSubsystem, translationXSupplier, translationYSupplier, 270));
+        .onTrue(
+            new RotateAngleDriveCommand(
+                drivebaseSubsystem, translationXSupplier, translationYSupplier, 270));
 
     // start driving to score
     will.leftBumper()
@@ -318,11 +329,9 @@ public class RobotContainer {
     //         new ForceOuttakeSubsystemModeCommand(outtakeSubsystem,
     // OuttakeSubsystem.Modes.INTAKE));
 
-    // will.rightTrigger()
-    //     .whileTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.SHELF_INTAKE))
-    //     .onFalse(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED));
-        
-    
+    will.rightTrigger()
+        .whileTrue(new ArmPositionCommand(armSubsystem, Arm.Setpoints.SHELF_INTAKE))
+        .onFalse(new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED));
 
     // reset
     jasonLayer
@@ -341,7 +350,6 @@ public class RobotContainer {
                     jason.getHID().getPOV() == 180
                         ? IntakeSubsystem.Modes.INTAKE_LOW
                         : IntakeSubsystem.Modes.INTAKE))
-                        
         .whileFalse(
             new ArmPositionCommand(armSubsystem, Arm.Setpoints.STOWED)
                 .alongWith(new IntakeCommand(intakeSubsystem, IntakeSubsystem.Modes.STOWED)));
@@ -416,12 +424,13 @@ public class RobotContainer {
               Constants.SCORE_STEP_MAP.get(scoreType),
               will.leftTrigger()));
 
-    // will.leftTrigger()
-    //     .onTrue(
-    //         new HashMapCommand<>(
-    //             scoreCommandMap, () -> currentNodeSelection.get().getScoreTypeIdentifier()));
+    will.leftTrigger()
+        .onTrue(
+            new HashMapCommand<>(
+                scoreCommandMap, () -> currentNodeSelection.get().getScoreTypeIdentifier()));
 
-    // will.leftTrigger().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(1))));
+    will.leftTrigger()
+        .onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(1))));
     jason.b().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(-1))));
 
     // control the lights
