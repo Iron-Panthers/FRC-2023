@@ -258,27 +258,27 @@ public class RobotContainer {
     will.povUpRight()
         .onTrue(
             new RotateAngleDriveCommand(
-                drivebaseSubsystem, translationXSupplier, translationYSupplier, 45));
+                drivebaseSubsystem, translationXSupplier, translationYSupplier, -45));
     will.povRight()
         .onTrue(
             new RotateAngleDriveCommand(
-                drivebaseSubsystem, translationXSupplier, translationYSupplier, 90));
+                drivebaseSubsystem, translationXSupplier, translationYSupplier, -90));
     will.povDownRight()
         .onTrue(
             new RotateAngleDriveCommand(
-                drivebaseSubsystem, translationXSupplier, translationYSupplier, 135));
+                drivebaseSubsystem, translationXSupplier, translationYSupplier, -135));
     will.povDownLeft()
         .onTrue(
             new RotateAngleDriveCommand(
-                drivebaseSubsystem, translationXSupplier, translationYSupplier, 180));
+                drivebaseSubsystem, translationXSupplier, translationYSupplier, -180));
     will.povLeft()
         .onTrue(
             new RotateAngleDriveCommand(
-                drivebaseSubsystem, translationXSupplier, translationYSupplier, 225));
+                drivebaseSubsystem, translationXSupplier, translationYSupplier, -225));
     will.povUpLeft()
         .onTrue(
             new RotateAngleDriveCommand(
-                drivebaseSubsystem, translationXSupplier, translationYSupplier, 270));
+                drivebaseSubsystem, translationXSupplier, translationYSupplier, -270));
 
     // start driving to score
     will.leftBumper()
@@ -416,6 +416,16 @@ public class RobotContainer {
                     currentNodeSelection.apply(n -> n.withHeight(NodeSelectorUtility.Height.HIGH)),
                 armSubsystem));
 
+    jason.povRight()
+        .onTrue(
+            new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(1)), 
+            armSubsystem));
+
+    jason.povLeft()
+        .onTrue(
+            new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(-1)), 
+            armSubsystem));
+
     var scoreCommandMap = new HashMap<NodeSelectorUtility.ScoreTypeIdentifier, Command>();
 
     for (var scoreType : Constants.SCORE_STEP_MAP.keySet())
@@ -434,7 +444,6 @@ public class RobotContainer {
 
     will.leftTrigger()
         .onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(1))));
-    jason.b().onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(-1))));
 
     // control the lights
     currentNodeSelection.subscribe(
