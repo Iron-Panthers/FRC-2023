@@ -56,7 +56,7 @@ public final class Constants {
             && HALUtil.getHALRuntimeType() != HALUtil.RUNTIME_SIMULATION;
 
     /** turn this off before comp. */
-    public static final boolean SHOW_SHUFFLEBOARD_DEBUG_DATA = false;
+    public static final boolean SHOW_SHUFFLEBOARD_DEBUG_DATA = true;
 
     /** turn this off! only use on practice eboard testing. */
     public static final boolean DISABLE_SWERVE_MODULE_INIT = false;
@@ -255,6 +255,7 @@ public final class Constants {
       }
     }
   }
+  
 
   public static final class Intake {
 
@@ -283,15 +284,15 @@ public final class Constants {
     }
 
     public static final class IntakeModes {
-      public static final IntakeDetails INTAKE = IntakeDetails.simple(-158, .3);
-      public static final IntakeDetails INTAKE_LOW = IntakeDetails.simple(-170, .3);//FIXME change angle, try manually lower, 170 is temporary and needs to be tested (originally -175)
+      public static final IntakeDetails INTAKE = IntakeDetails.simple(-141, .3);
+      public static final IntakeDetails INTAKE_LOW = IntakeDetails.simple(-175, .3);//FIXME change angle, try manually lower, 170 is temporary and needs to be tested (originally -175)
       public static final IntakeDetails OUTTAKE = IntakeDetails.simple(-30, -0.3);
       public static final IntakeDetails DOWN = IntakeDetails.simple(-200, 0);
       public static final IntakeDetails STOWED = IntakeDetails.simple(Setpoints.MIN_ANGLE, 0);
       public static final IntakeDetails CLIMB = IntakeDetails.simple(-158, 0);
     }
   }
-
+`
   public static final Map<ScoreTypeIdentifier, List<ScoreStep>> SCORE_STEP_MAP =
       Map.of(
           NodeType.CONE.atHeight(Height.HIGH),
