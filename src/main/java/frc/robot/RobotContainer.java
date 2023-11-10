@@ -442,9 +442,6 @@ public class RobotContainer {
             new HashMapCommand<>(
                 scoreCommandMap, () -> currentNodeSelection.get().getScoreTypeIdentifier()));
 
-    will.leftTrigger()
-        .onTrue(new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(1))));
-
     // control the lights
     currentNodeSelection.subscribe(
         nodeSelection ->
