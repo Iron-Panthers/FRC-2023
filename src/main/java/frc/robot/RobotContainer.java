@@ -43,7 +43,6 @@ import frc.robot.commands.ArmPositionCommand;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.DefenseModeCommand;
 import frc.robot.commands.DriveToPlaceCommand;
-import frc.robot.commands.EngageCommand;
 import frc.robot.commands.ForceOuttakeSubsystemModeCommand;
 import frc.robot.commands.GroundPickupCommand;
 import frc.robot.commands.HaltDriveCommandsCommand;
@@ -255,30 +254,30 @@ public class RobotContainer {
         .onTrue(
             new RotateAngleDriveCommand(
                 drivebaseSubsystem, translationXSupplier, translationYSupplier, 0));
-    will.povUpRight()
-        .onTrue(
-            new RotateAngleDriveCommand(
-                drivebaseSubsystem, translationXSupplier, translationYSupplier, -45));
+    // will.povUpRight()
+    //     .onTrue(
+    //         new RotateAngleDriveCommand(
+    //             drivebaseSubsystem, translationXSupplier, translationYSupplier, -45));
     will.povRight()
         .onTrue(
             new RotateAngleDriveCommand(
                 drivebaseSubsystem, translationXSupplier, translationYSupplier, -90));
-    will.povDownRight()
-        .onTrue(
-            new RotateAngleDriveCommand(
-                drivebaseSubsystem, translationXSupplier, translationYSupplier, -135));
-    will.povDownLeft()
+    // will.povDownRight()
+    //     .onTrue(
+    //         new RotateAngleDriveCommand(
+    //             drivebaseSubsystem, translationXSupplier, translationYSupplier, -135));
+    will.povDown()
         .onTrue(
             new RotateAngleDriveCommand(
                 drivebaseSubsystem, translationXSupplier, translationYSupplier, -180));
     will.povLeft()
         .onTrue(
             new RotateAngleDriveCommand(
-                drivebaseSubsystem, translationXSupplier, translationYSupplier, -225));
-    will.povUpLeft()
-        .onTrue(
-            new RotateAngleDriveCommand(
                 drivebaseSubsystem, translationXSupplier, translationYSupplier, -270));
+    // will.povUpLeft()
+    //     .onTrue(
+    //         new RotateAngleDriveCommand(
+    //             drivebaseSubsystem, translationXSupplier, translationYSupplier, -270));
 
     // start driving to score
     will.leftBumper()
@@ -416,15 +415,15 @@ public class RobotContainer {
                     currentNodeSelection.apply(n -> n.withHeight(NodeSelectorUtility.Height.HIGH)),
                 armSubsystem));
 
-    jason.povRight()
+    jason
+        .povRight()
         .onTrue(
-            new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(1)), 
-            armSubsystem));
+            new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(1)), armSubsystem));
 
-    jason.povLeft()
+    jason
+        .povLeft()
         .onTrue(
-            new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(-1)), 
-            armSubsystem));
+            new InstantCommand(() -> currentNodeSelection.apply(n -> n.shift(-1)), armSubsystem));
 
     var scoreCommandMap = new HashMap<NodeSelectorUtility.ScoreTypeIdentifier, Command>();
 
