@@ -255,7 +255,6 @@ public final class Constants {
       }
     }
   }
-  
 
   public static final class Intake {
 
@@ -285,14 +284,17 @@ public final class Constants {
 
     public static final class IntakeModes {
       public static final IntakeDetails INTAKE = IntakeDetails.simple(-141, .3);
-      public static final IntakeDetails INTAKE_LOW = IntakeDetails.simple(-175, .3);//FIXME change angle, try manually lower, 170 is temporary and needs to be tested (originally -175)
+      public static final IntakeDetails INTAKE_LOW =
+          IntakeDetails.simple(
+              -175, .3); // FIXME change angle, try manually lower, 170 is temporary and needs to be
+      // tested (originally -175)
       public static final IntakeDetails OUTTAKE = IntakeDetails.simple(-30, -0.3);
       public static final IntakeDetails DOWN = IntakeDetails.simple(-200, 0);
       public static final IntakeDetails STOWED = IntakeDetails.simple(Setpoints.MIN_ANGLE, 0);
       public static final IntakeDetails CLIMB = IntakeDetails.simple(-158, 0);
     }
   }
-  
+
   public static final Map<ScoreTypeIdentifier, List<ScoreStep>> SCORE_STEP_MAP =
       Map.of(
           NodeType.CONE.atHeight(Height.HIGH),
@@ -477,7 +479,7 @@ public final class Constants {
 
     public static final class OuttakeModes {
       public static final OuttakeDetails HOLD =
-          new OuttakeDetails(0.11, Optional.empty(), Optional.empty());
+          new OuttakeDetails(0.13, Optional.empty(), Optional.empty());
 
       public static final OuttakeDetails INTAKE =
           new OuttakeDetails(.5, Optional.of(new OuttakeDetails.StatorLimit(80)), Optional.of(.5));
